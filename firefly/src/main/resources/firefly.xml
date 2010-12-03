@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans>
+	<bean id="person" class="com.firefly.core.Person">
+		<property name="name" value="Jack"/>
+		<property name="age" value="123"/>
+	</bean>
+	<bean id="personService" class="com.firefly.core.PersonServiceImpl">
+		<property name="person" ref="person"/>
+	</bean>
+</beans>
