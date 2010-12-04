@@ -9,6 +9,12 @@ import java.util.Map.Entry;
 import com.firefly.core.support.BeanDefinition;
 import com.firefly.core.support.BeanDefinitionReader;
 
+/**
+ * IOC容器的具体实现
+ * @author 杰然不同
+ * @date 2010-12-5
+ * @Version 1.0
+ */
 public abstract class AbstractApplicationContext implements ApplicationContext {
 	
 	protected Map<String,BeanDefinition> beansDefinitionMap = new HashMap<String, BeanDefinition>();
