@@ -43,6 +43,7 @@ public class XmlBeanDefinitionReader implements BeanDefinitionReader {
 		
 		// 获得Xml文档对象
 		try {
+			log.info("Get XML Document");
 			doc = readDocument(this.fileName);
 		} catch (DocumentException e) {
 			e.printStackTrace();
