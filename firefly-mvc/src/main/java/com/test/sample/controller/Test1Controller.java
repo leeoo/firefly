@@ -1,9 +1,11 @@
 package com.test.sample.controller;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.firefly.annotation.Controller;
 import com.firefly.annotation.RequestMapping;
+import com.firefly.mvc.web.View;
 
 @Controller
 public class Test1Controller {
@@ -16,10 +18,10 @@ public class Test1Controller {
 		return "/index.jsp";
 	}
 
-	@RequestMapping(value = "/hello1")
-	public String hello1(HttpServletRequest request) {
-		request.setAttribute("hello", "test1 hello firefly! ");
+	@RequestMapping(value = "/hello1", view = View.TEXT)
+	public String hello1(HttpServletResponse response,
+			HttpServletRequest request) {
 
-		return "/index.jsp";
+		return "测试一下hello1";
 	}
 }
