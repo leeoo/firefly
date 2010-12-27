@@ -4,7 +4,7 @@
     <groupId>com.firefly</groupId>
     <artifactId>firefly</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <name>${project.artifactId} Maven Webapp</name>
     <url>http://maven.apache.org</url>
     <build>
