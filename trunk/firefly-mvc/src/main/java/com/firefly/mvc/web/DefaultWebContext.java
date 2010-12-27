@@ -18,6 +18,12 @@ import com.firefly.mvc.web.support.BeanHandle;
 import com.firefly.mvc.web.support.BeanReader;
 import com.firefly.mvc.web.support.annotation.AnnotationBeanReader;
 
+/**
+ * Web应用上下文默认实现
+ *
+ * @author AlvinQiu
+ *
+ */
 public class DefaultWebContext implements WebContext {
 	private static Logger log = LoggerFactory
 			.getLogger(DefaultWebContext.class);
@@ -30,6 +36,8 @@ public class DefaultWebContext implements WebContext {
 		String VIEW_PATH = "viewPath";
 		String DEFAULT_VIEW_PATH = "/WEB-INF/page";
 		String COMPONENT_PATH = "componentPath";
+		String ENCODING = "encoding";
+		String DEFAULT_ENCODING = "UTF-8";
 	}
 
 	private DefaultWebContext() {
@@ -42,6 +50,11 @@ public class DefaultWebContext implements WebContext {
 
 	public static DefaultWebContext getInstance() {
 		return PropertiesWebContextHolder.instance;
+	}
+
+	@Override
+	public String getEncoding() {
+		return prop.getProperty(Config.ENCODING, Config.DEFAULT_ENCODING);
 	}
 
 	@Override
@@ -60,8 +73,7 @@ public class DefaultWebContext implements WebContext {
 			prop = new Properties();
 			map = new HashMap<String, Object>();
 
-			prop.load(DefaultWebContext.class
-					.getResourceAsStream("/" + file));
+			prop.load(DefaultWebContext.class.getResourceAsStream("/" + file));
 			final String[] componentPath = prop.getProperty(
 					Config.COMPONENT_PATH).split(",");
 
@@ -81,9 +93,10 @@ public class DefaultWebContext implements WebContext {
 							.value();
 					final String method = m.getAnnotation(RequestMapping.class)
 							.method();
+					String view = m.getAnnotation(RequestMapping.class).view();
 					String key = method + "@" + url;
 
-					BeanHandle beanHandle = new BeanHandle(o, m);
+					BeanHandle beanHandle = new BeanHandle(o, m, view);
 					map.put(key, beanHandle);
 					log.info("uri map [{}]", key);
 					if (key.charAt(key.length() - 1) == '/')
@@ -116,7 +129,7 @@ public class DefaultWebContext implements WebContext {
 	private void add(Class<?> c, Object obj) {
 		Set<String> keys = getInstanceMapKeys(c);
 		for (String k : keys) {
-			log.info("instance key [{}]", k);
+			log.info("obj key [{}]", k);
 			map.put(k, obj);
 		}
 	}
@@ -124,11 +137,9 @@ public class DefaultWebContext implements WebContext {
 	private Set<String> getInstanceMapKeys(Class<?> c) {
 		Set<String> ret = new LinkedHashSet<String>();
 		ret.add(c.getName());
-		// log.info("add instance key [{}]", c.getName());
 
 		Class<?>[] interfaces = c.getInterfaces();
 		for (Class<?> i : interfaces) {
-			// log.info("add instance key [{}]", i.getName());
 			ret.add(i.getName());
 		}
 
