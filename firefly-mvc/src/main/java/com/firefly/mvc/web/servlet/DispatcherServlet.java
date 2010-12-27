@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.firefly.mvc.web.PropertiesWebContext;
+import com.firefly.mvc.web.DefaultWebContext;
 import com.firefly.mvc.web.WebContext;
 import com.firefly.mvc.web.support.BeanHandle;
 
@@ -72,7 +72,7 @@ public class DispatcherServlet extends HttpServlet {
 
 	@Override
 	public void init() {
-		webContext = PropertiesWebContext.getInstance();
+		webContext = DefaultWebContext.getInstance();
 		String initParam = this.getInitParameter(INIT_PARAM);
 		if (initParam == null)
 			initParam = DEFAULT_CONFIG;
