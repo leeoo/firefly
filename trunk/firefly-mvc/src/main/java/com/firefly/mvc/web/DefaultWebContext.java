@@ -18,9 +18,9 @@ import com.firefly.mvc.web.support.BeanHandle;
 import com.firefly.mvc.web.support.BeanReader;
 import com.firefly.mvc.web.support.annotation.AnnotationBeanReader;
 
-public class PropertiesWebContext implements WebContext {
+public class DefaultWebContext implements WebContext {
 	private static Logger log = LoggerFactory
-			.getLogger(PropertiesWebContext.class);
+			.getLogger(DefaultWebContext.class);
 
 	private Properties prop;
 	private Map<String, Object> map;
@@ -32,15 +32,15 @@ public class PropertiesWebContext implements WebContext {
 		String COMPONENT_PATH = "componentPath";
 	}
 
-	private PropertiesWebContext() {
+	private DefaultWebContext() {
 		beanReader = AnnotationBeanReader.getInstance();
 	}
 
 	private static class PropertiesWebContextHolder {
-		private static PropertiesWebContext instance = new PropertiesWebContext();
+		private static DefaultWebContext instance = new DefaultWebContext();
 	}
 
-	public static PropertiesWebContext getInstance() {
+	public static DefaultWebContext getInstance() {
 		return PropertiesWebContextHolder.instance;
 	}
 
@@ -60,7 +60,7 @@ public class PropertiesWebContext implements WebContext {
 			prop = new Properties();
 			map = new HashMap<String, Object>();
 
-			prop.load(PropertiesWebContext.class
+			prop.load(DefaultWebContext.class
 					.getResourceAsStream("/" + file));
 			final String[] componentPath = prop.getProperty(
 					Config.COMPONENT_PATH).split(",");
