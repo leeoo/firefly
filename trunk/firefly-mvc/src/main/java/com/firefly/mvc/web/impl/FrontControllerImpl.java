@@ -94,21 +94,21 @@ public class FrontControllerImpl implements FontController {
 					ApplicationContext.getInstance().add(c, o);
 
 					for (Method m : list) {
-						String url = m.getAnnotation(RequestMapping.class)
-								.value();
-						String method = m.getAnnotation(RequestMapping.class)
-								.method();
+						final String url = m
+								.getAnnotation(RequestMapping.class).value();
+						final String method = m.getAnnotation(
+								RequestMapping.class).method();
 						String key = method + "@" + url;
 
 						BeanHandle beanHandle = new BeanHandle(o, m);
 						uriMap.put(key, beanHandle);
 						log.info("uri map [{}]", key);
-						if (url.charAt(url.length() - 1) == '/')
-							url = url.substring(0, url.length() - 1);
+						if (key.charAt(key.length() - 1) == '/')
+							key = key.substring(0, key.length() - 1);
 						else
-							url = url + "/";
-						uriMap.put(url, beanHandle);
-						log.info("map url [{}]", url);
+							key = key + "/";
+						uriMap.put(key, beanHandle);
+						log.info("uri map [{}]", key);
 					}
 
 				} catch (InstantiationException e) {
