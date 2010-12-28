@@ -2,6 +2,7 @@ package com.firefly.mvc.web;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -95,6 +96,10 @@ public class DefaultWebContext implements WebContext {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -148,28 +153,56 @@ public class DefaultWebContext implements WebContext {
 	 *
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
 	 */
 	private void inject() throws IllegalArgumentException,
-			IllegalAccessException {
+			IllegalAccessException, InvocationTargetException {
 		log.info("================into inject===============");
 		for (Object o : list) {
-			// 属性方式注入
+			// 属性注入
 			Field[] fields = o.getClass().getDeclaredFields();
-			List<Field> list = getInjectField(fields);
-			log.info("[{}] has inject field size [{}]", o.getClass().getName(),
-					list.size());
-			for (Field field : list) {
-				Class<?> clazz = field.getType();
-				Object instance = map.get(clazz.getName());
-				log.info("obj [{}] inject instance [{}]", clazz.getName(),
-						instance.getClass().getName());
+			List<Field> fieldList = getInjectField(fields);
+			for (Field field : fieldList) {
 				field.setAccessible(true);
+				Class<?> clazz = field.getType();
+				String key = field.getAnnotation(Inject.class).value();
+				Object instance = map.get(key.length() > 0 ? key : clazz
+						.getName());
+				log.info("field obj [{}] inject instance [{}]",
+						clazz.getName(), instance.getClass().getName());
 				field.set(o, instance);
 			}
 
-			// TODO 从方法注入
+			// 从方法注入
+			Method[] methods = o.getClass().getDeclaredMethods();
+			List<Method> methodList = getInjectMethod(methods);
+			for (Method method : methodList) {
+				method.setAccessible(true);
+				Class<?>[] params = method.getParameterTypes();
+				Object[] p = new Object[params.length];
+				for (int i = 0; i < p.length; i++) {
+					Object instance = map.get(params[i].getName());
+					if (instance != null) {
+						log.info("method obj [{}] inject instance [{}]",
+								params[i].getName(), instance.getClass()
+										.getName());
+						p[i] = instance;
+					}
+				}
+				method.invoke(o, p);
+			}
 		}
 		log.info("================end inject===============");
+	}
+
+	private List<Method> getInjectMethod(Method[] methods) {
+		List<Method> list = new ArrayList<Method>();
+		for (Method m : methods) {
+			if (m.isAnnotationPresent(Inject.class)) {
+				list.add(m);
+			}
+		}
+		return list;
 	}
 
 	/**
