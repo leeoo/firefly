@@ -18,7 +18,8 @@ import com.firefly.core.support.BeanDefinitionReader;
  * 读取XML文件
  * @author 杰然不同
  * @date 2010-11-29
- * @Version 1.0 */
+ * @Version 1.0 
+ */
 public class XmlBeanDefinitionReader implements BeanDefinitionReader {
 
 	private final String fileName;
