@@ -11,9 +11,8 @@ public class MethodInjectImpl implements MethodInject {
 
 	private AddService addService;
 
-	@SuppressWarnings("unused")
 	@Inject
-	private void init(AddService addService, String test) {
+	public void init(AddService addService) {
 		this.addService = addService;
 	}
 
