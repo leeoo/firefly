@@ -246,6 +246,7 @@ public class DefaultWebContext implements WebContext {
 		ret.add(c.getName());
 
 		// 把该类实现的接口名作为key
+		// TODO 此处为直接接口，需要改善成所有父接口
 		Class<?>[] interfaces = c.getInterfaces();
 		for (Class<?> i : interfaces) {
 			ret.add(i.getName());
