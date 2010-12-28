@@ -119,7 +119,7 @@ public class DefaultWebContext implements WebContext {
 				map.put(k, o);
 			}
 
-			// 增加Controller的uri绑定bean的Method映射到WebContext
+			// 注册Controller里面声明的uri
 			List<Method> list = getReqMethod(c.getMethods());
 			for (Method m : list) {
 				m.setAccessible(true);
@@ -144,7 +144,7 @@ public class DefaultWebContext implements WebContext {
 	}
 
 	/**
-	 * 把WebContext里面的对象构造注入
+	 * 把WebContext里面的对象注入实例
 	 *
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
@@ -153,6 +153,7 @@ public class DefaultWebContext implements WebContext {
 			IllegalAccessException {
 		log.info("================into inject===============");
 		for (Object o : list) {
+			// 属性方式注入
 			Field[] fields = o.getClass().getDeclaredFields();
 			List<Field> list = getInjectField(fields);
 			log.info("[{}] has inject field size [{}]", o.getClass().getName(),
@@ -165,6 +166,8 @@ public class DefaultWebContext implements WebContext {
 				field.setAccessible(true);
 				field.set(o, instance);
 			}
+
+			// TODO 从方法注入
 		}
 		log.info("================end inject===============");
 	}
