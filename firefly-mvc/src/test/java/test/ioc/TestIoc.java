@@ -25,6 +25,7 @@ public class TestIoc {
 	public void testFieldInject() {
 		FieldInject t = (FieldInject) webContext.getBean("fieldInject");
 		Assert.assertThat(t.add(5, 4), is(9));
+		Assert.assertThat(t.add2(5, 4), is(9));
 	}
 
 	@Test
