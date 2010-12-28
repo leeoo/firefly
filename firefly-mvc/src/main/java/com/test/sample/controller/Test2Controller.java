@@ -10,14 +10,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.firefly.annotation.Component;
+import com.firefly.annotation.Inject;
 import com.firefly.annotation.RequestMapping;
 import com.firefly.mvc.web.WebContext;
 import com.firefly.mvc.web.WebContextHolder;
+import com.test.sample.service.Test2Service;
 
 @Component("test2Hello")
 public class Test2Controller {
 	private static Logger log = LoggerFactory.getLogger(Test2Controller.class);
 	private int i = 0;
+	@Inject
+	private Test2Service test2Service;
 
 	@RequestMapping(value = "/hello2")
 	public String index(HttpServletResponse response, HttpServletRequest request) {
@@ -28,7 +32,7 @@ public class Test2Controller {
 				.getName());
 		t.test();
 
-		request.setAttribute("hello", "test2 hello hypercube! ");
+		request.setAttribute("hello", "test2 hello firefly! ");
 
 		return "/index.jsp";
 	}
@@ -48,6 +52,14 @@ public class Test2Controller {
 		}
 
 		return null;
+	}
+
+	@RequestMapping(value = "/hello4")
+	public String hello4(HttpServletRequest request,
+			HttpServletResponse response) {
+		int i = test2Service.add(3, 98);
+		request.setAttribute("hello", "test2 hello inject! " + i);
+		return "/index.jsp";
 	}
 
 	public void test() {

@@ -10,6 +10,7 @@ import java.lang.reflect.Method;
  *
  */
 public class BeanHandle {
+//	private static Logger log = LoggerFactory.getLogger(BeanHandle.class);
 	private final Object object;
 	private final Method method;
 	private final String view;
@@ -47,6 +48,7 @@ public class BeanHandle {
 	public Object invoke(Object[] args) {
 		Object ret = null;
 		try {
+			// log.info("method isAccessible [{}]", method.isAccessible());
 			ret = method.invoke(object, args);
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();

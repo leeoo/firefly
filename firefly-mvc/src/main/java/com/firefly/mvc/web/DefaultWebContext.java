@@ -1,6 +1,7 @@
 package com.firefly.mvc.web;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,10 +10,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.firefly.annotation.Component;
 import com.firefly.annotation.Controller;
+import com.firefly.annotation.Inject;
 import com.firefly.annotation.RequestMapping;
 import com.firefly.mvc.web.support.BeanHandle;
 import com.firefly.mvc.web.support.BeanReader;
@@ -30,6 +34,7 @@ public class DefaultWebContext implements WebContext {
 
 	private Properties prop;
 	private Map<String, Object> map;
+	private List<Object> list;
 	private final BeanReader beanReader;
 
 	private interface Config {
@@ -82,31 +87,8 @@ public class DefaultWebContext implements WebContext {
 				beanReader.load(pack.trim());
 			}
 			final Set<Class<?>> classes = beanReader.getClasses();
-
-			for (Class<?> c : classes) {
-				Object o = c.newInstance();
-				List<Method> list = hasReqMethod(c.getMethods());
-				add(c, o);
-
-				for (Method m : list) {
-					final String url = m.getAnnotation(RequestMapping.class)
-							.value();
-					final String method = m.getAnnotation(RequestMapping.class)
-							.method();
-					String view = m.getAnnotation(RequestMapping.class).view();
-					String key = method + "@" + url;
-
-					BeanHandle beanHandle = new BeanHandle(o, m, view);
-					map.put(key, beanHandle);
-					log.info("uri map [{}]", key);
-					if (key.charAt(key.length() - 1) == '/')
-						key = key.substring(0, key.length() - 1);
-					else
-						key = key + "/";
-					map.put(key, beanHandle);
-					log.info("uri map [{}]", key);
-				}
-			}
+			init(classes);
+			inject();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InstantiationException e) {
@@ -116,7 +98,97 @@ public class DefaultWebContext implements WebContext {
 		}
 	}
 
-	private List<Method> hasReqMethod(Method[] methods) {
+	/**
+	 * 把对象都加入到WebContext里面
+	 *
+	 * @param classes
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 */
+	private void init(Set<Class<?>> classes) throws InstantiationException,
+			IllegalAccessException {
+		list = new ArrayList<Object>();
+		for (Class<?> c : classes) {
+			Object o = c.newInstance();
+			list.add(o);
+
+			// 增加声明的组件到WebContext
+			Set<String> keys = getInstanceMapKeys(c);
+			for (String k : keys) {
+				log.info("obj key [{}]", k);
+				map.put(k, o);
+			}
+
+			// 增加Controller的uri绑定bean的Method映射到WebContext
+			List<Method> list = getReqMethod(c.getMethods());
+			for (Method m : list) {
+				m.setAccessible(true);
+				final String url = m.getAnnotation(RequestMapping.class)
+						.value();
+				final String method = m.getAnnotation(RequestMapping.class)
+						.method();
+				String view = m.getAnnotation(RequestMapping.class).view();
+				String key = method + "@" + url;
+
+				BeanHandle beanHandle = new BeanHandle(o, m, view);
+				map.put(key, beanHandle);
+				log.info("uri map [{}]", key);
+				if (key.charAt(key.length() - 1) == '/')
+					key = key.substring(0, key.length() - 1);
+				else
+					key = key + "/";
+				map.put(key, beanHandle);
+				log.info("uri map [{}]", key);
+			}
+		}
+	}
+
+	/**
+	 * 把WebContext里面的对象构造注入
+	 *
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 */
+	private void inject() throws IllegalArgumentException,
+			IllegalAccessException {
+		log.info("================into inject===============");
+		for (Object o : list) {
+			Field[] fields = o.getClass().getDeclaredFields();
+			List<Field> list = getInjectField(fields);
+			log.info("[{}] has inject field size [{}]", o.getClass().getName(),
+					list.size());
+			for (Field field : list) {
+				Class<?> clazz = field.getType();
+				Object instance = map.get(clazz.getName());
+				log.info("obj [{}] inject instance [{}]", clazz.getName(),
+						instance.getClass().getName());
+				field.setAccessible(true);
+				field.set(o, instance);
+			}
+		}
+		log.info("================end inject===============");
+	}
+
+	/**
+	 * 找出组件的域里面包含Inject注释的域
+	 *
+	 * @param fields
+	 * @return
+	 */
+	private List<Field> getInjectField(Field[] fields) {
+		List<Field> list = new ArrayList<Field>();
+		for (Field field : fields) {
+			if (field.getAnnotation(Inject.class) != null) {
+				list.add(field);
+			}
+		}
+		return list;
+	}
+
+	/**
+	 * 找出Controller里面标记有RequestMapping的方法
+	 */
+	private List<Method> getReqMethod(Method[] methods) {
 		List<Method> list = new ArrayList<Method>();
 		for (Method m : methods) {
 			if (m.isAnnotationPresent(RequestMapping.class)) {
@@ -126,23 +198,24 @@ public class DefaultWebContext implements WebContext {
 		return list;
 	}
 
-	private void add(Class<?> c, Object obj) {
-		Set<String> keys = getInstanceMapKeys(c);
-		for (String k : keys) {
-			log.info("obj key [{}]", k);
-			map.put(k, obj);
-		}
-	}
-
+	/**
+	 * 获取声明组件的所有访问key
+	 *
+	 * @param c
+	 * @return
+	 */
 	private Set<String> getInstanceMapKeys(Class<?> c) {
 		Set<String> ret = new LinkedHashSet<String>();
+		// 直接把类名作为key
 		ret.add(c.getName());
 
+		// 把该类实现的接口名作为key
 		Class<?>[] interfaces = c.getInterfaces();
 		for (Class<?> i : interfaces) {
 			ret.add(i.getName());
 		}
 
+		// 把annotation的值作为key
 		Controller controller = c.getAnnotation(Controller.class);
 		if (controller != null && controller.value().length() > 0)
 			ret.add(controller.value());
