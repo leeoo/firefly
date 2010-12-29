@@ -52,13 +52,11 @@ public class AnnotationBeanReader implements BeanReader {
 		return properties;
 	}
 
-	@Override
-	public void load() {
-		load(DEFAULT_CONFIG_FILE);
+	public BeanReader load() {
+		return load(null);
 	}
 
-	@Override
-	public void load(String file) {
+	public BeanReader load(String file) {
 		properties = new Properties();
 		try {
 			properties.load(DefaultWebContext.class.getResourceAsStream("/"
@@ -73,6 +71,7 @@ public class AnnotationBeanReader implements BeanReader {
 			log.info("componentPath [{}]", pack);
 			loadPack(pack.trim());
 		}
+		return this;
 	}
 
 	public void loadPack(String pack) {

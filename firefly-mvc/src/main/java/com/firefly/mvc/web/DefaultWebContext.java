@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.firefly.annotation.RequestMapping;
 import com.firefly.core.AbstractApplicationContext;
-import com.firefly.core.support.annotation.AnnotationBeanReader;
 import com.firefly.mvc.web.support.BeanHandle;
 import com.firefly.mvc.web.support.ViewHandle;
 import com.firefly.mvc.web.support.view.JspViewHandle;
@@ -32,7 +31,6 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 	}
 
 	private DefaultWebContext() {
-		beanReader = AnnotationBeanReader.getInstance();
 	}
 
 	private static class DefaultWebContextHolder {
