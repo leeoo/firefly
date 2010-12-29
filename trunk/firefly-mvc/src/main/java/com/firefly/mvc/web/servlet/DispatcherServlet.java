@@ -24,7 +24,6 @@ public class DispatcherServlet extends HttpServlet {
 	private static Logger log = LoggerFactory
 			.getLogger(DispatcherServlet.class);
 	private static final String INIT_PARAM = "contextConfigLocation";
-	private static final String DEFAULT_CONFIG = "firefly_mvc.properties";
 	private DispatcherController dispatcherController;
 
 	@Override
@@ -62,8 +61,6 @@ public class DispatcherServlet extends HttpServlet {
 	public void init() {
 		dispatcherController = HttpServletDispatcherController.getInstance();
 		String initParam = this.getInitParameter(INIT_PARAM);
-		if (initParam == null)
-			initParam = DEFAULT_CONFIG;
 		log.info("initParam [{}]", initParam);
 		dispatcherController.init(initParam);
 	}

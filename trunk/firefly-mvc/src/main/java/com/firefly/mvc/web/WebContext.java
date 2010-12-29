@@ -1,11 +1,10 @@
 package com.firefly.mvc.web;
 
-public interface WebContext {
-	Object getBean(String id);
+import com.firefly.core.ApplicationContext;
+
+public interface WebContext extends ApplicationContext {
 
 	String getViewPath();
-
-	void load(String file);
 
 	String getEncoding();
 }
