@@ -55,7 +55,7 @@ public class HttpServletDispatcherController implements DispatcherController {
 		log.info("uri map [{}]", key);
 		BeanHandle beanHandle = (BeanHandle) webContext.getBean(key);
 
-		// TODO 此处还需要完善 1)增加请求参数封装到javabean, 2)反射调用方法参数柔性处理, 3)json返回的处理
+		// TODO 此处还需要完善 1)增加请求参数封装到javabean
 		String[] paraNames = beanHandle.getParaClassNames();
 		Object[] p = new Object[paraNames.length];
 		for (int i = 0; i < p.length; i++) {

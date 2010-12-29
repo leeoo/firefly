@@ -14,7 +14,7 @@ public class TestServlet extends HttpServlet {
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		request.setAttribute("hello", "##test hello firefly! ");
+		request.setAttribute("hello", "你好 firefly!");
 		request.getRequestDispatcher("/WEB-INF/page/index.jsp").forward(
 				request, response);
 	}
