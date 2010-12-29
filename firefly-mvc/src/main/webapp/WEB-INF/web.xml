@@ -23,7 +23,7 @@
 
 	<servlet>
 		<servlet-name>testServlet</servlet-name>
-		<servlet-class>com.test.sample.controller.TestServlet</servlet-class>
+		<servlet-class>com.test.sample.controller.HelloServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>testServlet</servlet-name>
