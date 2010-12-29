@@ -25,10 +25,6 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 	protected List<Object> list;
 	protected BeanReader beanReader;
 
-	public AbstractApplicationContext() {
-		beanReader = AnnotationBeanReader.getInstance();
-	}
-
 	@Override
 	public Object getBean(String id) {
 		return map.get(id);
@@ -43,7 +39,7 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 	public ApplicationContext load(String file) {
 		try {
 			map = new HashMap<String, Object>();
-			beanReader.load(file);
+			beanReader = AnnotationBeanReader.getInstance().load(file);
 			final Set<Class<?>> classes = beanReader.getClasses();
 			init(classes);
 			inject();
