@@ -1,4 +1,4 @@
-package com.firefly.mvc.web.support.annotation;
+package com.firefly.core.support.annotation;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -9,6 +9,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
+import java.util.Properties;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -18,10 +19,12 @@ import org.slf4j.LoggerFactory;
 
 import com.firefly.annotation.Component;
 import com.firefly.annotation.Controller;
-import com.firefly.mvc.web.support.BeanReader;
+import com.firefly.core.support.BeanReader;
+import com.firefly.mvc.web.DefaultWebContext;
 
 /**
  * 读取Bean信息
+ *
  * @author AlvinQiu
  *
  */
@@ -29,6 +32,8 @@ public class AnnotationBeanReader implements BeanReader {
 	private static Logger log = LoggerFactory
 			.getLogger(AnnotationBeanReader.class);
 	private Set<Class<?>> classes;
+	private Properties properties;
+	public static final String COMPONENT_PATH = "componentPath";
 
 	private AnnotationBeanReader() {
 
@@ -43,7 +48,34 @@ public class AnnotationBeanReader implements BeanReader {
 	}
 
 	@Override
-	public void load(String pack) {
+	public Properties getProperties() {
+		return properties;
+	}
+
+	@Override
+	public void load() {
+		load(DEFAULT_CONFIG_FILE);
+	}
+
+	@Override
+	public void load(String file) {
+		properties = new Properties();
+		try {
+			properties.load(DefaultWebContext.class.getResourceAsStream("/"
+					+ (file != null ? file : DEFAULT_CONFIG_FILE)));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		final String[] componentPath = properties.getProperty(COMPONENT_PATH)
+				.split(",");
+
+		for (String pack : componentPath) {
+			log.info("componentPath [{}]", pack);
+			loadPack(pack.trim());
+		}
+	}
+
+	public void loadPack(String pack) {
 		classes = new LinkedHashSet<Class<?>>();
 		String packageName = pack;
 		String packageDirName = packageName.replace('.', '/');
