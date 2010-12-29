@@ -1,10 +1,10 @@
 package com.test.sample.service.impl;
 
 import com.firefly.annotation.Component;
-import com.test.sample.service.Test2Service;
+import com.test.sample.service.AddService;
 
 @Component
-public class Test2ServiceImpl implements Test2Service {
+public class AddServiceImpl implements AddService {
 	private int i = 0;
 
 	@Override

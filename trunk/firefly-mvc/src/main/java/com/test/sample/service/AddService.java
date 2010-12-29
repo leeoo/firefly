@@ -1,5 +1,5 @@
 package com.test.sample.service;
 
-public interface Test2Service {
+public interface AddService {
 	int add(int x, int y);
 }

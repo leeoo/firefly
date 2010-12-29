@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class TestServlet extends HttpServlet {
+public class HelloServlet extends HttpServlet {
 
 	private static final long serialVersionUID = -2285190638550535784L;
 
