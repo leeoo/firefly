@@ -22,7 +22,7 @@ public class Test1Controller {
 	@RequestMapping(value = "/hello")
 	public String index(HttpServletRequest request) {
 
-		request.setAttribute("hello", "##test hello firefly! ");
+		request.setAttribute("hello", "你好 firefly! ");
 
 		return "/index.jsp";
 	}

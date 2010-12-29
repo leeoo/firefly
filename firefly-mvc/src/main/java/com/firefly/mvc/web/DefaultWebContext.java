@@ -21,7 +21,10 @@ import com.firefly.annotation.Inject;
 import com.firefly.annotation.RequestMapping;
 import com.firefly.mvc.web.support.BeanHandle;
 import com.firefly.mvc.web.support.BeanReader;
+import com.firefly.mvc.web.support.ViewHandle;
 import com.firefly.mvc.web.support.annotation.AnnotationBeanReader;
+import com.firefly.mvc.web.support.view.JspViewHandle;
+import com.firefly.mvc.web.support.view.TextViewHandle;
 
 /**
  * Web应用上下文默认实现
@@ -135,7 +138,17 @@ public class DefaultWebContext implements WebContext {
 				String view = m.getAnnotation(RequestMapping.class).view();
 				String key = method + "@" + url;
 
-				BeanHandle beanHandle = new BeanHandle(o, m, view);
+				ViewHandle viewHandle = null;
+				if (view.equals(View.JSP)) {
+					JspViewHandle.getInstance().setViewPath(getViewPath());
+					viewHandle = JspViewHandle.getInstance();
+				}
+				if (view.equals(View.TEXT)) {
+					TextViewHandle.getInstance().setEncoding(getEncoding());
+					viewHandle = TextViewHandle.getInstance();
+				}
+
+				BeanHandle beanHandle = new BeanHandle(o, m, viewHandle);
 				map.put(key, beanHandle);
 				log.info("uri map [{}]", key);
 				if (key.charAt(key.length() - 1) == '/')
