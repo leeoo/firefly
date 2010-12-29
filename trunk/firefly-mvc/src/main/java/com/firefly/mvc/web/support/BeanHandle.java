@@ -10,23 +10,28 @@ import java.lang.reflect.Method;
  *
  */
 public class BeanHandle {
-//	private static Logger log = LoggerFactory.getLogger(BeanHandle.class);
+	// private static Logger log = LoggerFactory.getLogger(BeanHandle.class);
 	private final Object object;
 	private final Method method;
-	private final String view;
 	private final Class<?>[] paraTypes;
 	private final String[] paraClassNames;
+	private final ViewHandle viewHandle;
 
-	public BeanHandle(Object object, Method method, String view) {
+	public BeanHandle(Object object, Method method, ViewHandle viewHandle) {
 		super();
 		this.object = object;
 		this.method = method;
-		this.view = view;
+		this.viewHandle = viewHandle;
+
 		paraTypes = method.getParameterTypes();
 		paraClassNames = new String[paraTypes.length];
 		for (int i = 0; i < paraTypes.length; i++) {
 			paraClassNames[i] = paraTypes[i].getName();
 		}
+	}
+
+	public ViewHandle getViewHandle() {
+		return viewHandle;
 	}
 
 	public String[] getParaClassNames() {
@@ -39,10 +44,6 @@ public class BeanHandle {
 
 	public Method getMethod() {
 		return method;
-	}
-
-	public String getView() {
-		return view;
 	}
 
 	public Object invoke(Object[] args) {
