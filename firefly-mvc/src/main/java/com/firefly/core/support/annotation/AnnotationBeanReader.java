@@ -13,14 +13,11 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.firefly.annotation.Component;
 import com.firefly.annotation.Controller;
 import com.firefly.core.support.BeanReader;
-import com.firefly.mvc.web.DefaultWebContext;
 
 /**
  * 读取Bean信息
@@ -59,7 +56,7 @@ public class AnnotationBeanReader implements BeanReader {
 	public BeanReader load(String file) {
 		properties = new Properties();
 		try {
-			properties.load(DefaultWebContext.class.getResourceAsStream("/"
+			properties.load(AnnotationBeanReader.class.getResourceAsStream("/"
 					+ (file != null ? file : DEFAULT_CONFIG_FILE)));
 		} catch (IOException e) {
 			e.printStackTrace();
