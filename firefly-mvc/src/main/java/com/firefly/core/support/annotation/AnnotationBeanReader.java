@@ -69,12 +69,12 @@ public class AnnotationBeanReader implements BeanReader {
 
 		for (String pack : componentPath) {
 			log.info("componentPath [{}]", pack);
-			loadPack(pack.trim());
+			scan(pack.trim());
 		}
 		return this;
 	}
 
-	public void loadPack(String pack) {
+	private void scan(String pack) {
 		classes = new LinkedHashSet<Class<?>>();
 		String packageName = pack;
 		String packageDirName = packageName.replace('.', '/');
@@ -162,9 +162,7 @@ public class AnnotationBeanReader implements BeanReader {
 						log.info("classes [{}]", c.getName());
 						classes.add(c);
 					}
-
 				}
-
 			}
 		}
 	}

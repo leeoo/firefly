@@ -97,12 +97,10 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 
 			ViewHandle viewHandle = null;
 			if (view.equals(View.JSP)) {
-				JspViewHandle.getInstance().setViewPath(getViewPath());
-				viewHandle = JspViewHandle.getInstance();
+				viewHandle = JspViewHandle.getInstance().init(getViewPath());
 			}
 			if (view.equals(View.TEXT)) {
-				TextViewHandle.getInstance().setEncoding(getEncoding());
-				viewHandle = TextViewHandle.getInstance();
+				viewHandle = TextViewHandle.getInstance().init(getEncoding());
 			}
 
 			BeanHandle beanHandle = new BeanHandle(o, m, viewHandle);
