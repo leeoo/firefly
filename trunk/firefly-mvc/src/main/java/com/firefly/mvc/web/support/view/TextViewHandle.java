@@ -29,8 +29,9 @@ public class TextViewHandle implements ViewHandle {
 		return TextViewHandleHolder.instance;
 	}
 
-	public void setEncoding(String encoding) {
+	public TextViewHandle init(String encoding) {
 		this.encoding = encoding;
+		return this;
 	}
 
 	@Override

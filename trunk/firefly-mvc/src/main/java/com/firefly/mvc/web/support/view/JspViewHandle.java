@@ -29,8 +29,9 @@ public class JspViewHandle implements ViewHandle {
 		return JspViewHandleHolder.instance;
 	}
 
-	public void setViewPath(String viewPath) {
+	public JspViewHandle init(String viewPath) {
 		this.viewPath = viewPath;
+		return this;
 	}
 
 	@Override
