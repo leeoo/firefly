@@ -123,6 +123,15 @@ public class HelloController {
 			HttpServletResponse response) {
 		return "/hello";
 	}
+
+	@RequestMapping(value = "/hello/json", view = View.JSON)
+	public Object helloJson(HttpServletResponse response,
+			HttpServletRequest request) {
+		HelloJson helloJson = new HelloJson();
+		helloJson.setId(3);
+		helloJson.setText("测试json");
+		return helloJson;
+	}
 }
 }}}
  * @RequestMapping定义了请求地址和返回视图的类型，视图包括：jsp、text（文本）、redirect（重定向）、json
