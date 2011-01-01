@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.firefly.annotation.Component;
 import com.firefly.annotation.Inject;
 import com.firefly.annotation.RequestMapping;
+import com.firefly.mvc.web.View;
 import com.test.sample.service.AddService;
 
 @Component("test2Hello")
@@ -58,6 +59,12 @@ public class Hello2Controller {
 		int i = addService.add(99, 100);
 		request.setAttribute("hello", "test2 hello inject! " + i);
 		return "/index.jsp";
+	}
+
+	@RequestMapping(value = "/hello5", view = View.REDIRECT)
+	public String hello5(HttpServletRequest request,
+			HttpServletResponse response) {
+		return "/hello";
 	}
 
 }

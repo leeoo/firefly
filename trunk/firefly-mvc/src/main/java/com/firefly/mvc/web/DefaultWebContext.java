@@ -10,6 +10,7 @@ import com.firefly.core.AbstractApplicationContext;
 import com.firefly.mvc.web.support.BeanHandle;
 import com.firefly.mvc.web.support.ViewHandle;
 import com.firefly.mvc.web.support.view.JspViewHandle;
+import com.firefly.mvc.web.support.view.RedirectHandle;
 import com.firefly.mvc.web.support.view.TextViewHandle;
 
 /**
@@ -102,6 +103,9 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 			if (view.equals(View.TEXT)) {
 				viewHandle = TextViewHandle.getInstance().init(getEncoding());
 			}
+			if (view.equals(View.REDIRECT)) {
+				viewHandle = RedirectHandle.getInstance();
+			}
 
 			BeanHandle beanHandle = new BeanHandle(o, m, viewHandle);
 			map.put(key, beanHandle);
@@ -115,5 +119,4 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 		}
 
 	}
-
 }

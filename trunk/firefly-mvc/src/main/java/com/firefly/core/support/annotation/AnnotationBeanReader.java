@@ -13,10 +13,13 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.firefly.annotation.Component;
 import com.firefly.annotation.Controller;
+import com.firefly.annotation.Interceptor;
 import com.firefly.core.support.BeanReader;
 
 /**
@@ -207,7 +210,8 @@ public class AnnotationBeanReader implements BeanReader {
 
 	private boolean isAnnotationPresent(Class<?> c) {
 		return c.isAnnotationPresent(Controller.class)
-				|| c.isAnnotationPresent(Component.class);
+				|| c.isAnnotationPresent(Component.class)
+				|| c.isAnnotationPresent(Interceptor.class);
 	}
 
 	@Override

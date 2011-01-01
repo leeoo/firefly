@@ -58,16 +58,7 @@ public class HttpServletDispatcherController implements DispatcherController {
 		BeanHandle beanHandle = (BeanHandle) webContext.getBean(key);
 		if (beanHandle != null) {
 			// TODO 此处还需要完善 1)增加请求参数封装到javabean
-			String[] paraNames = beanHandle.getParaClassNames();
-			Object[] p = new Object[paraNames.length];
-			for (int i = 0; i < p.length; i++) {
-				if (paraNames[i].equals(REQUEST_CLASS_NAME)) {
-					p[i] = request;
-				}
-				if (paraNames[i].equals(RESPONSE_CLASS_NAME)) {
-					p[i] = response;
-				}
-			}
+			Object[] p = getParams(request, response, beanHandle);
 
 			Object ret = beanHandle.invoke(p);
 			try {
@@ -96,6 +87,21 @@ public class HttpServletDispatcherController implements DispatcherController {
 	@Override
 	public void init(String initParam) {
 		webContext = DefaultWebContext.getInstance().load(initParam);
+	}
+
+	private Object[] getParams(HttpServletRequest request,
+			HttpServletResponse response, BeanHandle beanHandle) {
+		String[] paraNames = beanHandle.getParaClassNames();
+		Object[] p = new Object[paraNames.length];
+		for (int i = 0; i < p.length; i++) {
+			if (paraNames[i].equals(REQUEST_CLASS_NAME)) {
+				p[i] = request;
+			}
+			if (paraNames[i].equals(RESPONSE_CLASS_NAME)) {
+				p[i] = response;
+			}
+		}
+		return p;
 	}
 
 }

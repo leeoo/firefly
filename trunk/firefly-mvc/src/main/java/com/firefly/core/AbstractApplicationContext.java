@@ -9,11 +9,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.firefly.annotation.Component;
 import com.firefly.annotation.Controller;
 import com.firefly.annotation.Inject;
+import com.firefly.annotation.Interceptor;
 import com.firefly.core.support.BeanReader;
 import com.firefly.core.support.annotation.AnnotationBeanReader;
 
@@ -62,7 +65,7 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 			Object o = c.newInstance();
 			list.add(o);
 
-			// 增加声明的组件到WebContext
+			// 增加声明的组件到 ApplicationContext
 			Set<String> keys = getInstanceMapKeys(c);
 			for (String k : keys) {
 				log.info("obj key [{}]", k);
@@ -75,7 +78,7 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 	}
 
 	/**
-	 * 把WebContext里面的对象注入实例
+	 * 把ApplicationContext里面的对象注入实例
 	 *
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
@@ -171,6 +174,9 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 		Component component = c.getAnnotation(Component.class);
 		if (component != null && component.value().length() > 0)
 			ret.add(component.value());
+		Interceptor interceptor = c.getAnnotation(Interceptor.class);
+		if (interceptor != null && interceptor.value().length() > 0)
+			ret.add(interceptor.value());
 		return ret;
 	}
 
