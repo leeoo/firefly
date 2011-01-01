@@ -179,6 +179,12 @@
 			<artifactId>standard</artifactId>
 			<version>${jstl.version}</version>
 		</dependency>
+
+		<dependency>
+		    <groupId>org.codehaus.jackson</groupId>
+		    <artifactId>jackson-mapper-asl</artifactId>
+		    <version>1.6.2</version>
+		</dependency>
     </dependencies>
 
     <properties>
