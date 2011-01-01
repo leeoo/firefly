@@ -59,10 +59,10 @@ public class DispatcherServlet extends HttpServlet {
 
 	@Override
 	public void init() {
-		dispatcherController = HttpServletDispatcherController.getInstance();
 		String initParam = this.getInitParameter(INIT_PARAM);
 		log.info("initParam [{}]", initParam);
-		dispatcherController.init(initParam);
+		dispatcherController = HttpServletDispatcherController.getInstance()
+				.init(initParam);
 	}
 
 }

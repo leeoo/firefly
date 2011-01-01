@@ -96,9 +96,9 @@ public class HttpServletDispatcherController implements DispatcherController {
 		}
 	}
 
-	@Override
-	public void init(String initParam) {
+	public HttpServletDispatcherController init(String initParam) {
 		webContext = DefaultWebContext.getInstance().load(initParam);
+		return this;
 	}
 
 	private Object[] getParams(HttpServletRequest request,
