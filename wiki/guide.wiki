@@ -1,6 +1,6 @@
 #summary firefly使用指南
 #labels Phase-Support,guide
-
+<wiki:toc max_depth="3" />
 = 简介 =
  * firefly是一个追求高性能，精简轻量的应用程序框架
  * 包含IOC容器、Web应用MVC框架等
@@ -21,3 +21,20 @@ firefly.properties配置说明：
 || componentPath || firefly组件扫描包名，可以用逗号（,）分隔多个包 || 无 || 是 ||
 || viewPath || Web视图模版存储路径 || /WEB-INF/page || 否 ||
 || encoding || Web请求相应的字符集 || UTF-8 || 否 ||
+
+= IOC =
+使用类似Spring，默认使用Annotation配置方式，标注的组件生命周期为单例
+
+== 声明一个组件 ==
+例子：
+{{{
+@Component("addService")
+public class AddServiceImpl implements AddService {
+
+	@Override
+	public int add(int x, int y) {
+		return x + y;
+	}
+
+}
+}}}
