@@ -7,6 +7,7 @@ import com.firefly.annotation.Controller;
 import com.firefly.annotation.Inject;
 import com.firefly.annotation.RequestMapping;
 import com.firefly.mvc.web.View;
+import com.test.sample.model.HelloJson;
 import com.test.sample.service.AddService;
 
 @Controller
@@ -37,5 +38,14 @@ public class HelloController {
 	public String ti(HttpServletResponse response, HttpServletRequest request) {
 
 		return "/index.jsp";
+	}
+
+	@RequestMapping(value = "/hello/json", view = View.JSON)
+	public Object helloJson(HttpServletResponse response,
+			HttpServletRequest request) {
+		HelloJson helloJson = new HelloJson();
+		helloJson.setId(3);
+		helloJson.setText("测试json");
+		return helloJson;
 	}
 }

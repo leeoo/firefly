@@ -3,15 +3,14 @@ package com.firefly.mvc.web;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.firefly.annotation.Interceptor;
 import com.firefly.annotation.RequestMapping;
 import com.firefly.core.AbstractApplicationContext;
 import com.firefly.mvc.web.support.BeanHandle;
 import com.firefly.mvc.web.support.ViewHandle;
+import com.firefly.mvc.web.support.view.JsonViewHandle;
 import com.firefly.mvc.web.support.view.JspViewHandle;
 import com.firefly.mvc.web.support.view.RedirectHandle;
 import com.firefly.mvc.web.support.view.TextViewHandle;
@@ -57,6 +56,7 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 		super.load(file);
 		JspViewHandle.getInstance().init(getViewPath());
 		TextViewHandle.getInstance().init(getEncoding());
+		JsonViewHandle.getInstance().init(getEncoding());
 		return this;
 	}
 
@@ -177,6 +177,9 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 		}
 		if (view.equals(View.REDIRECT)) {
 			viewHandle = RedirectHandle.getInstance();
+		}
+		if (view.equals(View.JSON)) {
+			viewHandle = JsonViewHandle.getInstance();
 		}
 		return viewHandle;
 	}
