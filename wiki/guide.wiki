@@ -145,9 +145,11 @@ public class HelloInterceptor {
 	}
 }
 }}}
+
  * 拦截的uri支持使用“*”通配符
  * 拦截器约定方法名称为before和after，before为拦截到url请求时调用，after为controller执行之后并且在视图渲染之前调用
- * 拦截器能够改变被拦截的Controller的返回视图，例如：
+ * 拦截器能够改变被拦截的Controller的返回视图
+例如：
 {{{
 @Interceptor(uri = "/ti", view = View.REDIRECT)
 public class Hello2Interceptor {
