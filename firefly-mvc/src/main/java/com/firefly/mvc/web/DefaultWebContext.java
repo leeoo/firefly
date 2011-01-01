@@ -49,13 +49,14 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 
 	@Override
 	public WebContext load() {
-		super.load();
-		return this;
+		return load(null);
 	}
 
 	@Override
 	public WebContext load(String file) {
 		super.load(file);
+		JspViewHandle.getInstance().init(getViewPath());
+		TextViewHandle.getInstance().init(getEncoding());
 		return this;
 	}
 
@@ -169,10 +170,10 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 	private ViewHandle getViewHandle(String view) {
 		ViewHandle viewHandle = null;
 		if (view.equals(View.JSP)) {
-			viewHandle = JspViewHandle.getInstance().init(getViewPath());
+			viewHandle = JspViewHandle.getInstance();
 		}
 		if (view.equals(View.TEXT)) {
-			viewHandle = TextViewHandle.getInstance().init(getEncoding());
+			viewHandle = TextViewHandle.getInstance();
 		}
 		if (view.equals(View.REDIRECT)) {
 			viewHandle = RedirectHandle.getInstance();
