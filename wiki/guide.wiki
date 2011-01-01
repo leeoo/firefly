@@ -23,7 +23,7 @@ firefly.properties配置说明：
 || encoding （可选） || Web请求相应的字符集 || UTF-8 ||
 
 = IOC =
-使用类似Spring，默认使用Annotation配置方式，标注的组件生命周期为单例
+[ http://baike.baidu.com/view/1486379.htm ioc ]为firefly的核心模块，使用类似Spring，默认使用Annotation配置方式，标注的组件生命周期为单例
 
 == 声明一个组件 ==
 例子：
@@ -78,7 +78,7 @@ public class FieldInjectImpl implements FieldInject {
 }}}
 
 = Web框架 =
-使用MVC模式，依赖firefly的ioc模块，默认使用Annotation配置方式
+使用[http://baike.baidu.com/view/31.htm MVC]模式，依赖firefly的ioc模块，默认使用Annotation配置方式
 == 配置 ==
 在web.xml里面添加前端控制器
 {{{
