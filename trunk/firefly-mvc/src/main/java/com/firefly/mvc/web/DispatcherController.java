@@ -5,6 +5,4 @@ import javax.servlet.http.HttpServletResponse;
 
 public interface DispatcherController {
 	void dispatcher(HttpServletRequest request, HttpServletResponse response);
-
-	void init(String initParam);
 }
