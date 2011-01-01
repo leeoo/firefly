@@ -52,16 +52,39 @@ public class HttpServletDispatcherController implements DispatcherController {
 		String uri = request.getRequestURI();
 		String prePath = request.getContextPath() + request.getServletPath();
 		String invokeUri = uri.substring(prePath.length());
-		String key = request.getMethod().toUpperCase() + "@" + invokeUri;
+		String key = request.getMethod() + "@" + invokeUri;
+		String beforeIntercept = "before##intercept:" + key;
+		String afterIntercept = "after##intercept:" + key;
+		BeanHandle before = (BeanHandle) webContext.getBean(beforeIntercept);
+		BeanHandle after = (BeanHandle) webContext.getBean(afterIntercept);
 
 		log.info("uri map [{}]", key);
 		BeanHandle beanHandle = (BeanHandle) webContext.getBean(key);
 		if (beanHandle != null) {
-			// TODO 此处还需要完善 1)增加请求参数封装到javabean
-			Object[] p = getParams(request, response, beanHandle);
+			Object ret = null;
+			Object beforeRet = null;
+			Object afterRet = null;
+			if (before != null) {
+				Object[] beforeP = getParams(request, response, before);
+				beforeRet = before.invoke(beforeP);
+			}
 
-			Object ret = beanHandle.invoke(p);
+			Object[] p = getParams(request, response, beanHandle);
+			ret = beanHandle.invoke(p);
+
+			if (after != null) {
+				Object[] afterP = getParams(request, response, after);
+				afterRet = after.invoke(afterP);
+			}
 			try {
+				if (afterRet != null) {
+					after.getViewHandle().render(request, response, afterRet);
+					return;
+				}
+				if (beforeRet != null) {
+					before.getViewHandle().render(request, response, beforeRet);
+					return;
+				}
 				beanHandle.getViewHandle().render(request, response, ret);
 			} catch (ServletException e) {
 				e.printStackTrace();
@@ -69,18 +92,7 @@ public class HttpServletDispatcherController implements DispatcherController {
 				e.printStackTrace();
 			}
 		} else {
-			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			response
-					.setHeader("Content-Type", "text/html; charset=" + encoding);
-			PrintWriter writer = null;
-			try {
-				writer = response.getWriter();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			writer
-					.print("<html><body><h2>HTTP ERROR 404</h2><hr /><i><small>firefly mvc framework</small></i></body></html>");
-			writer.close();
+			scNotFound(request, response);
 		}
 	}
 
@@ -91,6 +103,7 @@ public class HttpServletDispatcherController implements DispatcherController {
 
 	private Object[] getParams(HttpServletRequest request,
 			HttpServletResponse response, BeanHandle beanHandle) {
+		// TODO 此处还需要完善 1)增加请求参数封装到javabean
 		String[] paraNames = beanHandle.getParaClassNames();
 		Object[] p = new Object[paraNames.length];
 		for (int i = 0; i < p.length; i++) {
@@ -102,6 +115,24 @@ public class HttpServletDispatcherController implements DispatcherController {
 			}
 		}
 		return p;
+	}
+
+	private void scNotFound(HttpServletRequest request,
+			HttpServletResponse response) {
+		response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+		response.setHeader("Content-Type", "text/html; charset="
+				+ webContext.getEncoding());
+		PrintWriter writer = null;
+		try {
+			writer = response.getWriter();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		writer.print("<html><body>");
+		writer.print("<h2>HTTP ERROR 404</h2>");
+		writer.print("<hr/><i><small>firefly mvc framework</small></i>");
+		writer.print("</body></html>");
+		writer.close();
 	}
 
 }

@@ -32,4 +32,10 @@ public class HelloController {
 
 		return "测试一下 3 + 3 =" + addService.add(3, 3);
 	}
+
+	@RequestMapping(value = "/ti", view = View.TEXT)
+	public String ti(HttpServletResponse response, HttpServletRequest request) {
+
+		return "/index.jsp";
+	}
 }

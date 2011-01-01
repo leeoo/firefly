@@ -2,6 +2,48 @@ package com.firefly.utils;
 
 abstract public class VerifyUtils {
 
+	public static boolean simpleWildcardMatch(String pattern, String str) {
+		return wildcardMatch(pattern, str, "*");
+	}
+
+	public static boolean wildcardMatch(String pattern, String str,
+			String wildcard) {
+		if (isEmpty(pattern) || isEmpty(str)) {
+			return false;
+		}
+		final boolean startWith = pattern.startsWith(wildcard);
+		final boolean endWith = pattern.endsWith(wildcard);
+		String[] array = StringUtils.split(pattern, wildcard);
+		int currentIndex = -1;
+		int lastIndex = -1;
+		switch (array.length) {
+		case 0:
+			return true;
+		case 1:
+			currentIndex = str.indexOf(array[0]);
+			if (startWith && endWith) {
+				return currentIndex >= 0;
+			}
+			if (startWith) {
+				return currentIndex + array[0].length() == str.length();
+			}
+			if (endWith) {
+				return currentIndex == 0;
+			}
+			return str.equals(pattern);
+		default:
+			for (String part : array) {
+				currentIndex = str.indexOf(part);
+				if (currentIndex > lastIndex) {
+					lastIndex = currentIndex;
+					continue;
+				}
+				return false;
+			}
+			return true;
+		}
+	}
+
 	public static boolean isNumeric(String str) {
 		if (isEmpty(str)) {
 			return false;
@@ -44,9 +86,17 @@ abstract public class VerifyUtils {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(isNumeric("13422224343"));
-		System.out.println(isNumeric(""));
-		System.out.println(isNumeric("134"));
-		System.out.println(isNumeric("134dfdfsfdf"));
+		// String pattern = "*sdfsdf*";
+		// String wildcard = "*";
+		// String str = "12345sdfsdf";
+		// final boolean startWith = pattern.startsWith(wildcard);
+		// final boolean endWith = pattern.endsWith(wildcard);
+		// int currentIndex = -1;
+		// String[] array = StringUtils.split(pattern, wildcard);
+		// System.out.println(array[0]);
+		// currentIndex = str.indexOf(array[0]);
+		// if (startWith && endWith) {
+		// System.out.println(currentIndex);
+		// }
 	}
 }
