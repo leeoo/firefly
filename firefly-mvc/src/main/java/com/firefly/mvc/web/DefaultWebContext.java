@@ -158,8 +158,8 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 	private List<String> getInterceptUri(String pattern) {
 		List<String> list = new ArrayList<String>();
 		for (String uri : uriList) {
-			log.info("intercept pattern [{}] uri [{}]", pattern, uri);
 			if (VerifyUtils.simpleWildcardMatch(pattern, uri)) {
+				log.info("intercept pattern [{}] uri [{}]", pattern, uri);
 				list.add(uri.split("@")[1]);
 			}
 		}
