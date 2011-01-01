@@ -1,14 +1,23 @@
-#summary One-sentence summary of this page.
+#summary firefly使用指南
 #labels Phase-Support,guide
 
-= Introduction =
+= 简介 =
+ * firefly是一个追求高性能，精简轻量的应用程序框架
+ * 包含IOC容器、Web应用MVC框架等
+ * 默认使用Annotation配置方式
 
-Add your content here.
 
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+= 安装与配置 =
+ # 把firefly.jar放入classpath下
+ # 在classpath下创建firefly.properties文件
+firefly.properties文件例子：
+{{{
+viewPath = /WEB-INF/page
+componentPath = com.test.sample
+encoding = UTF-8
+}}}
+firefly.properties配置说明：
+|| * 配置项 * || * 说明 * || * 默认值 * || * 必填 * ||
+|| componentPath || firefly组件扫描包名，可以用逗号（,）分隔多个包 || 无 || 是 ||
+|| viewPath || Web视图模版存储路径 || /WEB-INF/page || 否 ||
+|| encoding || Web请求相应的字符集 || UTF-8 || 否 ||
