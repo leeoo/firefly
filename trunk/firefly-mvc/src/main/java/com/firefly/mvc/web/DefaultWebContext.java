@@ -3,8 +3,11 @@ package com.firefly.mvc.web;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.firefly.annotation.Interceptor;
 import com.firefly.annotation.RequestMapping;
 import com.firefly.core.AbstractApplicationContext;
 import com.firefly.mvc.web.support.BeanHandle;
@@ -12,6 +15,7 @@ import com.firefly.mvc.web.support.ViewHandle;
 import com.firefly.mvc.web.support.view.JspViewHandle;
 import com.firefly.mvc.web.support.view.RedirectHandle;
 import com.firefly.mvc.web.support.view.TextViewHandle;
+import com.firefly.utils.VerifyUtils;
 
 /**
  * Web应用上下文默认实现
@@ -23,6 +27,7 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 		WebContext {
 	private static Logger log = LoggerFactory
 			.getLogger(DefaultWebContext.class);
+	private List<String> uriList = new ArrayList<String>();
 
 	private interface Config {
 		String VIEW_PATH = "viewPath";
@@ -71,10 +76,57 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 				Config.DEFAULT_VIEW_PATH);
 	}
 
+	@Override
+	public void addObjectToContext(Class<?> c, Object o) {
+		// 注册Controller里面声明的uri
+		List<Method> list = getReqMethod(c);
+		for (Method m : list) {
+			m.setAccessible(true);
+			final String uri = m.getAnnotation(RequestMapping.class).value();
+			final String method = m.getAnnotation(RequestMapping.class)
+					.method();
+			final String view = m.getAnnotation(RequestMapping.class).view();
+			String key = method + "@" + uri;
+
+			BeanHandle beanHandle = new BeanHandle(o, m, getViewHandle(view));
+			map.put(key, beanHandle);
+			uriList.add(key);
+			log.info("uri map [{}]", key);
+			if (key.charAt(key.length() - 1) == '/')
+				key = key.substring(0, key.length() - 1);
+			else
+				key += "/";
+			map.put(key, beanHandle);
+			uriList.add(key);
+			log.info("uri map [{}]", key);
+		}
+
+		list = getInterceptor(c);
+		for (Method m : list) {
+			m.setAccessible(true);
+			String uriPattern = c.getAnnotation(Interceptor.class).uri();
+			final String method = c.getAnnotation(Interceptor.class).method();
+			final String view = c.getAnnotation(Interceptor.class).view();
+			uriPattern = method + "@" + uriPattern;
+
+			List<String> l = getInterceptUri(uriPattern);
+			for (String i : l) {
+				String key = m.getName() + "##intercept:" + method + "@";
+				key += i;
+				log.info("intercept map [{}]", key);
+				BeanHandle beanHandle = new BeanHandle(o, m,
+						getViewHandle(view));
+				map.put(key, beanHandle);
+			}
+		}
+
+	}
+
 	/**
 	 * 找出Controller里面标记有RequestMapping的方法
 	 */
-	private List<Method> getReqMethod(Method[] methods) {
+	private List<Method> getReqMethod(Class<?> c) {
+		Method[] methods = c.getMethods();
 		List<Method> list = new ArrayList<Method>();
 		for (Method m : methods) {
 			if (m.isAnnotationPresent(RequestMapping.class)) {
@@ -84,39 +136,47 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 		return list;
 	}
 
-	@Override
-	public void addObjectToContext(Class<?> c, Object o) {
-		// 注册Controller里面声明的uri
-		List<Method> list = getReqMethod(c.getMethods());
-		for (Method m : list) {
-			m.setAccessible(true);
-			final String url = m.getAnnotation(RequestMapping.class).value();
-			final String method = m.getAnnotation(RequestMapping.class)
-					.method();
-			String view = m.getAnnotation(RequestMapping.class).view();
-			String key = method + "@" + url;
-
-			ViewHandle viewHandle = null;
-			if (view.equals(View.JSP)) {
-				viewHandle = JspViewHandle.getInstance().init(getViewPath());
+	private List<Method> getInterceptor(Class<?> c) {
+		Method[] methods = c.getMethods();
+		List<Method> list = new ArrayList<Method>();
+		for (Method m : methods) {
+			if (c.isAnnotationPresent(Interceptor.class)
+					&& (m.getName().equals("before") || m.getName().equals(
+							"after"))) {
+				list.add(m);
 			}
-			if (view.equals(View.TEXT)) {
-				viewHandle = TextViewHandle.getInstance().init(getEncoding());
-			}
-			if (view.equals(View.REDIRECT)) {
-				viewHandle = RedirectHandle.getInstance();
-			}
-
-			BeanHandle beanHandle = new BeanHandle(o, m, viewHandle);
-			map.put(key, beanHandle);
-			log.info("uri map [{}]", key);
-			if (key.charAt(key.length() - 1) == '/')
-				key = key.substring(0, key.length() - 1);
-			else
-				key = key + "/";
-			map.put(key, beanHandle);
-			log.info("uri map [{}]", key);
 		}
+		return list;
+	}
 
+	/**
+	 * 根据拦截器模式获取所有注册的Uri
+	 *
+	 * @param pattern
+	 * @return
+	 */
+	private List<String> getInterceptUri(String pattern) {
+		List<String> list = new ArrayList<String>();
+		for (String uri : uriList) {
+			log.info("intercept pattern [{}] uri [{}]", pattern, uri);
+			if (VerifyUtils.simpleWildcardMatch(pattern, uri)) {
+				list.add(uri.split("@")[1]);
+			}
+		}
+		return list;
+	}
+
+	private ViewHandle getViewHandle(String view) {
+		ViewHandle viewHandle = null;
+		if (view.equals(View.JSP)) {
+			viewHandle = JspViewHandle.getInstance().init(getViewPath());
+		}
+		if (view.equals(View.TEXT)) {
+			viewHandle = TextViewHandle.getInstance().init(getEncoding());
+		}
+		if (view.equals(View.REDIRECT)) {
+			viewHandle = RedirectHandle.getInstance();
+		}
+		return viewHandle;
 	}
 }

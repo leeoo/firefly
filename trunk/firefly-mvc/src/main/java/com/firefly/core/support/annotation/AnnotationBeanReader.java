@@ -199,6 +199,7 @@ public class AnnotationBeanReader implements BeanReader {
 				// 这里用forName有一些不好，会触发static方法，没有使用classLoader的load干净
 				Class<?> c = Thread.currentThread().getContextClassLoader()
 						.loadClass(packageName + '.' + className);
+
 				if (isAnnotationPresent(c)) {
 					log.info("classes [{}]", c.getName());
 					classes.add(c);
