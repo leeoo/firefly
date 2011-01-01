@@ -127,3 +127,43 @@ public class HelloController {
 }}}
  * @RequestMapping定义了请求地址和返回视图的类型，视图包括：jsp、text（文本）、redirect（重定向）、json
  * 当视图为jsp、text和redirect时方法的返回值约定为String类型，json支持Object类型
+
+== 拦截器的使用 ==
+例子：
+{{{
+@Interceptor(uri = "/hello*")
+public class HelloInterceptor {
+	private static Logger log = LoggerFactory.getLogger(HelloInterceptor.class);
+
+	public void before(HttpServletRequest request, HttpServletResponse response) {
+		log.info("before [{}]", request.getRequestURI());
+	}
+
+	public String after(HttpServletRequest request, HttpServletResponse response) {
+		log.info("after [{}]", request.getRequestURI());
+		return null;
+	}
+}
+}}}
+ * 拦截的uri支持使用“*”通配符
+ * 拦截器约定方法名称为before和after，before为拦截到url请求时调用，after为controller执行之后并且在视图渲染之前调用
+ * 拦截器能够改变被拦截的Controller的返回视图，例如：
+{{{
+@Interceptor(uri = "/ti", view = View.REDIRECT)
+public class Hello2Interceptor {
+	private static Logger log = LoggerFactory
+			.getLogger(Hello2Interceptor.class);
+
+	public String before(HttpServletRequest request,
+			HttpServletResponse response) {
+		log.info("ti before [{}]", request.getRequestURI());
+		return "/hello2";
+	}
+
+	public String after(HttpServletRequest request, HttpServletResponse response) {
+		log.info("ti after [{}]", request.getRequestURI());
+		return "/hello3";
+	}
+}
+}}}
+当“/ti”对应的controller执行之后，返回的视图将变成拦截器返回的视图
