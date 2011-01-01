@@ -1,5 +1,5 @@
 #summary firefly使用指南
-#labels Phase-Support,guide
+#labels Phase-Support
 <wiki:toc max_depth="3" />
 = 简介 =
  * firefly是一个追求高性能，精简轻量的应用程序框架
@@ -17,10 +17,10 @@ componentPath = com.test.sample
 encoding = UTF-8
 }}}
 firefly.properties配置说明：
-|| * 配置项 * || * 说明 * || * 默认值 * || * 必填 * ||
-|| componentPath || firefly组件扫描包名，可以用逗号（,）分隔多个包 || 无 || 是 ||
-|| viewPath || Web视图模版存储路径 || /WEB-INF/page || 否 ||
-|| encoding || Web请求相应的字符集 || UTF-8 || 否 ||
+|| * 配置项 * || * 说明 * || * 默认值 * ||
+|| componentPath || firefly组件扫描包名，可以用逗号（,）分隔多个包 || 无 ||
+|| viewPath （可选） || Web视图模版存储路径 || /WEB-INF/page ||
+|| encoding （可选） || Web请求相应的字符集 || UTF-8 ||
 
 = IOC =
 使用类似Spring，默认使用Annotation配置方式，标注的组件生命周期为单例
@@ -37,4 +37,64 @@ public class AddServiceImpl implements AddService {
 	}
 
 }
+}}}
+
+== 方法参数注入 ==
+例子：
+{{{
+@Component("methodInject")
+public class MethodInjectImpl implements MethodInject {
+	private AddService addService;
+
+	@Inject
+	public void init(AddService addService) {
+		this.addService = addService;
+	}
+}
+}}}
+
+== 属性注入 ==
+例子：
+{{{
+@Component("fieldInject")
+public class FieldInjectImpl implements FieldInject {
+
+	@Inject
+	private AddService addService;
+	@Inject("addService")
+	private AddService addService2;
+
+	@Override
+	public int add(int x, int y) {
+		return addService.add(x, y);
+	}
+
+	@Override
+	public int add2(int x, int y) {
+		return addService2.add(x, y);
+	}
+
+}
+}}}
+
+= Web框架 =
+使用MVC模式，依赖firefly的ioc模块，默认使用Annotation配置方式
+== 配置 ==
+在web.xml里面添加前端控制器
+{{{
+<servlet>
+	<servlet-name>fireflyMVC</servlet-name>
+	<servlet-class>com.firefly.mvc.web.servlet.DispatcherServlet</servlet-class>
+	<!-- <init-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			firefly_mvc.properties
+		</param-value>
+	</init-param> -->
+	<load-on-startup>1</load-on-startup>
+</servlet>
+<servlet-mapping>
+	<servlet-name>fireflyMVC</servlet-name>
+	<url-pattern>/app/*</url-pattern>
+</servlet-mapping>
 }}}
