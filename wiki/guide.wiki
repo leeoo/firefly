@@ -23,7 +23,7 @@ firefly.properties配置说明：
 || encoding （可选） || Web请求相应的字符集 || UTF-8 ||
 
 = IOC =
-[http://baike.baidu.com/view/1486379.htm ioc]为firefly的核心模块，使用类似Spring，默认使用Annotation配置方式，标注的组件生命周期为单例
+[http://baike.baidu.com/view/1486379.htm IOC]为firefly的核心模块，使用类似Spring，默认使用Annotation配置方式，标注的组件生命周期为单例
 
 == 声明一个组件 ==
 例子：
@@ -78,8 +78,8 @@ public class FieldInjectImpl implements FieldInject {
 }}}
 
 = Web框架 =
-使用[http://baike.baidu.com/view/31.htm MVC]模式，依赖firefly的ioc模块，默认使用Annotation配置方式
-== 配置 ==
+使用[http://baike.baidu.com/view/31.htm MVC]模式，依赖firefly的IOC模块，默认使用Annotation配置方式
+== 前端控制器 ==
 在web.xml里面添加前端控制器
 {{{
 <servlet>
@@ -98,3 +98,32 @@ public class FieldInjectImpl implements FieldInject {
 	<url-pattern>/app/*</url-pattern>
 </servlet-mapping>
 }}}
+== Controller使用 ==
+例子：
+{{{
+@Controller
+public class HelloController {
+	@RequestMapping(value = "/hello")
+	public String index(HttpServletRequest request) {
+
+		request.setAttribute("hello", "你好 firefly!");
+
+		return "/index.jsp";
+	}
+
+	@RequestMapping(value = "/hello1", view = View.TEXT)
+	public String hello1(HttpServletResponse response,
+			HttpServletRequest request) {
+
+		return "测试一下";
+	}
+
+	@RequestMapping(value = "/hello5", view = View.REDIRECT)
+	public String hello5(HttpServletRequest request,
+			HttpServletResponse response) {
+		return "/hello";
+	}
+}
+}}}
+ * @RequestMapping定义了请求地址和返回视图的类型，视图包括：jsp、text（文本）、redirect（重定向）、json
+ * 当视图为jsp、text和redirect时方法的返回值约定为String类型，json支持Object类型
