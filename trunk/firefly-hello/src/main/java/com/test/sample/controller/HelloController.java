@@ -21,9 +21,7 @@ public class HelloController {
 
 	@RequestMapping(value = "/hello")
 	public String index(HttpServletRequest request) {
-
 		request.setAttribute("hello", "你好 firefly!");
-
 		return "/index.jsp";
 	}
 

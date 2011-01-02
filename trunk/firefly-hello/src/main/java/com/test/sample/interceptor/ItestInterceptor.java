@@ -8,16 +8,16 @@ import org.slf4j.LoggerFactory;
 
 import com.firefly.annotation.Interceptor;
 
-@Interceptor(uri = "/itest*")
-public class HelloInterceptor {
-	private static Logger log = LoggerFactory.getLogger(HelloInterceptor.class);
+@Interceptor(uri = "/itest*/t*", order = 1)
+public class ItestInterceptor {
+	private static Logger log = LoggerFactory.getLogger(ItestInterceptor.class);
 
 	public void before(HttpServletRequest request, HttpServletResponse response) {
-		log.info("before 0 [{}]", request.getRequestURI());
+		log.info("before 1 [{}]", request.getRequestURI());
 	}
 
 	public String after(HttpServletRequest request, HttpServletResponse response) {
-		log.info("after 0 [{}]", request.getRequestURI());
+		log.info("after 1 [{}]", request.getRequestURI());
 		return null;
 	}
 }
