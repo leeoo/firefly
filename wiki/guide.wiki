@@ -93,7 +93,7 @@ public class FieldInjectImpl implements FieldInject {
 = Web框架 =
 使用[http://baike.baidu.com/view/31.htm MVC]模式，依赖firefly的IOC模块，默认使用Annotation配置方式
 == 前端控制器 ==
-在web.xml里面添加前端控制器
+在web.xml里面添加前端控制器，默认读取的配置文件为firefly.properties，也可以通过init-param自定义配置文件名
 {{{
 <servlet>
 	<servlet-name>fireflyMVC</servlet-name>
