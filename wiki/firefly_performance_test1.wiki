@@ -1,4 +1,4 @@
-#fireflyMVC性能测试报告
+#summary fireflyMVC性能测试报告
 <wiki:toc max_depth="3" />
 = 测试环境 =
  * windows7 jdk1.6.0_22
