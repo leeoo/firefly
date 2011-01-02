@@ -51,6 +51,7 @@ public class AddServiceImpl implements AddService {
 
 }
 }}}
+组件id为可选向
 
 == 方法参数注入 ==
 例子：
@@ -65,6 +66,7 @@ public class MethodInjectImpl implements MethodInject {
 	}
 }
 }}}
+方法参数只支持按类型自动注入
 
 == 属性注入 ==
 例子：
@@ -89,6 +91,7 @@ public class FieldInjectImpl implements FieldInject {
 
 }
 }}}
+属性注入支持按照属性类型或者组件id的方式注入
 
 = Web框架 =
 使用[http://baike.baidu.com/view/31.htm MVC]模式，依赖firefly的IOC模块，默认使用Annotation配置方式
