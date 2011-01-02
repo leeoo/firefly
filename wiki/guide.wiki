@@ -25,7 +25,7 @@ firefly.properties配置说明：
 = IOC =
 [http://baike.baidu.com/view/1486379.htm IOC]为firefly的核心模块，使用类似Spring，默认使用Annotation配置方式，标注的组件生命周期为单例
 
-== 创建ApplicationContext ==
+== 创建IOC容器 ==
 例子：
 {{{
 	public static ApplicationContext applicationContext = DefaultApplicationContext.getInstance().load();
