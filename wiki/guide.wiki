@@ -151,6 +151,8 @@ public class HelloController {
  * 当视图为jsp、text和redirect时方法的返回值约定为String类型，json支持Object类型
 
 == 拦截器的使用 ==
+ * 拦截的uri支持使用“`*`”通配符
+ * 拦截器约定方法名称为before和after，before为拦截到url请求时调用，after为controller执行之后并且在视图渲染之前调用
 例子：
 {{{
 @Interceptor(uri = "/hello*")
@@ -167,11 +169,9 @@ public class HelloInterceptor {
 	}
 }
 }}}
-
- * 拦截的uri支持使用“`*`”通配符
- * 拦截器约定方法名称为before和after，before为拦截到url请求时调用，after为controller执行之后并且在视图渲染之前调用
+ 
  * 拦截器能够改变被拦截的Controller的返回视图
-例如：
+例子：
 {{{
 @Interceptor(uri = "/ti", view = View.REDIRECT)
 public class Hello2Interceptor {
@@ -191,3 +191,51 @@ public class Hello2Interceptor {
 }
 }}}
 当“/ti”对应的controller执行之后，返回的视图将变成拦截器返回的视图
+
+ * 通过order定义拦截器执行顺序，order越小拦截器越先执行，order默认值为0
+例子：
+{{{
+@Interceptor(uri = "/itest*/t*", order = 1)
+public class ItestInterceptor {
+	private static Logger log = LoggerFactory.getLogger(ItestInterceptor.class);
+
+	public void before(HttpServletRequest request, HttpServletResponse response) {
+		log.info("before 1 [{}]", request.getRequestURI());
+	}
+
+	public String after(HttpServletRequest request, HttpServletResponse response) {
+		log.info("after 1 [{}]", request.getRequestURI());
+		return null;
+	}
+}
+
+@Interceptor(uri = "/itest*")
+public class HelloInterceptor {
+	private static Logger log = LoggerFactory.getLogger(HelloInterceptor.class);
+
+	public void before(HttpServletRequest request, HttpServletResponse response) {
+		log.info("before 0 [{}]", request.getRequestURI());
+	}
+
+	public String after(HttpServletRequest request, HttpServletResponse response) {
+		log.info("after 0 [{}]", request.getRequestURI());
+		return null;
+	}
+}
+}}}
+这两个拦截器拦截的controller为：
+{{{
+	@RequestMapping(value = "/itest2/t2")
+	public String index2(HttpServletRequest request) {
+		request.setAttribute("hello", "你好 itest2!");
+		return "/index.jsp";
+	}
+}}}
+
+最后log打印信息如下：
+{{{
+[com.test.sample.interceptor.HelloInterceptor]-[INFO]-2011-01-02 22:07:17,976 ## before 0 [/firefly-demo/app/itest2/t2]
+[com.test.sample.interceptor.ItestInterceptor]-[INFO]-2011-01-02 22:07:17,976 ## before 1 [/firefly-demo/app/itest2/t2]
+[com.test.sample.interceptor.ItestInterceptor]-[INFO]-2011-01-02 22:07:17,976 ## after 1 [/firefly-demo/app/itest2/t2]
+[com.test.sample.interceptor.HelloInterceptor]-[INFO]-2011-01-02 22:07:17,976 ## after 0 [/firefly-demo/app/itest2/t2]
+}}}
