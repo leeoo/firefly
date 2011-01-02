@@ -13,7 +13,7 @@ import com.firefly.mvc.web.support.ViewHandle;
 
 public class JsonViewHandle implements ViewHandle {
 
-	private static Logger log = LoggerFactory.getLogger(TextViewHandle.class);
+	private static Logger log = LoggerFactory.getLogger(JsonViewHandle.class);
 	private String encoding;
 	private ObjectMapper mapper = new ObjectMapper();
 
