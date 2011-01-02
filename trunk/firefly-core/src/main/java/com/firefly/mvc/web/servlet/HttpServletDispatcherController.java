@@ -3,10 +3,12 @@ package com.firefly.mvc.web.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +40,7 @@ public class HttpServletDispatcherController implements DispatcherController {
 		return HttpServletDispatcherControllerHolder.instance;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void dispatcher(HttpServletRequest request,
 			HttpServletResponse response) {
@@ -55,34 +58,50 @@ public class HttpServletDispatcherController implements DispatcherController {
 		String key = request.getMethod() + "@" + invokeUri;
 		String beforeIntercept = "before##intercept:" + key;
 		String afterIntercept = "after##intercept:" + key;
-		BeanHandle before = (BeanHandle) webContext.getBean(beforeIntercept);
-		BeanHandle after = (BeanHandle) webContext.getBean(afterIntercept);
+		Set<BeanHandle> beforeSet = (Set<BeanHandle>) webContext
+				.getBean(beforeIntercept);
+		Set<BeanHandle> afterSet = (Set<BeanHandle>) webContext
+				.getBean(afterIntercept);
 
 		log.info("uri map [{}]", key);
 		BeanHandle beanHandle = (BeanHandle) webContext.getBean(key);
 		if (beanHandle != null) {
 			Object ret = null;
 			Object beforeRet = null;
+			BeanHandle lastBefore = null;
 			Object afterRet = null;
-			if (before != null) {
-				Object[] beforeP = getParams(request, response, before);
-				beforeRet = before.invoke(beforeP);
+			BeanHandle lastAfter = null;
+			if (beforeSet != null) {
+				for (BeanHandle before : beforeSet) {
+					Object[] beforeP = getParams(request, response, before);
+					beforeRet = before.invoke(beforeP);
+					if (beforeRet != null) {
+						lastBefore = before;
+					}
+				}
 			}
 
 			Object[] p = getParams(request, response, beanHandle);
 			ret = beanHandle.invoke(p);
 
-			if (after != null) {
-				Object[] afterP = getParams(request, response, after);
-				afterRet = after.invoke(afterP);
+			if (afterSet != null) {
+				for (BeanHandle after : afterSet) {
+					Object[] afterP = getParams(request, response, after);
+					afterRet = after.invoke(afterP);
+					if (afterRet != null) {
+						lastAfter = after;
+					}
+				}
 			}
 			try {
 				if (afterRet != null) {
-					after.getViewHandle().render(request, response, afterRet);
+					lastAfter.getViewHandle().render(request, response,
+							afterRet);
 					return;
 				}
 				if (beforeRet != null) {
-					before.getViewHandle().render(request, response, beforeRet);
+					lastBefore.getViewHandle().render(request, response,
+							beforeRet);
 					return;
 				}
 				beanHandle.getViewHandle().render(request, response, ret);
