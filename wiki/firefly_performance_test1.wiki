@@ -3,22 +3,23 @@
 = 测试环境 =
  * windows7 jdk1.6.0_22
  * JDK参数：-Xms128m -Xmx512m -XX:+DisableExplicitGC
+ * 服务器：jetty 6.1.25
  * CPU: T6600 内存：3G
  * 测试工具：JMeter
 
 = 测试报告 =
 500线程，循环2次：
-|| * 框架 * || * 吞吐量 * || * 错误率 * ||
-|| fireflyMVC|| 38910.506/分钟 || 0% ||
-|| Servlet || 38022.814/分钟 || 0% ||
-|| Spring3MVC || 13106.16/分钟 || 0% ||
-|| Struts2 || 1256.571/分钟 || 0% ||
+|| * 框架 * || * 版本 * || * 吞吐量 * || * 错误率 * ||
+|| fireflyMVC || 1.0-SNAPSHOT || 38910.506/分钟 || 0% ||
+|| Servlet || 2.5 || 38022.814/分钟 || 0% ||
+|| Spring3MVC || 3.0.5.RELEASE || 13106.16/分钟 || 0% ||
+|| Struts2 || 2.2.1.1 || 1256.571/分钟 || 0% ||
 
 
 = 测试用例 =
 往JSP打印“你好 firefly!”
 
-页面代码：
+== JSP代码 ==
 {{{
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Strict//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
