@@ -146,8 +146,19 @@
 		<dependency>
 		    <groupId>org.codehaus.jackson</groupId>
 		    <artifactId>jackson-mapper-asl</artifactId>
-		    <version>1.6.2</version>
+		    <version>${jackson.version}</version>
 		</dependency>
+		<!-- <dependency>
+		    <groupId>org.codehaus.jackson</groupId>
+		    <artifactId>jackson-xc</artifactId>
+		    <version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.codehaus.jackson</groupId>
+		    <artifactId>jackson-jaxrs</artifactId>
+		    <version>${jackson.version}</version>
+		</dependency> -->
+
     </dependencies>
 
     <properties>
@@ -161,6 +172,7 @@
 
 		<!-- common -->
 		<jstl.version>1.1.2</jstl.version>
+		<jackson.version>1.6.2</jackson.version>
 
         <log.level>INFO</log.level>
         <log.path>D:/log/app.log</log.path>
@@ -184,8 +196,9 @@
     <repositories>
 		<!-- <repository>
         	<id>3rdRepo</id>
-        	<url>http://localhost:7777/nexus-webapp-1.6.0/content/repositories/thirdparty/</url>
-        </repository> -->
+        	<snapshots><enabled>true</enabled></snapshots>
+        	<url>http://snapshots.repository.codehaus.org/</url>
+        </repository>  -->
     </repositories>
     <pluginRepositories>
 
