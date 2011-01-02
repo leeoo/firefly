@@ -3,20 +3,20 @@ package com.firefly.mvc.web.support;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-
 /**
  * 保存请求key对应的对象
  *
  * @author alvinqiu
  *
  */
-public class BeanHandle {
+public class BeanHandle implements Comparable<BeanHandle> {
 	// private static Logger log = LoggerFactory.getLogger(BeanHandle.class);
 	private final Object object;
 	private final Method method;
 	private final Class<?>[] paraTypes;
 	private final String[] paraClassNames;
 	private final ViewHandle viewHandle;
+	private Integer interceptOrder;
 
 	public BeanHandle(Object object, Method method, ViewHandle viewHandle) {
 		super();
@@ -29,6 +29,18 @@ public class BeanHandle {
 		for (int i = 0; i < paraTypes.length; i++) {
 			paraClassNames[i] = paraTypes[i].getName();
 		}
+	}
+
+	public Integer getInterceptOrder() {
+		return interceptOrder;
+	}
+
+	public void setInterceptOrder(Integer interceptOrder) {
+		this.interceptOrder = interceptOrder;
+	}
+
+	public Class<?>[] getParaTypes() {
+		return paraTypes;
 	}
 
 	public ViewHandle getViewHandle() {
@@ -60,5 +72,13 @@ public class BeanHandle {
 			e.printStackTrace();
 		}
 		return ret;
+	}
+
+	@Override
+	public int compareTo(BeanHandle o) {
+		if (method.getName().equals("before"))
+			return interceptOrder.compareTo(o.getInterceptOrder());
+		else
+			return o.getInterceptOrder().compareTo(interceptOrder);
 	}
 }

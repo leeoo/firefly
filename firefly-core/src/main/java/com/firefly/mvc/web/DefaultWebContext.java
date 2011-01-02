@@ -3,8 +3,12 @@ package com.firefly.mvc.web;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.firefly.annotation.Interceptor;
 import com.firefly.annotation.RequestMapping;
 import com.firefly.core.AbstractApplicationContext;
@@ -77,6 +81,7 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 				Config.DEFAULT_VIEW_PATH);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void addObjectToContext(Class<?> c, Object o) {
 		// 注册Controller里面声明的uri
@@ -108,6 +113,7 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 			String uriPattern = c.getAnnotation(Interceptor.class).uri();
 			final String method = c.getAnnotation(Interceptor.class).method();
 			final String view = c.getAnnotation(Interceptor.class).view();
+			final Integer order = c.getAnnotation(Interceptor.class).order();
 			uriPattern = method + "@" + uriPattern;
 
 			List<String> l = getInterceptUri(uriPattern);
@@ -117,7 +123,15 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 				log.info("intercept map [{}]", key);
 				BeanHandle beanHandle = new BeanHandle(o, m,
 						getViewHandle(view));
-				map.put(key, beanHandle);
+				beanHandle.setInterceptOrder(order);
+				Set<BeanHandle> interceptorSet = (Set<BeanHandle>) map.get(key);
+				if (interceptorSet == null) {
+					interceptorSet = new TreeSet<BeanHandle>();
+					interceptorSet.add(beanHandle);
+					map.put(key, interceptorSet);
+				} else {
+					interceptorSet.add(beanHandle);
+				}
 			}
 		}
 
