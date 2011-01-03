@@ -148,6 +148,7 @@ public class HttpServletDispatcherController implements DispatcherController {
 				Enumeration<String> enumeration = request.getParameterNames();
 				ParamHandle paramHandle = paramHandles[i];
 				p[i] = paramHandle.newInstance();
+				log.info(">>>>>>>>>> param class [{}]", p[i].getClass().getName());
 				while (enumeration.hasMoreElements()) {
 					String httpParamName = enumeration.nextElement();
 					String paramValue = request.getParameter(httpParamName);
