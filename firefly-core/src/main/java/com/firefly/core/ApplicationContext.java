@@ -1,5 +1,7 @@
 package com.firefly.core;
 
 public interface ApplicationContext {
-	public Object getBean(String id);
+	Object getBean(String id);
+
+	<T> T getBean(Class<T> clazz);
 }
