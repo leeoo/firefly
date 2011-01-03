@@ -71,6 +71,8 @@ public class HttpServletDispatcherController implements DispatcherController {
 			BeanHandle lastBefore = null;
 			Object afterRet = null;
 			BeanHandle lastAfter = null;
+
+			// 前置拦截栈调用
 			if (beforeSet != null) {
 				for (BeanHandle before : beforeSet) {
 					Object[] beforeP = getParams(request, response, before);
@@ -81,9 +83,11 @@ public class HttpServletDispatcherController implements DispatcherController {
 				}
 			}
 
+			// controller调用
 			Object[] p = getParams(request, response, beanHandle);
 			ret = beanHandle.invoke(p);
 
+			// 后置拦截栈调用
 			if (afterSet != null) {
 				for (BeanHandle after : afterSet) {
 					Object[] afterP = getParams(request, response, after);
@@ -93,18 +97,21 @@ public class HttpServletDispatcherController implements DispatcherController {
 					}
 				}
 			}
+
+			// 视图渲染
 			try {
 				if (afterRet != null) {
+					// log.info("after view [{}]", afterRet);
 					lastAfter.getViewHandle().render(request, response,
 							afterRet);
-					return;
-				}
-				if (beforeRet != null) {
+				} else if (beforeRet != null) {
+					// log.info("before view [{}]", beforeRet);
 					lastBefore.getViewHandle().render(request, response,
 							beforeRet);
-					return;
+				} else {
+					// log.info("controller view [{}]", ret);
+					beanHandle.getViewHandle().render(request, response, ret);
 				}
-				beanHandle.getViewHandle().render(request, response, ret);
 			} catch (ServletException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
