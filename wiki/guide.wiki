@@ -33,10 +33,10 @@ firefly.properties配置说明：
 
 	@Test
 	public void testFieldInject() {
-		FieldInject fieldInject = (FieldInject) applicationContext
-				.getBean("fieldInject");
+		FieldInject fieldInject = applicationContext.getBean("fieldInject");
 		Assert.assertThat(fieldInject.add(5, 4), is(9));
 		Assert.assertThat(fieldInject.add2(5, 4), is(9));
+
 		fieldInject = applicationContext.getBean(FieldInject.class);
 		Assert.assertThat(fieldInject.add(5, 4), is(9));
 		Assert.assertThat(fieldInject.add2(5, 4), is(9));
@@ -122,6 +122,8 @@ public class FieldInjectImpl implements FieldInject {
 </servlet-mapping>
 }}}
 == Controller使用 ==
+ * @RequestMapping定义了请求地址和返回视图的类型，视图包括：jsp、text（文本）、redirect（重定向）、json
+ * 当视图为jsp、text和redirect时方法的返回值约定为String类型，json支持Object类型
 例子：
 {{{
 @Controller
@@ -157,8 +159,59 @@ public class HelloController {
 	}
 }
 }}}
- * @RequestMapping定义了请求地址和返回视图的类型，视图包括：jsp、text（文本）、redirect（重定向）、json
- * 当视图为jsp、text和redirect时方法的返回值约定为String类型，json支持Object类型
+
+ * 自动封装请求参数到javabean，只要把方法的参数标记上@HttpParam即可，@HttpParam.value()是可选值，当不为空的时候会自动把Book对象setAttribute里面
+{{{
+	@RequestMapping(value = "/book/add")
+	public String gotoCreateBook() {
+		return "/book_create.jsp";
+	}
+
+	@RequestMapping(value = "/book/create", method = HttpMethod.POST)
+	public String createBook(@HttpParam("book") Book book) {
+		book.setSell(true);
+		book.setText("测试当前book");
+		book.setId(90);
+		return "/book.jsp";
+	}
+}}}
+
+页面book.jsp
+{{{
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Strict//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>firefly</title>
+</head>
+<body>
+| ${book.id} | ${book.title} | ${book.text} | ${book.price} | ${book.sell} |
+</body>
+</html>
+}}}
+
+页面book_create.jsp
+{{{
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Strict//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>firefly</title>
+</head>
+<body>
+<form action="<c:url value="/app/book/create"></c:url>" method="POST">
+	书名：<input type="text" name="title"></input><br/>
+	价格：<input type="text" name="price"></input><br/>
+	<input type="submit" value="提交"></input>
+</form>
+</body>
+</html>
+}}}
+
+输入价格：324 书名：fdsfsdf 后显示结果
+
+{{{
+| 90 | fdsfsdf | 测试当前book | 324.0 | true | 
+}}}
+
 
 == 拦截器的使用 ==
  * 拦截的uri支持使用“`*`”通配符
