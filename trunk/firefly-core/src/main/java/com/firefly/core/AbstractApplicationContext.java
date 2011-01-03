@@ -33,6 +33,12 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 		return map.get(id);
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T getBean(Class<T> clazz) {
+		return (T) map.get(clazz.getName());
+	}
+
 	abstract public void addObjectToContext(Class<?> c, Object o);
 
 	public ApplicationContext load() {
