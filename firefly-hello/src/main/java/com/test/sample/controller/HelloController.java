@@ -57,7 +57,7 @@ public class HelloController {
 	}
 
 	@RequestMapping(value = "/book/add")
-	public String gotoCreateBook(@HttpParam("book") Book book) {
+	public String gotoCreateBook() {
 		return "/book_create.jsp";
 	}
 
