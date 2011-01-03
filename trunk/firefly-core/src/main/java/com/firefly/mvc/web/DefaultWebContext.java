@@ -71,11 +71,6 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 	}
 
 	@Override
-	public Object getBean(String id) {
-		return map.get(id);
-	}
-
-	@Override
 	public String getViewPath() {
 		return beanReader.getProperties().getProperty(Config.VIEW_PATH,
 				Config.DEFAULT_VIEW_PATH);
