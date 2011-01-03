@@ -3,30 +3,33 @@ package com.firefly.mvc.web.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.Enumeration;
 import java.util.Set;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import com.firefly.annotation.HttpParam;
 import com.firefly.mvc.web.DefaultWebContext;
 import com.firefly.mvc.web.DispatcherController;
 import com.firefly.mvc.web.WebContext;
 import com.firefly.mvc.web.support.BeanHandle;
+import com.firefly.mvc.web.support.ParamHandle;
+import com.firefly.utils.VerifyUtils;
 
 public class HttpServletDispatcherController implements DispatcherController {
 
 	private static Logger log = LoggerFactory
 			.getLogger(HttpServletDispatcherController.class);
 
+	private interface ReqResName {
+		String REQUEST_CLASS_NAME = HttpServletRequest.class.getName();
+		String RESPONSE_CLASS_NAME = HttpServletResponse.class.getName();
+		String HTTP_PARAM_NAME = HttpParam.class.getName();
+	}
+
 	private WebContext webContext;
-	private static final String REQUEST_CLASS_NAME = HttpServletRequest.class
-			.getName();
-	private static final String RESPONSE_CLASS_NAME = HttpServletResponse.class
-			.getName();
 
 	private HttpServletDispatcherController() {
 
@@ -127,17 +130,34 @@ public class HttpServletDispatcherController implements DispatcherController {
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	private Object[] getParams(HttpServletRequest request,
 			HttpServletResponse response, BeanHandle beanHandle) {
-		// TODO 此处还需要完善 1)增加请求参数封装到javabean
+		log.info("into getParams ==========");
 		String[] paraNames = beanHandle.getParaClassNames();
+		ParamHandle[] paramHandles = beanHandle.getParamHandles();
 		Object[] p = new Object[paraNames.length];
 		for (int i = 0; i < p.length; i++) {
-			if (paraNames[i].equals(REQUEST_CLASS_NAME)) {
+			log.info("param name [{}]", paraNames[i]);
+			if (paraNames[i].equals(ReqResName.REQUEST_CLASS_NAME)) {
 				p[i] = request;
-			}
-			if (paraNames[i].equals(RESPONSE_CLASS_NAME)) {
+			} else if (paraNames[i].equals(ReqResName.RESPONSE_CLASS_NAME)) {
 				p[i] = response;
+			} else if (paraNames[i].equals(ReqResName.HTTP_PARAM_NAME)) {
+				// TODO 此处增加请求参数封装到javabean
+				Enumeration<String> enumeration = request.getParameterNames();
+				ParamHandle paramHandle = paramHandles[i];
+				p[i] = paramHandle.newInstance();
+				while (enumeration.hasMoreElements()) {
+					String httpParamName = enumeration.nextElement();
+					String paramValue = request.getParameter(httpParamName);
+					paramHandle.setParam(p[i], httpParamName, paramValue);
+					log.info("http param name [{}], value [{}]", httpParamName,
+							paramValue);
+				}
+				if (VerifyUtils.isNotEmpty(paramHandle.getAttribute())) {
+					request.setAttribute(paramHandle.getAttribute(), p[i]);
+				}
 			}
 		}
 		return p;
