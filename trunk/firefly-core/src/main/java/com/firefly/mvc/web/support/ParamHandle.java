@@ -37,8 +37,10 @@ public class ParamHandle {
 	public void setParam(Object o, String key, String value) {
 		try {
 			Method m = map.get(key);
-			Class<?> p = m.getParameterTypes()[0];
-			m.invoke(o, Cast.convert(value, p));
+			if (m != null) {
+				Class<?> p = m.getParameterTypes()[0];
+				m.invoke(o, Cast.convert(value, p));
+			}
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
