@@ -16,8 +16,7 @@ public class ItestInterceptor {
 		log.info("before 1 [{}]", request.getRequestURI());
 	}
 
-	public String after(HttpServletRequest request, HttpServletResponse response) {
+	public void after(HttpServletRequest request, HttpServletResponse response) {
 		log.info("after 1 [{}]", request.getRequestURI());
-		return null;
 	}
 }
