@@ -4,9 +4,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.firefly.annotation.Controller;
+import com.firefly.annotation.HttpParam;
 import com.firefly.annotation.Inject;
 import com.firefly.annotation.RequestMapping;
+import com.firefly.mvc.web.HttpMethod;
 import com.firefly.mvc.web.View;
+import com.test.sample.model.Book;
 import com.test.sample.model.HelloJson;
 import com.test.sample.service.AddService;
 
@@ -39,4 +42,32 @@ public class HelloController {
 		helloJson.setText("测试json");
 		return helloJson;
 	}
+
+	@RequestMapping(value = "/hello/value")
+	public String helloValue(HttpServletRequest request, @HttpParam Book book) {
+		request.setAttribute("book", book);
+		return "/book.jsp";
+	}
+
+	@RequestMapping(value = "/hello/value2")
+	public String helloValue2(@HttpParam("book") Book book) {
+		book.setSell(true);
+		book.setText("测试book");
+		return "/book.jsp";
+	}
+
+	@RequestMapping(value = "/book/add")
+	public String gotoCreateBook(@HttpParam("book") Book book) {
+		return "/book_create.jsp";
+	}
+
+	@RequestMapping(value = "/book/create", method = HttpMethod.POST)
+	public String createBook(@HttpParam("book") Book book) {
+		book.setSell(true);
+		book.setText("测试当前book");
+		book.setId(90);
+		return "/book.jsp";
+	}
+
+
 }
