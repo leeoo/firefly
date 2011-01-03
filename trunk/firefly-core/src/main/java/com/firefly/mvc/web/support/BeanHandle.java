@@ -63,6 +63,7 @@ public class BeanHandle implements Comparable<BeanHandle> {
 						+ paramMethod.getName().substring(3);
 			}
 			if (paramName != null) {
+				paramMethod.setAccessible(true);
 				paramMap.put(paramName, paramMethod);
 			}
 		}
