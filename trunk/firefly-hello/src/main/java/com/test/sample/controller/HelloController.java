@@ -3,6 +3,9 @@ package com.test.sample.controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.firefly.annotation.Controller;
 import com.firefly.annotation.HttpParam;
 import com.firefly.annotation.Inject;
@@ -10,11 +13,13 @@ import com.firefly.annotation.RequestMapping;
 import com.firefly.mvc.web.HttpMethod;
 import com.firefly.mvc.web.View;
 import com.test.sample.model.Book;
+import com.test.sample.model.Book2;
 import com.test.sample.model.HelloJson;
 import com.test.sample.service.AddService;
 
 @Controller
 public class HelloController {
+	private static Logger log = LoggerFactory.getLogger(HelloController.class);
 	private AddService addService;
 
 	@Inject
@@ -62,12 +67,12 @@ public class HelloController {
 	}
 
 	@RequestMapping(value = "/book/create", method = HttpMethod.POST)
-	public String createBook(@HttpParam("book") Book book) {
+	public String createBook(@HttpParam("book") Book book, @HttpParam Book2 book2) {
 		book.setSell(true);
 		book.setText("测试当前book");
 		book.setId(90);
+		log.info("book2 price [{}]", book2.getPrice());
 		return "/book.jsp";
 	}
-
 
 }
