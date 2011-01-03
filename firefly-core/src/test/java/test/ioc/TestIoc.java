@@ -15,10 +15,10 @@ public class TestIoc {
 
 	@Test
 	public void testFieldInject() {
-		FieldInject fieldInject = (FieldInject) applicationContext
-				.getBean("fieldInject");
+		FieldInject fieldInject = applicationContext.getBean("fieldInject");
 		Assert.assertThat(fieldInject.add(5, 4), is(9));
 		Assert.assertThat(fieldInject.add2(5, 4), is(9));
+
 		fieldInject = applicationContext.getBean(FieldInject.class);
 		Assert.assertThat(fieldInject.add(5, 4), is(9));
 		Assert.assertThat(fieldInject.add2(5, 4), is(9));
@@ -26,14 +26,13 @@ public class TestIoc {
 
 	@Test
 	public void testMethodInject() {
-		MethodInject m = (MethodInject) applicationContext
-				.getBean("methodInject");
+		MethodInject m = applicationContext.getBean("methodInject");
 		Assert.assertThat(m.add(5, 4), is(9));
 	}
 
 	@Test
 	public void testSingle() {
-		AddService t = (AddService) applicationContext.getBean("addService");
+		AddService t = applicationContext.getBean("addService");
 		t.getI();
 		t.getI();
 		Assert.assertThat(t.getI(), greaterThan(0));

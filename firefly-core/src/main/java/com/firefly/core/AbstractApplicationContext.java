@@ -28,15 +28,21 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 	protected List<Object> list;
 	protected BeanReader beanReader;
 
-	@Override
-	public Object getBean(String id) {
-		return map.get(id);
-	}
+//	@Override
+//	public Object getBean(String id) {
+//		return map.get(id);
+//	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T getBean(Class<T> clazz) {
 		return (T) map.get(clazz.getName());
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T getBean(String id) {
+		return (T) map.get(id);
 	}
 
 	abstract public void addObjectToContext(Class<?> c, Object o);
