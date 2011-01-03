@@ -10,13 +10,18 @@ import com.firefly.core.ApplicationContext;
 import com.firefly.core.DefaultApplicationContext;
 
 public class TestIoc {
-	public static ApplicationContext applicationContext = DefaultApplicationContext.getInstance().load();
+	public static ApplicationContext applicationContext = DefaultApplicationContext
+			.getInstance().load();
 
 	@Test
 	public void testFieldInject() {
-		FieldInject t = (FieldInject) applicationContext.getBean("fieldInject");
-		Assert.assertThat(t.add(5, 4), is(9));
-		Assert.assertThat(t.add2(5, 4), is(9));
+		FieldInject fieldInject = (FieldInject) applicationContext
+				.getBean("fieldInject");
+		Assert.assertThat(fieldInject.add(5, 4), is(9));
+		Assert.assertThat(fieldInject.add2(5, 4), is(9));
+		fieldInject = applicationContext.getBean(FieldInject.class);
+		Assert.assertThat(fieldInject.add(5, 4), is(9));
+		Assert.assertThat(fieldInject.add2(5, 4), is(9));
 	}
 
 	@Test
