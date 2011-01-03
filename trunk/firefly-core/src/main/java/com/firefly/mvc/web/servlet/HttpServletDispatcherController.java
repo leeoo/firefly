@@ -144,7 +144,7 @@ public class HttpServletDispatcherController implements DispatcherController {
 			} else if (paraNames[i].equals(ReqResName.RESPONSE_CLASS_NAME)) {
 				p[i] = response;
 			} else if (paraNames[i].equals(ReqResName.HTTP_PARAM_NAME)) {
-				// TODO 此处增加请求参数封装到javabean
+				//请求参数封装到javabean
 				Enumeration<String> enumeration = request.getParameterNames();
 				ParamHandle paramHandle = paramHandles[i];
 				p[i] = paramHandle.newInstance();
