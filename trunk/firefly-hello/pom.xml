@@ -222,7 +222,7 @@
 		<repository>
 			<id>dev-demo</id>
         	<name>Snapshots</name>
-	    	<url>http://localhost:7777/nexus-webapp-1.6.0/content/groups/public</url>
+	    	<url>http://localhost:7777/nexus-webapp/content/groups/public</url>
         </repository>
     </repositories>
     <pluginRepositories>
@@ -232,12 +232,12 @@
     	<repository>
     		<id>3rdRepo</id>
     		<name>3rd party</name>
-    		<url>http://localhost:7777/nexus-webapp-1.6.0/content/repositories/thirdparty</url>
+    		<url>http://localhost:7777/nexus-webapp/content/repositories/thirdparty</url>
     	</repository>
     	<snapshotRepository>
 	    	<id>dev</id>
 	    	<name>Snapshots</name>
-	    	<url>http://localhost:7777/nexus-webapp-1.6.0/content/repositories/snapshots</url>
+	    	<url>http://localhost:7777/nexus-webapp/content/repositories/snapshots</url>
 		</snapshotRepository>
     </distributionManagement>
 </project>
