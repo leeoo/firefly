@@ -41,7 +41,8 @@ public class BeanHandle implements Comparable<BeanHandle> {
 			if (httpParam != null) {
 				ParamHandle paramHandle = new ParamHandle();
 				paramHandle.setAttribute(httpParam.value());
-				paramHandle.setMap(getParamMap(paraTypes[i]));
+				paramHandle
+						.setBeanGetAndSetMethod(getBeanGetAndSetMethod(paraTypes[i]));
 				paramHandle.setParamClass(paraTypes[i]);
 				paramHandles[i] = paramHandle;
 				methodParam[i] = MethodParam.HTTP_PARAM;
@@ -54,8 +55,8 @@ public class BeanHandle implements Comparable<BeanHandle> {
 		}
 	}
 
-	private Map<String, Method> getParamMap(Class<?> paraType) {
-		Map<String, Method> paramMap = new HashMap<String, Method>();
+	private Map<String, Method> getBeanGetAndSetMethod(Class<?> paraType) {
+		Map<String, Method> beanGetAndSetMethod = new HashMap<String, Method>();
 		Method[] paramMethods = paraType.getMethods();
 
 		for (Method paramMethod : paramMethods) {
@@ -72,10 +73,10 @@ public class BeanHandle implements Comparable<BeanHandle> {
 			}
 			if (paramName != null) {
 				paramMethod.setAccessible(true);
-				paramMap.put(paramName, paramMethod);
+				beanGetAndSetMethod.put(paramName, paramMethod);
 			}
 		}
-		return paramMap;
+		return beanGetAndSetMethod;
 	}
 
 	private HttpParam getHttpParam(Annotation[] annotations) {

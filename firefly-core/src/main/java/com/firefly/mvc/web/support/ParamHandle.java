@@ -7,7 +7,7 @@ import com.firefly.utils.Cast;
 
 public class ParamHandle {
 	private Class<?> paramClass;
-	private Map<String, Method> map;
+	private Map<String, Method> beanGetAndSetMethod;
 	private String attribute;
 
 	public String getAttribute() {
@@ -18,12 +18,12 @@ public class ParamHandle {
 		this.attribute = attribute;
 	}
 
-	public Map<String, Method> getMap() {
-		return map;
+	public Map<String, Method> getBeanGetAndSetMethod() {
+		return beanGetAndSetMethod;
 	}
 
-	public void setMap(Map<String, Method> map) {
-		this.map = map;
+	public void setBeanGetAndSetMethod(Map<String, Method> beanGetAndSetMethod) {
+		this.beanGetAndSetMethod = beanGetAndSetMethod;
 	}
 
 	public Class<?> getParamClass() {
@@ -36,7 +36,7 @@ public class ParamHandle {
 
 	public void setParam(Object o, String key, String value) {
 		try {
-			Method m = map.get(key);
+			Method m = beanGetAndSetMethod.get(key);
 			if (m != null) {
 				Class<?> p = m.getParameterTypes()[0];
 				m.invoke(o, Cast.convert(value, p));
