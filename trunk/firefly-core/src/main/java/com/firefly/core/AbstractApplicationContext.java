@@ -9,10 +9,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.firefly.annotation.Component;
 import com.firefly.annotation.Controller;
 import com.firefly.annotation.Inject;
@@ -21,17 +17,17 @@ import com.firefly.core.support.BeanReader;
 import com.firefly.core.support.annotation.AnnotationBeanReader;
 
 abstract public class AbstractApplicationContext implements ApplicationContext {
-	private static Logger log = LoggerFactory
-			.getLogger(AbstractApplicationContext.class);
+	// private static Logger log = LoggerFactory
+	// .getLogger(AbstractApplicationContext.class);
 
 	protected Map<String, Object> map;
 	protected List<Object> list;
 	protected BeanReader beanReader;
 
-//	@Override
-//	public Object getBean(String id) {
-//		return map.get(id);
-//	}
+	// @Override
+	// public Object getBean(String id) {
+	// return map.get(id);
+	// }
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -80,7 +76,7 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 			// 增加声明的组件到 ApplicationContext
 			Set<String> keys = getInstanceMapKeys(c);
 			for (String k : keys) {
-				log.info("obj key [{}]", k);
+				// log.info("obj key [{}]", k);
 				map.put(k, o);
 			}
 
@@ -98,7 +94,7 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 	 */
 	private void inject() throws IllegalArgumentException,
 			IllegalAccessException, InvocationTargetException {
-		log.info("================into inject===============");
+		// log.info("================into inject===============");
 		for (Object o : list) {
 			// 属性注入
 			Field[] fields = o.getClass().getDeclaredFields();
@@ -109,8 +105,8 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 				String key = field.getAnnotation(Inject.class).value();
 				Object instance = map.get(key.length() > 0 ? key : clazz
 						.getName());
-				log.info("field obj [{}] inject instance [{}]",
-						clazz.getName(), instance.getClass().getName());
+				// log.info("field obj [{}] inject instance [{}]",
+				// clazz.getName(), instance.getClass().getName());
 				field.set(o, instance);
 			}
 
@@ -124,16 +120,16 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 				for (int i = 0; i < p.length; i++) {
 					Object instance = map.get(params[i].getName());
 					if (instance != null) {
-						log.info("method obj [{}] inject instance [{}]",
-								params[i].getName(), instance.getClass()
-										.getName());
+						// log.info("method obj [{}] inject instance [{}]",
+						// params[i].getName(), instance.getClass()
+						// .getName());
 						p[i] = instance;
 					}
 				}
 				method.invoke(o, p);
 			}
 		}
-		log.info("================end inject===============");
+		// log.info("================end inject===============");
 	}
 
 	private List<Method> getInjectMethod(Method[] methods) {
