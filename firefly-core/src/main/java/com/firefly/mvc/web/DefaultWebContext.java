@@ -102,16 +102,12 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 		for (Method m : list) {
 			m.setAccessible(true);
 			String uriPattern = c.getAnnotation(Interceptor.class).uri();
-			final String method = c.getAnnotation(Interceptor.class).method();
 			final String view = c.getAnnotation(Interceptor.class).view();
 			final Integer order = c.getAnnotation(Interceptor.class).order();
-			uriPattern = method + "@" + uriPattern;
 
 			List<String> l = getInterceptUri(uriPattern);
 			for (String i : l) {
-				String key = m.getName().charAt(0) + "#" + method + "@";
-				key += i;
-				// log.info("intercept map [{}]", key);
+				String key = m.getName().charAt(0) + "#" + i;
 				BeanHandle beanHandle = new BeanHandle(o, m,
 						getViewHandle(view));
 				beanHandle.setInterceptOrder(order);
@@ -163,25 +159,26 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 	 */
 	private List<String> getInterceptUri(String pattern) {
 		List<String> list = new ArrayList<String>();
-		for (String uri : uriList) {
+		for (String uriAndMethod : uriList) {
+			String uri = uriAndMethod.split("@")[1];
 			if (pattern.indexOf("*") < 0) {
 				if (pattern.equals(uri)) {
-					list.add(uri.split("@")[1]);
+					list.add(uri);
 				} else if (uri.charAt(uri.length() - 1) == '/'
 						&& pattern.charAt(pattern.length() - 1) != '/') {
 					String uriTemp = uri.substring(0, uri.length() - 1);
 					if (uriTemp.equals(pattern)) {
-						list.add(uri.split("@")[1]);
+						list.add(uri);
 					}
 				} else if (uri.charAt(uri.length() - 1) != '/'
 						&& pattern.charAt(pattern.length() - 1) == '/') {
 					String uriTemp = uri + "/";
 					if (uriTemp.equals(pattern)) {
-						list.add(uri.split("@")[1]);
+						list.add(uri);
 					}
 				}
 			} else if (VerifyUtils.simpleWildcardMatch(pattern, uri)) {
-				list.add(uri.split("@")[1]);
+				list.add(uri);
 			}
 		}
 		return list;
