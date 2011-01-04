@@ -10,11 +10,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.firefly.annotation.HttpParam;
 import com.firefly.mvc.web.DefaultWebContext;
 import com.firefly.mvc.web.DispatcherController;
 import com.firefly.mvc.web.WebContext;
 import com.firefly.mvc.web.support.BeanHandle;
+import com.firefly.mvc.web.support.MethodParam;
 import com.firefly.mvc.web.support.ParamHandle;
 import com.firefly.utils.VerifyUtils;
 
@@ -22,12 +22,6 @@ public class HttpServletDispatcherController implements DispatcherController {
 
 	private static Logger log = LoggerFactory
 			.getLogger(HttpServletDispatcherController.class);
-
-	private interface ReqResName {
-		String REQUEST_CLASS_NAME = HttpServletRequest.class.getName();
-		String RESPONSE_CLASS_NAME = HttpServletResponse.class.getName();
-		String HTTP_PARAM_NAME = HttpParam.class.getName();
-	}
 
 	private WebContext webContext;
 
@@ -134,21 +128,26 @@ public class HttpServletDispatcherController implements DispatcherController {
 	private Object[] getParams(HttpServletRequest request,
 			HttpServletResponse response, BeanHandle beanHandle) {
 		log.info("into getParams ==========");
-		String[] paraNames = beanHandle.getParaClassNames();
+		int[] methodParam = beanHandle.getMethodParam();
 		ParamHandle[] paramHandles = beanHandle.getParamHandles();
-		Object[] p = new Object[paraNames.length];
+		Object[] p = new Object[methodParam.length];
 		for (int i = 0; i < p.length; i++) {
-			log.info("param name [{}]", paraNames[i]);
-			if (paraNames[i].equals(ReqResName.REQUEST_CLASS_NAME)) {
+			log.info("param name [{}]", methodParam[i]);
+
+			switch (methodParam[i]) {
+			case MethodParam.REQUEST:
 				p[i] = request;
-			} else if (paraNames[i].equals(ReqResName.RESPONSE_CLASS_NAME)) {
+				break;
+			case MethodParam.RESPONSE:
 				p[i] = response;
-			} else if (paraNames[i].equals(ReqResName.HTTP_PARAM_NAME)) {
-				//请求参数封装到javabean
+				break;
+			case MethodParam.HTTP_PARAM:
+				// 请求参数封装到javabean
 				Enumeration<String> enumeration = request.getParameterNames();
 				ParamHandle paramHandle = paramHandles[i];
 				p[i] = paramHandle.newInstance();
-				log.info(">>>>>>>>>> param class [{}]", p[i].getClass().getName());
+				log.info(">>>>>>>>>> param class [{}]", p[i].getClass()
+						.getName());
 				while (enumeration.hasMoreElements()) {
 					String httpParamName = enumeration.nextElement();
 					String paramValue = request.getParameter(httpParamName);
@@ -159,6 +158,7 @@ public class HttpServletDispatcherController implements DispatcherController {
 				if (VerifyUtils.isNotEmpty(paramHandle.getAttribute())) {
 					request.setAttribute(paramHandle.getAttribute(), p[i]);
 				}
+				break;
 			}
 		}
 		return p;

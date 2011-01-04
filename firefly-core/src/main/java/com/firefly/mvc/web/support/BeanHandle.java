@@ -5,6 +5,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.firefly.annotation.HttpParam;
 
 /**
@@ -16,8 +20,8 @@ import com.firefly.annotation.HttpParam;
 public class BeanHandle implements Comparable<BeanHandle> {
 	private final Object object;
 	private final Method method;
-	private final String[] paraClassNames;
 	private final ParamHandle[] paramHandles;
+	private final int[] methodParam;
 	private final ViewHandle viewHandle;
 	private Integer interceptOrder;
 
@@ -28,7 +32,8 @@ public class BeanHandle implements Comparable<BeanHandle> {
 		this.viewHandle = viewHandle;
 
 		Class<?>[] paraTypes = method.getParameterTypes();
-		paraClassNames = new String[paraTypes.length];
+		methodParam = new int[paraTypes.length];
+		// 构造参数对象
 		paramHandles = new ParamHandle[paraTypes.length];
 		Annotation[][] annotations = method.getParameterAnnotations();
 		for (int i = 0; i < paraTypes.length; i++) {
@@ -39,9 +44,12 @@ public class BeanHandle implements Comparable<BeanHandle> {
 				paramHandle.setMap(getParamMap(paraTypes[i]));
 				paramHandle.setParamClass(paraTypes[i]);
 				paramHandles[i] = paramHandle;
-				paraClassNames[i] = HttpParam.class.getName();
+				methodParam[i] = MethodParam.HTTP_PARAM;
 			} else {
-				paraClassNames[i] = paraTypes[i].getName();
+				if (paraTypes[i].equals(HttpServletRequest.class))
+					methodParam[i] = MethodParam.REQUEST;
+				else if (paraTypes[i].equals(HttpServletResponse.class))
+					methodParam[i] = MethodParam.RESPONSE;
 			}
 		}
 	}
@@ -94,10 +102,6 @@ public class BeanHandle implements Comparable<BeanHandle> {
 		return viewHandle;
 	}
 
-	public String[] getParaClassNames() {
-		return paraClassNames;
-	}
-
 	public Object getObject() {
 		return object;
 	}
@@ -119,6 +123,10 @@ public class BeanHandle implements Comparable<BeanHandle> {
 			e.printStackTrace();
 		}
 		return ret;
+	}
+
+	public int[] getMethodParam() {
+		return methodParam;
 	}
 
 	@Override
