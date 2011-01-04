@@ -37,7 +37,6 @@ public class HttpServletDispatcherController implements DispatcherController {
 		return HttpServletDispatcherControllerHolder.instance;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void dispatcher(HttpServletRequest request,
 			HttpServletResponse response) {
@@ -55,13 +54,11 @@ public class HttpServletDispatcherController implements DispatcherController {
 		String key = request.getMethod() + "@" + invokeUri;
 		String beforeIntercept = "before##intercept:" + key;
 		String afterIntercept = "after##intercept:" + key;
-		Set<BeanHandle> beforeSet = (Set<BeanHandle>) webContext
-				.getBean(beforeIntercept);
-		Set<BeanHandle> afterSet = (Set<BeanHandle>) webContext
-				.getBean(afterIntercept);
+		Set<BeanHandle> beforeSet = webContext.getBean(beforeIntercept);
+		Set<BeanHandle> afterSet = webContext.getBean(afterIntercept);
 
 		log.info("uri map [{}]", key);
-		BeanHandle beanHandle = (BeanHandle) webContext.getBean(key);
+		BeanHandle beanHandle = webContext.getBean(key);
 		if (beanHandle != null) {
 			Object ret = null;
 			Object beforeRet = null;
