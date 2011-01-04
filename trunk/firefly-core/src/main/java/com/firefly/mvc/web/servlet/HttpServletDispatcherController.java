@@ -52,8 +52,8 @@ public class HttpServletDispatcherController implements DispatcherController {
 		String prePath = request.getContextPath() + request.getServletPath();
 		String invokeUri = uri.substring(prePath.length());
 		String key = request.getMethod() + "@" + invokeUri;
-		String beforeIntercept = "b#" + key;
-		String afterIntercept = "a#" + key;
+		String beforeIntercept = "b#" + invokeUri;
+		String afterIntercept = "a#" + invokeUri;
 		Set<BeanHandle> beforeSet = webContext.getBean(beforeIntercept);
 		Set<BeanHandle> afterSet = webContext.getBean(afterIntercept);
 
