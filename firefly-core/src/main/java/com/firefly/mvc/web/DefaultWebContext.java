@@ -188,14 +188,11 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 		ViewHandle viewHandle = null;
 		if (view.equals(View.JSP)) {
 			viewHandle = JspViewHandle.getInstance();
-		}
-		if (view.equals(View.TEXT)) {
+		} else if (view.equals(View.TEXT)) {
 			viewHandle = TextViewHandle.getInstance();
-		}
-		if (view.equals(View.REDIRECT)) {
+		} else if (view.equals(View.REDIRECT)) {
 			viewHandle = RedirectHandle.getInstance();
-		}
-		if (view.equals(View.JSON)) {
+		} else if (view.equals(View.JSON)) {
 			viewHandle = JsonViewHandle.getInstance();
 		}
 		return viewHandle;
