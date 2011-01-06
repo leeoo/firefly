@@ -160,6 +160,7 @@ public class HelloController {
 }
 }}}
 
+== 自动封装request参数到javabean ==
  * 自动封装请求参数到javabean，只要把方法的参数标记上@HttpParam即可，@HttpParam.value()是可选值，当不为空的时候会自动把Book对象setAttribute里面
 {{{
 	@RequestMapping(value = "/book/add")
@@ -212,7 +213,9 @@ public class HelloController {
 | 90 | fdsfsdf | 测试当前book | 324.0 | true | 
 }}}
 
+== 灵活的controller方法参数 ==
  * controller的方法参数里面可以注入 request、response 或 标注有@HttpParam 的对象，可以灵活组合
+例如：
 {{{
 	@RequestMapping(value = "/hello/value")
 	public String helloValue(HttpServletRequest request, @HttpParam Book book) {
