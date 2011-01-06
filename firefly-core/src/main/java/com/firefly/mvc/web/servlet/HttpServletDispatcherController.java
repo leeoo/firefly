@@ -73,21 +73,25 @@ public class HttpServletDispatcherController implements DispatcherController {
 					beforeRet = before.invoke(beforeP);
 					if (beforeRet != null) {
 						lastBefore = before;
+						break;
 					}
 				}
 			}
 
-			// controller调用
-			Object[] p = getParams(request, response, beanHandle);
-			ret = beanHandle.invoke(p);
+			if (beforeRet == null) {
+				// controller调用
+				Object[] p = getParams(request, response, beanHandle);
+				ret = beanHandle.invoke(p);
 
-			// 后置拦截栈调用
-			if (afterSet != null) {
-				for (BeanHandle after : afterSet) {
-					Object[] afterP = getParams(request, response, after);
-					afterRet = after.invoke(afterP);
-					if (afterRet != null) {
-						lastAfter = after;
+				// 后置拦截栈调用
+				if (afterSet != null) {
+					for (BeanHandle after : afterSet) {
+						Object[] afterP = getParams(request, response, after);
+						afterRet = after.invoke(afterP);
+						if (afterRet != null) {
+							lastAfter = after;
+							break;
+						}
 					}
 				}
 			}
@@ -129,7 +133,7 @@ public class HttpServletDispatcherController implements DispatcherController {
 		ParamHandle[] paramHandles = beanHandle.getParamHandles();
 		Object[] p = new Object[methodParam.length];
 		for (int i = 0; i < p.length; i++) {
-//			log.info("param name [{}]", methodParam[i]);
+			// log.info("param name [{}]", methodParam[i]);
 
 			switch (methodParam[i]) {
 			case MethodParam.REQUEST:
@@ -143,8 +147,8 @@ public class HttpServletDispatcherController implements DispatcherController {
 				Enumeration<String> enumeration = request.getParameterNames();
 				ParamHandle paramHandle = paramHandles[i];
 				p[i] = paramHandle.newInstance();
-//				log.info(">>>>>>>>>> param class [{}]", p[i].getClass()
-//						.getName());
+				// log.info(">>>>>>>>>> param class [{}]", p[i].getClass()
+				// .getName());
 				while (enumeration.hasMoreElements()) {
 					String httpParamName = enumeration.nextElement();
 					String paramValue = request.getParameter(httpParamName);
