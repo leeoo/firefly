@@ -212,6 +212,15 @@ public class HelloController {
 | 90 | fdsfsdf | 测试当前book | 324.0 | true | 
 }}}
 
+ * controller的方法参数里面可以注入 request、response 或 标注有@HttpParam 的对象，可以灵活组合
+{{{
+	@RequestMapping(value = "/hello/value")
+	public String helloValue(HttpServletRequest request, @HttpParam Book book) {
+		request.setAttribute("book", book);
+		return "/book.jsp";
+	}
+}}}
+
 
 == 拦截器的使用 ==
  * 拦截的uri支持使用“`*`”通配符
