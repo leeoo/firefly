@@ -15,7 +15,8 @@ public class Hello2Interceptor {
 	public String before(HttpServletRequest request,
 			HttpServletResponse response) {
 		log.info("ti before [{}]", request.getRequestURI());
-		return "/hello2";
+//		return "/hello2";
+		return null;
 	}
 
 	public String after(HttpServletRequest request, HttpServletResponse response) {
