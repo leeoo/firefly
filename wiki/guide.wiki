@@ -265,7 +265,7 @@ public class Hello2Interceptor {
 	}
 }
 }}}
-当“/ti”对应的controller执行之后，返回的视图将变成拦截器返回的视图
+当“/ti”对应的controller执行之后，返回的视图将变成拦截器返回的视图，拦截器return null或者返回值为void时拦截栈会继续执行，有返回值的情况下会中断拦截栈，直接渲染拦截器返回的视图。
 
  * 通过order定义拦截器执行顺序，order越小拦截器越先执行，order默认值为0
 例子：
