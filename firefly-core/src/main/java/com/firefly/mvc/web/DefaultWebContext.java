@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.firefly.annotation.Interceptor;
 import com.firefly.annotation.RequestMapping;
 import com.firefly.core.AbstractApplicationContext;
@@ -24,8 +28,8 @@ import com.firefly.utils.VerifyUtils;
  */
 public class DefaultWebContext extends AbstractApplicationContext implements
 		WebContext {
-	// private static Logger log = LoggerFactory
-	// .getLogger(DefaultWebContext.class);
+	private static Logger log = LoggerFactory
+			.getLogger(DefaultWebContext.class);
 	private List<String> uriList = new ArrayList<String>();
 
 	private interface Config {
@@ -88,14 +92,14 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 			BeanHandle beanHandle = new BeanHandle(o, m, getViewHandle(view));
 			map.put(key, beanHandle);
 			uriList.add(key);
-			// log.info("uri map [{}]", key);
+			log.info("register uri [{}]", key);
 			if (key.charAt(key.length() - 1) == '/')
 				key = key.substring(0, key.length() - 1);
 			else
 				key += "/";
 			map.put(key, beanHandle);
 			uriList.add(key);
-			// log.info("uri map [{}]", key);
+			log.info("register uri [{}]", key);
 		}
 
 		list = getInterceptor(c);

@@ -17,17 +17,9 @@ import com.firefly.core.support.BeanReader;
 import com.firefly.core.support.annotation.AnnotationBeanReader;
 
 abstract public class AbstractApplicationContext implements ApplicationContext {
-	// private static Logger log = LoggerFactory
-	// .getLogger(AbstractApplicationContext.class);
 
 	protected Map<String, Object> map;
-	protected List<Object> list;
 	protected BeanReader beanReader;
-
-	// @Override
-	// public Object getBean(String id) {
-	// return map.get(id);
-	// }
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -53,7 +45,6 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 			beanReader = AnnotationBeanReader.getInstance().load(file);
 			final Set<Class<?>> classes = beanReader.getClasses();
 			init(classes);
-			inject();
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
@@ -67,11 +58,12 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 	}
 
 	private void init(Set<Class<?>> classes) throws InstantiationException,
-			IllegalAccessException {
-		list = new ArrayList<Object>();
+			IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException {
+		List<Object> instanceList = new ArrayList<Object>();
 		for (Class<?> c : classes) {
 			Object o = c.newInstance();
-			list.add(o);
+			instanceList.add(o);
 
 			// 增加声明的组件到 ApplicationContext
 			Set<String> keys = getInstanceMapKeys(c);
@@ -83,19 +75,8 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 			// 增加其他对象到Context
 			addObjectToContext(c, o);
 		}
-	}
 
-	/**
-	 * 把ApplicationContext里面的对象注入实例
-	 *
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 * @throws InvocationTargetException
-	 */
-	private void inject() throws IllegalArgumentException,
-			IllegalAccessException, InvocationTargetException {
-		// log.info("================into inject===============");
-		for (Object o : list) {
+		for (Object o : instanceList) {
 			// 属性注入
 			Field[] fields = o.getClass().getDeclaredFields();
 			List<Field> fieldList = getInjectField(fields);
@@ -105,8 +86,6 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 				String key = field.getAnnotation(Inject.class).value();
 				Object instance = map.get(key.length() > 0 ? key : clazz
 						.getName());
-				// log.info("field obj [{}] inject instance [{}]",
-				// clazz.getName(), instance.getClass().getName());
 				field.set(o, instance);
 			}
 
@@ -120,16 +99,12 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 				for (int i = 0; i < p.length; i++) {
 					Object instance = map.get(params[i].getName());
 					if (instance != null) {
-						// log.info("method obj [{}] inject instance [{}]",
-						// params[i].getName(), instance.getClass()
-						// .getName());
 						p[i] = instance;
 					}
 				}
 				method.invoke(o, p);
 			}
 		}
-		// log.info("================end inject===============");
 	}
 
 	private List<Method> getInjectMethod(Method[] methods) {
