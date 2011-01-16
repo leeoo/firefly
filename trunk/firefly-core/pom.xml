@@ -162,7 +162,7 @@
 
 		<!-- common -->
 		<jstl.version>1.1.2</jstl.version>
-		<jackson.version>1.7.0</jackson.version>
+		<jackson.version>1.7.1</jackson.version>
 
         <log.level>INFO</log.level>
         <log.path>D:/log/app.log</log.path>
