@@ -21,6 +21,7 @@ import com.firefly.annotation.Component;
 import com.firefly.annotation.Controller;
 import com.firefly.annotation.Interceptor;
 import com.firefly.core.support.BeanReader;
+import com.firefly.utils.StringUtils;
 
 /**
  * 读取Bean信息
@@ -64,8 +65,8 @@ public class AnnotationBeanReader implements BeanReader {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		final String[] componentPath = properties.getProperty(COMPONENT_PATH)
-				.split(",");
+		final String[] componentPath = StringUtils.split(properties
+				.getProperty(COMPONENT_PATH), ",");
 
 		for (String pack : componentPath) {
 			log.info("componentPath [{}]", pack);
@@ -82,8 +83,7 @@ public class AnnotationBeanReader implements BeanReader {
 		Enumeration<URL> dirs = null;
 
 		try {
-
-			dirs = AnnotationBeanReader.class.getClassLoader().getResources(
+			dirs = Thread.currentThread().getContextClassLoader().getResources(
 					packageDirName);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -156,7 +156,7 @@ public class AnnotationBeanReader implements BeanReader {
 					String className = name.substring(packageName.length() + 1,
 							name.length() - 6);
 					// 添加到classes
-					Class<?> c = AnnotationBeanReader.class.getClassLoader()
+					Class<?> c = Thread.currentThread().getContextClassLoader()
 							.loadClass(packageName + '.' + className);
 
 					if (isAnnotationPresent(c)) {
@@ -198,7 +198,7 @@ public class AnnotationBeanReader implements BeanReader {
 				// classes.add(Class.forName(packageName + '.' +
 				// className));
 				// 这里用forName有一些不好，会触发static方法，没有使用classLoader的load干净
-				Class<?> c = AnnotationBeanReader.class.getClassLoader()
+				Class<?> c = Thread.currentThread().getContextClassLoader()
 						.loadClass(packageName + '.' + className);
 
 				if (isAnnotationPresent(c)) {
