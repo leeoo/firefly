@@ -85,18 +85,4 @@ abstract public class VerifyUtils {
 		return o == null || o.toString().length() == 0;
 	}
 
-	public static void main(String[] args) {
-		// String pattern = "*sdfsdf*";
-		// String wildcard = "*";
-		// String str = "12345sdfsdf";
-		// final boolean startWith = pattern.startsWith(wildcard);
-		// final boolean endWith = pattern.endsWith(wildcard);
-		// int currentIndex = -1;
-		// String[] array = StringUtils.split(pattern, wildcard);
-		// System.out.println(array[0]);
-		// currentIndex = str.indexOf(array[0]);
-		// if (startWith && endWith) {
-		// System.out.println(currentIndex);
-		// }
-	}
 }

@@ -18,6 +18,7 @@ import com.firefly.mvc.web.support.view.JsonViewHandle;
 import com.firefly.mvc.web.support.view.JspViewHandle;
 import com.firefly.mvc.web.support.view.RedirectHandle;
 import com.firefly.mvc.web.support.view.TextViewHandle;
+import com.firefly.utils.StringUtils;
 import com.firefly.utils.VerifyUtils;
 
 /**
@@ -164,7 +165,7 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 	private List<String> getInterceptUri(String pattern) {
 		List<String> list = new ArrayList<String>();
 		for (String uriAndMethod : uriList) {
-			String uri = uriAndMethod.split("@")[1];
+			String uri = StringUtils.split(uriAndMethod, "@")[1];
 			if (pattern.indexOf("*") < 0) {
 				if (pattern.equals(uri)) {
 					list.add(uri);
