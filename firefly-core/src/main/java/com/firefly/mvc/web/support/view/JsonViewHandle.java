@@ -5,9 +5,10 @@ import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.alibaba.fastjson.JSON;
 import com.firefly.mvc.web.View;
 import com.firefly.mvc.web.support.ViewHandle;
 
@@ -15,7 +16,6 @@ public class JsonViewHandle implements ViewHandle {
 
 	private static Logger log = LoggerFactory.getLogger(JsonViewHandle.class);
 	private String encoding;
-	private ObjectMapper mapper = new ObjectMapper();
 
 	private JsonViewHandle() {
 
@@ -39,12 +39,12 @@ public class JsonViewHandle implements ViewHandle {
 			HttpServletResponse response, Object view) throws ServletException,
 			IOException {
 		if (view != null) {
-			log.info("view [{}]", View.JSON);
+			log.debug("view [{}]", View.JSON);
 			response.setCharacterEncoding(encoding);
 			response.setHeader("Content-Type", "application/json; charset="
 					+ encoding);
 			PrintWriter writer = response.getWriter();
-			mapper.writeValue(writer, view);
+			writer.print(JSON.toJSONString(view));
 			writer.close();
 		}
 	}

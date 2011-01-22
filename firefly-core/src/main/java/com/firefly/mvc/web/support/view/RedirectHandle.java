@@ -32,7 +32,7 @@ public class RedirectHandle implements ViewHandle {
 	public void render(HttpServletRequest request,
 			HttpServletResponse response, Object view) throws ServletException,
 			IOException {
-		log.info("view [{}]", View.REDIRECT);
+		log.debug("view [{}]", View.REDIRECT);
 		if (view instanceof String && view != null) {
 			response.sendRedirect(request.getContextPath()
 					+ request.getServletPath() + view.toString());

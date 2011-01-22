@@ -57,7 +57,7 @@ public class HttpServletDispatcherController implements DispatcherController {
 		Set<BeanHandle> beforeSet = webContext.getBean(beforeIntercept);
 		Set<BeanHandle> afterSet = webContext.getBean(afterIntercept);
 
-		log.info("uri map [{}]", key);
+		log.debug("uri map [{}]", key);
 		BeanHandle beanHandle = webContext.getBean(key);
 		if (beanHandle != null) {
 			Object ret = null;
@@ -99,15 +99,12 @@ public class HttpServletDispatcherController implements DispatcherController {
 			// 视图渲染
 			try {
 				if (afterRet != null) {
-					// log.info("after view [{}]", afterRet);
 					lastAfter.getViewHandle().render(request, response,
 							afterRet);
 				} else if (beforeRet != null) {
-					// log.info("before view [{}]", beforeRet);
 					lastBefore.getViewHandle().render(request, response,
 							beforeRet);
 				} else {
-					// log.info("controller view [{}]", ret);
 					beanHandle.getViewHandle().render(request, response, ret);
 				}
 			} catch (ServletException e) {
@@ -128,13 +125,10 @@ public class HttpServletDispatcherController implements DispatcherController {
 	@SuppressWarnings("unchecked")
 	private Object[] getParams(HttpServletRequest request,
 			HttpServletResponse response, BeanHandle beanHandle) {
-		// log.info("into getParams ==========");
 		int[] methodParam = beanHandle.getMethodParam();
 		ParamHandle[] paramHandles = beanHandle.getParamHandles();
 		Object[] p = new Object[methodParam.length];
 		for (int i = 0; i < p.length; i++) {
-			// log.info("param name [{}]", methodParam[i]);
-
 			switch (methodParam[i]) {
 			case MethodParam.REQUEST:
 				p[i] = request;
@@ -147,15 +141,11 @@ public class HttpServletDispatcherController implements DispatcherController {
 				Enumeration<String> enumeration = request.getParameterNames();
 				ParamHandle paramHandle = paramHandles[i];
 				p[i] = paramHandle.newInstance();
-				// log.info(">>>>>>>>>> param class [{}]", p[i].getClass()
-				// .getName());
+
 				while (enumeration.hasMoreElements()) {
 					String httpParamName = enumeration.nextElement();
 					String paramValue = request.getParameter(httpParamName);
 					paramHandle.setParam(p[i], httpParamName, paramValue);
-					// log.info("http param name [{}], value [{}]",
-					// httpParamName,
-					// paramValue);
 				}
 				if (VerifyUtils.isNotEmpty(paramHandle.getAttribute())) {
 					request.setAttribute(paramHandle.getAttribute(), p[i]);
