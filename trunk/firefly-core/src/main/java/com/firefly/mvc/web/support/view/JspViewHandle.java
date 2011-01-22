@@ -38,7 +38,7 @@ public class JspViewHandle implements ViewHandle {
 	public void render(HttpServletRequest request,
 			HttpServletResponse response, Object view) throws ServletException,
 			IOException {
-		log.info("view [{}]", View.JSP);
+		log.debug("view [{}]", View.JSP);
 		if (view instanceof String && view != null) {
 			request.getRequestDispatcher(viewPath + view.toString()).forward(
 					request, response);

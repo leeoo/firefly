@@ -142,11 +142,10 @@
 			<artifactId>standard</artifactId>
 			<version>${jstl.version}</version>
 		</dependency>
-
 		<dependency>
-		    <groupId>org.codehaus.jackson</groupId>
-		    <artifactId>jackson-mapper-asl</artifactId>
-		    <version>${jackson.version}</version>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>1.0.0</version>
 		</dependency>
 
     </dependencies>
@@ -162,7 +161,6 @@
 
 		<!-- common -->
 		<jstl.version>1.1.2</jstl.version>
-		<jackson.version>1.7.1</jackson.version>
 
         <log.level>INFO</log.level>
         <log.path>D:/log/app.log</log.path>
@@ -188,7 +186,11 @@
         	<id>3rdRepo</id>
         	<snapshots><enabled>true</enabled></snapshots>
         	<url>http://snapshots.repository.codehaus.org/</url>
-        </repository>  -->
+        </repository>
+        <repository>
+        	<id>aliRepo</id>
+        	<url>http://119.38.217.15/svn/fastjson/repository/</url>
+        </repository> -->
     </repositories>
     <pluginRepositories>
 

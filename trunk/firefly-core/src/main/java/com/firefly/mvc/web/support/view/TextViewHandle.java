@@ -39,7 +39,7 @@ public class TextViewHandle implements ViewHandle {
 			HttpServletResponse response, Object view) throws ServletException,
 			IOException {
 		if (view instanceof String && view != null) {
-			log.info("view [{}]", View.TEXT);
+			log.debug("view [{}]", View.TEXT);
 			response.setCharacterEncoding(encoding);
 			response.setHeader("Content-Type", "text/plain; charset="
 					+ encoding);
