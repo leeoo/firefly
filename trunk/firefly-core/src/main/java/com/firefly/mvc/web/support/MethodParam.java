@@ -1,7 +1,7 @@
 package com.firefly.mvc.web.support;
 
 public interface MethodParam {
-	int REQUEST = 0;
-	int RESPONSE = 1;
-	int HTTP_PARAM = 2;
+	byte REQUEST = 0x00;
+	byte RESPONSE = 0x01;
+	byte HTTP_PARAM = 0x02;
 }

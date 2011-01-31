@@ -143,13 +143,19 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 		return list;
 	}
 
+	/**
+	 * 获取所有拦截器
+	 *
+	 * @param c
+	 * @return
+	 */
 	private List<Method> getInterceptor(Class<?> c) {
 		Method[] methods = c.getMethods();
 		List<Method> list = new ArrayList<Method>();
 		for (Method m : methods) {
 			if (c.isAnnotationPresent(Interceptor.class)
 					&& (m.getName().equals("before") || m.getName().equals(
-							"after"))) {
+							"after"))) { // 验证拦截器annotation和方法名
 				list.add(m);
 			}
 		}
@@ -166,27 +172,26 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 		List<String> list = new ArrayList<String>();
 		for (String uriAndMethod : uriList) {
 			String uri = StringUtils.split(uriAndMethod, "@")[1];
-			if (pattern.indexOf("*") < 0) {
-				if (pattern.equals(uri)) {
-					list.add(uri);
-				} else if (uri.charAt(uri.length() - 1) == '/'
-						&& pattern.charAt(pattern.length() - 1) != '/') {
-					String uriTemp = uri.substring(0, uri.length() - 1);
-					if (uriTemp.equals(pattern)) {
-						list.add(uri);
-					}
-				} else if (uri.charAt(uri.length() - 1) != '/'
-						&& pattern.charAt(pattern.length() - 1) == '/') {
-					String uriTemp = uri + "/";
-					if (uriTemp.equals(pattern)) {
-						list.add(uri);
-					}
-				}
-			} else if (VerifyUtils.simpleWildcardMatch(pattern, uri)) {
+			if(ignoreBackslashEquals(pattern, uri)) {
+				log.debug("intercept uri[{}] pattern[{}]", uri, pattern);
 				list.add(uri);
 			}
 		}
 		return list;
+	}
+
+	/**
+	 * 拦截地址匹配，忽略uri和pattern最后的'/'
+	 * @param pattern
+	 * @param uri
+	 * @return
+	 */
+	private boolean ignoreBackslashEquals(String pattern, String uri) {
+		if (uri.charAt(uri.length() - 1) == '/')
+			uri = uri.substring(0, uri.length() - 1);
+		if (pattern.charAt(pattern.length() - 1) == '/')
+			pattern = pattern.substring(0, pattern.length() - 1);
+		return VerifyUtils.simpleWildcardMatch(pattern, uri);
 	}
 
 	private ViewHandle getViewHandle(String view) {
