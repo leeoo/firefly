@@ -21,6 +21,12 @@ public class InterceptorTestController {
 		return "/index.jsp";
 	}
 
+	@RequestMapping(value = "/itest4")
+	public String index3(HttpServletRequest request) {
+		request.setAttribute("hello", "你好 itest4!");
+		return "/index.jsp";
+	}
+
 	@RequestMapping(value = "/ti", view = View.TEXT)
 	public String ti(HttpServletResponse response, HttpServletRequest request) {
 		return "测试interceptor";
