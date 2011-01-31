@@ -6,37 +6,31 @@ import java.util.Map;
 import com.firefly.utils.Cast;
 
 public class ParamHandle {
-	private Class<?> paramClass;
-	private Map<String, Method> beanGetAndSetMethod;
-	private String attribute;
+	private final Class<?> paramClass;
+	private final Map<String, Method> beanSetMethod;
+	private final String attribute;
+
+	public ParamHandle(Class<?> paramClass, Map<String, Method> beanSetMethod,
+			String attribute) {
+		super();
+		this.paramClass = paramClass;
+		this.beanSetMethod = beanSetMethod;
+		this.attribute = attribute;
+	}
 
 	public String getAttribute() {
 		return attribute;
 	}
 
-	public void setAttribute(String attribute) {
-		this.attribute = attribute;
-	}
-
-	public Map<String, Method> getBeanGetAndSetMethod() {
-		return beanGetAndSetMethod;
-	}
-
-	public void setBeanGetAndSetMethod(Map<String, Method> beanGetAndSetMethod) {
-		this.beanGetAndSetMethod = beanGetAndSetMethod;
-	}
-
-	public Class<?> getParamClass() {
-		return paramClass;
-	}
-
-	public void setParamClass(Class<?> paramClass) {
-		this.paramClass = paramClass;
-	}
-
+	/**
+	 * 给参数对象的实例赋值
+	 * @param o 要赋值的对象
+	 * @param key 要赋值的属性
+	 * @param value 要赋的值
+	 */
 	public void setParam(Object o, String key, String value) {
 		try {
-			Method m = beanGetAndSetMethod.get(key);
+			Method m = beanSetMethod.get(key);
 			if (m != null) {
 				Class<?> p = m.getParameterTypes()[0];
 				m.invoke(o, Cast.convert(value, p));
@@ -50,7 +44,11 @@ public class ParamHandle {
 		}
 	}
 
-	public Object newInstance() {
+	/**
+	 * 新建一个参数对象实例
+	 * @return
+	 */
+	public Object newParamInstance() {
 		Object o = null;
 		try {
 			o = paramClass.newInstance();

@@ -152,8 +152,9 @@ public class HttpServletDispatcherController implements DispatcherController {
 				// 请求参数封装到javabean
 				Enumeration<String> enumeration = request.getParameterNames();
 				ParamHandle paramHandle = paramHandles[i];
-				p[i] = paramHandle.newInstance();
+				p[i] = paramHandle.newParamInstance();
 
+				// 把http参数赋值给参数对象
 				while (enumeration.hasMoreElements()) {
 					String httpParamName = enumeration.nextElement();
 					String paramValue = request.getParameter(httpParamName);
