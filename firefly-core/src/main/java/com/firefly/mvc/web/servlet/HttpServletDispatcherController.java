@@ -18,6 +18,11 @@ import com.firefly.mvc.web.support.MethodParam;
 import com.firefly.mvc.web.support.ParamHandle;
 import com.firefly.utils.VerifyUtils;
 
+/**
+ * 前端控制器
+ * @author alvinqiu
+ *
+ */
 public class HttpServletDispatcherController implements DispatcherController {
 
 	private static Logger log = LoggerFactory
@@ -61,10 +66,10 @@ public class HttpServletDispatcherController implements DispatcherController {
 		BeanHandle beanHandle = webContext.getBean(key);
 		if (beanHandle != null) {
 			Object ret = null;
-			Object beforeRet = null;
-			BeanHandle lastBefore = null;
-			Object afterRet = null;
-			BeanHandle lastAfter = null;
+			Object beforeRet = null; // 前置拦截器的返回值
+			BeanHandle lastBefore = null; // 最后得到的前置拦截器
+			Object afterRet = null; // 后置拦截器的返回值
+			BeanHandle lastAfter = null; // 最后得到的后置拦截器
 
 			// 前置拦截栈调用
 			if (beforeSet != null) {
@@ -122,10 +127,17 @@ public class HttpServletDispatcherController implements DispatcherController {
 		return this;
 	}
 
+	/**
+	 * controller方法参数注入
+	 * @param request
+	 * @param response
+	 * @param beanHandle
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	private Object[] getParams(HttpServletRequest request,
 			HttpServletResponse response, BeanHandle beanHandle) {
-		int[] methodParam = beanHandle.getMethodParam();
+		byte[] methodParam = beanHandle.getMethodParam();
 		ParamHandle[] paramHandles = beanHandle.getParamHandles();
 		Object[] p = new Object[methodParam.length];
 		for (int i = 0; i < p.length; i++) {

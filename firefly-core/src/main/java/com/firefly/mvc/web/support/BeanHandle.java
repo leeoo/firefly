@@ -21,7 +21,7 @@ public class BeanHandle implements Comparable<BeanHandle> {
 	private final Object object;
 	private final Method method;
 	private final ParamHandle[] paramHandles;
-	private final int[] methodParam;
+	private final byte[] methodParam;
 	private final ViewHandle viewHandle;
 	private Integer interceptOrder;
 
@@ -32,7 +32,7 @@ public class BeanHandle implements Comparable<BeanHandle> {
 		this.viewHandle = viewHandle;
 
 		Class<?>[] paraTypes = method.getParameterTypes();
-		methodParam = new int[paraTypes.length];
+		methodParam = new byte[paraTypes.length];
 		// 构造参数对象
 		paramHandles = new ParamHandle[paraTypes.length];
 		Annotation[][] annotations = method.getParameterAnnotations();
@@ -114,7 +114,6 @@ public class BeanHandle implements Comparable<BeanHandle> {
 	public Object invoke(Object[] args) {
 		Object ret = null;
 		try {
-			// log.info("method isAccessible [{}]", method.isAccessible());
 			ret = method.invoke(object, args);
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
@@ -126,7 +125,7 @@ public class BeanHandle implements Comparable<BeanHandle> {
 		return ret;
 	}
 
-	public int[] getMethodParam() {
+	public byte[] getMethodParam() {
 		return methodParam;
 	}
 
@@ -137,8 +136,4 @@ public class BeanHandle implements Comparable<BeanHandle> {
 		else
 			return o.getInterceptOrder().compareTo(interceptOrder);
 	}
-
-	// public static void main(String[] args) {
-	// System.out.println(HttpParam.class.getName());
-	// }
 }
