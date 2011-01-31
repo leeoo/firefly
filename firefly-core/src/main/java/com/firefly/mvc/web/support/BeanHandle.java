@@ -39,11 +39,8 @@ public class BeanHandle implements Comparable<BeanHandle> {
 		for (int i = 0; i < paraTypes.length; i++) {
 			HttpParam httpParam = getHttpParam(annotations[i]);
 			if (httpParam != null) {
-				ParamHandle paramHandle = new ParamHandle();
-				paramHandle.setAttribute(httpParam.value());
-				paramHandle
-						.setBeanGetAndSetMethod(getBeanGetAndSetMethod(paraTypes[i]));
-				paramHandle.setParamClass(paraTypes[i]);
+				ParamHandle paramHandle = new ParamHandle(paraTypes[i],
+						getBeanSetMethod(paraTypes[i]), httpParam.value());
 				paramHandles[i] = paramHandle;
 				methodParam[i] = MethodParam.HTTP_PARAM;
 			} else {
@@ -55,28 +52,28 @@ public class BeanHandle implements Comparable<BeanHandle> {
 		}
 	}
 
-	private Map<String, Method> getBeanGetAndSetMethod(Class<?> paraType) {
-		Map<String, Method> beanGetAndSetMethod = new HashMap<String, Method>();
+	private Map<String, Method> getBeanSetMethod(Class<?> paraType) {
+		Map<String, Method> beanSetMethod = new HashMap<String, Method>();
 		Method[] paramMethods = paraType.getMethods();
 
 		for (Method paramMethod : paramMethods) {
 			String paramName = null;
+			// 根据javabean里面的set方法取出对应的属性
 			if (paramMethod.getName().startsWith("set")) {
 				paramName = String.valueOf(paramMethod.getName().charAt(3))
 						.toLowerCase()
 						+ paramMethod.getName().substring(4);
-			}
-			if (paramMethod.getName().startsWith("is")) {
+			} else if (paramMethod.getName().startsWith("is")) {
 				paramName = String.valueOf(paramMethod.getName().charAt(2))
 						.toLowerCase()
 						+ paramMethod.getName().substring(3);
 			}
 			if (paramName != null) {
 				paramMethod.setAccessible(true);
-				beanGetAndSetMethod.put(paramName, paramMethod);
+				beanSetMethod.put(paramName, paramMethod);
 			}
 		}
-		return beanGetAndSetMethod;
+		return beanSetMethod;
 	}
 
 	private HttpParam getHttpParam(Annotation[] annotations) {
