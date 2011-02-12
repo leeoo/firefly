@@ -55,7 +55,7 @@
             <plugin>
                 <groupId>org.mortbay.jetty</groupId>
                 <artifactId>maven-jetty-plugin</artifactId>
-                <version>6.1.25</version>
+                <version>6.1.26</version>
                 <configuration>
                 	<stopKey>foo</stopKey>
                 	<stopPort>9999</stopPort>
@@ -116,38 +116,6 @@
 		    <version>1.0-SNAPSHOT</version>
 		</dependency>
 
-		<!-- log4j -->
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>${log4j.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.sun.jdmk</groupId>
-                    <artifactId>jmxtools</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.sun.jmx</groupId>
-                    <artifactId>jmxri</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>javax.jms</groupId>
-                    <artifactId>jms</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-
         <!-- junit -->
         <dependency>
             <groupId>junit</groupId>
@@ -193,8 +161,8 @@
     	<project.artifactId>firefly-demo</project.artifactId>
 
         <!-- log -->
-		<slf4j.version>1.5.8</slf4j.version>
-        <log4j.version>1.2.15</log4j.version>
+		<slf4j.version>1.6.1</slf4j.version>
+		<logback.version>0.9.28</logback.version>
 
 		<!-- common -->
 		<jstl.version>1.1.2</jstl.version>
