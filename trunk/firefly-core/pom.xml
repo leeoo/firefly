@@ -136,6 +136,7 @@
         <!-- log -->
 		<slf4j.version>1.6.1</slf4j.version>
 		<logback.version>0.9.28</logback.version>
+
 		<!-- common -->
 		<jstl.version>1.1.2</jstl.version>
 
