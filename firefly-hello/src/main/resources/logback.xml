@@ -8,13 +8,13 @@
 	<!--    http://www.qos.ch/shop/products/professionalSupport         -->
 	<!--                                                                -->
 <configuration>
-	<property name="LOG_PATTERN" value="[%c]-[%p]-[%d{yyyy-MM-dd HH:mm:ss}]\t%m%n"></property>
+	<property name="LOG_PATTERN" value="%d{HH:mm:ss}-%p-%c\t%m%n"></property>
 	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
 			<pattern>${LOG_PATTERN}</pattern>
 		</encoder>
 	</appender>
-	<appender name="R" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	<appender name="LOCAL_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<!--
 			See http://logback.qos.ch/manual/appenders.html#RollingFileAppender
 			and
@@ -34,6 +34,6 @@
 	</appender>
 	<root level="${log.level}">
 		<appender-ref ref="CONSOLE" />
-		<appender-ref ref="R" />
+		<appender-ref ref="LOCAL_FILE" />
 	</root>
 </configuration>
