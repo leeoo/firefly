@@ -59,6 +59,7 @@ public class AnnotationBeanReader implements BeanReader {
 
 	public BeanReader load(String file) {
 		properties = new Properties();
+		classes = new LinkedHashSet<Class<?>>();
 		try {
 			properties.load(AnnotationBeanReader.class.getResourceAsStream("/"
 					+ (file != null ? file : DEFAULT_CONFIG_FILE)));
@@ -76,7 +77,6 @@ public class AnnotationBeanReader implements BeanReader {
 	}
 
 	private void scan(String pack) {
-		classes = new LinkedHashSet<Class<?>>();
 		String packageName = pack;
 		String packageDirName = packageName.replace('.', '/');
 		// 定义一个枚举的集合 并进行循环来处理这个目录下的things

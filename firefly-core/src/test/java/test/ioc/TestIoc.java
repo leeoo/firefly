@@ -1,11 +1,16 @@
 package test.ioc;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+
 import org.junit.Assert;
 import org.junit.Test;
+
 import test.component.AddService;
 import test.component.FieldInject;
 import test.component.MethodInject;
+import test.component2.MethodInject2;
+
 import com.firefly.core.ApplicationContext;
 import com.firefly.core.DefaultApplicationContext;
 
@@ -28,6 +33,12 @@ public class TestIoc {
 	public void testMethodInject() {
 		MethodInject m = applicationContext.getBean("methodInject");
 		Assert.assertThat(m.add(5, 4), is(9));
+	}
+
+	@Test
+	public void testMethodInject2() {
+		MethodInject2 m = applicationContext.getBean("methodInject2");
+		Assert.assertThat(m.add(5, 5), is(10));
 	}
 
 	@Test
