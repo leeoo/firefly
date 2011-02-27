@@ -7,10 +7,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.alibaba.fastjson.JSON;
 import com.firefly.mvc.web.View;
 import com.firefly.mvc.web.support.ViewHandle;
+import com.firefly.utils.json.Json;
 
 public class JsonViewHandle implements ViewHandle {
 
@@ -44,7 +43,7 @@ public class JsonViewHandle implements ViewHandle {
 			response.setHeader("Content-Type", "application/json; charset="
 					+ encoding);
 			PrintWriter writer = response.getWriter();
-			writer.print(JSON.toJSONString(view));
+			writer.print(Json.toJson(view));
 			writer.close();
 		}
 	}
