@@ -15,6 +15,8 @@ public class NodeDemo {
 		node.setId(33);
 		node.setTimestamp(new Date());
 		node.setSex('e');
+		int[] rig = new int[]{1,2,3};
+		node.setRig(rig);
 		System.out.println(Json.toJson(node));
 
 	}

@@ -9,6 +9,15 @@ public class Node {
 	private Node node;
 	private Date timestamp;
 	private char sex;
+	private int[] rig;
+
+	public int[] getRig() {
+		return rig;
+	}
+
+	public void setRig(int[] rig) {
+		this.rig = rig;
+	}
 
 	public char getSex() {
 		return sex;
