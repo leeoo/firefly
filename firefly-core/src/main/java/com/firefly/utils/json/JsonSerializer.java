@@ -26,7 +26,7 @@ import java.util.Map.Entry;
 import com.firefly.utils.SafeSimpleDateFormat;
 import com.firefly.utils.VerifyUtils;
 import com.firefly.utils.json.support.FieldHandle;
-import com.firefly.utils.json.support.JsonObjCache;
+import com.firefly.utils.json.support.JsonClassCache;
 
 public class JsonSerializer {
 	private StringBuilder sb;
@@ -80,7 +80,7 @@ public class JsonSerializer {
 		Class<?> clazz = obj.getClass();
 		sb.append(OBJ_PRE);
 		List<Pair> list = new ArrayList<Pair>();
-		FieldHandle[] FieldHandles = JsonObjCache.getInstance().get(clazz);
+		FieldHandle[] FieldHandles = JsonClassCache.getInstance().get(clazz);
 		if (FieldHandles == null) {
 			List<FieldHandle> fieldList = new ArrayList<FieldHandle>();
 			for (Method method : clazz.getMethods()) {
@@ -172,7 +172,7 @@ public class JsonSerializer {
 				}
 			}
 
-			JsonObjCache.getInstance().put(clazz,
+			JsonClassCache.getInstance().put(clazz,
 					fieldList.toArray(new FieldHandle[0]));
 		} else {
 			for (FieldHandle fieldHandle : FieldHandles) {

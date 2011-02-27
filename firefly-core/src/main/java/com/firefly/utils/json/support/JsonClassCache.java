@@ -3,19 +3,19 @@ package com.firefly.utils.json.support;
 import java.util.HashMap;
 import java.util.Map;
 
-public class JsonObjCache {
+public class JsonClassCache {
 	public final Map<Class<?>, FieldHandle[]> map;
 
-	private JsonObjCache() {
+	private JsonClassCache() {
 //		map = new ConcurrentHashMap<Class<?>, FieldHandle[]>();
 		map = new HashMap<Class<?>, FieldHandle[]>();
 	}
 
 	private static class JsonObjCacheHolder {
-		private static JsonObjCache instance = new JsonObjCache();
+		private static JsonClassCache instance = new JsonClassCache();
 	}
 
-	public static JsonObjCache getInstance() {
+	public static JsonClassCache getInstance() {
 		return JsonObjCacheHolder.instance;
 	}
 
