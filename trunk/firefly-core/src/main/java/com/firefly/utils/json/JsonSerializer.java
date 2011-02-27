@@ -1,6 +1,13 @@
 package com.firefly.utils.json;
 
-import static com.firefly.utils.json.JsonStringSymbol.*;
+import static com.firefly.utils.json.JsonStringSymbol.ARRAY_PRE;
+import static com.firefly.utils.json.JsonStringSymbol.ARRAY_SUF;
+import static com.firefly.utils.json.JsonStringSymbol.NULL;
+import static com.firefly.utils.json.JsonStringSymbol.OBJ_PRE;
+import static com.firefly.utils.json.JsonStringSymbol.OBJ_SEPARATOR;
+import static com.firefly.utils.json.JsonStringSymbol.OBJ_SUF;
+import static com.firefly.utils.json.JsonStringSymbol.QUOTE;
+import static com.firefly.utils.json.JsonStringSymbol.SEPARATOR;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -12,11 +19,14 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 import com.firefly.utils.SafeSimpleDateFormat;
 import com.firefly.utils.VerifyUtils;
+import com.firefly.utils.json.support.FieldHandle;
+import com.firefly.utils.json.support.JsonObjCache;
 
 public class JsonSerializer {
 	private StringBuilder sb;
@@ -69,74 +79,106 @@ public class JsonSerializer {
 			return;
 		Class<?> clazz = obj.getClass();
 		sb.append(OBJ_PRE);
-		ArrayList<Pair> list = new ArrayList<Pair>();
-		for (Method method : clazz.getMethods()) {
-			String methodName = method.getName();
+		List<Pair> list = new ArrayList<Pair>();
+		FieldHandle[] FieldHandles = JsonObjCache.getInstance().get(clazz);
+		if (FieldHandles == null) {
+			List<FieldHandle> fieldList = new ArrayList<FieldHandle>();
+			for (Method method : clazz.getMethods()) {
+				method.setAccessible(true);
+				String methodName = method.getName();
 
-			if (Modifier.isStatic(method.getModifiers())
-					|| method.getReturnType().equals(Void.TYPE)
-					|| method.getParameterTypes().length != 0) {
-				continue;
+				if (Modifier.isStatic(method.getModifiers())
+						|| method.getReturnType().equals(Void.TYPE)
+						|| method.getParameterTypes().length != 0) {
+					continue;
+				}
+
+				if (methodName.startsWith("get")) { // 取get方法的返回值
+					if (methodName.length() < 4
+							|| methodName.equals("getClass")
+							|| !Character.isUpperCase(methodName.charAt(3))) {
+						continue;
+					}
+
+					String propertyName = Character.toLowerCase(methodName
+							.charAt(3))
+							+ methodName.substring(4);
+
+					Field field = null;
+					try {
+						field = clazz.getDeclaredField(propertyName);
+					} catch (SecurityException e) {
+						e.printStackTrace();
+					} catch (NoSuchFieldException e) {
+						e.printStackTrace();
+					}
+
+					if (field != null
+							&& Modifier.isTransient(field.getModifiers())) {
+						continue;
+					}
+
+					try {
+						FieldHandle fieldSerializer = new FieldHandle();
+						fieldSerializer.setPropertyName(propertyName);
+						fieldSerializer.setMethod(method);
+						fieldList.add(fieldSerializer);
+						list.add(new Pair(propertyName, method.invoke(obj)));
+					} catch (IllegalArgumentException e) {
+						e.printStackTrace();
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					} catch (InvocationTargetException e) {
+						e.printStackTrace();
+					}
+				}
+
+				if (methodName.startsWith("is")) { // 取is方法的返回值
+					if (methodName.length() < 3
+							|| !Character.isUpperCase(methodName.charAt(2))) {
+						continue;
+					}
+
+					String propertyName = Character.toLowerCase(methodName
+							.charAt(2))
+							+ methodName.substring(3);
+
+					Field field = null;
+					try {
+						field = clazz.getDeclaredField(propertyName);
+					} catch (SecurityException e) {
+						e.printStackTrace();
+					} catch (NoSuchFieldException e) {
+						e.printStackTrace();
+					}
+					if (field != null
+							&& Modifier.isTransient(field.getModifiers())) {
+						continue;
+					}
+
+					try {
+						FieldHandle fieldSerializer = new FieldHandle();
+						fieldSerializer.setPropertyName(propertyName);
+						fieldSerializer.setMethod(method);
+						fieldList.add(fieldSerializer);
+						list.add(new Pair(propertyName, method.invoke(obj)));
+					} catch (IllegalArgumentException e) {
+						e.printStackTrace();
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					} catch (InvocationTargetException e) {
+						e.printStackTrace();
+					}
+				}
 			}
 
-			if (methodName.startsWith("get")) { // 取get方法的返回值
-				if (methodName.length() < 4 || methodName.equals("getClass")
-						|| !Character.isUpperCase(methodName.charAt(3))) {
-					continue;
-				}
-
-				String propertyName = Character.toLowerCase(methodName
-						.charAt(3))
-						+ methodName.substring(4);
-
-				Field field = null;
+			JsonObjCache.getInstance().put(clazz,
+					fieldList.toArray(new FieldHandle[0]));
+		} else {
+			for (FieldHandle fieldHandle : FieldHandles) {
 				try {
-					field = clazz.getDeclaredField(propertyName);
-				} catch (SecurityException e) {
-					e.printStackTrace();
-				} catch (NoSuchFieldException e) {
-					e.printStackTrace();
-				}
-
-				if (field != null && Modifier.isTransient(field.getModifiers())) {
-					continue;
-				}
-
-				try {
-					list.add(new Pair(propertyName, method.invoke(obj)));
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
-					e.printStackTrace();
-				}
-			}
-
-			if (methodName.startsWith("is")) { // 取is方法的返回值
-				if (methodName.length() < 3
-						|| !Character.isUpperCase(methodName.charAt(2))) {
-					continue;
-				}
-
-				String propertyName = Character.toLowerCase(methodName
-						.charAt(2))
-						+ methodName.substring(3);
-
-				Field field = null;
-				try {
-					field = clazz.getDeclaredField(propertyName);
-				} catch (SecurityException e) {
-					e.printStackTrace();
-				} catch (NoSuchFieldException e) {
-					e.printStackTrace();
-				}
-				if (field != null && Modifier.isTransient(field.getModifiers())) {
-					continue;
-				}
-
-				try {
-					list.add(new Pair(propertyName, method.invoke(obj)));
+					list.add(new Pair(fieldHandle.getPropertyName(),
+							fieldHandle.getMethod().invoke(obj)));
 				} catch (IllegalArgumentException e) {
 					e.printStackTrace();
 				} catch (IllegalAccessException e) {
