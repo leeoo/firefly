@@ -31,6 +31,7 @@ public class JsonDemo {
 		long end = System.currentTimeMillis();
 		System.out.println(end - start);
 		System.out.println(jsonString);
+//		System.out.println(Json.toJson(group));
 
 	}
 
