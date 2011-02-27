@@ -1,10 +1,21 @@
 package test.json;
 
+import java.util.Date;
+
 public class Node {
 	private int id;
 	private String text;
 	private boolean flag;
 	private Node node;
+	private Date timestamp;
+
+	public Date getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(Date timestamp) {
+		this.timestamp = timestamp;
+	}
 
 	public int getId() {
 		return id;

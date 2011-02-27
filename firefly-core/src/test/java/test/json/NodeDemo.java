@@ -1,5 +1,7 @@
 package test.json;
 
+import java.util.Date;
+
 import com.firefly.utils.json.Json;
 
 public class NodeDemo {
@@ -11,6 +13,7 @@ public class NodeDemo {
 		Node node = new Node();
 		node.setNode(node);
 		node.setId(33);
+		node.setTimestamp(new Date());
 		System.out.println(Json.toJson(node));
 
 	}
