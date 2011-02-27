@@ -1,5 +1,6 @@
 package com.firefly.utils.json;
 
+import static com.firefly.utils.json.JsonStringSymbol.*;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -20,14 +21,6 @@ import com.firefly.utils.VerifyUtils;
 public class JsonSerializer {
 	private StringBuilder sb;
 	private Set<Object> existence; // 防止循环引用
-	public static final String QUOTE = "\"";
-	public static final char ARRAY_PRE = '[';
-	public static final char ARRAY_SUF = ']';
-	public static final char OBJ_PRE = '{';
-	public static final char OBJ_SUF = '}';
-	public static final String NULL = "null";
-	public static final char SEPARATOR = ',';
-	public static final char OBJ_SEPARATOR = ':';
 
 	public JsonSerializer() {
 		sb = new StringBuilder();
