@@ -18,8 +18,8 @@ import com.firefly.utils.SafeSimpleDateFormat;
 import com.firefly.utils.VerifyUtils;
 
 public class JsonSerializer {
-	private StringBuilder sb = new StringBuilder();
-	private Set<Object> existence = new HashSet<Object>();
+	private StringBuilder sb;
+	private Set<Object> existence; // 防止循环引用
 	public static final String QUOTE = "\"";
 	public static final char ARRAY_PRE = '[';
 	public static final char ARRAY_SUF = ']';
@@ -28,6 +28,11 @@ public class JsonSerializer {
 	public static final String NULL = "null";
 	public static final char SEPARATOR = ',';
 	public static final char OBJ_SEPARATOR = ':';
+
+	public JsonSerializer() {
+		sb = new StringBuilder();
+		existence = new HashSet<Object>();
+	}
 
 	JsonSerializer toJson(Object obj) {
 		if (obj == null) {
@@ -48,7 +53,7 @@ public class JsonSerializer {
 			} else if (obj instanceof Date) {
 				string2Json(SafeSimpleDateFormat.safeFormatDate((Date) obj));
 			}
-		} else if (existence.contains(obj)) {
+		} else if (existence.contains(obj)) { // 防止循环引用
 			sb.append(NULL);
 		} else {
 			existence.add(obj);
