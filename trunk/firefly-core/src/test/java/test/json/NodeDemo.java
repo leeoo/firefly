@@ -14,6 +14,7 @@ public class NodeDemo {
 		node.setNode(node);
 		node.setId(33);
 		node.setTimestamp(new Date());
+		node.setSex('e');
 		System.out.println(Json.toJson(node));
 
 	}

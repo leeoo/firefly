@@ -8,6 +8,15 @@ public class Node {
 	private boolean flag;
 	private Node node;
 	private Date timestamp;
+	private char sex;
+
+	public char getSex() {
+		return sex;
+	}
+
+	public void setSex(char sex) {
+		this.sex = sex;
+	}
 
 	public Date getTimestamp() {
 		return timestamp;
