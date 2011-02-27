@@ -27,7 +27,7 @@ import com.firefly.utils.json.support.FieldHandle;
 import com.firefly.utils.json.support.JsonClassCache;
 import com.firefly.utils.json.support.TypeVerify;
 
-public class JsonSerializer {
+class JsonSerializer {
 	private StringBuilder sb;
 	private Set<Object> existence; // 防止循环引用
 
