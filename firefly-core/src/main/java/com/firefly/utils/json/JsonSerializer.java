@@ -50,14 +50,14 @@ public class JsonSerializer {
 			string2Json(obj.toString());
 		} else if (TypeVerify.isDateLike(clazz)) {
 			string2Json(SafeSimpleDateFormat.safeFormatDate((Date) obj));
-		} else if (existence.contains(obj)) { // 防止循环引用
+		} else if (existence.contains(obj)) { // 防止循环引用，此处会影响一些性能
 			sb.append(NULL);
 		} else {
 			existence.add(obj);
 			if (obj instanceof Map<?, ?>) {
 				map2Json((Map<?, ?>) obj);
 			} else if (obj instanceof Collection<?>) {
-				coll2Json((Collection<?>) obj);
+				collection2Json((Collection<?>) obj);
 			} else if (clazz.isArray()) {
 				array2Json(obj);
 			} else { // pojo类型
@@ -245,7 +245,7 @@ public class JsonSerializer {
 		}
 	}
 
-	private void coll2Json(Collection<?> obj) {
+	private void collection2Json(Collection<?> obj) {
 		sb.append(ARRAY_PRE);
 		for (Iterator<?> it = obj.iterator(); it.hasNext();) {
 			toJson(it.next());
