@@ -77,7 +77,6 @@ public class JsonSerializer {
 		Class<?> clazz = obj.getClass();
 		sb.append(OBJ_PRE);
 		ArrayList<Pair> list = new ArrayList<Pair>();
-		// TODO 这里还需要做完
 		for (Method method : clazz.getMethods()) {
 			String methodName = method.getName();
 
