@@ -28,13 +28,6 @@ abstract public class SafeSimpleDateFormat {
 	/**
 	 * 线程安全格式化 Date -> String
 	 */
-	public static String safeFormatDate(Calendar calendar) {
-		return getFormat().format(calendar.getTime());
-	}
-
-	/**
-	 * 线程安全格式化 Date -> String
-	 */
 	public static String safeFormatDate(Date date) {
 		return getFormat().format(date);
 	}
