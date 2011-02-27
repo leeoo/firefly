@@ -7,8 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * @author alvinqiu
- * 线程安全的时间日期格式化工具
+ * @author alvinqiu 线程安全的时间日期格式化工具
  */
 abstract public class SafeSimpleDateFormat {
 
@@ -24,6 +23,13 @@ abstract public class SafeSimpleDateFormat {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	/**
+	 * 线程安全格式化 Date -> String
+	 */
+	public static String safeFormatDate(Calendar calendar) {
+		return getFormat().format(calendar.getTime());
 	}
 
 	/**
@@ -53,8 +59,10 @@ abstract public class SafeSimpleDateFormat {
 		Calendar last = Calendar.getInstance();
 		last.setTime(SafeSimpleDateFormat.safeParseDate("2010-12-08 17:26:22"));
 		Calendar now = Calendar.getInstance();
-		System.out.println("last:\t" + last.get(Calendar.YEAR) + "\t" + last.get(Calendar.MONTH));
-		System.out.println("now:\t" + now.get(Calendar.YEAR) + "\t" + now.get(Calendar.MONTH));
+		System.out.println("last:\t" + last.get(Calendar.YEAR) + "\t"
+				+ last.get(Calendar.MONTH));
+		System.out.println("now:\t" + now.get(Calendar.YEAR) + "\t"
+				+ now.get(Calendar.MONTH));
 	}
 
 }
