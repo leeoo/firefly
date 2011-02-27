@@ -33,12 +33,12 @@ public class JsonSerializer {
 			return this;
 		}
 		Class<?> clazz = obj.getClass();
-		if (VerifyUtils.isNumber(clazz) || VerifyUtils.isBoolean(clazz)
-				|| VerifyUtils.isChar(clazz)) { // 数字，布尔，字符类型
+		if (VerifyUtils.isNumber(clazz) || VerifyUtils.isBoolean(clazz)) { // 数字，布尔类型
 			sb.append(obj);
 		} else if (clazz.isEnum()) { // 枚举类型
 			string2Json(((Enum<?>) obj).name());
-		} else if (CharSequence.class.isAssignableFrom(clazz)) { // 字符串
+		} else if (CharSequence.class.isAssignableFrom(clazz)
+				|| VerifyUtils.isChar(clazz)) { // 字符串或字符类型
 			string2Json(obj.toString());
 		} else if (VerifyUtils.isDateLike(clazz)) { // 时间类型
 			if (obj instanceof Calendar) {
