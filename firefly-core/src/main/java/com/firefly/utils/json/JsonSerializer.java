@@ -14,7 +14,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -24,9 +23,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 import com.firefly.utils.SafeSimpleDateFormat;
-import com.firefly.utils.VerifyUtils;
 import com.firefly.utils.json.support.FieldHandle;
 import com.firefly.utils.json.support.JsonClassCache;
+import com.firefly.utils.json.support.TypeVerify;
 
 public class JsonSerializer {
 	private StringBuilder sb;
@@ -43,19 +42,14 @@ public class JsonSerializer {
 			return this;
 		}
 		Class<?> clazz = obj.getClass();
-		if (VerifyUtils.isNumber(clazz) || VerifyUtils.isBoolean(clazz)) { // 数字，布尔类型
+		if (TypeVerify.isNumberOrBool(clazz)) { // 数字，布尔类型
 			sb.append(obj);
 		} else if (clazz.isEnum()) { // 枚举类型
 			string2Json(((Enum<?>) obj).name());
-		} else if (CharSequence.class.isAssignableFrom(clazz)
-				|| VerifyUtils.isChar(clazz)) { // 字符串或字符类型
+		} else if (TypeVerify.isString(clazz)) { // 字符串或字符类型
 			string2Json(obj.toString());
-		} else if (VerifyUtils.isDateLike(clazz)) { // 时间类型
-			if (obj instanceof Calendar) {
-				string2Json(SafeSimpleDateFormat.safeFormatDate((Calendar) obj));
-			} else if (obj instanceof Date) {
-				string2Json(SafeSimpleDateFormat.safeFormatDate((Date) obj));
-			}
+		} else if (TypeVerify.isDateLike(clazz)) {
+			string2Json(SafeSimpleDateFormat.safeFormatDate((Date) obj));
 		} else if (existence.contains(obj)) { // 防止循环引用
 			sb.append(NULL);
 		} else {
