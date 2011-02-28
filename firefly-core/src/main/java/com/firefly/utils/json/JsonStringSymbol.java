@@ -1,7 +1,7 @@
 package com.firefly.utils.json;
 
 public interface JsonStringSymbol {
-	String QUOTE = "\"";
+	char QUOTE = '"';
 	char ARRAY_PRE = '[';
 	char ARRAY_SUF = ']';
 	char OBJ_PRE = '{';
