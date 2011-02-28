@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 import com.firefly.utils.SafeSimpleDateFormat;
+import com.firefly.utils.json.support.CharTypes;
 import com.firefly.utils.json.support.FieldHandle;
 import com.firefly.utils.json.support.JsonClassCache;
 import com.firefly.utils.json.support.TypeVerify;
@@ -30,10 +31,12 @@ import com.firefly.utils.json.support.TypeVerify;
 class JsonSerializer {
 	private StringBuilder sb;
 	private Set<Object> existence; // 防止循环引用
+	private ClassCache classCache;
 
 	public JsonSerializer() {
 		sb = new StringBuilder();
 		existence = new HashSet<Object>();
+		classCache = JsonClassCache.getInstance();
 	}
 
 	JsonSerializer toJson(Object obj) {
@@ -73,7 +76,7 @@ class JsonSerializer {
 			return;
 		Class<?> clazz = obj.getClass();
 		sb.append(OBJ_PRE);
-		FieldHandle[] fieldHandles = JsonClassCache.getInstance().get(clazz);
+		FieldHandle[] fieldHandles = classCache.get(clazz);
 		if (fieldHandles == null) {
 			List<FieldHandle> fieldList = new ArrayList<FieldHandle>();
 			Method[] methods = clazz.getMethods();
@@ -169,8 +172,7 @@ class JsonSerializer {
 				}
 			}
 
-			JsonClassCache.getInstance().put(clazz,
-					fieldList.toArray(new FieldHandle[0]));
+			classCache.put(clazz, fieldList.toArray(new FieldHandle[0]));
 		} else {
 			for (int i = 0; i < fieldHandles.length; i++) {
 				try {
@@ -216,25 +218,12 @@ class JsonSerializer {
 		else {
 			char[] cs = s.toCharArray();
 			sb.append(QUOTE);
-			for (char c : cs) {
-				switch (c) {
-				case '"':
-					sb.append("\\\"");
-					break;
-				case '\n':
-					sb.append("\\n");
-					break;
-				case '\t':
-					sb.append("\\t");
-					break;
-				case '\r':
-					sb.append("\\r");
-					break;
-				case '\\':
-					sb.append("\\\\");
-					break;
-				default:
-					sb.append(c);
+			for (char ch : cs) {
+				if (CharTypes.isSpecicalFlags(ch)) {
+					sb.append('\\');
+					sb.append(CharTypes.replaceChar(ch));
+				} else {
+					sb.append(ch);
 				}
 			}
 			sb.append(QUOTE);
