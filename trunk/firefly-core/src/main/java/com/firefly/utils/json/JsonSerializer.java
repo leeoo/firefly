@@ -73,11 +73,12 @@ class JsonSerializer {
 			return;
 		Class<?> clazz = obj.getClass();
 		sb.append(OBJ_PRE);
-		List<Pair> list = new ArrayList<Pair>();
-		FieldHandle[] FieldHandles = JsonClassCache.getInstance().get(clazz);
-		if (FieldHandles == null) {
+		FieldHandle[] fieldHandles = JsonClassCache.getInstance().get(clazz);
+		if (fieldHandles == null) {
 			List<FieldHandle> fieldList = new ArrayList<FieldHandle>();
-			for (Method method : clazz.getMethods()) {
+			Method[] methods = clazz.getMethods();
+			for (int i = 0; i < methods.length; i++) {
+				Method method = methods[i];
 				method.setAccessible(true);
 				String methodName = method.getName();
 
@@ -117,7 +118,9 @@ class JsonSerializer {
 						fieldSerializer.setPropertyName(propertyName);
 						fieldSerializer.setMethod(method);
 						fieldList.add(fieldSerializer);
-						list.add(new Pair(propertyName, method.invoke(obj)));
+
+						appendPair(propertyName, method.invoke(obj));
+						sb.append(SEPARATOR);
 					} catch (IllegalArgumentException e) {
 						e.printStackTrace();
 					} catch (IllegalAccessException e) {
@@ -155,7 +158,9 @@ class JsonSerializer {
 						fieldSerializer.setPropertyName(propertyName);
 						fieldSerializer.setMethod(method);
 						fieldList.add(fieldSerializer);
-						list.add(new Pair(propertyName, method.invoke(obj)));
+
+						appendPair(propertyName, method.invoke(obj));
+						sb.append(SEPARATOR);
 					} catch (IllegalArgumentException e) {
 						e.printStackTrace();
 					} catch (IllegalAccessException e) {
@@ -169,10 +174,11 @@ class JsonSerializer {
 			JsonClassCache.getInstance().put(clazz,
 					fieldList.toArray(new FieldHandle[0]));
 		} else {
-			for (FieldHandle fieldHandle : FieldHandles) {
+			for (int i = 0; i < fieldHandles.length; i++) {
 				try {
-					list.add(new Pair(fieldHandle.getPropertyName(),
-							fieldHandle.getMethod().invoke(obj)));
+					appendPair(fieldHandles[i].getPropertyName(),
+							fieldHandles[i].getMethod().invoke(obj));
+					sb.append(SEPARATOR);
 				} catch (IllegalArgumentException e) {
 					e.printStackTrace();
 				} catch (IllegalAccessException e) {
@@ -182,13 +188,9 @@ class JsonSerializer {
 				}
 			}
 		}
-
-		for (Iterator<Pair> it = list.iterator(); it.hasNext();) {
-			Pair p = it.next();
-			appendPair(p);
-			if (it.hasNext())
-				sb.append(SEPARATOR);
-		}
+		int lastIndex = sb.length() - 1;
+		if (sb.charAt(lastIndex) == SEPARATOR)
+			sb.deleteCharAt(lastIndex);
 		sb.append(OBJ_SUF);
 	}
 
@@ -197,17 +199,13 @@ class JsonSerializer {
 		if (map == null)
 			return;
 		sb.append(OBJ_PRE);
-		ArrayList<Pair> list = new ArrayList<Pair>(map.size());
 		Set<Entry<?, ?>> entrySet = map.entrySet();
-		for (Entry entry : entrySet) {
+		for (Iterator<Entry<?, ?>> it = entrySet.iterator(); it.hasNext();) {
+			Entry<?, ?> entry = it.next();
 			String name = entry.getKey() == null ? NULL : entry.getKey()
 					.toString();
-			Object value = entry.getValue();
-			list.add(new Pair(name, value));
-		}
-		for (Iterator<Pair> it = list.iterator(); it.hasNext();) {
-			Pair p = it.next();
-			appendPair(p);
+			Object val = entry.getValue();
+			appendPair(name, val);
 			if (it.hasNext())
 				sb.append(SEPARATOR);
 		}
@@ -269,10 +267,10 @@ class JsonSerializer {
 		sb.append(ARRAY_SUF);
 	}
 
-	private void appendPair(Pair pair) {
-		string2Json(pair.name);
+	private void appendPair(String name, Object val) {
+		string2Json(name);
 		sb.append(OBJ_SEPARATOR);
-		toJson(pair.val);
+		toJson(val);
 	}
 
 	@Override
