@@ -128,9 +128,7 @@ class JsonSerializer {
 					} catch (InvocationTargetException e) {
 						e.printStackTrace();
 					}
-				}
-
-				if (methodName.startsWith("is")) { // 取is方法的返回值
+				} else if (methodName.startsWith("is")) { // 取is方法的返回值
 					if (methodName.length() < 3
 							|| !Character.isUpperCase(methodName.charAt(2))) {
 						continue;
