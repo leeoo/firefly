@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 import com.firefly.utils.SafeSimpleDateFormat;
-import com.firefly.utils.json.support.CharTypes;
 import com.firefly.utils.json.support.FieldHandle;
 import com.firefly.utils.json.support.JsonClassCache;
 import com.firefly.utils.json.support.TypeVerify;
@@ -219,10 +218,29 @@ class JsonSerializer {
 			char[] cs = s.toCharArray();
 			sb.append(QUOTE);
 			for (char ch : cs) {
-				if (CharTypes.isSpecicalFlags(ch)) {
-					sb.append('\\');
-					sb.append(CharTypes.replaceChar(ch));
-				} else {
+				switch (ch) {
+				case '"':
+					sb.append("\\\"");
+					break;
+				case '\b':
+					sb.append("\\b");
+					break;
+				case '\n':
+					sb.append("\\n");
+					break;
+				case '\t':
+					sb.append("\\t");
+					break;
+				case '\f':
+					sb.append("\\f");
+					break;
+				case '\r':
+					sb.append("\\r");
+					break;
+				case '\\':
+					sb.append("\\\\");
+					break;
+				default:
 					sb.append(ch);
 				}
 			}
