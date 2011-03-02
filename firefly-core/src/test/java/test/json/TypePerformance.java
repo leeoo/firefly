@@ -2,7 +2,7 @@ package test.json;
 
 import com.firefly.utils.json.support.TypeVerify;
 
-public class TypeTest {
+public class TypePerformance {
 
 	/**
 	 * @param args
