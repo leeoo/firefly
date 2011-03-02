@@ -2,7 +2,7 @@ package test.utils;
 
 import com.firefly.utils.StringUtils;
 
-public class SplitPerformanceTest {
+public class SplitPerformance {
 
 	private static final int TIMES = 50000;
 
