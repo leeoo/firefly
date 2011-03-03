@@ -9,6 +9,7 @@ import test.component2.MethodInject2;
 @Component("methodInject2")
 public class MethodInjectImpl2 implements MethodInject2 {
 
+	@Inject
 	private AddService addService;
 
 	@Inject
