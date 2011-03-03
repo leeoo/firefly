@@ -86,7 +86,8 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 				String key = field.getAnnotation(Inject.class).value();
 				Object instance = map.get(key.length() > 0 ? key : clazz
 						.getName());
-				field.set(o, instance);
+				if (instance != null)
+					field.set(o, instance);
 			}
 
 			// 从方法注入
