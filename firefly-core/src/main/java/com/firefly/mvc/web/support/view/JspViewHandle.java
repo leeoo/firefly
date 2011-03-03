@@ -40,8 +40,9 @@ public class JspViewHandle implements ViewHandle {
 			IOException {
 		log.debug("view [{}]", View.JSP);
 		if (view instanceof String && view != null) {
-			request.getRequestDispatcher(viewPath + view.toString()).forward(
-					request, response);
+			String ret = viewPath + view.toString();
+			log.debug("jsp path [{}]",ret);
+			request.getRequestDispatcher(ret).forward(request, response);
 		}
 	}
 
