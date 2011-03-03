@@ -39,6 +39,7 @@ public class TestIoc {
 	public void testMethodInject2() {
 		MethodInject2 m = applicationContext.getBean("methodInject2");
 		Assert.assertThat(m.add(5, 5), is(10));
+		Assert.assertThat(m.getNum(), is(3));
 	}
 
 	@Test
