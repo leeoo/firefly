@@ -1,0 +1,136 @@
+package com.firefly.mvc.web.support;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.firefly.annotation.HttpParam;
+
+/**
+ * 保存请求key对应的对象
+ *
+ * @author alvinqiu
+ *
+ */
+public class BeanHandle implements Comparable<BeanHandle> {
+	private final Object object;
+	private final Method method;
+	private final ParamHandle[] paramHandles;
+	private final byte[] methodParam;
+	private final ViewHandle viewHandle;
+	private Integer interceptOrder;
+
+	public BeanHandle(Object object, Method method, ViewHandle viewHandle) {
+		super();
+		this.object = object;
+		this.method = method;
+		this.viewHandle = viewHandle;
+
+		Class<?>[] paraTypes = method.getParameterTypes();
+		methodParam = new byte[paraTypes.length];
+		// 构造参数对象
+		paramHandles = new ParamHandle[paraTypes.length];
+		Annotation[][] annotations = method.getParameterAnnotations();
+		for (int i = 0; i < paraTypes.length; i++) {
+			HttpParam httpParam = getHttpParam(annotations[i]);
+			if (httpParam != null) {
+				ParamHandle paramHandle = new ParamHandle(paraTypes[i],
+						getBeanSetMethod(paraTypes[i]), httpParam.value());
+				paramHandles[i] = paramHandle;
+				methodParam[i] = MethodParam.HTTP_PARAM;
+			} else {
+				if (paraTypes[i].equals(HttpServletRequest.class))
+					methodParam[i] = MethodParam.REQUEST;
+				else if (paraTypes[i].equals(HttpServletResponse.class))
+					methodParam[i] = MethodParam.RESPONSE;
+			}
+		}
+	}
+
+	private Map<String, Method> getBeanSetMethod(Class<?> paraType) {
+		Map<String, Method> beanSetMethod = new HashMap<String, Method>();
+		Method[] paramMethods = paraType.getMethods();
+
+		for (Method paramMethod : paramMethods) {
+			String paramName = null;
+			// 根据javabean里面的set方法取出对应的属性
+			if (paramMethod.getName().startsWith("set")) {
+				paramName = String.valueOf(paramMethod.getName().charAt(3))
+						.toLowerCase()
+						+ paramMethod.getName().substring(4);
+			} else if (paramMethod.getName().startsWith("is")) {
+				paramName = String.valueOf(paramMethod.getName().charAt(2))
+						.toLowerCase()
+						+ paramMethod.getName().substring(3);
+			}
+			if (paramName != null) {
+				paramMethod.setAccessible(true);
+				beanSetMethod.put(paramName, paramMethod);
+			}
+		}
+		return beanSetMethod;
+	}
+
+	private HttpParam getHttpParam(Annotation[] annotations) {
+		for (Annotation a : annotations) {
+			if (a.annotationType().equals(HttpParam.class))
+				return (HttpParam) a;
+		}
+		return null;
+	}
+
+	public ParamHandle[] getParamHandles() {
+		return paramHandles;
+	}
+
+	public Integer getInterceptOrder() {
+		return interceptOrder;
+	}
+
+	public void setInterceptOrder(Integer interceptOrder) {
+		this.interceptOrder = interceptOrder;
+	}
+
+	public ViewHandle getViewHandle() {
+		return viewHandle;
+	}
+
+	public Object getObject() {
+		return object;
+	}
+
+	public Method getMethod() {
+		return method;
+	}
+
+	public Object invoke(Object[] args) {
+		Object ret = null;
+		try {
+			ret = method.invoke(object, args);
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
+		return ret;
+	}
+
+	public byte[] getMethodParam() {
+		return methodParam;
+	}
+
+	@Override
+	public int compareTo(BeanHandle o) {
+		if (method.getName().equals("before"))
+			return interceptOrder.compareTo(o.getInterceptOrder());
+		else
+			return o.getInterceptOrder().compareTo(interceptOrder);
+	}
+}
