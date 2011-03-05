@@ -20,12 +20,12 @@ public class JsonViewHandle implements ViewHandle {
 
 	}
 
-	private static class JsonViewHandleHolder {
+	private static class Holder {
 		private static JsonViewHandle instance = new JsonViewHandle();
 	}
 
 	public static JsonViewHandle getInstance() {
-		return JsonViewHandleHolder.instance;
+		return Holder.instance;
 	}
 
 	public JsonViewHandle init(String encoding) {

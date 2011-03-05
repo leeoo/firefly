@@ -15,8 +15,7 @@ import com.firefly.core.ApplicationContext;
 import com.firefly.core.DefaultApplicationContext;
 
 public class TestIoc {
-	public static ApplicationContext applicationContext = DefaultApplicationContext
-			.getInstance().load();
+	public static ApplicationContext applicationContext = new DefaultApplicationContext();
 
 	@Test
 	public void testFieldInject() {

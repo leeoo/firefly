@@ -21,12 +21,12 @@ public class JspViewHandle implements ViewHandle {
 
 	}
 
-	private static class JspViewHandleHolder {
+	private static class Holder {
 		private static JspViewHandle instance = new JspViewHandle();
 	}
 
 	public static JspViewHandle getInstance() {
-		return JspViewHandleHolder.instance;
+		return Holder.instance;
 	}
 
 	public JspViewHandle init(String viewPath) {

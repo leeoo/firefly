@@ -11,13 +11,15 @@ import org.slf4j.LoggerFactory;
 
 import com.firefly.annotation.Interceptor;
 import com.firefly.annotation.RequestMapping;
-import com.firefly.core.AbstractApplicationContext;
+import com.firefly.core.DefaultApplicationContext;
+import com.firefly.core.support.annotation.ConfigReader;
 import com.firefly.mvc.web.support.BeanHandle;
 import com.firefly.mvc.web.support.ViewHandle;
 import com.firefly.mvc.web.support.view.JsonViewHandle;
 import com.firefly.mvc.web.support.view.JspViewHandle;
 import com.firefly.mvc.web.support.view.RedirectHandle;
 import com.firefly.mvc.web.support.view.TextViewHandle;
+import com.firefly.utils.Pair;
 import com.firefly.utils.StringUtils;
 import com.firefly.utils.VerifyUtils;
 
@@ -27,58 +29,38 @@ import com.firefly.utils.VerifyUtils;
  * @author AlvinQiu
  *
  */
-public class DefaultWebContext extends AbstractApplicationContext implements
+public class DefaultWebContext extends DefaultApplicationContext implements
 		WebContext {
 	private static Logger log = LoggerFactory
 			.getLogger(DefaultWebContext.class);
-	private List<String> uriList = new ArrayList<String>();
+	private List<String> uriList;
 
-	private interface Config {
-		String VIEW_PATH = "viewPath";
-		String DEFAULT_VIEW_PATH = "/WEB-INF/page";
-		String ENCODING = "encoding";
-		String DEFAULT_ENCODING = "UTF-8";
+	public DefaultWebContext() {
+		this(null);
 	}
 
-	private DefaultWebContext() {
-	}
-
-	private static class DefaultWebContextHolder {
-		private static DefaultWebContext instance = new DefaultWebContext();
-	}
-
-	public static DefaultWebContext getInstance() {
-		return DefaultWebContextHolder.instance;
-	}
-
-	@Override
-	public WebContext load() {
-		return load(null);
-	}
-
-	@Override
-	public WebContext load(String file) {
-		super.load(file);
+	public DefaultWebContext(String file) {
+		super(file);
+		uriList = new ArrayList<String>();
 		JspViewHandle.getInstance().init(getViewPath());
 		TextViewHandle.getInstance().init(getEncoding());
 		JsonViewHandle.getInstance().init(getEncoding());
-		return this;
+		for (Pair<Class<?>, Object> pair : components) {
+			addObjectToContext(pair.obj1, pair.obj2);
+		}
 	}
 
 	@Override
 	public String getEncoding() {
-		return beanReader.getProperties().getProperty(Config.ENCODING,
-				Config.DEFAULT_ENCODING);
+		return ConfigReader.getInstance().getConfig().getEncoding();
 	}
 
 	@Override
 	public String getViewPath() {
-		return beanReader.getProperties().getProperty(Config.VIEW_PATH,
-				Config.DEFAULT_VIEW_PATH);
+		return ConfigReader.getInstance().getConfig().getViewPath();
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
 	public void addObjectToContext(Class<?> c, Object o) {
 		// 注册Controller里面声明的uri
 		List<Method> list = getReqMethod(c);
@@ -172,7 +154,7 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 		List<String> list = new ArrayList<String>();
 		for (String uriAndMethod : uriList) {
 			String uri = StringUtils.split(uriAndMethod, "@")[1];
-			if(ignoreBackslashEquals(pattern, uri)) {
+			if (ignoreBackslashEquals(pattern, uri)) {
 				log.debug("intercept uri[{}] pattern[{}]", uri, pattern);
 				list.add(uri);
 			}
@@ -182,6 +164,7 @@ public class DefaultWebContext extends AbstractApplicationContext implements
 
 	/**
 	 * 拦截地址匹配，忽略uri和pattern最后的'/'
+	 *
 	 * @param pattern
 	 * @param uri
 	 * @return
