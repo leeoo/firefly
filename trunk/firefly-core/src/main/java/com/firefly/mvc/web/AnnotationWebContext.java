@@ -5,21 +5,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.firefly.annotation.Interceptor;
 import com.firefly.annotation.RequestMapping;
-import com.firefly.core.DefaultApplicationContext;
+import com.firefly.core.AnnotationApplicationContext;
+import com.firefly.core.support.annotation.AnnotationBeanDefinition;
 import com.firefly.core.support.annotation.ConfigReader;
 import com.firefly.mvc.web.support.BeanHandle;
 import com.firefly.mvc.web.support.ViewHandle;
+import com.firefly.mvc.web.support.WebBeanDefinition;
+import com.firefly.mvc.web.support.WebBeanReader;
 import com.firefly.mvc.web.support.view.JsonViewHandle;
 import com.firefly.mvc.web.support.view.JspViewHandle;
 import com.firefly.mvc.web.support.view.RedirectHandle;
 import com.firefly.mvc.web.support.view.TextViewHandle;
-import com.firefly.utils.Pair;
 import com.firefly.utils.StringUtils;
 import com.firefly.utils.VerifyUtils;
 
@@ -29,25 +28,30 @@ import com.firefly.utils.VerifyUtils;
  * @author AlvinQiu
  *
  */
-public class DefaultWebContext extends DefaultApplicationContext implements
-		WebContext {
+public class AnnotationWebContext extends AnnotationApplicationContext
+		implements WebContext {
 	private static Logger log = LoggerFactory
-			.getLogger(DefaultWebContext.class);
+			.getLogger(AnnotationWebContext.class);
 	private List<String> uriList;
 
-	public DefaultWebContext() {
+	public AnnotationWebContext() {
 		this(null);
 	}
 
-	public DefaultWebContext(String file) {
+	public AnnotationWebContext(String file) {
 		super(file);
 		uriList = new ArrayList<String>();
 		JspViewHandle.getInstance().init(getViewPath());
 		TextViewHandle.getInstance().init(getEncoding());
 		JsonViewHandle.getInstance().init(getEncoding());
-		for (Pair<Class<?>, Object> pair : components) {
-			addObjectToContext(pair.obj1, pair.obj2);
+		for (AnnotationBeanDefinition beanDefinition : beanDefinitions) {
+			addObjectToContext((WebBeanDefinition) beanDefinition);
 		}
+	}
+
+	@Override
+	protected List<AnnotationBeanDefinition> getBeanReader(String file) {
+		return new WebBeanReader().loadBeanDefinitions();
 	}
 
 	@Override
@@ -61,9 +65,9 @@ public class DefaultWebContext extends DefaultApplicationContext implements
 	}
 
 	@SuppressWarnings("unchecked")
-	public void addObjectToContext(Class<?> c, Object o) {
+	private void addObjectToContext(WebBeanDefinition beanDefinition) {
 		// 注册Controller里面声明的uri
-		List<Method> list = getReqMethod(c);
+		List<Method> list = beanDefinition.getReqMethods();
 		for (Method m : list) {
 			m.setAccessible(true);
 			final String uri = m.getAnnotation(RequestMapping.class).value();
@@ -72,7 +76,8 @@ public class DefaultWebContext extends DefaultApplicationContext implements
 			final String view = m.getAnnotation(RequestMapping.class).view();
 			String key = method + "@" + uri;
 
-			BeanHandle beanHandle = new BeanHandle(o, m, getViewHandle(view));
+			BeanHandle beanHandle = new BeanHandle(beanDefinition.getObject(),
+					m, getViewHandle(view));
 			map.put(key, beanHandle);
 			uriList.add(key);
 			log.info("register uri [{}]", key);
@@ -85,19 +90,16 @@ public class DefaultWebContext extends DefaultApplicationContext implements
 			log.info("register uri [{}]", key);
 		}
 
-		list = getInterceptor(c);
+		list = beanDefinition.getInterceptorMethods();
 		for (Method m : list) {
 			m.setAccessible(true);
-			String uriPattern = c.getAnnotation(Interceptor.class).uri();
-			final String view = c.getAnnotation(Interceptor.class).view();
-			final Integer order = c.getAnnotation(Interceptor.class).order();
-
-			List<String> l = getInterceptUri(uriPattern);
+			List<String> l = getInterceptUri(beanDefinition.getUriPattern());
 			for (String i : l) {
 				String key = m.getName().charAt(0) + "#" + i;
-				BeanHandle beanHandle = new BeanHandle(o, m,
-						getViewHandle(view));
-				beanHandle.setInterceptOrder(order);
+				BeanHandle beanHandle = new BeanHandle(beanDefinition
+						.getObject(), m,
+						getViewHandle(beanDefinition.getView()));
+				beanHandle.setInterceptOrder(beanDefinition.getOrder());
 				Set<BeanHandle> interceptorSet = (Set<BeanHandle>) map.get(key);
 				if (interceptorSet == null) {
 					interceptorSet = new TreeSet<BeanHandle>();
@@ -109,39 +111,6 @@ public class DefaultWebContext extends DefaultApplicationContext implements
 			}
 		}
 
-	}
-
-	/**
-	 * 找出Controller里面标记有RequestMapping的方法
-	 */
-	private List<Method> getReqMethod(Class<?> c) {
-		Method[] methods = c.getMethods();
-		List<Method> list = new ArrayList<Method>();
-		for (Method m : methods) {
-			if (m.isAnnotationPresent(RequestMapping.class)) {
-				list.add(m);
-			}
-		}
-		return list;
-	}
-
-	/**
-	 * 获取所有拦截器
-	 *
-	 * @param c
-	 * @return
-	 */
-	private List<Method> getInterceptor(Class<?> c) {
-		Method[] methods = c.getMethods();
-		List<Method> list = new ArrayList<Method>();
-		for (Method m : methods) {
-			if (c.isAnnotationPresent(Interceptor.class)
-					&& (m.getName().equals("before") || m.getName().equals(
-							"after"))) { // 验证拦截器annotation和方法名
-				list.add(m);
-			}
-		}
-		return list;
 	}
 
 	/**

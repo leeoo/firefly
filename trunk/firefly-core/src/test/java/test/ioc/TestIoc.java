@@ -12,10 +12,10 @@ import test.component.MethodInject;
 import test.component2.MethodInject2;
 
 import com.firefly.core.ApplicationContext;
-import com.firefly.core.DefaultApplicationContext;
+import com.firefly.core.AnnotationApplicationContext;
 
 public class TestIoc {
-	public static ApplicationContext applicationContext = new DefaultApplicationContext();
+	public static ApplicationContext applicationContext = new AnnotationApplicationContext();
 
 	@Test
 	public void testFieldInject() {
