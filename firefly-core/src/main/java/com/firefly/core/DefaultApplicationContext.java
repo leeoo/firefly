@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,28 +23,17 @@ public class DefaultApplicationContext extends AbstractApplicationContext {
 	}
 
 	public DefaultApplicationContext(String file) {
-		try {
-			components = new ArrayList<Pair<Class<?>, Object>>();
-			map = new HashMap<String, Object>();
-			addObjToContext(new AnnotationBeanReader(file).getClasses());
-			inject();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		}
+		components = new AnnotationBeanReader(file).getClasses();
+		addObjToContext();
+		inject();
 	}
 
-	private void addObjToContext(Set<Class<?>> classes) throws InstantiationException, IllegalAccessException {
-		for (Class<?> c : classes) {
-			Object o = c.newInstance();
-			components.add(new Pair<Class<?>, Object>(c, o));
+	private void addObjToContext() {
+		for (Pair<Class<?>, Object> pair : components) {
+			Class<?> clz = pair.obj1;
+			Object o = pair.obj2;
 			// 增加声明的组件到 ApplicationContext
-			Set<String> keys = getInstanceMapKeys(c);
+			Set<String> keys = getInstanceMapKeys(clz);
 			for (String k : keys) {
 				// log.info("obj key [{}]", k);
 				map.put(k, o);
@@ -53,7 +41,7 @@ public class DefaultApplicationContext extends AbstractApplicationContext {
 		}
 	}
 
-	private void inject() throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+	private void inject() {
 		for (Pair<Class<?>, Object> pair : components) {
 			Class<?> clz = pair.obj1;
 			Object o = pair.obj2;
@@ -68,7 +56,13 @@ public class DefaultApplicationContext extends AbstractApplicationContext {
 				Object instance = map.get(key.length() > 0 ? key : clazz
 						.getName());
 				if (instance != null)
-					field.set(o, instance);
+					try {
+						field.set(o, instance);
+					} catch (IllegalArgumentException e) {
+						e.printStackTrace();
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					}
 			}
 
 			// 从方法注入
@@ -84,7 +78,15 @@ public class DefaultApplicationContext extends AbstractApplicationContext {
 						p[i] = instance;
 					}
 				}
-				method.invoke(o, p);
+				try {
+					method.invoke(o, p);
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

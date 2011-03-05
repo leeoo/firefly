@@ -7,9 +7,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import org.slf4j.Logger;
@@ -18,6 +18,7 @@ import com.firefly.annotation.Component;
 import com.firefly.annotation.Controller;
 import com.firefly.annotation.Interceptor;
 import com.firefly.core.support.BeanReader;
+import com.firefly.utils.Pair;
 
 /**
  * 读取Bean信息
@@ -28,26 +29,14 @@ import com.firefly.core.support.BeanReader;
 public class AnnotationBeanReader implements BeanReader {
 	private static Logger log = LoggerFactory
 			.getLogger(AnnotationBeanReader.class);
-	private Set<Class<?>> classes;
-
-//	private AnnotationBeanReader() {
-//
-//	}
-//
-//	private static class Holder {
-//		private static AnnotationBeanReader instance = new AnnotationBeanReader();
-//	}
-//
-//	public static AnnotationBeanReader getInstance() {
-//		return Holder.instance;
-//	}
+	protected List<Pair<Class<?>, Object>> components;
 
 	public AnnotationBeanReader() {
 		this(null);
 	}
 
 	public AnnotationBeanReader(String file) {
-		classes = new LinkedHashSet<Class<?>>();
+		components = new ArrayList<Pair<Class<?>, Object>>();
 		Config config = ConfigReader.getInstance().load(file);
 		for (String pack : config.getPaths()) {
 			log.info("componentPath [{}]", pack);
@@ -85,7 +74,7 @@ public class AnnotationBeanReader implements BeanReader {
 				}
 				// 以文件的方式扫描整个包下的文件 并添加到集合中
 				try {
-					addClassesByFile(packageName, filePath, classes);
+					addClassesByFile(packageName, filePath, components);
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
@@ -95,7 +84,8 @@ public class AnnotationBeanReader implements BeanReader {
 					JarFile jar = ((JarURLConnection) url.openConnection())
 							.getJarFile();
 
-					addClassesByJar(packageName, packageDirName, jar, classes);
+					addClassesByJar(packageName, packageDirName, jar,
+							components);
 				} catch (IOException e) {
 					e.printStackTrace();
 				} catch (ClassNotFoundException e) {
@@ -106,7 +96,8 @@ public class AnnotationBeanReader implements BeanReader {
 	}
 
 	private void addClassesByJar(String packageName, String packageDirName,
-			JarFile jar, Set<Class<?>> classes) throws ClassNotFoundException {
+			JarFile jar, List<Pair<Class<?>, Object>> components)
+			throws ClassNotFoundException {
 		// 从此jar包 得到一个枚举类
 		Enumeration<JarEntry> entries = jar.entries();
 		// 同样的进行循环迭代
@@ -140,7 +131,14 @@ public class AnnotationBeanReader implements BeanReader {
 
 					if (isAnnotationPresent(c)) {
 						log.info("classes [{}]", c.getName());
-						classes.add(c);
+						try {
+							components.add(new Pair<Class<?>, Object>(c, c
+									.newInstance()));
+						} catch (InstantiationException e) {
+							e.printStackTrace();
+						} catch (IllegalAccessException e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			}
@@ -148,7 +146,8 @@ public class AnnotationBeanReader implements BeanReader {
 	}
 
 	private void addClassesByFile(String packageName, String filePath,
-			Set<Class<?>> classes) throws ClassNotFoundException {
+			List<Pair<Class<?>, Object>> components)
+			throws ClassNotFoundException {
 		// 获取此包的目录 建立一个File
 		File dir = new File(filePath);
 		// 如果不存在或者 也不是目录就直接返回
@@ -168,7 +167,7 @@ public class AnnotationBeanReader implements BeanReader {
 			// 如果是目录 则继续扫描
 			if (file.isDirectory()) {
 				addClassesByFile(packageName + "." + file.getName(), file
-						.getAbsolutePath(), classes);
+						.getAbsolutePath(), components);
 			} else {
 				// 如果是java类文件 去掉后面的.class 只留下类名
 				String className = file.getName().substring(0,
@@ -182,7 +181,14 @@ public class AnnotationBeanReader implements BeanReader {
 
 				if (isAnnotationPresent(c)) {
 					log.info("classes [{}]", c.getName());
-					classes.add(c);
+					try {
+						components.add(new Pair<Class<?>, Object>(c, c
+								.newInstance()));
+					} catch (InstantiationException e) {
+						e.printStackTrace();
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					}
 				}
 
 			}
@@ -196,8 +202,8 @@ public class AnnotationBeanReader implements BeanReader {
 	}
 
 	@Override
-	public Set<Class<?>> getClasses() {
-		return classes;
+	public List<Pair<Class<?>, Object>> getClasses() {
+		return components;
 	}
 
 }
