@@ -1,10 +1,11 @@
 package test.component2.impl;
 
+import test.component.AddService;
+import test.component.FieldInject;
+import test.component2.MethodInject2;
+
 import com.firefly.annotation.Component;
 import com.firefly.annotation.Inject;
-
-import test.component.AddService;
-import test.component2.MethodInject2;
 
 @Component("methodInject2")
 public class MethodInjectImpl2 implements MethodInject2 {
@@ -13,10 +14,13 @@ public class MethodInjectImpl2 implements MethodInject2 {
 	private Integer num = 3;
 	@Inject
 	private AddService addService;
+	protected FieldInject fieldInject;
 
 	@Inject
-	public void init(AddService addService) {
+	public void init(AddService addService, FieldInject fieldInject, String str) {
 		this.addService = addService;
+		this.fieldInject = fieldInject;
+		fieldInject.add(3, 4);
 	}
 
 	@Override
