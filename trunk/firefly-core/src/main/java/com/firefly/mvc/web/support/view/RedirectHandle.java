@@ -20,12 +20,12 @@ public class RedirectHandle implements ViewHandle {
 
 	}
 
-	private static class RedirectHandleHolder {
+	private static class Holder {
 		private static RedirectHandle instance = new RedirectHandle();
 	}
 
 	public static RedirectHandle getInstance() {
-		return RedirectHandleHolder.instance;
+		return Holder.instance;
 	}
 
 	@Override

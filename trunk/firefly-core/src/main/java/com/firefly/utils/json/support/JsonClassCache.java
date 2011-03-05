@@ -13,24 +13,18 @@ public class JsonClassCache implements ClassCache {
 		map = new HashMap<Class<?>, FieldHandle[]>();
 	}
 
-	private static class JsonObjCacheHolder {
+	private static class Holder {
 		private static ClassCache instance = new JsonClassCache();
 	}
 
 	public static ClassCache getInstance() {
-		return JsonObjCacheHolder.instance;
+		return Holder.instance;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.firefly.utils.json.support.ClassCache#put(java.lang.Class, com.firefly.utils.json.support.FieldHandle[])
-	 */
 	public void put(Class<?> clazz, FieldHandle[] FieldHandles) {
 		map.put(clazz, FieldHandles);
 	}
 
-	/* (non-Javadoc)
-	 * @see com.firefly.utils.json.support.ClassCache#get(java.lang.Class)
-	 */
 	public FieldHandle[] get(Class<?> clazz) {
 		return map.get(clazz);
 	}

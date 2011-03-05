@@ -21,12 +21,12 @@ public class TextViewHandle implements ViewHandle {
 
 	}
 
-	private static class TextViewHandleHolder {
+	private static class Holder {
 		private static TextViewHandle instance = new TextViewHandle();
 	}
 
 	public static TextViewHandle getInstance() {
-		return TextViewHandleHolder.instance;
+		return Holder.instance;
 	}
 
 	public TextViewHandle init(String encoding) {

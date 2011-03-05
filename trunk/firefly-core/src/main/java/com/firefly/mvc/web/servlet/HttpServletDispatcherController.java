@@ -123,7 +123,7 @@ public class HttpServletDispatcherController implements DispatcherController {
 	}
 
 	public HttpServletDispatcherController init(String initParam) {
-		webContext = DefaultWebContext.getInstance().load(initParam);
+		webContext = new DefaultWebContext(initParam);
 		return this;
 	}
 

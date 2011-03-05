@@ -9,19 +9,15 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
-import java.util.Properties;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.firefly.annotation.Component;
 import com.firefly.annotation.Controller;
 import com.firefly.annotation.Interceptor;
 import com.firefly.core.support.BeanReader;
-import com.firefly.utils.StringUtils;
 
 /**
  * 读取Bean信息
@@ -33,47 +29,30 @@ public class AnnotationBeanReader implements BeanReader {
 	private static Logger log = LoggerFactory
 			.getLogger(AnnotationBeanReader.class);
 	private Set<Class<?>> classes;
-	private Properties properties;
-	public static final String COMPONENT_PATH = "componentPath";
 
-	private AnnotationBeanReader() {
+//	private AnnotationBeanReader() {
+//
+//	}
+//
+//	private static class Holder {
+//		private static AnnotationBeanReader instance = new AnnotationBeanReader();
+//	}
+//
+//	public static AnnotationBeanReader getInstance() {
+//		return Holder.instance;
+//	}
 
+	public AnnotationBeanReader() {
+		this(null);
 	}
 
-	private static class AnnotationBeanReaderHolder {
-		private static AnnotationBeanReader instance = new AnnotationBeanReader();
-	}
-
-	public static AnnotationBeanReader getInstance() {
-		return AnnotationBeanReaderHolder.instance;
-	}
-
-	@Override
-	public Properties getProperties() {
-		return properties;
-	}
-
-	public BeanReader load() {
-		return load(null);
-	}
-
-	public BeanReader load(String file) {
-		properties = new Properties();
+	public AnnotationBeanReader(String file) {
 		classes = new LinkedHashSet<Class<?>>();
-		try {
-			properties.load(AnnotationBeanReader.class.getResourceAsStream("/"
-					+ (file != null ? file : DEFAULT_CONFIG_FILE)));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		final String[] componentPath = StringUtils.split(properties
-				.getProperty(COMPONENT_PATH), ",");
-
-		for (String pack : componentPath) {
+		Config config = ConfigReader.getInstance().load(file);
+		for (String pack : config.getPaths()) {
 			log.info("componentPath [{}]", pack);
 			scan(pack.trim());
 		}
-		return this;
 	}
 
 	private void scan(String pack) {
