@@ -1,7 +1,9 @@
 package com.firefly.core.support;
 
-import java.util.Set;
+import java.util.List;
+
+import com.firefly.utils.Pair;
 
 public interface BeanReader {
-	Set<Class<?>> getClasses();
+	List<Pair<Class<?>, Object>> getClasses();
 }
