@@ -26,7 +26,7 @@ import com.firefly.utils.Pair;
  * @author AlvinQiu
  *
  */
-public class AnnotationBeanReader implements BeanReader {
+public class AnnotationBeanReader {
 	private static Logger log = LoggerFactory
 			.getLogger(AnnotationBeanReader.class);
 	protected List<Pair<Class<?>, Object>> components;
@@ -201,7 +201,6 @@ public class AnnotationBeanReader implements BeanReader {
 				|| c.isAnnotationPresent(Interceptor.class);
 	}
 
-	@Override
 	public List<Pair<Class<?>, Object>> getClasses() {
 		return components;
 	}
