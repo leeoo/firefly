@@ -4,21 +4,23 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.firefly.annotation.Component;
-import com.firefly.annotation.Controller;
-import com.firefly.annotation.Interceptor;
+import com.firefly.annotation.Inject;
 import com.firefly.core.support.BeanReader;
-import com.firefly.utils.Pair;
 
 /**
  * 读取Bean信息
@@ -26,22 +28,26 @@ import com.firefly.utils.Pair;
  * @author AlvinQiu
  *
  */
-public class AnnotationBeanReader {
+public class AnnotationBeanReader implements BeanReader {
 	private static Logger log = LoggerFactory
 			.getLogger(AnnotationBeanReader.class);
-	protected List<Pair<Class<?>, Object>> components;
+	protected List<AnnotationBeanDefinition> beanDefinitions;
 
 	public AnnotationBeanReader() {
 		this(null);
 	}
 
 	public AnnotationBeanReader(String file) {
-		components = new ArrayList<Pair<Class<?>, Object>>();
+		beanDefinitions = getBeanDefinitions();
 		Config config = ConfigReader.getInstance().load(file);
 		for (String pack : config.getPaths()) {
 			log.info("componentPath [{}]", pack);
 			scan(pack.trim());
 		}
+	}
+
+	protected List<AnnotationBeanDefinition> getBeanDefinitions() {
+		return new ArrayList<AnnotationBeanDefinition>();
 	}
 
 	private void scan(String pack) {
@@ -74,7 +80,7 @@ public class AnnotationBeanReader {
 				}
 				// 以文件的方式扫描整个包下的文件 并添加到集合中
 				try {
-					addClassesByFile(packageName, filePath, components);
+					addClassesByFile(packageName, filePath);
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
@@ -84,8 +90,7 @@ public class AnnotationBeanReader {
 					JarFile jar = ((JarURLConnection) url.openConnection())
 							.getJarFile();
 
-					addClassesByJar(packageName, packageDirName, jar,
-							components);
+					addClassesByJar(packageName, packageDirName, jar);
 				} catch (IOException e) {
 					e.printStackTrace();
 				} catch (ClassNotFoundException e) {
@@ -96,8 +101,7 @@ public class AnnotationBeanReader {
 	}
 
 	private void addClassesByJar(String packageName, String packageDirName,
-			JarFile jar, List<Pair<Class<?>, Object>> components)
-			throws ClassNotFoundException {
+			JarFile jar) throws ClassNotFoundException {
 		// 从此jar包 得到一个枚举类
 		Enumeration<JarEntry> entries = jar.entries();
 		// 同样的进行循环迭代
@@ -129,30 +133,20 @@ public class AnnotationBeanReader {
 					Class<?> c = AnnotationBeanReader.class.getClassLoader()
 							.loadClass(packageName + '.' + className);
 
-					if (isAnnotationPresent(c)) {
+					if (isComponent(c)) {
 						log.info("classes [{}]", c.getName());
-						try {
-							components.add(new Pair<Class<?>, Object>(c, c
-									.newInstance()));
-						} catch (InstantiationException e) {
-							e.printStackTrace();
-						} catch (IllegalAccessException e) {
-							e.printStackTrace();
-						}
+						// TODO 增加bean定义
+						addBeanDefinition(c);
 					}
 				}
 			}
 		}
 	}
 
-	private void addClassesByFile(String packageName, String filePath,
-			List<Pair<Class<?>, Object>> components)
+	private void addClassesByFile(String packageName, String filePath)
 			throws ClassNotFoundException {
-		// 获取此包的目录 建立一个File
 		File dir = new File(filePath);
-		// 如果不存在或者 也不是目录就直接返回
 		if (!dir.exists() || !dir.isDirectory()) {
-			// log.warn("用户定义包名 " + packageName + " 下没有任何文件");
 			return;
 		}
 		// 如果存在 就获取包下的所有文件 包括目录
@@ -162,47 +156,95 @@ public class AnnotationBeanReader {
 				return file.isDirectory() || file.getName().endsWith(".class");
 			}
 		});
-		// 循环所有文件
+
 		for (File file : dirfiles) {
 			// 如果是目录 则继续扫描
 			if (file.isDirectory()) {
 				addClassesByFile(packageName + "." + file.getName(), file
-						.getAbsolutePath(), components);
+						.getAbsolutePath());
 			} else {
 				// 如果是java类文件 去掉后面的.class 只留下类名
 				String className = file.getName().substring(0,
 						file.getName().length() - 6);
-				// 添加到集合中去
-				// classes.add(Class.forName(packageName + '.' +
-				// className));
-				// 这里用forName有一些不好，会触发static方法，没有使用classLoader的load干净
 				Class<?> c = AnnotationBeanReader.class.getClassLoader()
 						.loadClass(packageName + '.' + className);
 
-				if (isAnnotationPresent(c)) {
+				if (isComponent(c)) {
 					log.info("classes [{}]", c.getName());
-					try {
-						components.add(new Pair<Class<?>, Object>(c, c
-								.newInstance()));
-					} catch (InstantiationException e) {
-						e.printStackTrace();
-					} catch (IllegalAccessException e) {
-						e.printStackTrace();
-					}
+					// TODO 增加bean定义
+					addBeanDefinition(c);
 				}
 
 			}
 		}
 	}
 
-	private boolean isAnnotationPresent(Class<?> c) {
-		return c.isAnnotationPresent(Controller.class)
-				|| c.isAnnotationPresent(Component.class)
-				|| c.isAnnotationPresent(Interceptor.class);
+	protected boolean isComponent(Class<?> c) {
+		return c.isAnnotationPresent(Component.class);
 	}
 
-	public List<Pair<Class<?>, Object>> getClasses() {
-		return components;
+	protected void addBeanDefinition(Class<?> c) {
+		AnnotationBeanDefinition annotatedBeanDefinition = new AnnotatedBeanDefinition();
+		annotatedBeanDefinition.setClassName(c.getName());
+
+		Component component = c.getAnnotation(Component.class);
+		annotatedBeanDefinition.setId(component.value());
+
+		Set<String> names = getInterfaceNames(c);
+		annotatedBeanDefinition.setInterfaceNames(names);
+
+		List<Field> fields = getInjectField(c);
+		annotatedBeanDefinition.setInjectFields(fields);
+
+		List<Method> methods = getInjectMethod(c);
+		annotatedBeanDefinition.setInjectMethods(methods);
+
+		try {
+			Object object = c.newInstance();
+			annotatedBeanDefinition.setObject(object);
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+
+		beanDefinitions.add(annotatedBeanDefinition);
+	}
+
+	@Override
+	public List<AnnotationBeanDefinition> loadBeanDefinitions() {
+		return beanDefinitions;
+	}
+
+	protected Set<String> getInterfaceNames(Class<?> c) {
+		Class<?>[] interfaces = c.getInterfaces();
+		Set<String> names = new HashSet<String>();
+		for (Class<?> i : interfaces) {
+			names.add(i.getName());
+		}
+		return names;
+	}
+
+	protected List<Field> getInjectField(Class<?> c) {
+		Field[] fields = c.getDeclaredFields();
+		List<Field> list = new ArrayList<Field>();
+		for (Field field : fields) {
+			if (field.getAnnotation(Inject.class) != null) {
+				list.add(field);
+			}
+		}
+		return list;
+	}
+
+	protected List<Method> getInjectMethod(Class<?> c) {
+		Method[] methods = c.getDeclaredMethods();
+		List<Method> list = new ArrayList<Method>();
+		for (Method m : methods) {
+			if (m.isAnnotationPresent(Inject.class)) {
+				list.add(m);
+			}
+		}
+		return list;
 	}
 
 }
