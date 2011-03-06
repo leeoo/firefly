@@ -34,12 +34,12 @@ public class HttpServletDispatcherController implements DispatcherController {
 
 	}
 
-	private static class HttpServletDispatcherControllerHolder {
+	private static class Holder {
 		private static HttpServletDispatcherController instance = new HttpServletDispatcherController();
 	}
 
 	public static HttpServletDispatcherController getInstance() {
-		return HttpServletDispatcherControllerHolder.instance;
+		return Holder.instance;
 	}
 
 	@Override
