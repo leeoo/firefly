@@ -10,7 +10,7 @@ import java.util.Set;
  * @Version 1.0
  */
 public interface BeanDefinition {
-	// id className 以及该组件所有接口类名作为 map 的key
+	// id className 以及该组件所有接口名作为 map 的key
 	String getId();
 
 	String getClassName();
