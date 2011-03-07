@@ -4,7 +4,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -67,6 +69,26 @@ public class XmlBeanReader implements BeanReader{
 					xmlBeanDefinition.setId(id);
 					xmlBeanDefinition.setClassName(className);
 
+					Class<?> clazz = null;
+					Object obj = null;
+					log.info("classes [{}]", className);
+					try {
+						clazz = Class.forName(xmlBeanDefinition.getClassName());
+						obj = clazz.newInstance();
+					} catch (ClassNotFoundException e) {
+						throw new RuntimeException(e);
+					} catch (InstantiationException e) {
+						throw new RuntimeException(e);
+					} catch (IllegalAccessException e) {
+						throw new RuntimeException(e);
+					}
+
+					xmlBeanDefinition.setObject(obj);
+
+					Set<String> names = getInterfaceNames(clazz);
+					xmlBeanDefinition.setInterfaceNames(names);
+					log.debug("class [{}] names size [{}]", className, names.size());
+
 					// 获取所有property
 					NodeList properties = bean.getChildNodes();
 					for(int j = 0;j < properties.getLength();++j){
@@ -87,6 +109,8 @@ public class XmlBeanReader implements BeanReader{
 								xmlBeanDefinition.getProperties().put(name, ref.getNodeValue());
 						}
 					}
+
+
 					beanList.add(xmlBeanDefinition);
 				}
 			}
@@ -131,6 +155,15 @@ public class XmlBeanReader implements BeanReader{
 		Document doc = dbd.parse(new FileInputStream(filePath));
 
 		return doc;
+	}
+
+	protected Set<String> getInterfaceNames(Class<?> c) {
+		Class<?>[] interfaces = c.getInterfaces();
+		Set<String> names = new HashSet<String>();
+		for (Class<?> i : interfaces) {
+			names.add(i.getName());
+		}
+		return names;
 	}
 
 	public static void main(String[] args) {
