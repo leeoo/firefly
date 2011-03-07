@@ -5,12 +5,12 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import com.firefly.utils.Cast;
 
-public class ParamHandle {
+public class ParamMetaInfo {
 	private final Class<?> paramClass;
 	private final Map<String, Method> beanSetMethod;
 	private final String attribute;
 
-	public ParamHandle(Class<?> paramClass, Map<String, Method> beanSetMethod,
+	public ParamMetaInfo(Class<?> paramClass, Map<String, Method> beanSetMethod,
 			String attribute) {
 		super();
 		this.paramClass = paramClass;

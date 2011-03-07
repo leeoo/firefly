@@ -17,15 +17,15 @@ import com.firefly.annotation.HttpParam;
  * @author alvinqiu
  *
  */
-public class BeanHandle implements Comparable<BeanHandle> {
+public class MvcMetaInfo implements Comparable<MvcMetaInfo> {
 	private final Object object;
 	private final Method method;
-	private final ParamHandle[] paramHandles;
+	private final ParamMetaInfo[] paramMetaInfos;
 	private final byte[] methodParam;
 	private final ViewHandle viewHandle;
 	private Integer interceptOrder;
 
-	public BeanHandle(Object object, Method method, ViewHandle viewHandle) {
+	public MvcMetaInfo(Object object, Method method, ViewHandle viewHandle) {
 		super();
 		this.object = object;
 		this.method = method;
@@ -34,14 +34,14 @@ public class BeanHandle implements Comparable<BeanHandle> {
 		Class<?>[] paraTypes = method.getParameterTypes();
 		methodParam = new byte[paraTypes.length];
 		// 构造参数对象
-		paramHandles = new ParamHandle[paraTypes.length];
+		paramMetaInfos = new ParamMetaInfo[paraTypes.length];
 		Annotation[][] annotations = method.getParameterAnnotations();
 		for (int i = 0; i < paraTypes.length; i++) {
 			HttpParam httpParam = getHttpParam(annotations[i]);
 			if (httpParam != null) {
-				ParamHandle paramHandle = new ParamHandle(paraTypes[i],
+				ParamMetaInfo paramMetaInfo = new ParamMetaInfo(paraTypes[i],
 						getBeanSetMethod(paraTypes[i]), httpParam.value());
-				paramHandles[i] = paramHandle;
+				paramMetaInfos[i] = paramMetaInfo;
 				methodParam[i] = MethodParam.HTTP_PARAM;
 			} else {
 				if (paraTypes[i].equals(HttpServletRequest.class))
@@ -84,8 +84,8 @@ public class BeanHandle implements Comparable<BeanHandle> {
 		return null;
 	}
 
-	public ParamHandle[] getParamHandles() {
-		return paramHandles;
+	public ParamMetaInfo[] getParamMetaInfos() {
+		return paramMetaInfos;
 	}
 
 	public Integer getInterceptOrder() {
@@ -127,7 +127,7 @@ public class BeanHandle implements Comparable<BeanHandle> {
 	}
 
 	@Override
-	public int compareTo(BeanHandle o) {
+	public int compareTo(MvcMetaInfo o) {
 		if (method.getName().equals("before"))
 			return interceptOrder.compareTo(o.getInterceptOrder());
 		else
