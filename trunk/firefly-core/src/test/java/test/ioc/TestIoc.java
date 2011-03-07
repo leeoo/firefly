@@ -10,13 +10,18 @@ import test.component.AddService;
 import test.component.FieldInject;
 import test.component.MethodInject;
 import test.component2.MethodInject2;
+import test.component3.Person;
+import test.component3.PersonService;
 
-import com.firefly.core.ApplicationContext;
 import com.firefly.core.AnnotationApplicationContext;
+import com.firefly.core.ApplicationContext;
+import com.firefly.core.XmlApplicationContext;
 
 public class TestIoc {
 	public static ApplicationContext applicationContext = new AnnotationApplicationContext();
 
+	public static ApplicationContext xmlApplicationContext = new XmlApplicationContext();
+	
 	@Test
 	public void testFieldInject() {
 		FieldInject fieldInject = applicationContext.getBean("fieldInject");
@@ -47,5 +52,13 @@ public class TestIoc {
 		t.getI();
 		t.getI();
 		Assert.assertThat(t.getI(), greaterThan(0));
+	}
+	
+	@Test
+	public void testXmlInject(){
+		Person person = xmlApplicationContext.getBean("person");
+		PersonService personService = xmlApplicationContext.getBean("personService");
+		personService.setPerson(person);
+		personService.info();
 	}
 }
