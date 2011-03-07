@@ -4,78 +4,81 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
-
 import com.firefly.core.support.BeanDefinition;
 import com.firefly.core.support.xml.XmlBeanDefinition;
 import com.firefly.core.support.xml.XmlBeanReader;
+import com.firefly.utils.VerifyUtils;
 
 
 public class XmlApplicationContext extends AbstractApplicationContext {
 
+//	private static Logger log = LoggerFactory.getLogger(XmlApplicationContext.class);
+
 	protected List<BeanDefinition> beanDefinitions;
-	
+
 	public XmlApplicationContext() {
 		this(null);
 	}
-	
+
 	public XmlApplicationContext(String file) {
 		beanDefinitions = getBeanReader(file);
-		addObjToContext();
+		addObjectToContext();
 		inject();
 	}
-	
+
 	protected List<BeanDefinition> getBeanReader(String file){
 		return new XmlBeanReader(file).loadBeanDefinitions();
 	}
-	
+
 	/**
 	 * 增加Xml中定义的组件到ApplicationContext
 	 */
-	private void addObjToContext() {
+	private void addObjectToContext() {
 		for(BeanDefinition beanDefinition : this.beanDefinitions){
 			XmlBeanDefinition xmlBeanDefinition = (XmlBeanDefinition)beanDefinition;
-			
-			Class<?> clazz = null;
-			Object obj = null;
-			
-			try {
-				clazz = Class.forName(xmlBeanDefinition.getClassName());
-				obj = clazz.newInstance();
-			} catch (ClassNotFoundException e) {
-				throw new RuntimeException(e);
-			} catch (InstantiationException e) {
-				throw new RuntimeException(e);
-			} catch (IllegalAccessException e) {
-				throw new RuntimeException(e);
+			Object object = xmlBeanDefinition.getObject();
+
+			// 把id作为key
+			String id = xmlBeanDefinition.getId();
+			if (VerifyUtils.isNotEmpty(id))
+				map.put(id, object);
+
+			// 把类名作为key
+			map.put(xmlBeanDefinition.getClassName(), object);
+
+			// 把接口名作为key
+			Set<String> keys = xmlBeanDefinition.getInterfaceNames();
+			for (String k : keys) {
+				map.put(k, object);
 			}
-			
-			map.put(xmlBeanDefinition.getId(), obj);
+
 		}
 	}
-	
+
 	/**
 	 * 依赖注入
 	 */
 	private void inject() {
-		
+
 		for(BeanDefinition beanDefinition : this.beanDefinitions){
 			XmlBeanDefinition xmlBeanDefinition = (XmlBeanDefinition)beanDefinition;
-			
+
 			// 取得需要注入的对象
 			Object obj = map.get(xmlBeanDefinition.getId());
-			
+
 			// 取得对象所有的属性
 			Map<String, Object> properties = xmlBeanDefinition.getProperties();
-			
+
 			Class<?> clazz = obj.getClass();
-			
+
 			Method[] methods = clazz.getMethods();
 			// 遍历所有属性依次注入
 			for(Entry<String, Object> entry : properties.entrySet()){
 				String key = entry.getKey();
 				Object value = entry.getValue();
-				
+
 				// 遍历所有方法
 				for(Method m : methods){
 					// 寻找只有一个参数的setter方法
@@ -96,15 +99,15 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 						}
 					}
 				}
-				
+
 			}
 		}
 	}
-	
+
 	private void setFieldValue(String argsType, String value, Method m,
 			Object obj) throws IllegalArgumentException,
 			IllegalAccessException, InvocationTargetException {
-		
+
 		if (argsType.equals("byte"))
 			m.invoke(obj, Byte.parseByte(value));
 		else if (argsType.equals("short"))

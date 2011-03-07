@@ -6,6 +6,7 @@ import java.util.Set;
 
 /**
  * Xml方式Bean实现
+ *
  * @author 杰然不同
  * @date 2011-3-5
  */
@@ -13,12 +14,14 @@ public class XmlGenericBeanDefinition implements XmlBeanDefinition {
 
 	// id
 	private String id;
-	
+
 	// className
 	private String className;
-	
+
 	// 属性集合
 	private Map<String, Object> properties = new HashMap<String, Object>();
+	private Set<String> names;
+	private Object object;
 
 	public String getId() {
 		return id;
@@ -46,25 +49,21 @@ public class XmlGenericBeanDefinition implements XmlBeanDefinition {
 
 	@Override
 	public Set<String> getInterfaceNames() {
-		// TODO Auto-generated method stub
-		return null;
+		return names;
 	}
 
 	@Override
 	public Object getObject() {
-		// TODO Auto-generated method stub
-		return null;
+		return object;
 	}
 
 	@Override
 	public void setInterfaceNames(Set<String> names) {
-		// TODO Auto-generated method stub
-		
+		this.names = names;
 	}
 
 	@Override
 	public void setObject(Object object) {
-		// TODO Auto-generated method stub
-		
+		this.object = object;
 	}
 }
