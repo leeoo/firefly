@@ -16,10 +16,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.firefly.annotation.Component;
 import com.firefly.annotation.Inject;
+import com.firefly.core.support.BeanDefinition;
 import com.firefly.core.support.BeanReader;
 
 /**
@@ -31,7 +34,7 @@ import com.firefly.core.support.BeanReader;
 public class AnnotationBeanReader implements BeanReader {
 	private static Logger log = LoggerFactory
 			.getLogger(AnnotationBeanReader.class);
-	protected List<AnnotationBeanDefinition> beanDefinitions;
+	protected List<BeanDefinition> beanDefinitions;
 
 	public AnnotationBeanReader() {
 		this(null);
@@ -46,8 +49,8 @@ public class AnnotationBeanReader implements BeanReader {
 		}
 	}
 
-	protected List<AnnotationBeanDefinition> getBeanDefinitions() {
-		return new ArrayList<AnnotationBeanDefinition>();
+	protected List<BeanDefinition> getBeanDefinitions() {
+		return new ArrayList<BeanDefinition>();
 	}
 
 	private void scan(String pack) {
@@ -184,35 +187,35 @@ public class AnnotationBeanReader implements BeanReader {
 	}
 
 	protected void addBeanDefinition(Class<?> c) {
-		AnnotationBeanDefinition annotatedBeanDefinition = new AnnotatedBeanDefinition();
-		annotatedBeanDefinition.setClassName(c.getName());
+		AnnotationBeanDefinition annotationBeanDefinition = new AnnotatedBeanDefinition();
+		annotationBeanDefinition.setClassName(c.getName());
 
 		Component component = c.getAnnotation(Component.class);
-		annotatedBeanDefinition.setId(component.value());
+		annotationBeanDefinition.setId(component.value());
 
 		Set<String> names = getInterfaceNames(c);
-		annotatedBeanDefinition.setInterfaceNames(names);
+		annotationBeanDefinition.setInterfaceNames(names);
 
 		List<Field> fields = getInjectField(c);
-		annotatedBeanDefinition.setInjectFields(fields);
+		annotationBeanDefinition.setInjectFields(fields);
 
 		List<Method> methods = getInjectMethod(c);
-		annotatedBeanDefinition.setInjectMethods(methods);
+		annotationBeanDefinition.setInjectMethods(methods);
 
 		try {
 			Object object = c.newInstance();
-			annotatedBeanDefinition.setObject(object);
+			annotationBeanDefinition.setObject(object);
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		}
 
-		beanDefinitions.add(annotatedBeanDefinition);
+		beanDefinitions.add(annotationBeanDefinition);
 	}
 
 	@Override
-	public List<AnnotationBeanDefinition> loadBeanDefinitions() {
+	public List<BeanDefinition> loadBeanDefinitions() {
 		return beanDefinitions;
 	}
 

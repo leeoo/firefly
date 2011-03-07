@@ -9,9 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.firefly.annotation.RequestMapping;
 import com.firefly.core.AnnotationApplicationContext;
-import com.firefly.core.support.annotation.AnnotationBeanDefinition;
+import com.firefly.core.support.BeanDefinition;
 import com.firefly.core.support.annotation.ConfigReader;
-import com.firefly.mvc.web.support.BeanHandle;
+import com.firefly.mvc.web.support.MvcMetaInfo;
 import com.firefly.mvc.web.support.ViewHandle;
 import com.firefly.mvc.web.support.WebBeanDefinition;
 import com.firefly.mvc.web.support.WebBeanReader;
@@ -32,7 +32,6 @@ public class AnnotationWebContext extends AnnotationApplicationContext
 		implements WebContext {
 	private static Logger log = LoggerFactory
 			.getLogger(AnnotationWebContext.class);
-	private List<String> uriList;
 
 	public AnnotationWebContext() {
 		this(null);
@@ -40,17 +39,17 @@ public class AnnotationWebContext extends AnnotationApplicationContext
 
 	public AnnotationWebContext(String file) {
 		super(file);
-		uriList = new ArrayList<String>();
 		JspViewHandle.getInstance().init(getViewPath());
 		TextViewHandle.getInstance().init(getEncoding());
 		JsonViewHandle.getInstance().init(getEncoding());
-		for (AnnotationBeanDefinition beanDefinition : beanDefinitions) {
-			addObjectToContext((WebBeanDefinition) beanDefinition);
+		List<String> uriList = new ArrayList<String>();
+		for(BeanDefinition beanDef : beanDefinitions) {
+			addObjectToContext(beanDef, uriList);
 		}
 	}
 
 	@Override
-	protected List<AnnotationBeanDefinition> getBeanReader(String file) {
+	protected List<BeanDefinition> getBeanReader(String file) {
 		return new WebBeanReader().loadBeanDefinitions();
 	}
 
@@ -65,7 +64,8 @@ public class AnnotationWebContext extends AnnotationApplicationContext
 	}
 
 	@SuppressWarnings("unchecked")
-	private void addObjectToContext(WebBeanDefinition beanDefinition) {
+	protected void addObjectToContext(BeanDefinition beanDef, List<String> uriList) {
+		WebBeanDefinition beanDefinition = (WebBeanDefinition)beanDef;
 		// 注册Controller里面声明的uri
 		List<Method> list = beanDefinition.getReqMethods();
 		for (Method m : list) {
@@ -76,37 +76,39 @@ public class AnnotationWebContext extends AnnotationApplicationContext
 			final String view = m.getAnnotation(RequestMapping.class).view();
 			String key = method + "@" + uri;
 
-			BeanHandle beanHandle = new BeanHandle(beanDefinition.getObject(),
+			MvcMetaInfo mvcMetaInfo = new MvcMetaInfo(beanDefinition.getObject(),
 					m, getViewHandle(view));
-			map.put(key, beanHandle);
+			map.put(key, mvcMetaInfo);
 			uriList.add(key);
 			log.info("register uri [{}]", key);
 			if (key.charAt(key.length() - 1) == '/')
 				key = key.substring(0, key.length() - 1);
 			else
 				key += "/";
-			map.put(key, beanHandle);
+			map.put(key, mvcMetaInfo);
 			uriList.add(key);
 			log.info("register uri [{}]", key);
 		}
 
 		list = beanDefinition.getInterceptorMethods();
+		log.debug("interceptorMethods size [{}]", list.size());
 		for (Method m : list) {
 			m.setAccessible(true);
-			List<String> l = getInterceptUri(beanDefinition.getUriPattern());
+			List<String> l = getInterceptUri(beanDefinition.getUriPattern(), uriList);
+			log.debug("interceptorUri size [{}]", l.size());
 			for (String i : l) {
 				String key = m.getName().charAt(0) + "#" + i;
-				BeanHandle beanHandle = new BeanHandle(beanDefinition
+				MvcMetaInfo mvcMetaInfo = new MvcMetaInfo(beanDefinition
 						.getObject(), m,
 						getViewHandle(beanDefinition.getView()));
-				beanHandle.setInterceptOrder(beanDefinition.getOrder());
-				Set<BeanHandle> interceptorSet = (Set<BeanHandle>) map.get(key);
+				mvcMetaInfo.setInterceptOrder(beanDefinition.getOrder());
+				Set<MvcMetaInfo> interceptorSet = (Set<MvcMetaInfo>) map.get(key);
 				if (interceptorSet == null) {
-					interceptorSet = new TreeSet<BeanHandle>();
-					interceptorSet.add(beanHandle);
+					interceptorSet = new TreeSet<MvcMetaInfo>();
+					interceptorSet.add(mvcMetaInfo);
 					map.put(key, interceptorSet);
 				} else {
-					interceptorSet.add(beanHandle);
+					interceptorSet.add(mvcMetaInfo);
 				}
 			}
 		}
@@ -119,8 +121,9 @@ public class AnnotationWebContext extends AnnotationApplicationContext
 	 * @param pattern
 	 * @return
 	 */
-	private List<String> getInterceptUri(String pattern) {
+	private List<String> getInterceptUri(String pattern, List<String> uriList) {
 		List<String> list = new ArrayList<String>();
+		log.debug("uriList size [{}]", uriList.size());
 		for (String uriAndMethod : uriList) {
 			String uri = StringUtils.split(uriAndMethod, "@")[1];
 			if (ignoreBackslashEquals(pattern, uri)) {

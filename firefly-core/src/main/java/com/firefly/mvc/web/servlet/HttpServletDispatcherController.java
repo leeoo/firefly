@@ -13,9 +13,9 @@ import org.slf4j.LoggerFactory;
 import com.firefly.mvc.web.AnnotationWebContext;
 import com.firefly.mvc.web.DispatcherController;
 import com.firefly.mvc.web.WebContext;
-import com.firefly.mvc.web.support.BeanHandle;
+import com.firefly.mvc.web.support.MvcMetaInfo;
 import com.firefly.mvc.web.support.MethodParam;
-import com.firefly.mvc.web.support.ParamHandle;
+import com.firefly.mvc.web.support.ParamMetaInfo;
 import com.firefly.utils.VerifyUtils;
 
 /**
@@ -59,21 +59,21 @@ public class HttpServletDispatcherController implements DispatcherController {
 		String key = request.getMethod() + "@" + invokeUri;
 		String beforeIntercept = "b#" + invokeUri;
 		String afterIntercept = "a#" + invokeUri;
-		Set<BeanHandle> beforeSet = webContext.getBean(beforeIntercept);
-		Set<BeanHandle> afterSet = webContext.getBean(afterIntercept);
+		Set<MvcMetaInfo> beforeSet = webContext.getBean(beforeIntercept);
+		Set<MvcMetaInfo> afterSet = webContext.getBean(afterIntercept);
 
 		log.debug("uri map [{}]", key);
-		BeanHandle beanHandle = webContext.getBean(key);
-		if (beanHandle != null) {
+		MvcMetaInfo mvcMetaInfo = webContext.getBean(key);
+		if (mvcMetaInfo != null) {
 			Object ret = null;
 			Object beforeRet = null; // 前置拦截器的返回值
-			BeanHandle lastBefore = null; // 最后得到的前置拦截器
+			MvcMetaInfo lastBefore = null; // 最后得到的前置拦截器
 			Object afterRet = null; // 后置拦截器的返回值
-			BeanHandle lastAfter = null; // 最后得到的后置拦截器
+			MvcMetaInfo lastAfter = null; // 最后得到的后置拦截器
 
 			// 前置拦截栈调用
 			if (beforeSet != null) {
-				for (BeanHandle before : beforeSet) {
+				for (MvcMetaInfo before : beforeSet) {
 					Object[] beforeP = getParams(request, response, before);
 					beforeRet = before.invoke(beforeP);
 					if (beforeRet != null) {
@@ -85,12 +85,12 @@ public class HttpServletDispatcherController implements DispatcherController {
 
 			if (beforeRet == null) {
 				// controller调用
-				Object[] p = getParams(request, response, beanHandle);
-				ret = beanHandle.invoke(p);
+				Object[] p = getParams(request, response, mvcMetaInfo);
+				ret = mvcMetaInfo.invoke(p);
 
 				// 后置拦截栈调用
 				if (afterSet != null) {
-					for (BeanHandle after : afterSet) {
+					for (MvcMetaInfo after : afterSet) {
 						Object[] afterP = getParams(request, response, after);
 						afterRet = after.invoke(afterP);
 						if (afterRet != null) {
@@ -110,7 +110,7 @@ public class HttpServletDispatcherController implements DispatcherController {
 					lastBefore.getViewHandle().render(request, response,
 							beforeRet);
 				} else {
-					beanHandle.getViewHandle().render(request, response, ret);
+					mvcMetaInfo.getViewHandle().render(request, response, ret);
 				}
 			} catch (ServletException e) {
 				e.printStackTrace();
@@ -131,14 +131,14 @@ public class HttpServletDispatcherController implements DispatcherController {
 	 * controller方法参数注入
 	 * @param request
 	 * @param response
-	 * @param beanHandle
+	 * @param mvcMetaInfo
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	private Object[] getParams(HttpServletRequest request,
-			HttpServletResponse response, BeanHandle beanHandle) {
-		byte[] methodParam = beanHandle.getMethodParam();
-		ParamHandle[] paramHandles = beanHandle.getParamHandles();
+			HttpServletResponse response, MvcMetaInfo mvcMetaInfo) {
+		byte[] methodParam = mvcMetaInfo.getMethodParam();
+		ParamMetaInfo[] paramMetaInfos = mvcMetaInfo.getParamMetaInfos();
 		Object[] p = new Object[methodParam.length];
 		for (int i = 0; i < p.length; i++) {
 			switch (methodParam[i]) {
@@ -151,17 +151,17 @@ public class HttpServletDispatcherController implements DispatcherController {
 			case MethodParam.HTTP_PARAM:
 				// 请求参数封装到javabean
 				Enumeration<String> enumeration = request.getParameterNames();
-				ParamHandle paramHandle = paramHandles[i];
-				p[i] = paramHandle.newParamInstance();
+				ParamMetaInfo paramMetaInfo = paramMetaInfos[i];
+				p[i] = paramMetaInfo.newParamInstance();
 
 				// 把http参数赋值给参数对象
 				while (enumeration.hasMoreElements()) {
 					String httpParamName = enumeration.nextElement();
 					String paramValue = request.getParameter(httpParamName);
-					paramHandle.setParam(p[i], httpParamName, paramValue);
+					paramMetaInfo.setParam(p[i], httpParamName, paramValue);
 				}
-				if (VerifyUtils.isNotEmpty(paramHandle.getAttribute())) {
-					request.setAttribute(paramHandle.getAttribute(), p[i]);
+				if (VerifyUtils.isNotEmpty(paramMetaInfo.getAttribute())) {
+					request.setAttribute(paramMetaInfo.getAttribute(), p[i]);
 				}
 				break;
 			}
