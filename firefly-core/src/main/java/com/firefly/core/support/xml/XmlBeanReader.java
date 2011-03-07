@@ -1,13 +1,11 @@
 package com.firefly.core.support.xml;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -21,7 +19,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
 import com.firefly.core.support.BeanDefinition;
 import com.firefly.core.support.BeanReader;
 
@@ -141,10 +138,6 @@ public class XmlBeanReader implements BeanReader{
 	 * @throws FileNotFoundException
 	 */
 	private Document readDocument(String fileName) throws ParserConfigurationException, FileNotFoundException, SAXException, IOException{
-		String filePath = Thread.currentThread().getContextClassLoader().
-						getResource(fileName == null ? "firefly.xml" : fileName).getPath().substring(1);
-
-		log.info("Loading Xml bean from file [{}]",filePath);
 
 		// 得到dom解析器工厂实例
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -152,7 +145,7 @@ public class XmlBeanReader implements BeanReader{
 		// 得到dom解析器
 		DocumentBuilder dbd = dbf.newDocumentBuilder();
 
-		Document doc = dbd.parse(new FileInputStream(filePath));
+		Document doc = dbd.parse(XmlBeanReader.class.getResourceAsStream(fileName == null ? "/firefly.xml" : fileName));
 
 		return doc;
 	}
