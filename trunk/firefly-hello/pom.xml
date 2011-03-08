@@ -185,6 +185,13 @@
     			<log.path>/home/qiupt/webapp/log/app.log</log.path>
     		</properties>
     	</profile>
+    	<profile>
+    		<id>mac</id>
+    		<properties>
+    			<log.level>INFO</log.level>
+    			<log.path>/Users/qiupengtao/develop/logs/app.log</log.path>
+    		</properties>
+    	</profile>
     </profiles>
     <repositories>
 		<repository>
