@@ -37,23 +37,21 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 	 */
 	private void addObjectToContext() {
 		for(BeanDefinition beanDefinition : this.beanDefinitions){
-			XmlBeanDefinition xmlBeanDefinition = (XmlBeanDefinition)beanDefinition;
-			Object object = xmlBeanDefinition.getObject();
-
+			// 增加声明的组件到 ApplicationContext
+			Object object = beanDefinition.getObject();
 			// 把id作为key
-			String id = xmlBeanDefinition.getId();
+			String id = beanDefinition.getId();
 			if (VerifyUtils.isNotEmpty(id))
 				map.put(id, object);
 
 			// 把类名作为key
-			map.put(xmlBeanDefinition.getClassName(), object);
+			map.put(beanDefinition.getClassName(), object);
 
 			// 把接口名作为key
-			Set<String> keys = xmlBeanDefinition.getInterfaceNames();
+			Set<String> keys = beanDefinition.getInterfaceNames();
 			for (String k : keys) {
 				map.put(k, object);
 			}
-
 		}
 	}
 
