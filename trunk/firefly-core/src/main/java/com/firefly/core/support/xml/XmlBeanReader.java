@@ -70,7 +70,8 @@ public class XmlBeanReader implements BeanReader{
 					Object obj = null;
 					log.info("classes [{}]", className);
 					try {
-						clazz = Class.forName(xmlBeanDefinition.getClassName());
+						clazz = XmlBeanReader.class.getClassLoader().loadClass(className);
+						//Class.forName(xmlBeanDefinition.getClassName());
 						obj = clazz.newInstance();
 					} catch (ClassNotFoundException e) {
 						throw new RuntimeException(e);
