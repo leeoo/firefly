@@ -50,9 +50,14 @@ public class TestXmlIoc {
 		List<Object> list = collectionService.getList();
 		Assert.assertThat(list.size(), greaterThan(0));
 
+		
+	}
+	
+	@Test
+	public void testListInject() {
 		// list的值也是list
-		collectionService = xmlApplicationContext.getBean("collectionService2");
-		list = collectionService.getList();
+		CollectionService collectionService = xmlApplicationContext.getBean("collectionService2");
+		List<Object> list = collectionService.getList();
 		Assert.assertThat(list.size(), greaterThan(0));
 	}
 }
