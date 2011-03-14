@@ -22,4 +22,16 @@ public class PersonService {
 	public List<Object> getTestList() {
 		return testList;
 	}
+
+	public Person getPerson2() {
+		return person2;
+	}
+
+	public void setPerson2(Person person2) {
+		this.person2 = person2;
+	}
+
+	public Person getPerson() {
+		return person;
+	}
 }
