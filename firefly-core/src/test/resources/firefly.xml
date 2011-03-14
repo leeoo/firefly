@@ -7,13 +7,19 @@
 		<property name="name" value="Jack"/>
 		<property name="age" value="12"/>
 	</bean>
+	<bean id="person2" class="test.component3.Person">
+		<property name="name" value="Bob"/>
+		<property name="age" value="32"/>
+	</bean>
 	<bean id="personService" class="test.component3.PersonService">
 		<property name="person" ref="person"/>
 		<property name="testList">
 			<list>
 				<value type="int">123</value>
+				<ref bean="person2"/>
 				<value type="java.lang.String">dfdf</value>
 				<ref bean="person"/>
+				
 			</list>
 		</property>
 	</bean>

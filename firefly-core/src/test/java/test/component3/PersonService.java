@@ -3,16 +3,16 @@ package test.component3;
 import java.util.List;
 
 public class PersonService {
-	private Person person;
+	private Person person, person2;
 
 	private List<Object> testList;
-	
-	public void info(){
-		System.out.println("My name's "+person.getName()+" , I'm "+person.getAge()+" years old!");
-	}
 
 	public void setPerson(Person person) {
 		this.person = person;
+	}
+	
+	public void setPersion2(Person person2) {
+		this.person2 = person2;
 	}
 
 	public void setTestList(List<Object> testList) {

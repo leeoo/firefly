@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import test.component.AddService;
 import test.component.FieldInject;
@@ -20,8 +22,8 @@ import com.firefly.core.ApplicationContext;
 import com.firefly.core.XmlApplicationContext;
 
 public class TestIoc {
+	private static Logger log = LoggerFactory.getLogger(TestIoc.class);
 	public static ApplicationContext applicationContext = new AnnotationApplicationContext();
-
 	public static ApplicationContext xmlApplicationContext = new XmlApplicationContext();
 	
 	@Test
@@ -59,16 +61,20 @@ public class TestIoc {
 	@Test
 	public void testXmlInject(){
 		Person person = xmlApplicationContext.getBean("person");
+		Assert.assertThat(person.getName(), is("Jack"));
 		PersonService personService = xmlApplicationContext.getBean("personService");
-		personService.setPerson(person);
-		personService.info();
 		List<Object> l = personService.getTestList();
+		Assert.assertThat(l.size(), greaterThan(0));
+		int i = 0;
 		for(Object p : l){
 			if(p instanceof Person){
-				System.out.println(((Person) p).getName());
+				person = (Person)p;
+				i++;
+				log.info(person.getName());
 			}else{
-				System.out.println(p);
+				log.info(String.valueOf(p));
 			}
 		}
+		Assert.assertThat(i, greaterThan(1));
 	}
 }
