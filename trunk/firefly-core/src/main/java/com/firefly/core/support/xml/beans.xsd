@@ -3,28 +3,6 @@
 	targetNamespace="http://code.google.com/p/firefly/beans"
 	elementFormDefault="qualified">
 
-	<group name="collectionElements">
-		<sequence>
-			<choice minOccurs="0" maxOccurs="unbounded">
-				<element ref="bean:value"></element>
-				<element ref="bean:ref"></element>
-				<element ref="bean:list"></element>
-				<element ref="bean:map"></element>
-				<element ref="bean:bean"></element>
-			</choice>
-		</sequence>
-	</group>
-	<group name="propertyElements">
-		<sequence>
-			<choice minOccurs="0" maxOccurs="1">
-				<element ref="bean:value"></element>
-				<element ref="bean:ref"></element>
-				<element ref="bean:list"></element>
-				<element ref="bean:map"></element>
-				<element ref="bean:bean"></element>
-			</choice>
-		</sequence>
-	</group>
 	<element name="value">
 		<complexType mixed="true">
 			<attribute name="type" />
@@ -46,8 +24,9 @@
 			<sequence>
 				<element name="entry" minOccurs="0" maxOccurs="unbounded">
 					<complexType>
-						<group ref="bean:collectionElements"></group>
+						<group ref="bean:propertyElements"></group>
 						<attribute name="key" />
+						<attribute name="value" />
 						<attribute name="value-type" />
 					</complexType>
 				</element>
@@ -70,6 +49,8 @@
 			<attribute name="class" />
 		</complexType>
 	</element>
+	
+	<!-- 顶层元素 -->
 	<element name="beans">
 		<complexType>
 			<sequence minOccurs="0" maxOccurs="unbounded">
@@ -77,4 +58,27 @@
 			</sequence>
 		</complexType>
 	</element>
+	
+	<group name="collectionElements">
+		<sequence>
+			<choice minOccurs="0" maxOccurs="unbounded">
+				<element ref="bean:value"></element>
+				<element ref="bean:ref"></element>
+				<element ref="bean:list"></element>
+				<element ref="bean:map"></element>
+				<element ref="bean:bean"></element>
+			</choice>
+		</sequence>
+	</group>
+	<group name="propertyElements">
+		<sequence>
+			<choice minOccurs="0" maxOccurs="1">
+				<element ref="bean:value"></element>
+				<element ref="bean:ref"></element>
+				<element ref="bean:list"></element>
+				<element ref="bean:map"></element>
+				<element ref="bean:bean"></element>
+			</choice>
+		</sequence>
+	</group>
 </schema>
