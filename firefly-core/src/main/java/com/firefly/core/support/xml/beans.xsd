@@ -3,6 +3,15 @@
 	targetNamespace="http://code.google.com/p/firefly/beans"
 	elementFormDefault="qualified">
 
+	<group name="collectionElements">
+		<sequence>
+			<choice minOccurs="0" maxOccurs="unbounded">
+				<element ref="bean:value"></element>
+				<element ref="bean:ref"></element>
+				<element ref="bean:list"></element>
+			</choice>
+		</sequence>
+	</group>
 	<element name="value">
 		<complexType mixed="true">
 			<attribute name="type" />
@@ -15,11 +24,7 @@
 	</element>
 	<element name="list">
 		<complexType>
-			<choice minOccurs="0" maxOccurs="unbounded">
-				<element ref="bean:value"></element>
-				<element ref="bean:ref"></element>
-				<element ref="bean:list"></element>
-			</choice>
+			<group ref="bean:collectionElements"></group>
 			<attribute name="value-type" />
 		</complexType>
 	</element>
@@ -28,11 +33,7 @@
 			<sequence>
 				<element name="entry" minOccurs="0" maxOccurs="unbounded">
 					<complexType>
-						<choice minOccurs="0" maxOccurs="unbounded">
-							<element ref="bean:value"></element>
-							<element ref="bean:ref"></element>
-							<element ref="bean:map"></element>
-						</choice>
+						<group ref="bean:collectionElements"></group>
 						<attribute name="key" />
 						<attribute name="value-type" />
 					</complexType>
