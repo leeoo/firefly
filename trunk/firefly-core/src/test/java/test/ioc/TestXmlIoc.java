@@ -51,8 +51,8 @@ public class TestXmlIoc {
 		Assert.assertThat(list.size(), greaterThan(0));
 
 		// list的值也是list
-		collectionService = xmlApplicationContext.getBean("collectionService2");
-		list = collectionService.getList();
-		Assert.assertThat(list.size(), greaterThan(0));
+//		collectionService = xmlApplicationContext.getBean("collectionService2");
+//		list = collectionService.getList();
+//		Assert.assertThat(list.size(), greaterThan(0));
 	}
 }
