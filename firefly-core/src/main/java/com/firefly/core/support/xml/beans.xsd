@@ -30,7 +30,7 @@
 															<attribute name="type" />
 														</complexType>
 													</element>
-													<element name="ref" minOccurs="0" maxOccurs="1">
+													<element name="ref" minOccurs="0" maxOccurs="unbounded">
 														<complexType>
 															<attribute name="bean" />
 														</complexType>
