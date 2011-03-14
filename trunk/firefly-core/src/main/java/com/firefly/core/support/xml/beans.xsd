@@ -24,18 +24,18 @@
 										</element>
 										<element name="list" minOccurs="0" maxOccurs="1">
 											<complexType>
-												<sequence>
-													<element name="value" minOccurs="0" maxOccurs="unbounded">
+												<choice minOccurs="0" maxOccurs="unbounded">
+													<element name="value">
 														<complexType mixed="true">
 															<attribute name="type" />
 														</complexType>
 													</element>
-													<element name="ref" minOccurs="0" maxOccurs="unbounded">
+													<element name="ref">
 														<complexType>
 															<attribute name="bean" />
 														</complexType>
 													</element>
-												</sequence>
+												</choice>
 												<attribute name="value-type" />
 											</complexType>
 										</element>
