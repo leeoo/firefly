@@ -7,7 +7,9 @@
 		<property name="age" value="12"/>
 	</bean>
 	<bean id="person2" class="test.component3.Person">
-		<property name="name" value="Bob"/>
+		<property name="name">
+			<value>Bob</value>
+		</property>
 		<property name="age" value="32"/>
 	</bean>
 	<bean id="personService" class="test.component3.PersonService">
@@ -37,7 +39,7 @@
 		</property>
 	</bean>
 	
-	<!-- <bean id="collectionService2" class="test.component3.CollectionService">
+	<bean id="collectionService2" class="test.component3.CollectionService">
 		<property name="list">
 			<list>
 				<value>s1</value>
@@ -48,5 +50,5 @@
 				</list>
 			</list>
 		</property>
-	</bean> -->
+	</bean>
 </beans>

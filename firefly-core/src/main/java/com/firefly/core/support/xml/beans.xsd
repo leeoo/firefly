@@ -9,6 +9,19 @@
 				<element ref="bean:value"></element>
 				<element ref="bean:ref"></element>
 				<element ref="bean:list"></element>
+				<element ref="bean:map"></element>
+				<element ref="bean:bean"></element>
+			</choice>
+		</sequence>
+	</group>
+	<group name="propertyElements">
+		<sequence>
+			<choice minOccurs="0" maxOccurs="1">
+				<element ref="bean:value"></element>
+				<element ref="bean:ref"></element>
+				<element ref="bean:list"></element>
+				<element ref="bean:map"></element>
+				<element ref="bean:bean"></element>
 			</choice>
 		</sequence>
 	</group>
@@ -41,30 +54,26 @@
 			</sequence>
 		</complexType>
 	</element>
-	<element name="beans">
+	<element name="bean">
 		<complexType>
 			<sequence>
-				<element name="bean" minOccurs="0" maxOccurs="unbounded">
+				<element name="property" minOccurs="0" maxOccurs="unbounded">
 					<complexType>
-						<sequence>
-							<element name="property" minOccurs="0" maxOccurs="unbounded">
-								<complexType>
-									<choice minOccurs="0" maxOccurs="1">
-										<element ref="bean:ref"></element>
-										<element ref="bean:value"></element>
-										<element ref="bean:list"></element>
-										<element ref="bean:map"></element>
-									</choice>
-									<attribute name="name" use="required" />
-									<attribute name="value" />
-									<attribute name="ref" />
-								</complexType>
-							</element>
-						</sequence>
-						<attribute name="id" />
-						<attribute name="class" />
+						<group ref="bean:propertyElements"></group>
+						<attribute name="name" use="required" />
+						<attribute name="value" />
+						<attribute name="ref" />
 					</complexType>
 				</element>
+			</sequence>
+			<attribute name="id" />
+			<attribute name="class" />
+		</complexType>
+	</element>
+	<element name="beans">
+		<complexType>
+			<sequence minOccurs="0" maxOccurs="unbounded">
+				<element ref="bean:bean"></element>
 			</sequence>
 		</complexType>
 	</element>
