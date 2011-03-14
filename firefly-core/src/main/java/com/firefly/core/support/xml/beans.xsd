@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.w3.org/2001/XMLSchema" 
 		targetNamespace="http://code.google.com/p/firefly/beans"
-		xmlns:tns="http://http://code.google.com/p/firefly/beans" 
 		elementFormDefault="qualified">
 
 	<element name="beans">
@@ -13,16 +12,31 @@
 							<element name="property" minOccurs="0" maxOccurs="unbounded">
 								<complexType>
 									<sequence>
+										<element name="value" minOccurs="0" maxOccurs="1">
+											<complexType mixed="true">
+												<attribute name="type" />
+											</complexType>
+										</element>
+										<element name="ref" minOccurs="0" maxOccurs="1">
+											<complexType>
+												<attribute name="bean" />
+											</complexType>
+										</element>
 										<element name="list" minOccurs="0" maxOccurs="1">
 											<complexType>
 												<sequence>
-													<element name="value" minOccurs="0" maxOccurs="unbounded" />
+													<element name="value" minOccurs="0" maxOccurs="unbounded">
+														<complexType mixed="true">
+															<attribute name="type" />
+														</complexType>
+													</element>
 													<element name="ref" minOccurs="0" maxOccurs="1">
 														<complexType>
 															<attribute name="bean" />
 														</complexType>
 													</element>
 												</sequence>
+												<attribute name="value-type" />
 											</complexType>
 										</element>
 										<element name="map" minOccurs="0" maxOccurs="1">

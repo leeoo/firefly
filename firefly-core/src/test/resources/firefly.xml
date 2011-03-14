@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://code.google.com/p/firefly/beans" 
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:schemaLocation="http://code.google.com/p/firefly/beans com/firefly/core/support/xml/beans.xsd ">
+		xsi:schemaLocation="http://code.google.com/p/firefly/beans">
 		
 	<bean id="person" class="test.component3.Person">
 		<property name="name" value="Jack"/>
@@ -9,5 +9,12 @@
 	</bean>
 	<bean id="personService" class="test.component3.PersonService">
 		<property name="person" ref="person"/>
+		<property name="testList">
+			<list>
+				<value type="int">123</value>
+				<value type="java.lang.String">dfdf</value>
+				<ref bean="person"/>
+			</list>
+		</property>
 	</bean>
 </beans>

@@ -3,6 +3,8 @@ package test.ioc;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -60,5 +62,13 @@ public class TestIoc {
 		PersonService personService = xmlApplicationContext.getBean("personService");
 		personService.setPerson(person);
 		personService.info();
+		List<Object> l = personService.getTestList();
+		for(Object p : l){
+			if(p instanceof Person){
+				System.out.println(((Person) p).getName());
+			}else{
+				System.out.println(p);
+			}
+		}
 	}
 }
