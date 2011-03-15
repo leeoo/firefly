@@ -70,7 +70,7 @@ abstract public class VerifyUtils {
 	}
 
 	public static boolean isNotEmpty(String o) {
-		return o != null && o.toString().length() > 0;
+		return o != null && o.toString().trim().length() > 0;
 	}
 
 	public static boolean isEmpty(Long o) {
@@ -82,6 +82,6 @@ abstract public class VerifyUtils {
 	}
 
 	public static boolean isEmpty(String o) {
-		return o == null || o.toString().length() == 0;
+		return o == null || o.toString().trim().length() == 0;
 	}
 }
