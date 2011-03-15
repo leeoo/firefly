@@ -48,15 +48,14 @@ public class XmlBeanReader implements BeanReader {
 	public XmlBeanReader(String file) {
 		beanDefinitions = new ArrayList<BeanDefinition>();
 		Dom dom = new DefaultDom();
+		// 为多文件载入做准备
+		
 		// 获得Xml文档对象
 		Document doc = dom.getDocument(file == null ? "firefly.xml" : file);
-
 		// 得到根节点
 		Element root = dom.getRoot(doc);
-
 		// 得到所有bean节点
 		List<Element> beansList = dom.elements(root, BEAN_ELEMENT);
-
 		// 迭代beans列表
 		if (beansList != null) {
 			for (Element bean : beansList) {
