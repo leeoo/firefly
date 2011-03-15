@@ -50,6 +50,7 @@ public class TestXmlIoc {
 				.getBean("collectionService");
 		List<Object> list = collectionService.getList();
 		Assert.assertThat(list.size(), greaterThan(0));
+		log.debug(list.toString());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -67,5 +68,6 @@ public class TestXmlIoc {
 		// set赋值
 		Set<Integer> set = collectionService.getSet();
 		Assert.assertThat(set.size(), is(2));
+		log.debug(set.toString());
 	}
 }
