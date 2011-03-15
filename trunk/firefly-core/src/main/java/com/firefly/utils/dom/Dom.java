@@ -13,7 +13,7 @@ public interface Dom {
 	 * @param file
 	 * @return 文档对象
 	 */
-	public abstract Document getDocument();
+	public abstract Document getDocument(String file);
 	
 	/**
 	 * 取得根节点

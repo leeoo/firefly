@@ -14,12 +14,9 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.firefly.core.support.BeanDefinition;
-import com.firefly.core.support.exception.BeanDefinitionParsingException;
 import com.firefly.core.support.xml.ManagedList;
 import com.firefly.core.support.xml.ManagedRef;
 import com.firefly.core.support.xml.ManagedValue;
@@ -95,10 +92,8 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 						.charAt(3)) + methodName.substring(4);
 				Object value = properties.get(propertyName);
 				if (value != null) {
-					Object injestArg = getInjectArg(propertyName, value,
-							method, clazz);
 					try {
-						method.invoke(obj, injestArg);
+						method.invoke(obj, getInjectArg(value, method));
 					} catch (IllegalArgumentException e) {
 						e.printStackTrace();
 					} catch (IllegalAccessException e) {
@@ -112,9 +107,14 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 
 	}
 
+	/**
+	 * 
+	 * @param value 属性值的元信息
+	 * @param method 该属性的set方法
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
-	private Object getInjectArg(String propertyName, Object value,
-			Method method, Class<?> clazz) {
+	private Object getInjectArg(Object value, Method method) {
 		if (value instanceof ManagedValue) { // value
 			ManagedValue managedValue = (ManagedValue) value;
 			String typeName = VerifyUtils.isEmpty(managedValue.getTypeName()) ? method
@@ -129,29 +129,18 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 			Class<?> setterParamType = method.getParameterTypes()[0];
 			ManagedList<Object> values = (ManagedList<Object>) value;
 
-			if (!matchGenericClazz(setterParamType, propertyName)) {
-				error(propertyName + " type mismatch");
-			}
-
 			Object list = getCollectionObj(setterParamType);
 			log.debug("setter param type [{}]", setterParamType.getName());
 
 			for (Object item : values) {
-				Object listValue = getInjectArg(propertyName, item, method,
-						clazz);
+				Object listValue = getInjectArg(item, method);
 				@SuppressWarnings("rawtypes")
 				Collection collection = (Collection) list;
 				collection.add(listValue);
 			}
 			return list;
-		}
-
-		return null;
-	}
-
-	private boolean matchGenericClazz(Class<?> clazz, String propertyName) {
-		// TODO 还没有实现，还需要实现泛型判断匹配
-		return true;
+		} else
+			return null;
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -188,8 +177,8 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 	 * @param msg
 	 *            异常信息
 	 */
-	private void error(String msg) {
-		log.error(msg);
-		throw new BeanDefinitionParsingException(msg);
-	}
+//	private void error(String msg) {
+//		log.error(msg);
+//		throw new BeanDefinitionParsingException(msg);
+//	}
 }

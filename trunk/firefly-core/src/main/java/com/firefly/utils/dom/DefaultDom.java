@@ -18,37 +18,34 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public class DefaultDom implements Dom{
+public class DefaultDom implements Dom {
 
-	private final String file;
-	
-	public DefaultDom(String file) {
-		this.file = file;
-	}
-	
-	@Override
-	public Document getDocument() {
-		
-		Document doc = null;
-		
+	private DocumentBuilderFactory dbf;
+	private DocumentBuilder db;
+
+	public DefaultDom() {
 		// 得到dom解析器工厂实例
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		
+		dbf = DocumentBuilderFactory.newInstance();
 		try {
 			// 得到dom解析器
-			DocumentBuilder db = dbf.newDocumentBuilder();
-
-			InputStream is = DefaultDom.class.getResourceAsStream("/"+this.file);
-			
-			doc = db.parse(is);
+			db = dbf.newDocumentBuilder();
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public Document getDocument(String file) {
+		Document doc = null;
+		try {
+			InputStream is = DefaultDom.class.getResourceAsStream("/" + file);
+			doc = db.parse(is);
 		} catch (SAXException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		return doc;
 	}
 
@@ -59,50 +56,51 @@ public class DefaultDom implements Dom{
 
 	@Override
 	public List<Element> elements(Element e) {
-		return elements(e,null);
+		return elements(e, null);
 	}
-	
+
 	@Override
 	public List<Element> elements(Element e, String name) {
 		List<Element> eList = new ArrayList<Element>();
-		
+
 		NodeList nodeList = e.getChildNodes();
-		for(int i = 0;i < nodeList.getLength();++i){
+		for (int i = 0; i < nodeList.getLength(); ++i) {
 			Node node = nodeList.item(i);
-			if(node.getNodeType() == Node.ELEMENT_NODE){
-				if(name != null){
-					if(node.getNodeName().equals(name))
-						eList.add((Element)node);
-				}else{
-					eList.add((Element)node);
+			if (node.getNodeType() == Node.ELEMENT_NODE) {
+				if (name != null) {
+					if (node.getNodeName().equals(name))
+						eList.add((Element) node);
+				} else {
+					eList.add((Element) node);
 				}
 			}
 		}
 		return eList;
 	}
-	
+
 	@Override
 	public Element element(Element e, String name) {
 		NodeList element = e.getElementsByTagName(name);
-		if(element != null && e.getNodeType() == Node.ELEMENT_NODE){
-			return (Element)element.item(0);
+		if (element != null && e.getNodeType() == Node.ELEMENT_NODE) {
+			return (Element) element.item(0);
 		}
 		return null;
 	}
-	
+
 	@Override
 	public String getTextValue(Element valueEle) {
-		if(valueEle != null){
+		if (valueEle != null) {
 			StringBuilder sb = new StringBuilder();
 			NodeList nl = valueEle.getChildNodes();
 			for (int i = 0; i < nl.getLength(); i++) {
 				Node item = nl.item(i);
-				if ((item instanceof CharacterData && !(item instanceof Comment)) || item instanceof EntityReference) {
+				if ((item instanceof CharacterData && !(item instanceof Comment))
+						|| item instanceof EntityReference) {
 					sb.append(item.getNodeValue());
 				}
 			}
 			return sb.toString();
 		}
-		return null;		
+		return null;
 	}
 }
