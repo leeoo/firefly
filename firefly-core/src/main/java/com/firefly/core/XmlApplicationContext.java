@@ -1,15 +1,20 @@
 package com.firefly.core;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.Modifier;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
-import java.util.Map.Entry;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,18 +26,14 @@ import com.firefly.core.support.xml.ManagedRef;
 import com.firefly.core.support.xml.ManagedValue;
 import com.firefly.core.support.xml.XmlBeanDefinition;
 import com.firefly.core.support.xml.XmlBeanReader;
-import com.firefly.utils.StringUtils;
 import com.firefly.utils.VerifyUtils;
-
 
 public class XmlApplicationContext extends AbstractApplicationContext {
 
-	private static Logger log = LoggerFactory.getLogger(XmlApplicationContext.class);
-
+	private static Logger log = LoggerFactory
+			.getLogger(XmlApplicationContext.class);
 	protected List<BeanDefinition> beanDefinitions;
 
-	public static final String DEFAULT_TYPE = "java.lang.String";
-	
 	public XmlApplicationContext() {
 		this(null);
 	}
@@ -43,7 +44,7 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 		inject();
 	}
 
-	protected List<BeanDefinition> getBeanReader(String file){
+	protected List<BeanDefinition> getBeanReader(String file) {
 		return new XmlBeanReader(file).loadBeanDefinitions();
 	}
 
@@ -51,7 +52,7 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 	 * 增加Xml中定义的组件到ApplicationContext
 	 */
 	private void addObjectToContext() {
-		for(BeanDefinition beanDefinition : this.beanDefinitions){
+		for (BeanDefinition beanDefinition : this.beanDefinitions) {
 			// 增加声明的组件到 ApplicationContext
 			Object object = beanDefinition.getObject();
 			// 把id作为key
@@ -75,27 +76,30 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 	 */
 	private void inject() {
 		try {
-			for(BeanDefinition beanDefinition : this.beanDefinitions){
-				XmlBeanDefinition xmlBeanDefinition = (XmlBeanDefinition)beanDefinition;
+			for (BeanDefinition beanDefinition : this.beanDefinitions) {
+				XmlBeanDefinition xmlBeanDefinition = (XmlBeanDefinition) beanDefinition;
 
 				// 取得需要注入的对象
-				Object obj = map.get(xmlBeanDefinition.getId());
+				Object obj = xmlBeanDefinition.getObject();
 
 				// 取得对象所有的属性
-				Map<String, Object> properties = xmlBeanDefinition.getProperties();
+				Map<String, Object> properties = xmlBeanDefinition
+						.getProperties();
 
 				Class<?> clazz = obj.getClass();
 
-				// 遍历所有属性依次注入
-				for(Entry<String, Object> entry : properties.entrySet()){
-					String name = entry.getKey();
-					Object value = entry.getValue();
-					Method m = getSetterMethod(clazz,name);
-					
-					Object injestArg = getInjectArg(name,value,m,clazz);
-					
-					// 执行方法注入
-					m.invoke(obj, injestArg);
+				// 遍历所有注册的set方法注入
+				for (Method method : getSetterMethods(clazz)) {
+					String methodName = method.getName();
+					String propertyName = Character.toLowerCase(methodName
+							.charAt(3))
+							+ methodName.substring(4);
+					Object value = properties.get(propertyName);
+					if (value != null) {
+						Object injestArg = getInjectArg(propertyName, value,
+								method, clazz);
+						method.invoke(obj, injestArg);
+					}
 				}
 			}
 		} catch (IllegalAccessException e) {
@@ -108,102 +112,95 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Object getInjectArg(String name,Object value,Method m,Class<?> clazz){		
+	private Object getInjectArg(String propertyName, Object value,
+			Method method, Class<?> clazz) {
 		try {
-			if(value instanceof ManagedValue){
-				ManagedValue managedValue = (ManagedValue)value;
-				String typeName = null;
-				if(m != null){
-					typeName = (managedValue.getTypeName() == null ? 
-							m.getParameterTypes()[0].getName() : 
-								managedValue.getTypeName());
-				}else{
-					typeName = (managedValue.getTypeName() == null ? 
-								DEFAULT_TYPE : 
-									managedValue.getTypeName());
-				}
+			if (value instanceof ManagedValue) {
+				ManagedValue managedValue = (ManagedValue) value;
+				String typeName = VerifyUtils.isEmpty(managedValue
+						.getTypeName()) ? method.getParameterTypes()[0]
+						.getName() : managedValue.getTypeName();
 				return getTypeObj(typeName, managedValue.getValue());
-			}else if(value instanceof ManagedRef){
-				ManagedRef ref = (ManagedRef)value;
-				return getTypeObj(null, ref.getBeanName());
-			}else if(value instanceof ManagedList){
-				// 寻找list当中的泛型类型
-				Field f = getFieldByName(clazz,name);
-				Class<?> genericClazz = null;		// 泛型类型
-				// 得到Generic的类型
-				Type t = f.getGenericType();
-				if(t instanceof ParameterizedType){ // 参数化类型，如 Collection<String>
-					ParameterizedType pt = (ParameterizedType)t;
-					genericClazz = (Class<?>)pt.getActualTypeArguments()[0];
-				}
-				
-				// 获得xml里定义的泛型类型
-				ManagedList<Object> values = (ManagedList<Object>)value;
-				String typeName = values.getTypeName();
+			} else if (value instanceof ManagedRef) {
+				ManagedRef ref = (ManagedRef) value;
+				return map.get(ref.getBeanName());
+			} else if (value instanceof ManagedList) {
+				log.debug("xml inject method [{}]", method.getName());
+				Class<?> setterParamType = method.getParameterTypes()[0];
+				ManagedList<Object> values = (ManagedList<Object>) value;
 
-				if(StringUtils.hasText(typeName)){
-					Class<?> c = XmlApplicationContext.class.getClassLoader().loadClass(typeName);
-					if(!genericClazz.equals(c) && !genericClazz.equals(Object.class)){
-						error(name+" type mismatch");
-					}
+				if (!matchGenericClazz(setterParamType, propertyName)) {
+					error(propertyName + " type mismatch");
 				}
-				List<Object> l = new ArrayList<Object>();
-				for(int i = 0;i < values.size();++i){
-					Object item = values.get(i);
-					Object listValue = getInjectArg(null,item,null,clazz);
-					l.add(listValue);
+
+				Object list = getCollectionObj(setterParamType);
+				log.debug("setter param type [{}]", setterParamType.getName());
+
+				for (Object item : values) {
+					Object listValue = getInjectArg(propertyName, item, method,
+							clazz);
+					Collection collection = (Collection) list;
+					collection.add(listValue);
 				}
-				return l;
+				return list;
 			}
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
 		}
 		return null;
 	}
-	
-	/**
-	 * 根据属性名寻找对应的setter方法
-	 * @param clazz
-	 * @param name 属性名
-	 * @return
-	 */
-	private Method getSetterMethod(Class<?> clazz, String name){
-		Method[] methods = clazz.getMethods();
-		// 遍历所有方法
-		for(Method m : methods){
-			// 寻找只有一个参数的setter方法
-			String methodName = m.getName();
-			Class<?>[] argsType = m.getParameterTypes();
-			if(methodName.startsWith("set") && argsType.length == 1){
-				methodName = methodName.substring(3,methodName.length());
-				if(methodName.equalsIgnoreCase(name)){
-					return m;
-				}
-			}
-		}
-		return null;
-	}
-	
-	/**
-	 * 根据名称寻找对应的Field
-	 * @param clazz
-	 * @param name
-	 * @return
-	 */
-	private Field getFieldByName(Class<?> clazz, String name){
-		Field[] fs = clazz.getDeclaredFields();
-		for(Field f : fs){
-			if(f.getName().equals(name)){
-				return f;
-			}
-		}
-		return null;
-	}
-	
-	private Object getTypeObj(String argsType, String value){
 
+	private boolean matchGenericClazz(Class<?> clazz, String propertyName) {
+		// TODO 还没有实现，还需要实现泛型判断匹配
+		return true;
+	}
+
+	private Method[] getSetterMethods(Class<?> clazz) {
+		Method[] methods = clazz.getMethods();
+		List<Method> list = new ArrayList<Method>();
+		for (Method method : methods) {
+			method.setAccessible(true);
+			String methodName = method.getName();
+			if (!methodName.startsWith("set")
+					|| Modifier.isStatic(method.getModifiers())
+					|| !method.getReturnType().equals(Void.TYPE)
+					|| method.getParameterTypes().length != 1) {
+				continue;
+			}
+			list.add(method);
+		}
+		return list.toArray(new Method[0]);
+	}
+
+	@SuppressWarnings("unchecked")
+	private Object getCollectionObj(Class<?> clazz) {
+		if (clazz.isInterface()) {
+			if (clazz.isAssignableFrom(List.class))
+				return new ArrayList();
+			else if (clazz.isAssignableFrom(Set.class))
+				return new HashSet();
+			else if (clazz.isAssignableFrom(Queue.class))
+				return new ArrayDeque();
+			else if (clazz.isAssignableFrom(SortedSet.class))
+				return new TreeSet();
+			else if (clazz.isAssignableFrom(BlockingQueue.class))
+				return new LinkedBlockingDeque();
+			else
+				return null;
+		} else {
+			Object obj = null;
+			try {
+				obj = clazz.newInstance();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+			return obj;
+		}
+	}
+
+	private Object getTypeObj(String argsType, String value) {
 		try {
 			if ("byte".equals(argsType))
 				return Byte.parseByte(value);
@@ -231,12 +228,10 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 				return new Float(value);
 			else if ("java.lang.Double".equals(argsType))
 				return new Double(value);
-			else if ("java.lang.String".equals(argsType))
-				return new String(value);
 			else if ("java.lang.Boolean".equals(argsType))
 				return new Boolean(value);
 			else
-				return map.get(value);
+				return value;
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
@@ -244,12 +239,14 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * 处理异常
-	 * @param msg 异常信息
+	 *
+	 * @param msg
+	 *            异常信息
 	 */
-	private void error(String msg){
+	private void error(String msg) {
 		log.error(msg);
 		throw new BeanDefinitionParsingException(msg);
 	}

@@ -34,9 +34,9 @@ public class TestXmlIoc {
 			if (p instanceof Person) {
 				person = (Person) p;
 				i++;
-				log.info(person.getName());
+				log.debug(person.getName());
 			} else {
-				log.info(p.toString());
+				log.debug(p.toString());
 			}
 		}
 		Assert.assertThat(i, greaterThan(1));
@@ -49,15 +49,18 @@ public class TestXmlIoc {
 				.getBean("collectionService");
 		List<Object> list = collectionService.getList();
 		Assert.assertThat(list.size(), greaterThan(0));
-
-		
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testListInject() {
 		// list的值也是list
-		CollectionService collectionService = xmlApplicationContext.getBean("collectionService2");
+		CollectionService collectionService = xmlApplicationContext
+				.getBean("collectionService2");
 		List<Object> list = collectionService.getList();
-		Assert.assertThat(list.size(), greaterThan(0));
+		Assert.assertThat(list.size(), greaterThan(2));
+		list = (List<Object>) list.get(2);
+		Assert.assertThat(list.size(), greaterThan(1));
+		log.debug(list.toString());
 	}
 }
