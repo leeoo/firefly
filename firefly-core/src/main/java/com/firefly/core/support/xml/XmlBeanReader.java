@@ -39,27 +39,17 @@ public class XmlBeanReader implements BeanReader {
 	public static final String VALUE_TYPE_ATTRIBUTE = "value-type";
 	public static final String LIST_ELEMENT = "list";
 	public static final String MAP_ELEMENT = "map";
-	private Dom dom;
+	protected List<BeanDefinition> beanDefinitions;
 
 	public XmlBeanReader() {
 		this(null);
 	}
 
 	public XmlBeanReader(String file) {
-		dom = new DefaultDom(file == null ? "firefly.xml" : file);
-	}
-
-	/**
-	 * 解析xml
-	 * 
-	 * @return
-	 */
-	@Override
-	public List<BeanDefinition> loadBeanDefinitions() {
-		List<BeanDefinition> beanDefinitionList = new ArrayList<BeanDefinition>();
-
+		beanDefinitions = new ArrayList<BeanDefinition>();
+		Dom dom = new DefaultDom();
 		// 获得Xml文档对象
-		Document doc = dom.getDocument();
+		Document doc = dom.getDocument(file == null ? "firefly.xml" : file);
 
 		// 得到根节点
 		Element root = dom.getRoot(doc);
@@ -70,14 +60,22 @@ public class XmlBeanReader implements BeanReader {
 		// 迭代beans列表
 		if (beansList != null) {
 			for (Element bean : beansList) {
-				beanDefinitionList.add(parseBeanElement(bean));
+				beanDefinitions.add(parseBeanElement(bean, dom));
 			}
 		}
-
-		return beanDefinitionList;
 	}
 
-	protected XmlBeanDefinition parseBeanElement(Element bean) {
+	/**
+	 * 解析xml
+	 * 
+	 * @return
+	 */
+	@Override
+	public List<BeanDefinition> loadBeanDefinitions() {
+		return beanDefinitions;
+	}
+
+	protected XmlBeanDefinition parseBeanElement(Element bean, Dom dom) {
 		XmlBeanDefinition xmlBeanDefinition = new XmlGenericBeanDefinition();
 		// 获取基本属性
 		String id = bean.getAttribute(ID_ATTRIBUTE);
@@ -158,7 +156,7 @@ public class XmlBeanReader implements BeanReader {
 							new ManagedRef(ref));
 				} else if (subElement != null) {
 					// 处理子元素
-					Object subEle = parsePropertySubElement(subElement);
+					Object subEle = parsePropertySubElement(subElement, dom);
 					xmlBeanDefinition.getProperties().put(name, subEle);
 				} else {
 					error(name + " must specify a ref or value");
@@ -175,7 +173,7 @@ public class XmlBeanReader implements BeanReader {
 	 * @param ele
 	 * @return
 	 */
-	protected Object parsePropertySubElement(Element ele) {
+	protected Object parsePropertySubElement(Element ele, Dom dom) {
 		if (nodeNameEquals(ele, REF_ATTRIBUTE)) { // ref
 			if (ele.hasAttribute(BEAN_REF_ATTRIBUTE)) {
 				String refText = ele.getAttribute(BEAN_REF_ATTRIBUTE);
@@ -208,7 +206,7 @@ public class XmlBeanReader implements BeanReader {
 			typedValue.setTypeName(typeName);
 			return typedValue;
 		} else if (nodeNameEquals(ele, LIST_ELEMENT)) { // list
-			return parseListElement(ele);
+			return parseListElement(ele, dom);
 		} else if (nodeNameEquals(ele, MAP_ELEMENT)) { // map
 
 		} else {
@@ -225,13 +223,13 @@ public class XmlBeanReader implements BeanReader {
 	 * @param ele
 	 * @return
 	 */
-	protected List<Object> parseListElement(Element ele) {
+	protected List<Object> parseListElement(Element ele, Dom dom) {
 		String typeName = ele.getAttribute(VALUE_TYPE_ATTRIBUTE);
 		ManagedList<Object> target = new ManagedList<Object>();
 		target.setTypeName(typeName);
 		List<Element> elements = dom.elements(ele);
 		for (Element e : elements) {
-			target.add(parsePropertySubElement(e));
+			target.add(parsePropertySubElement(e, dom));
 		}
 		return target;
 	}
