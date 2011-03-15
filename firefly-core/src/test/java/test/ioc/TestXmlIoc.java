@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -62,5 +63,9 @@ public class TestXmlIoc {
 		list = (List<Object>) list.get(2);
 		Assert.assertThat(list.size(), greaterThan(1));
 		log.debug(list.toString());
+		
+		// set赋值
+		Set<Integer> set = collectionService.getSet();
+		Assert.assertThat(set.size(), is(2));
 	}
 }

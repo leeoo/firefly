@@ -11,7 +11,6 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
@@ -24,6 +23,7 @@ import com.firefly.annotation.Component;
 import com.firefly.annotation.Inject;
 import com.firefly.core.support.BeanDefinition;
 import com.firefly.core.support.BeanReader;
+import com.firefly.utils.ReflectUtils;
 
 /**
  * 读取Bean信息
@@ -193,7 +193,7 @@ public class AnnotationBeanReader implements BeanReader {
 		Component component = c.getAnnotation(Component.class);
 		annotationBeanDefinition.setId(component.value());
 
-		Set<String> names = getInterfaceNames(c);
+		Set<String> names = ReflectUtils.getInterfaceNames(c);
 		annotationBeanDefinition.setInterfaceNames(names);
 
 		List<Field> fields = getInjectField(c);
@@ -217,15 +217,6 @@ public class AnnotationBeanReader implements BeanReader {
 	@Override
 	public List<BeanDefinition> loadBeanDefinitions() {
 		return beanDefinitions;
-	}
-
-	protected Set<String> getInterfaceNames(Class<?> c) {
-		Class<?>[] interfaces = c.getInterfaces();
-		Set<String> names = new HashSet<String>();
-		for (Class<?> i : interfaces) {
-			names.add(i.getName());
-		}
-		return names;
 	}
 
 	protected List<Field> getInjectField(Class<?> c) {
