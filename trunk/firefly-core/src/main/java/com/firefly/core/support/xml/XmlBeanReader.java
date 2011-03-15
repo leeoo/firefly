@@ -1,69 +1,57 @@
 package com.firefly.core.support.xml;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 import com.firefly.core.support.BeanDefinition;
 import com.firefly.core.support.BeanReader;
 import com.firefly.core.support.exception.BeanDefinitionParsingException;
+import com.firefly.utils.ReflectUtils;
 import com.firefly.utils.StringUtils;
 import com.firefly.utils.dom.DefaultDom;
 import com.firefly.utils.dom.Dom;
 
 /**
  * 读取Xml文件
+ * 
  * @author 须俊杰
  * @date 2011-3-3
  */
-public class XmlBeanReader implements BeanReader{
+public class XmlBeanReader implements BeanReader {
 
 	private static Logger log = LoggerFactory.getLogger(XmlBeanReader.class);
 
 	public static final String BEAN_ELEMENT = "bean";
-
 	public static final String BEAN_REF_ATTRIBUTE = "bean";
-
 	public static final String ID_ATTRIBUTE = "id";
-
 	public static final String CLASS_ATTRIBUTE = "class";
-
 	public static final String PROPERTY_ELEMENT = "property";
-
 	public static final String NAME_ATTRIBUTE = "name";
-
 	public static final String REF_ATTRIBUTE = "ref";
-
 	public static final String VALUE_ATTRIBUTE = "value";
-
 	public static final String TYPE_ATTRIBUTE = "type";
-
 	public static final String VALUE_TYPE_ATTRIBUTE = "value-type";
-
 	public static final String LIST_ELEMENT = "list";
-
 	public static final String MAP_ELEMENT = "map";
-
-	private final String filename;
-
 	private Dom dom;
 
-	public XmlBeanReader(String filename){
-		this.filename = filename;
-		dom = new DefaultDom(this.filename);
+	public XmlBeanReader() {
+		this(null);
+	}
+
+	public XmlBeanReader(String file) {
+		dom = new DefaultDom(file == null ? "firefly.xml" : file);
 	}
 
 	/**
 	 * 解析xml
+	 * 
 	 * @return
 	 */
 	@Override
@@ -80,128 +68,137 @@ public class XmlBeanReader implements BeanReader{
 		List<Element> beansList = dom.elements(root, BEAN_ELEMENT);
 
 		// 迭代beans列表
-		if(beansList != null){
-			for(Element bean : beansList){
-				XmlBeanDefinition xmlBeanDefinition = new XmlGenericBeanDefinition();
-
-				// 获取基本属性
-				String id = bean.getAttribute(ID_ATTRIBUTE);
-				String className = bean.getAttribute(CLASS_ATTRIBUTE);
-				xmlBeanDefinition.setId(id);
-				xmlBeanDefinition.setClassName(className);
-
-				// 实例化对象
-				Class<?> clazz = null;
-				Object obj = null;
-				log.info("classes [{}]", className);
-				try {
-					clazz = XmlBeanReader.class.getClassLoader().loadClass(className);
-					obj = clazz.newInstance();
-				} catch (ClassNotFoundException e) {
-					throw new RuntimeException(e);
-				} catch (InstantiationException e) {
-					throw new RuntimeException(e);
-				} catch (IllegalAccessException e) {
-					throw new RuntimeException(e);
-				}
-				xmlBeanDefinition.setObject(obj);
-
-				// 取得接口名称
-				Set<String> names = getInterfaceNames(clazz);
-				xmlBeanDefinition.setInterfaceNames(names);
-				log.debug("class [{}] names size [{}]", className, names.size());
-
-				// 获取所有property
-				List<Element> properties = dom.elements(bean, PROPERTY_ELEMENT);
-
-				// 迭代property列表
-				if(properties != null){
-					for(Element property : properties){
-						String name = property.getAttribute(NAME_ATTRIBUTE);
-
-						boolean hasValueAttribute = property.hasAttribute(VALUE_ATTRIBUTE);
-						boolean hasRefAttribute = property.hasAttribute(REF_ATTRIBUTE);
-
-						// 只能有一个子元素: ref, value, list, etc.
-						NodeList nl = property.getChildNodes();
-						Element subElement = null;
-						for(int i = 0;i < nl.getLength();++i){
-							Node node = nl.item(i);
-							if (node instanceof Element){
-								if(subElement != null){
-									error(name+" must not contain more than one sub-element");
-								}else{
-									subElement = (Element)node;
-								}
-							}
-						}
-
-						if(hasValueAttribute && hasRefAttribute
-								|| ((hasValueAttribute || hasRefAttribute) && subElement != null)){
-							error(name+" is only allowed to contain either 'ref' attribute OR 'value' attribute OR sub-element");
-						}
-
-						if(hasValueAttribute) {
-							// 普通赋值
-							String value = property.getAttribute(VALUE_ATTRIBUTE);
-							if(!StringUtils.hasText(value)){
-								error(name+" contains empty 'value' attribute");
-							}
-							xmlBeanDefinition.getProperties().put(name, new ManagedValue(value));
-						}else if (hasRefAttribute) {
-							// 依赖其他bean
-							String ref = property.getAttribute(REF_ATTRIBUTE);
-							if(!StringUtils.hasText(ref)){
-								error(name+" contains empty 'ref' attribute");
-							}
-							xmlBeanDefinition.getProperties().put(name, new ManagedRef(ref));
-						}else if(subElement != null){
-							// 处理子元素
-							Object subEle = parsePropertySubElement(subElement);
-							xmlBeanDefinition.getProperties().put(name, subEle);
-						}else{
-							error(name+" must specify a ref or value");
-							return null;
-						}
-					}
-				}
-				beanDefinitionList.add(xmlBeanDefinition);
+		if (beansList != null) {
+			for (Element bean : beansList) {
+				beanDefinitionList.add(parseBeanElement(bean));
 			}
 		}
 
 		return beanDefinitionList;
 	}
 
+	protected XmlBeanDefinition parseBeanElement(Element bean) {
+		XmlBeanDefinition xmlBeanDefinition = new XmlGenericBeanDefinition();
+		// 获取基本属性
+		String id = bean.getAttribute(ID_ATTRIBUTE);
+		String className = bean.getAttribute(CLASS_ATTRIBUTE);
+		xmlBeanDefinition.setId(id);
+		xmlBeanDefinition.setClassName(className);
+
+		// 实例化对象
+		Class<?> clazz = null;
+		Object obj = null;
+		log.info("classes [{}]", className);
+		try {
+			clazz = XmlBeanReader.class.getClassLoader().loadClass(className);
+			obj = clazz.newInstance();
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		} catch (InstantiationException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+		xmlBeanDefinition.setObject(obj);
+
+		// 取得接口名称
+		Set<String> names = ReflectUtils.getInterfaceNames(clazz);
+		xmlBeanDefinition.setInterfaceNames(names);
+		log.debug("class [{}] names size [{}]", className, names.size());
+
+		// 获取所有property
+		List<Element> properties = dom.elements(bean, PROPERTY_ELEMENT);
+
+		// 迭代property列表
+		if (properties != null) {
+			for (Element property : properties) {
+				String name = property.getAttribute(NAME_ATTRIBUTE);
+
+				boolean hasValueAttribute = property
+						.hasAttribute(VALUE_ATTRIBUTE);
+				boolean hasRefAttribute = property.hasAttribute(REF_ATTRIBUTE);
+
+				// 只能有一个子元素: ref, value, list, etc.
+				NodeList nl = property.getChildNodes();
+				Element subElement = null;
+				for (int i = 0; i < nl.getLength(); ++i) {
+					Node node = nl.item(i);
+					if (node instanceof Element) {
+						if (subElement != null) {
+							error(name
+									+ " must not contain more than one sub-element");
+						} else {
+							subElement = (Element) node;
+						}
+					}
+				}
+
+				if (hasValueAttribute
+						&& hasRefAttribute
+						|| ((hasValueAttribute || hasRefAttribute) && subElement != null)) {
+					error(name
+							+ " is only allowed to contain either 'ref' attribute OR 'value' attribute OR sub-element");
+				}
+
+				if (hasValueAttribute) {
+					// 普通赋值
+					String value = property.getAttribute(VALUE_ATTRIBUTE);
+					if (!StringUtils.hasText(value)) {
+						error(name + " contains empty 'value' attribute");
+					}
+					xmlBeanDefinition.getProperties().put(name,
+							new ManagedValue(value));
+				} else if (hasRefAttribute) {
+					// 依赖其他bean
+					String ref = property.getAttribute(REF_ATTRIBUTE);
+					if (!StringUtils.hasText(ref)) {
+						error(name + " contains empty 'ref' attribute");
+					}
+					xmlBeanDefinition.getProperties().put(name,
+							new ManagedRef(ref));
+				} else if (subElement != null) {
+					// 处理子元素
+					Object subEle = parsePropertySubElement(subElement);
+					xmlBeanDefinition.getProperties().put(name, subEle);
+				} else {
+					error(name + " must specify a ref or value");
+					return null;
+				}
+			}
+		}
+		return xmlBeanDefinition;
+	}
+
 	/**
 	 * 解析子元素
+	 * 
 	 * @param ele
 	 * @return
 	 */
-	protected Object parsePropertySubElement(Element ele){
-		if(nodeNameEquals(ele,REF_ATTRIBUTE)){	// ref
-			if(ele.hasAttribute(BEAN_REF_ATTRIBUTE)){
+	protected Object parsePropertySubElement(Element ele) {
+		if (nodeNameEquals(ele, REF_ATTRIBUTE)) { // ref
+			if (ele.hasAttribute(BEAN_REF_ATTRIBUTE)) {
 				String refText = ele.getAttribute(BEAN_REF_ATTRIBUTE);
-				if(StringUtils.hasText(refText)){
+				if (StringUtils.hasText(refText)) {
 					ManagedRef ref = new ManagedRef();
 					ref.setBeanName(refText);
 					return ref;
-				}
-				else{
+				} else {
 					error("<ref> element contains empty target attribute");
 					return null;
 				}
-			}else{
+			} else {
 				error("'bean' is required for <ref> element");
 				return null;
 			}
-		}else if(nodeNameEquals(ele,VALUE_ATTRIBUTE)){	// value
+		} else if (nodeNameEquals(ele, VALUE_ATTRIBUTE)) { // value
 			ManagedValue typedValue = new ManagedValue();
 			String value = dom.getTextValue(ele);
 			String typeName = null;
-			if(ele.hasAttribute(TYPE_ATTRIBUTE)){
+			if (ele.hasAttribute(TYPE_ATTRIBUTE)) {
 				// 如果有type属性
 				typeName = ele.getAttribute(TYPE_ATTRIBUTE);
-				if(typeName == null){
+				if (typeName == null) {
 					error("<value> element contains empty target attribute");
 					return null;
 				}
@@ -210,11 +207,11 @@ public class XmlBeanReader implements BeanReader{
 			typedValue.setValue(value);
 			typedValue.setTypeName(typeName);
 			return typedValue;
-		}else if(nodeNameEquals(ele, LIST_ELEMENT)){	// list
+		} else if (nodeNameEquals(ele, LIST_ELEMENT)) { // list
 			return parseListElement(ele);
-		}else if(nodeNameEquals(ele, MAP_ELEMENT)){	// map
+		} else if (nodeNameEquals(ele, MAP_ELEMENT)) { // map
 
-		}else{
+		} else {
 			error("Unknown property sub-element: [" + ele.getNodeName() + "]");
 			return null;
 		}
@@ -224,53 +221,34 @@ public class XmlBeanReader implements BeanReader{
 
 	/**
 	 * 解析list元素
+	 * 
 	 * @param ele
 	 * @return
 	 */
-	protected List<Object> parseListElement(Element ele){
+	protected List<Object> parseListElement(Element ele) {
 		String typeName = ele.getAttribute(VALUE_TYPE_ATTRIBUTE);
 		ManagedList<Object> target = new ManagedList<Object>();
 		target.setTypeName(typeName);
 		List<Element> elements = dom.elements(ele);
-		parseCollectionElements(elements, target);
-		return target;
-	}
-
-	protected void parseCollectionElements(List<Element> elements, Collection<Object> target){
-		for(Element e : elements){
+		for (Element e : elements) {
 			target.add(parsePropertySubElement(e));
 		}
+		return target;
 	}
 
 	/**
 	 * 处理异常
-	 * @param msg 异常信息
+	 * 
+	 * @param msg
+	 *            异常信息
 	 */
-	private void error(String msg){
+	private void error(String msg) {
 		log.error(msg);
 		throw new BeanDefinitionParsingException(msg);
 	}
 
 	private boolean nodeNameEquals(Node node, String desiredName) {
-		return desiredName.equals(node.getNodeName()) || desiredName.equals(node.getLocalName());
-	}
-
-	/**
-	 * 获取所有接口名称
-	 * @param c
-	 * @return
-	 */
-	protected Set<String> getInterfaceNames(Class<?> c) {
-		Class<?>[] interfaces = c.getInterfaces();
-		Set<String> names = new HashSet<String>();
-		for (Class<?> i : interfaces) {
-			names.add(i.getName());
-		}
-		return names;
-	}
-
-	public static void main(String[] args) {
-		XmlBeanReader xmlBeanReader = new XmlBeanReader(null);
-		xmlBeanReader.loadBeanDefinitions();
+		return desiredName.equals(node.getNodeName())
+				|| desiredName.equals(node.getLocalName());
 	}
 }

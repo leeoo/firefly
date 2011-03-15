@@ -5,11 +5,13 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
 import com.firefly.annotation.Component;
 import com.firefly.annotation.Controller;
 import com.firefly.annotation.Interceptor;
 import com.firefly.annotation.RequestMapping;
 import com.firefly.core.support.annotation.AnnotationBeanReader;
+import com.firefly.utils.ReflectUtils;
 
 public class WebBeanReader extends AnnotationBeanReader {
 
@@ -36,7 +38,7 @@ public class WebBeanReader extends AnnotationBeanReader {
 		String id = getId(c);
 		webBeanDefinition.setId(id);
 
-		Set<String> names = getInterfaceNames(c);
+		Set<String> names = ReflectUtils.getInterfaceNames(c);
 		webBeanDefinition.setInterfaceNames(names);
 
 		List<Field> fields = getInjectField(c);

@@ -22,12 +22,8 @@ public class DefaultDom implements Dom{
 
 	private final String file;
 	
-	public DefaultDom() {
-		this(null);
-	}
-	
 	public DefaultDom(String file) {
-		this.file = (file == null ? "firefly.xml" : file);
+		this.file = file;
 	}
 	
 	@Override
