@@ -109,11 +109,13 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 
 	/**
 	 * 
-	 * @param value 属性值的元信息
-	 * @param method 该属性的set方法
+	 * @param value
+	 *            属性值的元信息
+	 * @param method
+	 *            该属性的set方法
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Object getInjectArg(Object value, Method method) {
 		if (value instanceof ManagedValue) { // value
 			ManagedValue managedValue = (ManagedValue) value;
@@ -129,22 +131,36 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 			Class<?> setterParamType = method.getParameterTypes()[0];
 			ManagedList<Object> values = (ManagedList<Object>) value;
 
-			Object list = getCollectionObj(setterParamType);
+			Collection collection = null;
 			log.debug("setter param type [{}]", setterParamType.getName());
+
+			if (VerifyUtils.isNotEmpty(values.getTypeName())) { // 指定了list的类型
+				try {
+					collection = (Collection) XmlApplicationContext.class
+							.getClassLoader().loadClass(values.getTypeName())
+							.newInstance();
+				} catch (InstantiationException e) {
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+			} else { // 根据set方法参数类型获取list类型
+				collection = getCollectionObj(setterParamType);
+			}
 
 			for (Object item : values) {
 				Object listValue = getInjectArg(item, method);
-				@SuppressWarnings("rawtypes")
-				Collection collection = (Collection) list;
 				collection.add(listValue);
 			}
-			return list;
+			return collection;
 		} else
 			return null;
 	}
 
 	@SuppressWarnings("rawtypes")
-	private Object getCollectionObj(Class<?> clazz) {
+	private Collection getCollectionObj(Class<?> clazz) {
 		if (clazz.isInterface()) {
 			if (clazz.isAssignableFrom(List.class))
 				return new ArrayList();
@@ -159,26 +175,15 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 			else
 				return null;
 		} else {
-			Object obj = null;
+			Collection collection = null;
 			try {
-				obj = clazz.newInstance();
+				collection = (Collection) clazz.newInstance();
 			} catch (InstantiationException e) {
 				e.printStackTrace();
 			} catch (IllegalAccessException e) {
 				e.printStackTrace();
 			}
-			return obj;
+			return collection;
 		}
 	}
-
-	/**
-	 * 处理异常
-	 * 
-	 * @param msg
-	 *            异常信息
-	 */
-//	private void error(String msg) {
-//		log.error(msg);
-//		throw new BeanDefinitionParsingException(msg);
-//	}
 }

@@ -11,6 +11,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
@@ -23,18 +24,21 @@ import com.firefly.annotation.Component;
 import com.firefly.annotation.Inject;
 import com.firefly.core.support.BeanDefinition;
 import com.firefly.core.support.BeanReader;
+import com.firefly.core.support.exception.BeanDefinitionParsingException;
 import com.firefly.utils.ReflectUtils;
+import com.firefly.utils.VerifyUtils;
 
 /**
  * 读取Bean信息
- *
+ * 
  * @author AlvinQiu
- *
+ * 
  */
 public class AnnotationBeanReader implements BeanReader {
 	private static Logger log = LoggerFactory
 			.getLogger(AnnotationBeanReader.class);
 	protected List<BeanDefinition> beanDefinitions;
+	protected Set<String> idSet;
 
 	public AnnotationBeanReader() {
 		this(null);
@@ -42,6 +46,7 @@ public class AnnotationBeanReader implements BeanReader {
 
 	public AnnotationBeanReader(String file) {
 		beanDefinitions = getBeanDefinitions();
+		idSet = new HashSet<String>();
 		Config config = ConfigReader.getInstance().load(file);
 		for (String pack : config.getPaths()) {
 			log.info("componentPath [{}]", pack);
@@ -163,8 +168,8 @@ public class AnnotationBeanReader implements BeanReader {
 		for (File file : dirfiles) {
 			// 如果是目录 则继续扫描
 			if (file.isDirectory()) {
-				addClassesByFile(packageName + "." + file.getName(), file
-						.getAbsolutePath());
+				addClassesByFile(packageName + "." + file.getName(),
+						file.getAbsolutePath());
 			} else {
 				// 如果是java类文件 去掉后面的.class 只留下类名
 				String className = file.getName().substring(0,
@@ -191,7 +196,13 @@ public class AnnotationBeanReader implements BeanReader {
 		annotationBeanDefinition.setClassName(c.getName());
 
 		Component component = c.getAnnotation(Component.class);
-		annotationBeanDefinition.setId(component.value());
+		String id = component.value();
+		if (VerifyUtils.isNotEmpty(id)) {
+			if (idSet.contains(id))
+				error("id: " + id + " duplicate error");
+			annotationBeanDefinition.setId(id);
+			idSet.add(id);
+		}
 
 		Set<String> names = ReflectUtils.getInterfaceNames(c);
 		annotationBeanDefinition.setInterfaceNames(names);
@@ -241,4 +252,14 @@ public class AnnotationBeanReader implements BeanReader {
 		return list;
 	}
 
+	/**
+	 * 处理异常
+	 * 
+	 * @param msg
+	 *            异常信息
+	 */
+	protected void error(String msg) {
+		log.error(msg);
+		throw new BeanDefinitionParsingException(msg);
+	}
 }

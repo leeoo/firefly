@@ -1,19 +1,23 @@
 package com.firefly.core.support.xml;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
 import com.firefly.core.support.BeanDefinition;
 import com.firefly.core.support.BeanReader;
 import com.firefly.core.support.exception.BeanDefinitionParsingException;
 import com.firefly.utils.ReflectUtils;
 import com.firefly.utils.StringUtils;
+import com.firefly.utils.VerifyUtils;
 import com.firefly.utils.dom.DefaultDom;
 import com.firefly.utils.dom.Dom;
 
@@ -36,20 +40,21 @@ public class XmlBeanReader implements BeanReader {
 	public static final String REF_ATTRIBUTE = "ref";
 	public static final String VALUE_ATTRIBUTE = "value";
 	public static final String TYPE_ATTRIBUTE = "type";
-	public static final String VALUE_TYPE_ATTRIBUTE = "value-type";
 	public static final String LIST_ELEMENT = "list";
 	public static final String MAP_ELEMENT = "map";
 	protected List<BeanDefinition> beanDefinitions;
+	protected Set<String> idSet;
 
 	public XmlBeanReader() {
 		this(null);
 	}
 
 	public XmlBeanReader(String file) {
+		idSet = new HashSet<String>();
 		beanDefinitions = new ArrayList<BeanDefinition>();
 		Dom dom = new DefaultDom();
 		// 为多文件载入做准备
-		
+
 		// 获得Xml文档对象
 		Document doc = dom.getDocument(file == null ? "firefly.xml" : file);
 		// 得到根节点
@@ -75,10 +80,16 @@ public class XmlBeanReader implements BeanReader {
 	}
 
 	protected XmlBeanDefinition parseBeanElement(Element bean, Dom dom) {
-		XmlBeanDefinition xmlBeanDefinition = new XmlGenericBeanDefinition();
 		// 获取基本属性
 		String id = bean.getAttribute(ID_ATTRIBUTE);
+		if (VerifyUtils.isNotEmpty(id)) {
+			if (idSet.contains(id))
+				error("id: " + id + " duplicate error");
+			idSet.add(id);
+		}
+
 		String className = bean.getAttribute(CLASS_ATTRIBUTE);
+		XmlBeanDefinition xmlBeanDefinition = new XmlGenericBeanDefinition();
 		xmlBeanDefinition.setId(id);
 		xmlBeanDefinition.setClassName(className);
 
@@ -223,7 +234,7 @@ public class XmlBeanReader implements BeanReader {
 	 * @return
 	 */
 	protected List<Object> parseListElement(Element ele, Dom dom) {
-		String typeName = ele.getAttribute(VALUE_TYPE_ATTRIBUTE);
+		String typeName = ele.getAttribute(TYPE_ATTRIBUTE);
 		ManagedList<Object> target = new ManagedList<Object>();
 		target.setTypeName(typeName);
 		List<Element> elements = dom.elements(ele);
@@ -239,7 +250,7 @@ public class XmlBeanReader implements BeanReader {
 	 * @param msg
 	 *            异常信息
 	 */
-	private void error(String msg) {
+	protected void error(String msg) {
 		log.error(msg);
 		throw new BeanDefinitionParsingException(msg);
 	}

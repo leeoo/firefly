@@ -16,7 +16,7 @@
 	<element name="list">
 		<complexType>
 			<group ref="bean:collectionElements"></group>
-			<attribute name="value-type" />
+			<attribute name="type" />
 		</complexType>
 	</element>
 	<element name="map">
