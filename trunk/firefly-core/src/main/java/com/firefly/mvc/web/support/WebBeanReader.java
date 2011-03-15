@@ -12,6 +12,7 @@ import com.firefly.annotation.Interceptor;
 import com.firefly.annotation.RequestMapping;
 import com.firefly.core.support.annotation.AnnotationBeanReader;
 import com.firefly.utils.ReflectUtils;
+import com.firefly.utils.VerifyUtils;
 
 public class WebBeanReader extends AnnotationBeanReader {
 
@@ -36,7 +37,12 @@ public class WebBeanReader extends AnnotationBeanReader {
 		webBeanDefinition.setClassName(c.getName());
 
 		String id = getId(c);
-		webBeanDefinition.setId(id);
+		if (VerifyUtils.isNotEmpty(id)) {
+			if (idSet.contains(id))
+				error("id: " + id + " duplicate error");
+			webBeanDefinition.setId(id);
+			idSet.add(id);
+		}
 
 		Set<String> names = ReflectUtils.getInterfaceNames(c);
 		webBeanDefinition.setInterfaceNames(names);

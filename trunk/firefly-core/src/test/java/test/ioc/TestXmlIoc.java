@@ -17,6 +17,7 @@ import test.component3.PersonService;
 
 import com.firefly.core.ApplicationContext;
 import com.firefly.core.XmlApplicationContext;
+import com.firefly.core.support.exception.BeanDefinitionParsingException;
 
 public class TestXmlIoc {
 	private static Logger log = LoggerFactory.getLogger(TestXmlIoc.class);
@@ -61,13 +62,18 @@ public class TestXmlIoc {
 				.getBean("collectionService2");
 		List<Object> list = collectionService.getList();
 		Assert.assertThat(list.size(), greaterThan(2));
-		list = (List<Object>) list.get(2);
-		Assert.assertThat(list.size(), greaterThan(1));
-		log.debug(list.toString());
-		
-		// set赋值
-		Set<Integer> set = collectionService.getSet();
+		Set<String> set = (Set<String>) list.get(2);
 		Assert.assertThat(set.size(), is(2));
 		log.debug(set.toString());
+
+		// set赋值
+		Set<Integer> set1 = collectionService.getSet();
+		Assert.assertThat(set1.size(), is(2));
+		log.debug(set1.toString());
+	}
+
+	@Test(expected = BeanDefinitionParsingException.class)
+	public void testIdDuplicate() {
+		new XmlApplicationContext("firefly2.xml");
 	}
 }
