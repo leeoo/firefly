@@ -27,7 +27,7 @@
 						<group ref="bean:propertyElements"></group>
 						<attribute name="key" />
 						<attribute name="value" />
-						<attribute name="value-type" />
+						<attribute name="type" />
 					</complexType>
 				</element>
 			</sequence>
