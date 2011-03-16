@@ -21,7 +21,7 @@ abstract public class Cast {
 			ret = Byte.parseByte(value);
 		} else {
 			if (VerifyUtils.isNumeric(value))
-				ret = new Integer(value);
+				ret = Integer.parseInt(value);
 			else
 				ret = value;
 		}
@@ -32,24 +32,24 @@ abstract public class Cast {
 	public static <T> T convert(String value, String argsType) {
 		Object ret = null;
 		if ("byte".equals(argsType) || "java.lang.Byte".equals(argsType))
-			ret = new Byte(value);
+			ret = Byte.parseByte(value);
 		else if ("short".equals(argsType) || "java.lang.Short".equals(argsType))
-			ret = new Short(value);
+			ret = Short.parseShort(value);
 		else if ("int".equals(argsType) || "java.lang.Integer".equals(argsType))
-			ret = new Integer(value);
+			ret = Integer.parseInt(value);
 		else if ("long".equals(argsType) || "java.lang.Long".equals(argsType))
-			ret = new Long(value);
+			ret = Long.parseLong(value);
 		else if ("float".equals(argsType) || "java.lang.Float".equals(argsType))
-			ret = new Float(value);
+			ret = Float.parseFloat(value);
 		else if ("double".equals(argsType)
 				|| "java.lang.Double".equals(argsType))
-			ret = new Double(value);
+			ret = Double.parseDouble(value);
 		else if ("boolean".equals(argsType)
 				|| "java.lang.Boolean".equals(argsType))
-			ret = new Boolean(value);
+			ret = Boolean.parseBoolean(value);
 		else {
 			if (VerifyUtils.isNumeric(value))
-				ret = new Integer(value);
+				ret = Integer.parseInt(value);
 			else
 				ret = value;
 		}
