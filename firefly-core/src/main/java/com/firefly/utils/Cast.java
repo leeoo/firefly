@@ -56,8 +56,12 @@ abstract public class Cast {
 			ret = new Double(value);
 		else if ("java.lang.Boolean".equals(argsType))
 			ret = new Boolean(value);
-		else
-			ret = value;
+		else {
+			if (VerifyUtils.isNumeric(value))
+				ret = new Integer(value);
+			else
+				ret = value;
+		}
 		return (T) ret;
 	}
 }

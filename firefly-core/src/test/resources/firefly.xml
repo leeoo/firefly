@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://code.google.com/p/firefly/beans" 
+<beans xmlns="http://code.google.com/p/firefly/beans"
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		xsi:schemaLocation="http://code.google.com/p/firefly/beans http://firefly.googlecode.com/files/beans.xsd">
 	<bean id="person" class="test.component3.Person">
@@ -29,7 +29,7 @@
 			</list>
 		</property>
 	</bean>
-	
+
 	<bean id="collectionService" class="test.component3.CollectionService">
 		<property name="list">
 			<list>
@@ -38,7 +38,7 @@
 			</list>
 		</property>
 	</bean>
-	
+
 	<bean id="collectionService2" class="test.component3.CollectionService">
 		<property name="list">
 			<list>
@@ -55,9 +55,9 @@
 			<list>
 				<value type="int">3</value>
 				<value type="int">3</value>
-				<value type="int">4</value>
+				<value>4</value>
 			</list>
 		</property>
 	</bean>
-	
+
 </beans>
