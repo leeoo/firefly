@@ -70,6 +70,10 @@
 				<element ref="bean:bean"></element>
 			</sequence>
 		</complexType>
+		<unique name="idUnique">
+			<selector xpath="bean:bean"></selector>
+			<field xpath="@id"></field>
+		</unique>
 	</element>
 
 	<group name="collectionElements">
