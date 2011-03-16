@@ -29,7 +29,7 @@ public class TestConvertUtils {
 	}
 	
 	@Test
-	public void testConvertInteger() {
+	public void testAutoConvertLong() {
 		Long x = ConvertUtils.convert(String.valueOf(10000000000L), "");
 		Assert.assertThat(x, is(10000000000L));
 	}
