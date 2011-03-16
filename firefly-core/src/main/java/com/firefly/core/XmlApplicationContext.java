@@ -108,7 +108,7 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param value
 	 *            属性值的元信息
 	 * @param method
@@ -159,7 +159,7 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 			return null;
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	private Collection getCollectionObj(Class<?> clazz) {
 		if (clazz.isInterface()) {
 			if (clazz.isAssignableFrom(List.class))
