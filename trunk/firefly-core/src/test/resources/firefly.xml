@@ -69,5 +69,15 @@
 			</list>
 		</property>
 	</bean>
+	
+	<bean id="collectionService4" class="test.component3.CollectionService">
+		<property name="intArray">
+			<list>
+				<value>1022</value>
+				<value>1032</value>
+				<value>1042</value>
+			</list>
+		</property>
+	</bean>
 
 </beans>

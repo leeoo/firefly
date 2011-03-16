@@ -7,6 +7,15 @@ public class CollectionService {
 	private LinkedList<Object> list;
 	private Set<Integer> set;
 	private String[] strArray;
+	private int[] intArray;
+
+	public int[] getIntArray() {
+		return intArray;
+	}
+
+	public void setIntArray(int[] intArray) {
+		this.intArray = intArray;
+	}
 
 	public String[] getStrArray() {
 		return strArray;

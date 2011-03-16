@@ -76,6 +76,11 @@ public class TestXmlIoc {
 		String[] strArray = collectionService.getStrArray();
 		Assert.assertThat(strArray.length, greaterThan(0));
 		log.debug(Arrays.toString(strArray));
+
+		collectionService = xmlApplicationContext.getBean("collectionService4");
+		int[] intArray = collectionService.getIntArray();
+		Assert.assertThat(intArray.length, greaterThan(0));
+		log.debug(Arrays.toString(intArray));
 	}
 
 	@Test(expected = ClassCastException.class)
