@@ -6,6 +6,15 @@ import java.util.Set;
 public class CollectionService {
 	private LinkedList<Object> list;
 	private Set<Integer> set;
+	private String[] strArray;
+
+	public String[] getStrArray() {
+		return strArray;
+	}
+
+	public void setStrArray(String[] strArray) {
+		this.strArray = strArray;
+	}
 
 	public LinkedList<Object> getList() {
 		return list;
@@ -22,6 +31,5 @@ public class CollectionService {
 	public void setSet(Set<Integer> set) {
 		this.set = set;
 	}
-	
-	
+
 }

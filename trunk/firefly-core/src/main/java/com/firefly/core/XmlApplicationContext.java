@@ -89,7 +89,8 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 			for (Method method : ReflectUtils.getSetterMethods(clazz)) {
 				String methodName = method.getName();
 				String propertyName = Character.toLowerCase(methodName
-						.charAt(3)) + methodName.substring(4);
+						.charAt(3))
+						+ methodName.substring(4);
 				Object value = properties.get(propertyName);
 				if (value != null) {
 					try {
@@ -115,13 +116,13 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 	 *            该属性的set方法
 	 * @return
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings("unchecked")
 	private Object getInjectArg(Object value, Method method) {
 		if (value instanceof ManagedValue) { // value
 			ManagedValue managedValue = (ManagedValue) value;
 			String typeName = VerifyUtils.isEmpty(managedValue.getTypeName()) ? method
-					.getParameterTypes()[0].getName() : managedValue
-					.getTypeName();
+					.getParameterTypes()[0].getName()
+					: managedValue.getTypeName();
 			log.debug("value type [{}]", typeName);
 			return Cast.convert(managedValue.getValue(), typeName);
 		} else if (value instanceof ManagedRef) { // ref
@@ -147,6 +148,8 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
+			} else if (setterParamType.isArray()) { // 判断注入的是数组类型
+				collection = new ArrayList();
 			} else { // 根据set方法参数类型获取list类型
 				collection = getCollectionObj(setterParamType);
 			}
@@ -155,12 +158,16 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 				Object listValue = getInjectArg(item, method);
 				collection.add(listValue);
 			}
-			return collection;
+			if (setterParamType.isArray()) { //TODO 数组类型，需要修改成各种类型自判断的
+				return collection.toArray(new String[0]);
+			} else {
+				return collection;
+			}
 		} else
 			return null;
 	}
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
+	@SuppressWarnings("unchecked")
 	private Collection getCollectionObj(Class<?> clazz) {
 		if (clazz.isInterface()) {
 			if (clazz.isAssignableFrom(List.class))

@@ -2,6 +2,8 @@ package test.ioc;
 
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import org.junit.Assert;
@@ -67,11 +69,21 @@ public class TestXmlIoc {
 		log.debug(set1.toString());
 	}
 
-	@Test(expected=ClassCastException.class)
+	@Test
+	public void testArrayInject() {
+		CollectionService collectionService = xmlApplicationContext
+				.getBean("collectionService3");
+		String[] strArray = collectionService.getStrArray();
+		Assert.assertThat(strArray.length, greaterThan(0));
+		log.debug(Arrays.toString(strArray));
+	}
+
+	@Test(expected = ClassCastException.class)
 	public void testIdTypeError() {
 		ApplicationContext context = new XmlApplicationContext("firefly2.xml");
-		CollectionService collectionService = context.getBean("collectionService");
-		for(Integer i : collectionService.getSet())
+		CollectionService collectionService = context
+				.getBean("collectionService");
+		for (Integer i : collectionService.getSet())
 			i++;
 
 	}
