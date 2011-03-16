@@ -27,6 +27,12 @@ public class TestConvertUtils {
 		Integer ret = (Integer)method.invoke(this, obj);
 		Assert.assertThat(ret, is(2));
 	}
+	
+	@Test
+	public void testConvertInteger() {
+		Long x = ConvertUtils.convert(String.valueOf(10000000000L), "");
+		Assert.assertThat(x, is(10000000000L));
+	}
 
 	public int setArray(String[] arr) {
 		log.debug(Arrays.toString(arr));
