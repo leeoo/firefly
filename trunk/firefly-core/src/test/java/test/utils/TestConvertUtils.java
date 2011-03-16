@@ -1,43 +1,36 @@
 package test.utils;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import static org.hamcrest.Matchers.*;
+import org.junit.Assert;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.firefly.utils.ConvertUtils;
 
 public class TestConvertUtils {
-
+	private static Logger log = LoggerFactory.getLogger(TestConvertUtils.class);
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static void main(String[] args) throws SecurityException,
-			NoSuchMethodException, IllegalArgumentException,
-			IllegalAccessException, InvocationTargetException,
-			ClassNotFoundException {
+	@Test
+	public void testConvertArray() throws Exception {
 		Collection collection = new ArrayList();
 		collection.add("arr1");
 		collection.add("arr2");
-		TestConvertUtils arrayUtils = new TestConvertUtils();
 		Method method = TestConvertUtils.class.getMethod("setArray",
 				String[].class);
-		System.out.println(method.getName());
 		Object obj = ConvertUtils.convert(collection,
 				method.getParameterTypes()[0]);
-		method.invoke(arrayUtils, obj);
-
-		System.out.println(String[].class.getName());
-		System.out.println(String.class.getName());
-
-		Class<?> clazz = TestConvertUtils.class.getClassLoader().loadClass(
-				"java.lang.String");
-		obj = ConvertUtils.convert(collection,
-				Array.newInstance(clazz.getComponentType(), 0).getClass());
-		method.invoke(arrayUtils, obj);
+		Integer ret = (Integer)method.invoke(this, obj);
+		Assert.assertThat(ret, is(2));
 	}
 
-	public void setArray(String[] arr) {
-		System.out.println(Arrays.toString(arr));
+	public int setArray(String[] arr) {
+		log.debug(Arrays.toString(arr));
+		return arr.length;
 	}
 
 }
