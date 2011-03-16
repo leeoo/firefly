@@ -24,13 +24,26 @@
 			<sequence>
 				<element name="entry" minOccurs="0" maxOccurs="unbounded">
 					<complexType>
-						<group ref="bean:propertyElements"></group>
+						<sequence>
+							<element name="key" minOccurs="0" maxOccurs="1">
+								<complexType mixed="true">
+									<group ref="bean:propertyElements"></group>
+								</complexType>
+							</element>
+							<element name="value" minOccurs="0" maxOccurs="1">
+								<complexType mixed="true">
+									<group ref="bean:propertyElements"></group>
+								</complexType>
+							</element>
+						</sequence>
 						<attribute name="key" />
+						<attribute name="key-ref" />
 						<attribute name="value" />
-						<attribute name="type" />
+						<attribute name="value-ref" />
 					</complexType>
 				</element>
 			</sequence>
+			<attribute name="type" />
 		</complexType>
 	</element>
 	<element name="bean">
@@ -49,7 +62,7 @@
 			<attribute name="class" />
 		</complexType>
 	</element>
-	
+
 	<!-- 顶层元素 -->
 	<element name="beans">
 		<complexType>
@@ -58,7 +71,7 @@
 			</sequence>
 		</complexType>
 	</element>
-	
+
 	<group name="collectionElements">
 		<sequence>
 			<choice minOccurs="0" maxOccurs="unbounded">
