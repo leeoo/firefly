@@ -65,7 +65,7 @@
 			<list>
 				<value>str1</value>
 				<value>str2</value>
-				<value>str3</value>
+				<value type="java.lang.String" >3</value>
 			</list>
 		</property>
 	</bean>
