@@ -10,6 +10,13 @@
 				<value>s2</value>
 			</list>
 		</property>
+		<property name="set">
+			<list>
+				<value type="int">3</value>
+				<value type="int">3</value>
+				<value type="java.lang.String">4sss</value>
+			</list>
+		</property>
 	</bean>
 
 	<!-- <bean id="collectionService" class="test.component3.CollectionService">
