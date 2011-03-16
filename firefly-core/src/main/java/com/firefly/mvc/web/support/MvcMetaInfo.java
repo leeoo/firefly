@@ -3,6 +3,7 @@ package com.firefly.mvc.web.support;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,9 +14,9 @@ import com.firefly.annotation.HttpParam;
 
 /**
  * 保存请求key对应的对象
- *
+ * 
  * @author alvinqiu
- *
+ * 
  */
 public class MvcMetaInfo implements Comparable<MvcMetaInfo> {
 	private final Object object;
@@ -57,21 +58,18 @@ public class MvcMetaInfo implements Comparable<MvcMetaInfo> {
 		Method[] paramMethods = paraType.getMethods();
 
 		for (Method paramMethod : paramMethods) {
-			String paramName = null;
+			if (!paramMethod.getName().startsWith("set")
+					|| Modifier.isStatic(method.getModifiers())
+					|| !method.getReturnType().equals(Void.TYPE)
+					|| method.getParameterTypes().length != 1) {
+				continue;
+			}
+			
 			// 根据javabean里面的set方法取出对应的属性
-			if (paramMethod.getName().startsWith("set")) {
-				paramName = String.valueOf(paramMethod.getName().charAt(3))
-						.toLowerCase()
-						+ paramMethod.getName().substring(4);
-			} else if (paramMethod.getName().startsWith("is")) {
-				paramName = String.valueOf(paramMethod.getName().charAt(2))
-						.toLowerCase()
-						+ paramMethod.getName().substring(3);
-			}
-			if (paramName != null) {
-				paramMethod.setAccessible(true);
-				beanSetMethod.put(paramName, paramMethod);
-			}
+			String paramName = String.valueOf(paramMethod.getName().charAt(3))
+					.toLowerCase() + paramMethod.getName().substring(4);
+			paramMethod.setAccessible(true);
+			beanSetMethod.put(paramName, paramMethod);
 		}
 		return beanSetMethod;
 	}

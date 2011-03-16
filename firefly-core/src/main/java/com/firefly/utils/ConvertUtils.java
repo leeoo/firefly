@@ -1,6 +1,10 @@
 package com.firefly.utils;
 
-abstract public class Cast {
+import java.lang.reflect.Array;
+import java.util.Collection;
+import java.util.Iterator;
+
+abstract public class ConvertUtils {
 
 	@SuppressWarnings("unchecked")
 	public static <T> T convert(String value, Class<T> c) {
@@ -55,4 +59,28 @@ abstract public class Cast {
 		}
 		return (T) ret;
 	}
+	
+	/**
+	 * 把集合转换为指定类型的数组
+	 * @param collection
+	 * @param type
+	 * @return
+	 */
+	public static Object convert(Collection<?> collection, Class<?> arrayType) {
+		if(!arrayType.isArray())
+			throw new IllegalArgumentException("type is not a array");
+        int size = collection.size();
+        // Allocate a new Array
+        Iterator<?> iterator = collection.iterator();
+        Class<?> componentType = arrayType.getComponentType();
+        Object newArray = Array.newInstance(componentType, size);
+
+        // Convert and set each element in the new Array
+        for (int i = 0; i < size; i++) {
+            Object element =  iterator.next();
+            Array.set(newArray, i, element);
+        }
+
+        return newArray;
+    }
 }
