@@ -122,6 +122,7 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 			String typeName = VerifyUtils.isEmpty(managedValue.getTypeName()) ? method
 					.getParameterTypes()[0].getName() : managedValue
 					.getTypeName();
+			log.debug("value type [{}]", typeName);
 			return Cast.convert(managedValue.getValue(), typeName);
 		} else if (value instanceof ManagedRef) { // ref
 			ManagedRef ref = (ManagedRef) value;

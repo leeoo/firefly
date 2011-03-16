@@ -1,6 +1,7 @@
 package test.ioc;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
 import java.util.List;
 import java.util.Set;
 import org.junit.Assert;
@@ -66,8 +67,12 @@ public class TestXmlIoc {
 		log.debug(set1.toString());
 	}
 
-//	@Test(expected = BeanDefinitionParsingException.class)
-//	public void testIdDuplicate() {
-//		new XmlApplicationContext("firefly2.xml");
-//	}
+	@Test(expected=ClassCastException.class)
+	public void testIdTypeError() {
+		ApplicationContext context = new XmlApplicationContext("firefly2.xml");
+		CollectionService collectionService = context.getBean("collectionService");
+		for(Integer i : collectionService.getSet())
+			i++;
+
+	}
 }
