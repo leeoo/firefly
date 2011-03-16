@@ -3,7 +3,7 @@ package com.firefly.mvc.web.support;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
-import com.firefly.utils.Cast;
+import com.firefly.utils.ConvertUtils;
 
 public class ParamMetaInfo {
 	private final Class<?> paramClass;
@@ -33,7 +33,7 @@ public class ParamMetaInfo {
 			Method m = beanSetMethod.get(key);
 			if (m != null) {
 				Class<?> p = m.getParameterTypes()[0];
-				m.invoke(o, Cast.convert(value, p));
+				m.invoke(o, ConvertUtils.convert(value, p));
 			}
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();

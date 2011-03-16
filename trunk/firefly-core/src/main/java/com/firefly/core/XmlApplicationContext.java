@@ -22,7 +22,7 @@ import com.firefly.core.support.xml.ManagedRef;
 import com.firefly.core.support.xml.ManagedValue;
 import com.firefly.core.support.xml.XmlBeanDefinition;
 import com.firefly.core.support.xml.XmlBeanReader;
-import com.firefly.utils.Cast;
+import com.firefly.utils.ConvertUtils;
 import com.firefly.utils.ReflectUtils;
 import com.firefly.utils.VerifyUtils;
 
@@ -89,8 +89,7 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 			for (Method method : ReflectUtils.getSetterMethods(clazz)) {
 				String methodName = method.getName();
 				String propertyName = Character.toLowerCase(methodName
-						.charAt(3))
-						+ methodName.substring(4);
+						.charAt(3)) + methodName.substring(4);
 				Object value = properties.get(propertyName);
 				if (value != null) {
 					try {
@@ -109,22 +108,22 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 	}
 
 	/**
-	 *
+	 * 
 	 * @param value
 	 *            属性值的元信息
 	 * @param method
 	 *            该属性的set方法
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Object getInjectArg(Object value, Method method) {
 		if (value instanceof ManagedValue) { // value
 			ManagedValue managedValue = (ManagedValue) value;
 			String typeName = VerifyUtils.isEmpty(managedValue.getTypeName()) ? method
-					.getParameterTypes()[0].getName()
-					: managedValue.getTypeName();
+					.getParameterTypes()[0].getName() : managedValue
+					.getTypeName();
 			log.debug("value type [{}]", typeName);
-			return Cast.convert(managedValue.getValue(), typeName);
+			return ConvertUtils.convert(managedValue.getValue(), typeName);
 		} else if (value instanceof ManagedRef) { // ref
 			ManagedRef ref = (ManagedRef) value;
 			return map.get(ref.getBeanName());
@@ -136,30 +135,33 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 			Collection collection = null;
 			log.debug("setter param type [{}]", setterParamType.getName());
 
-			if (VerifyUtils.isNotEmpty(values.getTypeName())) { // 指定了list的类型
-				try {
-					collection = (Collection) XmlApplicationContext.class
-							.getClassLoader().loadClass(values.getTypeName())
-							.newInstance();
-				} catch (InstantiationException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}
-			} else if (setterParamType.isArray()) { // 判断注入的是数组类型
+			if (setterParamType.isArray()) { // 判断注入的是数组类型
 				collection = new ArrayList();
-			} else { // 根据set方法参数类型获取list类型
-				collection = getCollectionObj(setterParamType);
+			} else {
+				if (VerifyUtils.isNotEmpty(values.getTypeName())) { // 指定了list的类型
+					try {
+						collection = (Collection) XmlApplicationContext.class
+								.getClassLoader()
+								.loadClass(values.getTypeName()).newInstance();
+					} catch (InstantiationException e) {
+						e.printStackTrace();
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					} catch (ClassNotFoundException e) {
+						e.printStackTrace();
+					}
+				} else { // 根据set方法参数类型获取list类型
+					collection = getCollectionObj(setterParamType);
+				}
 			}
 
 			for (Object item : values) {
 				Object listValue = getInjectArg(item, method);
 				collection.add(listValue);
 			}
-			if (setterParamType.isArray()) { //TODO 数组类型，需要修改成各种类型自判断的
-				return collection.toArray(new String[0]);
+
+			if (setterParamType.isArray()) {
+				return ConvertUtils.convert(collection, setterParamType);
 			} else {
 				return collection;
 			}
@@ -167,7 +169,7 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 			return null;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes" })
 	private Collection getCollectionObj(Class<?> clazz) {
 		if (clazz.isInterface()) {
 			if (clazz.isAssignableFrom(List.class))
