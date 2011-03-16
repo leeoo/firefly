@@ -1,23 +1,17 @@
 package test.ioc;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-
+import static org.hamcrest.Matchers.*;
 import java.util.List;
 import java.util.Set;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import test.component3.CollectionService;
 import test.component3.Person;
 import test.component3.PersonService;
-
 import com.firefly.core.ApplicationContext;
 import com.firefly.core.XmlApplicationContext;
-import com.firefly.core.support.exception.BeanDefinitionParsingException;
 
 public class TestXmlIoc {
 	private static Logger log = LoggerFactory.getLogger(TestXmlIoc.class);
@@ -72,8 +66,8 @@ public class TestXmlIoc {
 		log.debug(set1.toString());
 	}
 
-	@Test(expected = BeanDefinitionParsingException.class)
-	public void testIdDuplicate() {
-		new XmlApplicationContext("firefly2.xml");
-	}
+//	@Test(expected = BeanDefinitionParsingException.class)
+//	public void testIdDuplicate() {
+//		new XmlApplicationContext("firefly2.xml");
+//	}
 }
