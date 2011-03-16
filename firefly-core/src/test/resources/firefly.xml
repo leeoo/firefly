@@ -60,4 +60,14 @@
 		</property>
 	</bean>
 
+	<bean id="collectionService3" class="test.component3.CollectionService">
+		<property name="strArray">
+			<list>
+				<value>str1</value>
+				<value>str2</value>
+				<value>str3</value>
+			</list>
+		</property>
+	</bean>
+
 </beans>
