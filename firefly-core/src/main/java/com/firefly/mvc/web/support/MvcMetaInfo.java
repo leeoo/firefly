@@ -10,15 +10,19 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.firefly.annotation.HttpParam;
 
 /**
  * 保存请求key对应的对象
- * 
+ *
  * @author alvinqiu
- * 
+ *
  */
 public class MvcMetaInfo implements Comparable<MvcMetaInfo> {
+	private static Logger log = LoggerFactory.getLogger(MvcMetaInfo.class);
 	private final Object object;
 	private final Method method;
 	private final ParamMetaInfo[] paramMetaInfos;
@@ -58,19 +62,21 @@ public class MvcMetaInfo implements Comparable<MvcMetaInfo> {
 		Method[] paramMethods = paraType.getMethods();
 
 		for (Method paramMethod : paramMethods) {
+
 			if (!paramMethod.getName().startsWith("set")
-					|| Modifier.isStatic(method.getModifiers())
-					|| !method.getReturnType().equals(Void.TYPE)
-					|| method.getParameterTypes().length != 1) {
+					|| Modifier.isStatic(paramMethod.getModifiers())
+					|| !paramMethod.getReturnType().equals(Void.TYPE)
+					|| paramMethod.getParameterTypes().length != 1) {
 				continue;
 			}
-			
+//			log.debug("paramMethod [{}]", paramMethod.getName());
 			// 根据javabean里面的set方法取出对应的属性
 			String paramName = String.valueOf(paramMethod.getName().charAt(3))
 					.toLowerCase() + paramMethod.getName().substring(4);
 			paramMethod.setAccessible(true);
 			beanSetMethod.put(paramName, paramMethod);
 		}
+		log.debug(beanSetMethod.toString());
 		return beanSetMethod;
 	}
 
