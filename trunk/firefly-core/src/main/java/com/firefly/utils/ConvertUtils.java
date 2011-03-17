@@ -1,8 +1,18 @@
 package com.firefly.utils;
 
 import java.lang.reflect.Array;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Queue;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,7 +88,7 @@ abstract public class ConvertUtils {
 
 	/**
 	 * 把集合转换为指定类型的数组
-	 * 
+	 *
 	 * @param collection
 	 * @param type
 	 * @return
@@ -101,5 +111,38 @@ abstract public class ConvertUtils {
 		}
 
 		return newArray;
+	}
+
+	/**
+	 * 根据类型自动返回一个集合
+	 * @param clazz
+	 * @return
+	 */
+	@SuppressWarnings( { "rawtypes" })
+	public static Collection getCollectionObj(Class<?> clazz) {
+		if (clazz.isInterface()) {
+			if (clazz.isAssignableFrom(List.class))
+				return new ArrayList();
+			else if (clazz.isAssignableFrom(Set.class))
+				return new HashSet();
+			else if (clazz.isAssignableFrom(Queue.class))
+				return new ArrayDeque();
+			else if (clazz.isAssignableFrom(SortedSet.class))
+				return new TreeSet();
+			else if (clazz.isAssignableFrom(BlockingQueue.class))
+				return new LinkedBlockingDeque();
+			else
+				return null;
+		} else {
+			Collection collection = null;
+			try {
+				collection = (Collection) clazz.newInstance();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+			return collection;
+		}
 	}
 }

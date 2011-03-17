@@ -2,22 +2,13 @@ package com.firefly.core;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.firefly.core.support.BeanDefinition;
 import com.firefly.core.support.xml.ManagedArray;
 import com.firefly.core.support.xml.ManagedList;
@@ -156,7 +147,7 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 					e.printStackTrace();
 				}
 			} else { // 根据set方法参数类型获取list类型
-				collection = getCollectionObj(setterParamType);
+				collection = ConvertUtils.getCollectionObj(setterParamType);
 			}
 
 			for (Object item : values) {
@@ -177,33 +168,5 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 			return ConvertUtils.convert(collection, setterParamType);
 		} else
 			return null;
-	}
-
-	@SuppressWarnings( { "rawtypes" })
-	private Collection getCollectionObj(Class<?> clazz) {
-		if (clazz.isInterface()) {
-			if (clazz.isAssignableFrom(List.class))
-				return new ArrayList();
-			else if (clazz.isAssignableFrom(Set.class))
-				return new HashSet();
-			else if (clazz.isAssignableFrom(Queue.class))
-				return new ArrayDeque();
-			else if (clazz.isAssignableFrom(SortedSet.class))
-				return new TreeSet();
-			else if (clazz.isAssignableFrom(BlockingQueue.class))
-				return new LinkedBlockingDeque();
-			else
-				return null;
-		} else {
-			Collection collection = null;
-			try {
-				collection = (Collection) clazz.newInstance();
-			} catch (InstantiationException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			}
-			return collection;
-		}
 	}
 }
