@@ -7,8 +7,8 @@ import java.util.ArrayList;
  * @author 须俊杰
  * @date 2011-3-9
  */
-@SuppressWarnings("serial")
 public class ManagedList<T> extends ArrayList<T> {
+	private static final long serialVersionUID = -1889497225597681323L;
 	private String typeName;
 
 	public String getTypeName() {
@@ -19,5 +19,5 @@ public class ManagedList<T> extends ArrayList<T> {
 		this.typeName = typeName;
 	}
 
-	
+
 }
