@@ -1,15 +1,11 @@
 package com.firefly.core.support.xml.parse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import static com.firefly.core.support.xml.parse.XmlNodeConstants.*;
-import com.firefly.core.support.exception.BeanDefinitionParsingException;
 import com.firefly.core.support.xml.ManagedValue;
 import com.firefly.utils.dom.Dom;
 
-public class ValueNodeParser implements XmlNodeParser {
-	private static Logger log = LoggerFactory.getLogger(ValueNodeParser.class);
+public class ValueNodeParser extends AbstractXmlNodeParser implements XmlNodeParser {
 
 	@Override
 	public Object parse(Element ele, Dom dom) {
@@ -28,10 +24,5 @@ public class ValueNodeParser implements XmlNodeParser {
 		typedValue.setValue(value);
 		typedValue.setTypeName(typeName);
 		return typedValue;
-	}
-
-	protected void error(String msg) {
-		log.error(msg);
-		throw new BeanDefinitionParsingException(msg);
 	}
 }

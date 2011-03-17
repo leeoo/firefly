@@ -3,12 +3,9 @@ package com.firefly.core.support.xml.parse;
 import static com.firefly.core.support.xml.parse.XmlNodeConstants.*;
 import java.util.List;
 import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import com.firefly.core.support.exception.BeanDefinitionParsingException;
 import com.firefly.core.support.xml.ManagedRef;
 import com.firefly.core.support.xml.ManagedValue;
 import com.firefly.core.support.xml.XmlBeanDefinition;
@@ -18,9 +15,7 @@ import com.firefly.utils.ReflectUtils;
 import com.firefly.utils.StringUtils;
 import com.firefly.utils.dom.Dom;
 
-public class BeanNodeParser implements XmlNodeParser {
-
-	private static Logger log = LoggerFactory.getLogger(BeanNodeParser.class);
+public class BeanNodeParser extends AbstractXmlNodeParser implements XmlNodeParser {
 
 	@Override
 	public Object parse(Element ele, Dom dom) {
@@ -113,10 +108,5 @@ public class BeanNodeParser implements XmlNodeParser {
 			}
 		}
 		return xmlBeanDefinition;
-	}
-
-	protected void error(String msg) {
-		log.error(msg);
-		throw new BeanDefinitionParsingException(msg);
 	}
 }
