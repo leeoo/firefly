@@ -94,7 +94,7 @@
 		</property>
 	</bean>
 
-	<bean id="mapService" class="test.component3.MapService">
+	<!-- <bean id="mapService" class="test.component3.MapService">
 		<property name="map">
 			<map>
 				<entry key="1" value="www" ></entry>
@@ -141,6 +141,6 @@
 				</entry>
 			</map>
 		</property>
-	</bean>
+	</bean> -->
 
 </beans>
