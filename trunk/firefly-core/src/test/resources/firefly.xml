@@ -62,35 +62,35 @@
 
 	<bean id="collectionService3" class="test.component3.CollectionService">
 		<property name="strArray">
-			<list>
+			<array>
 				<value>str1</value>
 				<value>str2</value>
 				<value type="java.lang.String" >3</value>
-			</list>
+			</array>
 		</property>
 	</bean>
 
 	<bean id="collectionService4" class="test.component3.CollectionService">
 		<property name="intArray">
-			<list>
+			<array>
 				<value>1022</value>
 				<value>1032</value>
 				<value>1042</value>
-			</list>
+			</array>
 		</property>
 	</bean>
 
 	<bean id="collectionService5" class="test.component3.CollectionService">
 		<property name="objArray">
-			<list>
+			<array>
 				<value>1022</value>
 				<value>1032</value>
 				<value>dddddd</value>
-				<list>
+				<array>
 					<ref bean="person2" />
 					<value>10000000000</value>
-				</list>
-			</list>
+				</array>
+			</array>
 		</property>
 	</bean>
 
@@ -118,9 +118,11 @@
 				</entry>
 				<entry>
 					<key>
-						<list>
+						<array>
 							<value>sssss</value>
-						</list>
+							<value>sssss3</value>
+							<value>sssss4</value>
+						</array>
 					</key>
 					<value>
 						<map>

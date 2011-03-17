@@ -14,9 +14,12 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.firefly.core.support.BeanDefinition;
+import com.firefly.core.support.xml.ManagedArray;
 import com.firefly.core.support.xml.ManagedList;
 import com.firefly.core.support.xml.ManagedRef;
 import com.firefly.core.support.xml.ManagedValue;
@@ -26,6 +29,11 @@ import com.firefly.utils.ConvertUtils;
 import com.firefly.utils.ReflectUtils;
 import com.firefly.utils.VerifyUtils;
 
+/**
+ *
+ * @author 须俊杰, alvinqiu
+ *
+ */
 public class XmlApplicationContext extends AbstractApplicationContext {
 
 	private static Logger log = LoggerFactory
@@ -89,7 +97,8 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 			for (Method method : ReflectUtils.getSetterMethods(clazz)) {
 				String methodName = method.getName();
 				String propertyName = Character.toLowerCase(methodName
-						.charAt(3)) + methodName.substring(4);
+						.charAt(3))
+						+ methodName.substring(4);
 				Object value = properties.get(propertyName);
 				if (value != null) {
 					try {
@@ -108,20 +117,20 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param value
 	 *            属性值的元信息
 	 * @param method
 	 *            该属性的set方法
 	 * @return
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings( { "unchecked", "rawtypes" })
 	private Object getInjectArg(Object value, Method method) {
 		if (value instanceof ManagedValue) { // value
 			ManagedValue managedValue = (ManagedValue) value;
 			String typeName = VerifyUtils.isEmpty(managedValue.getTypeName()) ? method
-					.getParameterTypes()[0].getName() : managedValue
-					.getTypeName();
+					.getParameterTypes()[0].getName()
+					: managedValue.getTypeName();
 			log.debug("value type [{}]", typeName);
 			return ConvertUtils.convert(managedValue.getValue(), typeName);
 		} else if (value instanceof ManagedRef) { // ref
@@ -131,28 +140,23 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 			log.debug("xml inject method [{}]", method.getName());
 			Class<?> setterParamType = method.getParameterTypes()[0];
 			ManagedList<Object> values = (ManagedList<Object>) value;
-
 			Collection collection = null;
 			log.debug("setter param type [{}]", setterParamType.getName());
 
-			if (setterParamType.isArray()) { // 判断注入的是数组类型
-				collection = new ArrayList();
-			} else {
-				if (VerifyUtils.isNotEmpty(values.getTypeName())) { // 指定了list的类型
-					try {
-						collection = (Collection) XmlApplicationContext.class
-								.getClassLoader()
-								.loadClass(values.getTypeName()).newInstance();
-					} catch (InstantiationException e) {
-						e.printStackTrace();
-					} catch (IllegalAccessException e) {
-						e.printStackTrace();
-					} catch (ClassNotFoundException e) {
-						e.printStackTrace();
-					}
-				} else { // 根据set方法参数类型获取list类型
-					collection = getCollectionObj(setterParamType);
+			if (VerifyUtils.isNotEmpty(values.getTypeName())) { // 指定了list的类型
+				try {
+					collection = (Collection) XmlApplicationContext.class
+							.getClassLoader().loadClass(values.getTypeName())
+							.newInstance();
+				} catch (InstantiationException e) {
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
 				}
+			} else { // 根据set方法参数类型获取list类型
+				collection = getCollectionObj(setterParamType);
 			}
 
 			for (Object item : values) {
@@ -160,16 +164,22 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 				collection.add(listValue);
 			}
 
-			if (setterParamType.isArray()) {
-				return ConvertUtils.convert(collection, setterParamType);
-			} else {
-				return collection;
+			return collection;
+		} else if (value instanceof ManagedArray) { // array
+			log.debug("xml inject method [{}]", method.getName());
+			Class<?> setterParamType = method.getParameterTypes()[0];
+			ManagedArray<Object> values = (ManagedArray<Object>) value;
+			Collection collection = new ArrayList();
+			for (Object item : values) {
+				Object listValue = getInjectArg(item, method);
+				collection.add(listValue);
 			}
+			return ConvertUtils.convert(collection, setterParamType);
 		} else
 			return null;
 	}
 
-	@SuppressWarnings({ "rawtypes" })
+	@SuppressWarnings( { "rawtypes" })
 	private Collection getCollectionObj(Class<?> clazz) {
 		if (clazz.isInterface()) {
 			if (clazz.isAssignableFrom(List.class))
