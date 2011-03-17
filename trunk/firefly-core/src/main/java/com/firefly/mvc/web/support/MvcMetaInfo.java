@@ -69,10 +69,11 @@ public class MvcMetaInfo implements Comparable<MvcMetaInfo> {
 					|| paramMethod.getParameterTypes().length != 1) {
 				continue;
 			}
-//			log.debug("paramMethod [{}]", paramMethod.getName());
+			// log.debug("paramMethod [{}]", paramMethod.getName());
 			// 根据javabean里面的set方法取出对应的属性
-			String paramName = String.valueOf(paramMethod.getName().charAt(3))
-					.toLowerCase() + paramMethod.getName().substring(4);
+			String paramName = Character.toLowerCase(paramMethod.getName()
+					.charAt(3))
+					+ paramMethod.getName().substring(4);
 			paramMethod.setAccessible(true);
 			beanSetMethod.put(paramName, paramMethod);
 		}
