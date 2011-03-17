@@ -16,7 +16,7 @@ import org.w3c.dom.Element;
 import com.firefly.core.support.BeanDefinition;
 import com.firefly.core.support.BeanReader;
 import com.firefly.core.support.exception.BeanDefinitionParsingException;
-import com.firefly.core.support.xml.parse.XmlNodeParserFactory;
+import com.firefly.core.support.xml.parse.XmlNodeStateMachine;
 import com.firefly.utils.VerifyUtils;
 import com.firefly.utils.dom.DefaultDom;
 import com.firefly.utils.dom.Dom;
@@ -57,8 +57,8 @@ public class XmlBeanReader implements BeanReader {
 						error("id: " + id + " duplicate error");
 					idSet.add(id);
 				}
-				beanDefinitions.add((BeanDefinition) XmlNodeParserFactory
-						.getParser(BEAN_ELEMENT).parse(ele, dom));
+				beanDefinitions.add((BeanDefinition) XmlNodeStateMachine
+						.stateProcessor(ele, dom));
 			}
 		}
 	}
