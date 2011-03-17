@@ -3,27 +3,9 @@ package test.component3;
 import java.util.LinkedList;
 import java.util.Set;
 
-public class CollectionService {
+public class CollectionService extends ArrayService {
 	private LinkedList<Object> list;
 	private Set<Integer> set;
-	private String[] strArray;
-	private int[] intArray;
-
-	public int[] getIntArray() {
-		return intArray;
-	}
-
-	public void setIntArray(int[] intArray) {
-		this.intArray = intArray;
-	}
-
-	public String[] getStrArray() {
-		return strArray;
-	}
-
-	public void setStrArray(String[] strArray) {
-		this.strArray = strArray;
-	}
 
 	public LinkedList<Object> getList() {
 		return list;

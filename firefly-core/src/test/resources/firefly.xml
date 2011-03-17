@@ -69,13 +69,27 @@
 			</list>
 		</property>
 	</bean>
-	
+
 	<bean id="collectionService4" class="test.component3.CollectionService">
 		<property name="intArray">
 			<list>
 				<value>1022</value>
 				<value>1032</value>
 				<value>1042</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="collectionService5" class="test.component3.CollectionService">
+		<property name="objArray">
+			<list>
+				<value>1022</value>
+				<value>1032</value>
+				<value>dddddd</value>
+				<list>
+					<ref bean="person2" />
+					<value>10000000000</value>
+				</list>
 			</list>
 		</property>
 	</bean>

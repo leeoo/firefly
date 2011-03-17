@@ -81,6 +81,13 @@ public class TestXmlIoc {
 		int[] intArray = collectionService.getIntArray();
 		Assert.assertThat(intArray.length, greaterThan(0));
 		log.debug(Arrays.toString(intArray));
+
+		collectionService = xmlApplicationContext.getBean("collectionService5");
+		Object[] obj = collectionService.getObjArray();
+		Assert.assertThat(obj.length, greaterThan(0));
+		Object[] obj2 = (Object[])obj[3];
+		Assert.assertThat(obj2.length, greaterThan(0));
+		Assert.assertThat((Long)obj2[1], is(10000000000L));
 	}
 
 	@Test(expected = ClassCastException.class)

@@ -13,7 +13,7 @@ import com.firefly.utils.ConvertUtils;
 
 public class TestConvertUtils {
 	private static Logger log = LoggerFactory.getLogger(TestConvertUtils.class);
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void testConvertArray() throws Exception {
@@ -27,10 +27,10 @@ public class TestConvertUtils {
 		Integer ret = (Integer)method.invoke(this, obj);
 		Assert.assertThat(ret, is(2));
 	}
-	
+
 	@Test
 	public void testAutoConvertLong() {
-		Long x = ConvertUtils.convert(String.valueOf(10000000000L), "");
+		Long x = ConvertUtils.convert("10000000000", "");
 		Assert.assertThat(x, is(10000000000L));
 	}
 
