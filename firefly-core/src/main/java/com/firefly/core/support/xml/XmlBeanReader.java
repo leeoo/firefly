@@ -1,18 +1,23 @@
 package com.firefly.core.support.xml;
 
-import static com.firefly.core.support.xml.parse.XmlNodeConstants.*;
+import static com.firefly.core.support.xml.parse.XmlNodeConstants.BEAN_ELEMENT;
+import static com.firefly.core.support.xml.parse.XmlNodeConstants.ID_ATTRIBUTE;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
 import com.firefly.core.support.BeanDefinition;
 import com.firefly.core.support.BeanReader;
 import com.firefly.core.support.exception.BeanDefinitionParsingException;
 import com.firefly.core.support.xml.parse.XmlNodeParserFactory;
+import com.firefly.utils.VerifyUtils;
 import com.firefly.utils.dom.DefaultDom;
 import com.firefly.utils.dom.Dom;
 
@@ -46,6 +51,12 @@ public class XmlBeanReader implements BeanReader {
 		// 迭代beans列表
 		if (beansList != null) {
 			for (Element ele : beansList) {
+				String id = ele.getAttribute(ID_ATTRIBUTE);
+				if (VerifyUtils.isNotEmpty(id)) {
+					if (idSet.contains(id))
+						error("id: " + id + " duplicate error");
+					idSet.add(id);
+				}
 				beanDefinitions.add((BeanDefinition) XmlNodeParserFactory
 						.getParser(BEAN_ELEMENT).parse(ele, dom));
 			}
