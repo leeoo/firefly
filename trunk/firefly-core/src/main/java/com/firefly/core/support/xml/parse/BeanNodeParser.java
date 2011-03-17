@@ -26,12 +26,6 @@ public class BeanNodeParser implements XmlNodeParser {
 	public Object parse(Element ele, Dom dom) {
 		// 获取基本属性
 		String id = ele.getAttribute(ID_ATTRIBUTE);
-//		if (VerifyUtils.isNotEmpty(id)) {
-//			if (idSet.contains(id))
-//				error("id: " + id + " duplicate error");
-//			idSet.add(id);
-//		}
-
 		String className = ele.getAttribute(CLASS_ATTRIBUTE);
 		XmlBeanDefinition xmlBeanDefinition = new XmlGenericBeanDefinition();
 		xmlBeanDefinition.setId(id);
