@@ -27,12 +27,12 @@
 						<sequence>
 							<element name="key" minOccurs="0" maxOccurs="1">
 								<complexType mixed="true">
-									<group ref="bean:propertyElements"></group>
+									<group ref="bean:mapElements"></group>
 								</complexType>
 							</element>
 							<element name="value" minOccurs="0" maxOccurs="1">
 								<complexType mixed="true">
-									<group ref="bean:propertyElements"></group>
+									<group ref="bean:mapElements"></group>
 								</complexType>
 							</element>
 						</sequence>
@@ -74,6 +74,18 @@
 			<selector xpath="bean:bean"></selector>
 			<field xpath="@id"></field>
 		</unique>
+		<!-- <key name="beanKey">
+			<selector xpath=".//bean:bean"></selector>
+			<field xpath="@id"></field>
+		</key>
+		<keyref name="refKey" refer="bean:beanKey">
+			<selector xpath=".//bean:ref"></selector>
+			<field xpath="@bean"></field>
+		</keyref>
+		<keyref name="beanRefKey" refer="bean:beanKey">
+			<selector xpath=".//bean:property"></selector>
+			<field xpath="@ref"></field>
+		</keyref> -->
 	</element>
 
 	<group name="collectionElements">
@@ -91,6 +103,16 @@
 		<sequence>
 			<choice minOccurs="0" maxOccurs="1">
 				<element ref="bean:value"></element>
+				<element ref="bean:ref"></element>
+				<element ref="bean:list"></element>
+				<element ref="bean:map"></element>
+				<!-- <element ref="bean:bean"></element> -->
+			</choice>
+		</sequence>
+	</group>
+	<group name="mapElements">
+		<sequence>
+			<choice minOccurs="0" maxOccurs="1">
 				<element ref="bean:ref"></element>
 				<element ref="bean:list"></element>
 				<element ref="bean:map"></element>
