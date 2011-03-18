@@ -24,9 +24,9 @@ import com.firefly.utils.VerifyUtils;
 
 /**
  * Web应用上下文默认实现
- *
+ * 
  * @author AlvinQiu
- *
+ * 
  */
 public class AnnotationWebContext extends AnnotationApplicationContext
 		implements WebContext {
@@ -43,7 +43,7 @@ public class AnnotationWebContext extends AnnotationApplicationContext
 		TextViewHandle.getInstance().init(getEncoding());
 		JsonViewHandle.getInstance().init(getEncoding());
 		List<String> uriList = new ArrayList<String>();
-		for(BeanDefinition beanDef : beanDefinitions) {
+		for (BeanDefinition beanDef : beanDefinitions) {
 			addObjectToContext(beanDef, uriList);
 		}
 	}
@@ -64,51 +64,60 @@ public class AnnotationWebContext extends AnnotationApplicationContext
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void addObjectToContext(BeanDefinition beanDef, List<String> uriList) {
-		WebBeanDefinition beanDefinition = (WebBeanDefinition)beanDef;
+	protected void addObjectToContext(BeanDefinition beanDef,
+			List<String> uriList) {
+		WebBeanDefinition beanDefinition = (WebBeanDefinition) beanDef;
 		// 注册Controller里面声明的uri
 		List<Method> list = beanDefinition.getReqMethods();
-		for (Method m : list) {
-			m.setAccessible(true);
-			final String uri = m.getAnnotation(RequestMapping.class).value();
-			final String method = m.getAnnotation(RequestMapping.class)
-					.method();
-			final String view = m.getAnnotation(RequestMapping.class).view();
-			String key = method + "@" + uri;
+		if (list != null) {
+			for (Method m : list) {
+				m.setAccessible(true);
+				final String uri = m.getAnnotation(RequestMapping.class)
+						.value();
+				final String method = m.getAnnotation(RequestMapping.class)
+						.method();
+				final String view = m.getAnnotation(RequestMapping.class)
+						.view();
+				String key = method + "@" + uri;
 
-			MvcMetaInfo mvcMetaInfo = new MvcMetaInfo(beanDefinition.getObject(),
-					m, getViewHandle(view));
-			map.put(key, mvcMetaInfo);
-			uriList.add(key);
-			log.info("register uri [{}]", key);
-			if (key.charAt(key.length() - 1) == '/')
-				key = key.substring(0, key.length() - 1);
-			else
-				key += "/";
-			map.put(key, mvcMetaInfo);
-			uriList.add(key);
-			log.info("register uri [{}]", key);
+				MvcMetaInfo mvcMetaInfo = new MvcMetaInfo(
+						beanDefinition.getObject(), m, getViewHandle(view));
+				map.put(key, mvcMetaInfo);
+				uriList.add(key);
+				log.info("register uri [{}]", key);
+				if (key.charAt(key.length() - 1) == '/')
+					key = key.substring(0, key.length() - 1);
+				else
+					key += "/";
+				map.put(key, mvcMetaInfo);
+				uriList.add(key);
+				log.info("register uri [{}]", key);
+			}
 		}
 
 		list = beanDefinition.getInterceptorMethods();
-		log.debug("interceptorMethods size [{}]", list.size());
-		for (Method m : list) {
-			m.setAccessible(true);
-			List<String> l = getInterceptUri(beanDefinition.getUriPattern(), uriList);
-			log.debug("interceptorUri size [{}]", l.size());
-			for (String i : l) {
-				String key = m.getName().charAt(0) + "#" + i;
-				MvcMetaInfo mvcMetaInfo = new MvcMetaInfo(beanDefinition
-						.getObject(), m,
-						getViewHandle(beanDefinition.getView()));
-				mvcMetaInfo.setInterceptOrder(beanDefinition.getOrder());
-				Set<MvcMetaInfo> interceptorSet = (Set<MvcMetaInfo>) map.get(key);
-				if (interceptorSet == null) {
-					interceptorSet = new TreeSet<MvcMetaInfo>();
-					interceptorSet.add(mvcMetaInfo);
-					map.put(key, interceptorSet);
-				} else {
-					interceptorSet.add(mvcMetaInfo);
+		if (list != null) {
+			log.debug("interceptorMethods size [{}]", list.size());
+			for (Method m : list) {
+				m.setAccessible(true);
+				List<String> l = getInterceptUri(
+						beanDefinition.getUriPattern(), uriList);
+				log.debug("interceptorUri size [{}]", l.size());
+				for (String i : l) {
+					String key = m.getName().charAt(0) + "#" + i;
+					MvcMetaInfo mvcMetaInfo = new MvcMetaInfo(
+							beanDefinition.getObject(), m,
+							getViewHandle(beanDefinition.getView()));
+					mvcMetaInfo.setInterceptOrder(beanDefinition.getOrder());
+					Set<MvcMetaInfo> interceptorSet = (Set<MvcMetaInfo>) map
+							.get(key);
+					if (interceptorSet == null) {
+						interceptorSet = new TreeSet<MvcMetaInfo>();
+						interceptorSet.add(mvcMetaInfo);
+						map.put(key, interceptorSet);
+					} else {
+						interceptorSet.add(mvcMetaInfo);
+					}
 				}
 			}
 		}
@@ -117,7 +126,7 @@ public class AnnotationWebContext extends AnnotationApplicationContext
 
 	/**
 	 * 根据拦截器模式获取所有注册的Uri
-	 *
+	 * 
 	 * @param pattern
 	 * @return
 	 */
@@ -136,7 +145,7 @@ public class AnnotationWebContext extends AnnotationApplicationContext
 
 	/**
 	 * 拦截地址匹配，忽略uri和pattern最后的'/'
-	 *
+	 * 
 	 * @param pattern
 	 * @param uri
 	 * @return

@@ -6,15 +6,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.firefly.annotation.Component;
 import com.firefly.annotation.Controller;
 import com.firefly.annotation.Interceptor;
 import com.firefly.annotation.RequestMapping;
+import com.firefly.core.support.BeanDefinition;
 import com.firefly.core.support.annotation.AnnotationBeanReader;
 import com.firefly.utils.ReflectUtils;
 import com.firefly.utils.VerifyUtils;
 
 public class WebBeanReader extends AnnotationBeanReader {
+
+	private static Logger log = LoggerFactory.getLogger(WebBeanReader.class);
 
 	public WebBeanReader() {
 		this(null);
@@ -25,15 +31,49 @@ public class WebBeanReader extends AnnotationBeanReader {
 	}
 
 	@Override
-	protected boolean isComponent(Class<?> c) {
-		return c.isAnnotationPresent(Controller.class)
-				|| c.isAnnotationPresent(Interceptor.class)
-				|| c.isAnnotationPresent(Component.class);
+	protected BeanDefinition getBeanDefinition(Class<?> c) {
+		if (c.isAnnotationPresent(Controller.class)
+				|| c.isAnnotationPresent(Component.class)) {
+			log.info("classes [{}]", c.getName());
+			return componentParser(c);
+		} else if (c.isAnnotationPresent(Interceptor.class)) {
+			log.info("classes [{}]", c.getName());
+			return interceptorParser(c);
+		} else
+			return null;
 	}
 
 	@Override
-	protected void addBeanDefinition(Class<?> c) {
+	protected BeanDefinition componentParser(Class<?> c) {
 		WebBeanDefinition webBeanDefinition = new WebAnnotatedBeanDefinition();
+		setWebBeanDefinition(webBeanDefinition, c);
+
+		List<Method> reqMethods = getReqMethods(c);
+		webBeanDefinition.setReqMethods(reqMethods);
+		return webBeanDefinition;
+	}
+
+	protected BeanDefinition interceptorParser(Class<?> c) {
+		WebBeanDefinition webBeanDefinition = new WebAnnotatedBeanDefinition();
+		setWebBeanDefinition(webBeanDefinition, c);
+
+		List<Method> interceptorMethods = getInterceptors(c);
+		webBeanDefinition.setInterceptorMethods(interceptorMethods);
+
+		String uriPattern = c.getAnnotation(Interceptor.class).uri();
+		webBeanDefinition.setUriPattern(uriPattern);
+
+		String view = c.getAnnotation(Interceptor.class).view();
+		webBeanDefinition.setView(view);
+
+		Integer order = c.getAnnotation(Interceptor.class).order();
+		webBeanDefinition.setOrder(order);
+
+		return webBeanDefinition;
+	}
+
+	private void setWebBeanDefinition(WebBeanDefinition webBeanDefinition,
+			Class<?> c) {
 		webBeanDefinition.setClassName(c.getName());
 
 		String id = getId(c);
@@ -61,28 +101,9 @@ public class WebBeanReader extends AnnotationBeanReader {
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		}
-
-		List<Method> reqMethods = getReqMethods(c);
-		webBeanDefinition.setReqMethods(reqMethods);
-
-		List<Method> interceptorMethods = getInterceptors(c);
-		webBeanDefinition.setInterceptorMethods(interceptorMethods);
-
-		if (c.isAnnotationPresent(Interceptor.class)) {
-			String uriPattern = c.getAnnotation(Interceptor.class).uri();
-			webBeanDefinition.setUriPattern(uriPattern);
-
-			String view = c.getAnnotation(Interceptor.class).view();
-			webBeanDefinition.setView(view);
-
-			Integer order = c.getAnnotation(Interceptor.class).order();
-			webBeanDefinition.setOrder(order);
-		}
-
-		beanDefinitions.add(webBeanDefinition);
 	}
 
-	protected String getId(Class<?> c) {
+	private String getId(Class<?> c) {
 		if (c.isAnnotationPresent(Controller.class))
 			return c.getAnnotation(Controller.class).value();
 		else if (c.isAnnotationPresent(Interceptor.class))
@@ -93,29 +114,23 @@ public class WebBeanReader extends AnnotationBeanReader {
 			return "";
 	}
 
-	protected List<Method> getReqMethods(Class<?> c) {
+	private List<Method> getReqMethods(Class<?> c) {
 		Method[] methods = c.getMethods();
 		List<Method> list = new ArrayList<Method>();
-		if (c.isAnnotationPresent(Controller.class)
-				|| c.isAnnotationPresent(Component.class)) {
-			for (Method m : methods) {
-				if (m.isAnnotationPresent(RequestMapping.class)) {
-					list.add(m);
-				}
+		for (Method m : methods) {
+			if (m.isAnnotationPresent(RequestMapping.class)) {
+				list.add(m);
 			}
 		}
 		return list;
 	}
 
-	protected List<Method> getInterceptors(Class<?> c) {
+	private List<Method> getInterceptors(Class<?> c) {
 		Method[] methods = c.getMethods();
 		List<Method> list = new ArrayList<Method>();
-		if (c.isAnnotationPresent(Interceptor.class)
-				|| c.isAnnotationPresent(Component.class)) {
-			for (Method m : methods) {// 验证方法名
-				if (m.getName().equals("before") || m.getName().equals("after")) {
-					list.add(m);
-				}
+		for (Method m : methods) {// 验证方法名
+			if (m.getName().equals("before") || m.getName().equals("after")) {
+				list.add(m);
 			}
 		}
 		return list;
