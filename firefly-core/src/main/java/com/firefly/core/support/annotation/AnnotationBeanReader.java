@@ -3,23 +3,20 @@ package com.firefly.core.support.annotation;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.JarURLConnection;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.firefly.annotation.Component;
 import com.firefly.annotation.Inject;
 import com.firefly.core.support.BeanDefinition;
@@ -45,7 +42,7 @@ public class AnnotationBeanReader implements BeanReader {
 	}
 
 	public AnnotationBeanReader(String file) {
-		beanDefinitions = getBeanDefinitions();
+		beanDefinitions = new ArrayList<BeanDefinition>();
 		idSet = new HashSet<String>();
 		Config config = ConfigReader.getInstance().load(file);
 		for (String pack : config.getPaths()) {
@@ -54,144 +51,87 @@ public class AnnotationBeanReader implements BeanReader {
 		}
 	}
 
-	protected List<BeanDefinition> getBeanDefinitions() {
-		return new ArrayList<BeanDefinition>();
+	private void scan(String packageName) {
+		String packageDirName = packageName.replace('.', '/');
+		log.debug("packageDirName: " + packageDirName);
+		URL url = AnnotationBeanReader.class.getClassLoader().getResource(
+				packageDirName);
+		if (url == null)
+			error(packageName + " can not be found");
+		String protocol = url.getProtocol();
+		if ("file".equals(protocol)) {
+			parseFile(url, packageDirName);
+		} else if ("jar".equals(protocol)) {
+			parseJar(url, packageDirName);
+		}
 	}
 
-	private void scan(String pack) {
-		String packageName = pack;
-		String packageDirName = packageName.replace('.', '/');
-		// 定义一个枚举的集合 并进行循环来处理这个目录下的things
-		Enumeration<URL> dirs = null;
-
+	private void parseFile(URL url, final String packageDirName) {
+		File path = null;
 		try {
-			dirs = AnnotationBeanReader.class.getClassLoader().getResources(
-					packageDirName);
+			path = new File(url.toURI());
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		path.listFiles(new FileFilter() {
+			public boolean accept(File file) {
+				String name = file.getName();
+				if (name.endsWith(".class") && !name.contains("$"))
+					parseClass(packageDirName.replace('/', '.') + "."
+							+ name.substring(0, file.getName().length() - 6));
+				else if (file.isDirectory())
+					try {
+						parseFile(file.toURI().toURL(), packageDirName + "/"
+								+ name);
+					} catch (MalformedURLException e) {
+						e.printStackTrace();
+					}
+				return false;
+			}
+		});
+	}
+
+	private void parseJar(URL url, String packageDirName) {
+		Enumeration<JarEntry> entries = null;
+		try {
+			entries = ((JarURLConnection) url.openConnection()).getJarFile()
+					.entries();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		// 循环迭代下去
-		while (dirs.hasMoreElements()) {
-			// 获取下一个元素
-			URL url = dirs.nextElement();
-			// 得到协议的名称
-			String protocol = url.getProtocol();
-			// 如果是以文件的形式保存在服务器上
-			if ("file".equals(protocol)) {
-				log.info("protocol [{}]", protocol);
-				// 获取包的物理路径
-				String filePath = null;
-				try {
-					filePath = URLDecoder.decode(url.getFile(), "UTF-8");
-				} catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
-				}
-				// 以文件的方式扫描整个包下的文件 并添加到集合中
-				try {
-					addClassesByFile(packageName, filePath);
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}
-			} else if ("jar".equals(protocol)) {
-				log.info("protocol [{}]", protocol);
-				try {
-					JarFile jar = ((JarURLConnection) url.openConnection())
-							.getJarFile();
-
-					addClassesByJar(packageName, packageDirName, jar);
-				} catch (IOException e) {
-					e.printStackTrace();
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-	private void addClassesByJar(String packageName, String packageDirName,
-			JarFile jar) throws ClassNotFoundException {
-		// 从此jar包 得到一个枚举类
-		Enumeration<JarEntry> entries = jar.entries();
-		// 同样的进行循环迭代
 		while (entries.hasMoreElements()) {
-			// 获取jar里的一个实体 可以是目录 和一些jar包里的其他文件 如META-INF等文件
-			JarEntry entry = entries.nextElement();
-			String name = entry.getName();
-			// 如果是以/开头的
-			if (name.charAt(0) == '/') {
-				// 获取后面的字符串
-				name = name.substring(1);
-			}
-			// 如果前半部分和定义的包名相同
-			if (name.startsWith(packageDirName)) {
-				int idx = name.lastIndexOf('/');
-				// 如果以"/"结尾 是一个包
-				if (idx != -1) {
-					// 获取包名 把"/"替换成"."
-					packageName = name.substring(0, idx).replace('/', '.');
-				}
-				// 如果可以迭代下去 并且是一个包
-				if (idx != -1 && name.endsWith(".class")
-						&& !entry.isDirectory()) {
-					// 如果是一个.class文件 而且不是目录
-					// 去掉后面的".class" 获取真正的类名
-					String className = name.substring(packageName.length() + 1,
-							name.length() - 6);
-					// 添加到classes
-					Class<?> c = AnnotationBeanReader.class.getClassLoader()
-							.loadClass(packageName + '.' + className);
-
-					if (isComponent(c)) {
-						log.info("classes [{}]", c.getName());
-						// TODO 增加bean定义
-						addBeanDefinition(c);
-					}
-				}
-			}
+			String name = entries.nextElement().getName();
+			if (!name.endsWith(".class") || name.contains("$")
+					|| !name.startsWith(packageDirName + "/"))
+				continue;
+			parseClass(name.substring(0, name.length() - 6).replace('/', '.'));
 		}
+
 	}
 
-	private void addClassesByFile(String packageName, String filePath)
-			throws ClassNotFoundException {
-		File dir = new File(filePath);
-		if (!dir.exists() || !dir.isDirectory()) {
-			return;
+	private void parseClass(String className) {
+		Class<?> c = null;
+		try {
+			c = AnnotationBeanReader.class.getClassLoader()
+					.loadClass(className);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 		}
-		// 如果存在 就获取包下的所有文件 包括目录
-		File[] dirfiles = dir.listFiles(new FileFilter() {
-			// 自定义过滤规则 如果可以循环(包含子目录) 或则是以.class结尾的文件(编译好的java类文件)
-			public boolean accept(File file) {
-				return file.isDirectory() || file.getName().endsWith(".class");
-			}
-		});
 
-		for (File file : dirfiles) {
-			// 如果是目录 则继续扫描
-			if (file.isDirectory()) {
-				addClassesByFile(packageName + "." + file.getName(),
-						file.getAbsolutePath());
-			} else {
-				// 如果是java类文件 去掉后面的.class 只留下类名
-				String className = file.getName().substring(0,
-						file.getName().length() - 6);
-				Class<?> c = AnnotationBeanReader.class.getClassLoader()
-						.loadClass(packageName + '.' + className);
-
-				if (isComponent(c)) {
-					log.info("classes [{}]", c.getName());
-					// TODO 增加bean定义
-					addBeanDefinition(c);
-				}
-
-			}
-		}
+		BeanDefinition beanDefinition = getBeanDefinition(c);
+		if (beanDefinition != null)
+			beanDefinitions.add(beanDefinition);
 	}
 
-	protected boolean isComponent(Class<?> c) {
-		return c.isAnnotationPresent(Component.class);
+	protected BeanDefinition getBeanDefinition(Class<?> c) {
+		if (c.isAnnotationPresent(Component.class)) {
+			log.info("classes [{}]", c.getName());
+			return componentParser(c);
+		} else
+			return null;
 	}
 
-	protected void addBeanDefinition(Class<?> c) {
+	protected BeanDefinition componentParser(Class<?> c) {
 		AnnotationBeanDefinition annotationBeanDefinition = new AnnotatedBeanDefinition();
 		annotationBeanDefinition.setClassName(c.getName());
 
@@ -221,8 +161,7 @@ public class AnnotationBeanReader implements BeanReader {
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		}
-
-		beanDefinitions.add(annotationBeanDefinition);
+		return annotationBeanDefinition;
 	}
 
 	@Override
