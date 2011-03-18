@@ -115,58 +115,76 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 	 *            该属性的set方法
 	 * @return
 	 */
-	@SuppressWarnings( { "unchecked", "rawtypes" })
+	@SuppressWarnings("unchecked")
 	private Object getInjectArg(Object value, Method method) {
 		if (value instanceof ManagedValue) { // value
-			ManagedValue managedValue = (ManagedValue) value;
-			String typeName = VerifyUtils.isEmpty(managedValue.getTypeName()) ? method
-					.getParameterTypes()[0].getName()
-					: managedValue.getTypeName();
-			log.debug("value type [{}]", typeName);
-			return ConvertUtils.convert(managedValue.getValue(), typeName);
+			return getValueArg(value, method);
 		} else if (value instanceof ManagedRef) { // ref
-			ManagedRef ref = (ManagedRef) value;
-			return map.get(ref.getBeanName());
+			return getRefArg(value, method);
 		} else if (value instanceof ManagedList) { // list
-			log.debug("xml inject method [{}]", method.getName());
-			Class<?> setterParamType = method.getParameterTypes()[0];
-			ManagedList<Object> values = (ManagedList<Object>) value;
-			Collection collection = null;
-			log.debug("setter param type [{}]", setterParamType.getName());
-
-			if (VerifyUtils.isNotEmpty(values.getTypeName())) { // 指定了list的类型
-				try {
-					collection = (Collection) XmlApplicationContext.class
-							.getClassLoader().loadClass(values.getTypeName())
-							.newInstance();
-				} catch (InstantiationException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}
-			} else { // 根据set方法参数类型获取list类型
-				collection = ConvertUtils.getCollectionObj(setterParamType);
-			}
-
-			for (Object item : values) {
-				Object listValue = getInjectArg(item, method);
-				collection.add(listValue);
-			}
-
-			return collection;
+			return getListArg(value, method);
 		} else if (value instanceof ManagedArray) { // array
-			log.debug("xml inject method [{}]", method.getName());
-			Class<?> setterParamType = method.getParameterTypes()[0];
-			ManagedArray<Object> values = (ManagedArray<Object>) value;
-			Collection collection = new ArrayList();
-			for (Object item : values) {
-				Object listValue = getInjectArg(item, method);
-				collection.add(listValue);
-			}
-			return ConvertUtils.convert(collection, setterParamType);
+			return getArrayArg(value, method);
 		} else
 			return null;
+	}
+
+	private Object getValueArg(Object value, Method method) {
+		ManagedValue managedValue = (ManagedValue) value;
+		String typeName = VerifyUtils.isEmpty(managedValue.getTypeName()) ? method
+				.getParameterTypes()[0].getName()
+				: managedValue.getTypeName();
+		log.debug("value type [{}]", typeName);
+		return ConvertUtils.convert(managedValue.getValue(), typeName);
+	}
+
+	private Object getRefArg(Object value, Method method) {
+		ManagedRef ref = (ManagedRef) value;
+		return map.get(ref.getBeanName());
+	}
+
+	@SuppressWarnings("unchecked")
+	private Object getListArg(Object value, Method method) {
+		log.debug("xml inject method [{}]", method.getName());
+		Class<?> setterParamType = method.getParameterTypes()[0];
+		ManagedList<Object> values = (ManagedList<Object>) value;
+		Collection collection = null;
+		log.debug("setter param type [{}]", setterParamType.getName());
+
+		if (VerifyUtils.isNotEmpty(values.getTypeName())) { // 指定了list的类型
+			try {
+				collection = (Collection) XmlApplicationContext.class
+						.getClassLoader().loadClass(values.getTypeName())
+						.newInstance();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		} else { // 根据set方法参数类型获取list类型
+			collection = ConvertUtils.getCollectionObj(setterParamType);
+		}
+
+		for (Object item : values) {
+			Object listValue = getInjectArg(item, method);
+			collection.add(listValue);
+		}
+
+		return collection;
+	}
+
+	@SuppressWarnings("unchecked")
+	private Object getArrayArg(Object value, Method method) {
+		log.debug("xml inject method [{}]", method.getName());
+		Class<?> setterParamType = method.getParameterTypes()[0];
+		ManagedArray<Object> values = (ManagedArray<Object>) value;
+		Collection collection = new ArrayList();
+		for (Object item : values) {
+			Object listValue = getInjectArg(item, method);
+			collection.add(listValue);
+		}
+		return ConvertUtils.convert(collection, setterParamType);
 	}
 }
