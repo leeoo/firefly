@@ -1,19 +1,23 @@
 package test.ioc;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+
 import org.junit.Assert;
 import org.junit.Test;
+
 import test.component.AddService;
 import test.component.FieldInject;
 import test.component.MethodInject;
 import test.component2.MethodInject2;
+
 import com.firefly.core.AnnotationApplicationContext;
 import com.firefly.core.ApplicationContext;
 
 
 public class TestAnnotationIoc {
 //	private static Logger log = LoggerFactory.getLogger(TestAnnotationIoc.class);
-	public static ApplicationContext applicationContext = new AnnotationApplicationContext();
+	public static ApplicationContext applicationContext = new AnnotationApplicationContext("annotation-config.xml");
 	
 	@Test
 	public void testFieldInject() {

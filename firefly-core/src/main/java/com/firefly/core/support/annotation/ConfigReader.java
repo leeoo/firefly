@@ -1,16 +1,28 @@
 package com.firefly.core.support.annotation;
 
-import java.io.IOException;
-import java.util.Properties;
+import java.util.List;
 
-import com.firefly.utils.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import com.firefly.utils.dom.DefaultDom;
+import com.firefly.utils.dom.Dom;
 
 public class ConfigReader {
-	private static final String DEFAULT_CONFIG_FILE = "firefly.properties";
+	private static Logger log = LoggerFactory.getLogger(ConfigReader.class);
+	
+	private static final String DEFAULT_CONFIG_FILE = "firefly.xml";
+	public static final String SCAN_ELEMENT = "component-scan";
+	public static final String MVC_ELEMENT = "mvc";
+	public static final String PACKAGE_ATTRIBUTE = "base-package";
+	public static final String VIEW_PATH_ATTRIBUTE = "view-path";
+	public static final String VIEW_ENCODING_ATTRIBUTE = "view-encoding";
+
 	private Config config;
 
 	private ConfigReader() {
-
+		config = new Config();
 	}
 
 	private static class Holder {
@@ -22,19 +34,40 @@ public class ConfigReader {
 	}
 
 	public Config load(String file) {
-		Properties properties = new Properties();
-		config = new Config();
-		try {
-			properties.load(ConfigReader.class.getResourceAsStream("/"
-					+ (file != null ? file : DEFAULT_CONFIG_FILE)));
-		} catch (IOException e) {
-			e.printStackTrace();
+		Dom dom = new DefaultDom();
+		// 获得Xml文档对象
+		Document doc = dom.getDocument(file == null ? DEFAULT_CONFIG_FILE
+				: file);
+		// 得到根节点
+		Element root = dom.getRoot(doc);
+		load(root, dom);
+		return config;
+	}
+
+	public Config load(Element root, Dom dom) {
+		// 得到所有scan节点
+		List<Element> scanList = dom.elements(root, SCAN_ELEMENT);
+
+		if (scanList != null) {
+			String[] paths = new String[scanList.size()];
+			for (int i = 0; i < scanList.size(); i++) {
+				Element ele = scanList.get(i);
+				paths[i] = ele.getAttribute(PACKAGE_ATTRIBUTE);
+			}
+			config.setPaths(paths);
+		} else {
+			config.setPaths(new String[0]);
 		}
 
-		config.setPaths(StringUtils.split(properties
-				.getProperty("componentPath"), ","));
-		config.setViewPath(properties.getProperty("viewPath"));
-		config.setEncoding(properties.getProperty("encoding"));
+		Element mvc = dom.element(root, MVC_ELEMENT);
+		if (mvc != null) {
+			String viewPath = mvc.getAttribute(VIEW_PATH_ATTRIBUTE);
+			String encoding = mvc.getAttribute(VIEW_ENCODING_ATTRIBUTE);
+			log.debug("mvc viewPath [{}] encoding [{}]", viewPath, encoding);
+			
+			config.setViewPath(viewPath);
+			config.setEncoding(encoding);
+		}
 		return config;
 	}
 

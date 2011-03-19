@@ -50,7 +50,7 @@ public class AnnotationWebContext extends AnnotationApplicationContext
 
 	@Override
 	protected List<BeanDefinition> getBeanReader(String file) {
-		return new WebBeanReader().loadBeanDefinitions();
+		return new WebBeanReader(file).loadBeanDefinitions();
 	}
 
 	@Override
