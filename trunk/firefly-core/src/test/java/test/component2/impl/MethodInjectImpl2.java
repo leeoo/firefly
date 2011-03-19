@@ -13,19 +13,20 @@ public class MethodInjectImpl2 implements MethodInject2 {
 	@Inject
 	private Integer num = 3;
 	@Inject
-	private AddService addService;
+	public AddService addService;
 	protected FieldInject fieldInject;
 
 	@Inject
 	public void init(AddService addService, FieldInject fieldInject, String str) {
 		this.addService = addService;
 		this.fieldInject = fieldInject;
-		fieldInject.add(3, 4);
+		//TODO 此处有bug
+//		fieldInject.add(3, 4);
 	}
 
 	@Override
 	public int add(int x, int y) {
-		return addService.add(x, y);
+		return fieldInject.add(x, y);
 	}
 
 	public Integer getNum() {
