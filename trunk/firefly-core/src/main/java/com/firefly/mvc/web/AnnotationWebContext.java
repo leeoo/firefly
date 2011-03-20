@@ -57,10 +57,6 @@ public class AnnotationWebContext extends XmlApplicationContext implements
 		List<BeanDefinition> list2 = new XmlBeanReader(file)
 				.loadBeanDefinitions();
 		if (list1 != null && list2 != null) {
-			//TODO 混合annotation和xml的BeanDefinition，还需要加入冲突检测
-			// 1.id相同的抛异常
-			// 2.className或者interfaceName相同，但其中一个没有定义id，抛异常
-			// 3.className或者interfaceName相同，且都定义的id，需要保存备忘，按类型或者接口自动注入的时候抛异常
 			list1.addAll(list2);
 			return list1;
 		} else if (list1 != null)
