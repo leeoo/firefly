@@ -1,10 +1,14 @@
 package com.firefly.core;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.firefly.core.support.BeanDefinition;
 import com.firefly.core.support.exception.BeanDefinitionParsingException;
 import com.firefly.utils.VerifyUtils;
@@ -14,6 +18,7 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 	private static Logger log = LoggerFactory
 			.getLogger(AbstractApplicationContext.class);
 	protected Map<String, Object> map = new HashMap<String, Object>();
+	protected Set<String> errorMemo = new HashSet<String>();
 	protected List<BeanDefinition> beanDefinitions;
 
 	public AbstractApplicationContext() {
@@ -45,12 +50,16 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 	}
 
 	protected void check() {
-		// TODO 需要增加测试用例，第3个还需要实现
+		// TODO 需要增加测试用例
 		// 1.id相同的抛异常
 		// 2.className或者interfaceName相同，但其中一个没有定义id，抛异常
 		// 3.className或者interfaceName相同，且都定义的id，需要保存备忘，按类型或者接口自动注入的时候抛异常
-		for (BeanDefinition b1 : beanDefinitions) {
-			for (BeanDefinition b2 : beanDefinitions) {
+
+		for (int i = 0; i < beanDefinitions.size(); i++) {
+			for (int j = i; j < beanDefinitions.size(); j++) {
+				log.debug("check bean " + i + "|" + j);
+				BeanDefinition b1 = beanDefinitions.get(i);
+				BeanDefinition b2 = beanDefinitions.get(j);
 				// 同一个beanDefinition不需要比较
 				if(b1 == b2)
 					continue;
@@ -67,6 +76,8 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 							|| VerifyUtils.isEmpty(b2.getId())) {
 						error("class " + b1.getClassName()
 								+ " redundant definition");
+					} else {
+						errorMemo.add(b1.getClassName());
 					}
 				}
 
@@ -77,11 +88,20 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 									|| VerifyUtils.isEmpty(b2.getId())) {
 								error("class " + b1.getClassName()
 										+ " redundant definition");
+							} else {
+								errorMemo.add(iname1);
 							}
 						}
 					}
 				}
+				
 			}
+		}
+	}
+	
+	protected void check(String key) {
+		if(errorMemo.contains(key)) {
+			error(key + "auto inject failure!");
 		}
 	}
 
@@ -104,19 +124,25 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 	}
 
 	protected BeanDefinition findBeanDefinition(String key) {
+		check(key);
+		BeanDefinition ret = null;
 		for (BeanDefinition beanDefinition : beanDefinitions) {
 			if (key.equals(beanDefinition.getId())) {
-				return beanDefinition;
+				ret = beanDefinition;
+				break;
 			} else if (key.equals(beanDefinition.getClassName())) {
-				return beanDefinition;
+				ret = beanDefinition;
+				break;
 			} else {
 				for (String interfaceName : beanDefinition.getInterfaceNames()) {
-					if (key.equals(interfaceName))
-						return beanDefinition;
+					if (key.equals(interfaceName)) {
+						ret = beanDefinition;
+						break;
+					}
 				}
 			}
 		}
-		return null;
+		return ret;
 	}
 
 	/**
