@@ -48,7 +48,7 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 	}
 
 	protected void check() {
-		// TODO 第3个还需要实现
+		// TODO 需要增加测试用例，第3个还需要实现
 		// 1.id相同的抛异常
 		// 2.className或者interfaceName相同，但其中一个没有定义id，抛异常
 		// 3.className或者interfaceName相同，且都定义的id，需要保存备忘，按类型或者接口自动注入的时候抛异常
