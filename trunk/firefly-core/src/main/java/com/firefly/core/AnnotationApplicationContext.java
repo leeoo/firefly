@@ -27,6 +27,13 @@ public class AnnotationApplicationContext extends AbstractApplicationContext {
 	@Override
 	protected Object inject(BeanDefinition beanDef) {
 		AnnotationBeanDefinition beanDefinition = (AnnotationBeanDefinition) beanDef;
+		fieldInject(beanDefinition);
+		methodInject(beanDefinition);
+		addObjectToContext(beanDefinition);
+		return beanDefinition.getObject();
+	}
+	
+	private void fieldInject(AnnotationBeanDefinition beanDefinition) {
 		Object object = beanDefinition.getObject();
 
 		// 属性注入
@@ -50,7 +57,11 @@ public class AnnotationApplicationContext extends AbstractApplicationContext {
 				}
 			}
 		}
-
+	}
+	
+	private void methodInject(AnnotationBeanDefinition beanDefinition) {
+		Object object = beanDefinition.getObject();
+		
 		// 从方法注入
 		for (Method method : beanDefinition.getInjectMethods()) {
 			method.setAccessible(true);
@@ -77,8 +88,6 @@ public class AnnotationApplicationContext extends AbstractApplicationContext {
 				e.printStackTrace();
 			}
 		}
-		addObjectToContext(beanDefinition);
-		return object;
 	}
 
 }

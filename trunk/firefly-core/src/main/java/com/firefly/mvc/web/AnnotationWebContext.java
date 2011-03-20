@@ -67,7 +67,7 @@ public class AnnotationWebContext extends AnnotationApplicationContext
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void addObjectToContext(BeanDefinition beanDef,
+	private void addObjectToContext(BeanDefinition beanDef,
 			List<String> uriList) {
 		WebBeanDefinition beanDefinition = (WebBeanDefinition) beanDef;
 		// 注册Controller里面声明的uri
