@@ -1,29 +1,28 @@
 package com.firefly.core;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import com.firefly.core.support.BeanDefinition;
-import com.firefly.core.support.BeanReader;
 import com.firefly.utils.VerifyUtils;
 
 abstract public class AbstractApplicationContext implements ApplicationContext {
 
 	protected Map<String, Object> map = new HashMap<String, Object>();
-	protected BeanReader beanReader;
+	protected List<BeanDefinition> beanDefinitions;
 	
 	public AbstractApplicationContext() {
 		this(null);
 	}
 	
 	public AbstractApplicationContext(String file) {
-		beanReader = getBeanReader(file);
+		beanDefinitions = getBeanDefinitions(file);
 		addObjectToContext();
 	}
 	
 	private void addObjectToContext() {
-		for (BeanDefinition beanDefinition : beanReader.loadBeanDefinitions()) {
+		for (BeanDefinition beanDefinition : beanDefinitions) {
 			inject(beanDefinition);
 		}
 	}
@@ -58,7 +57,23 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 		}
 	}
 	
-	abstract protected BeanReader getBeanReader(String file);
+	protected BeanDefinition findBeanDefinition(String key) {
+		for (BeanDefinition beanDefinition : beanDefinitions) {
+			if (key.equals(beanDefinition.getId())) {
+				return beanDefinition;
+			} else if (key.equals(beanDefinition.getClassName())) {
+				return beanDefinition;
+			} else {
+				for (String interfaceName : beanDefinition.getInterfaceNames()) {
+					if (key.equals(interfaceName))
+						return beanDefinition;
+				}
+			}
+		}
+		return null;
+	}
+	
+	abstract protected List<BeanDefinition> getBeanDefinitions(String file);
 	
 	abstract protected Object inject(BeanDefinition beanDef);
 

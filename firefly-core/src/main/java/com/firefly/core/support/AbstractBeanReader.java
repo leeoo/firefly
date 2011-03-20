@@ -25,21 +25,4 @@ public class AbstractBeanReader implements BeanReader {
 		log.error(msg);
 		throw new BeanDefinitionParsingException(msg);
 	}
-
-	@Override
-	public BeanDefinition findBeanDefinition(String key) {
-		for (BeanDefinition beanDefinition : beanDefinitions) {
-			if (key.equals(beanDefinition.getId())) {
-				return beanDefinition;
-			} else if (key.equals(beanDefinition.getClassName())) {
-				return beanDefinition;
-			} else {
-				for (String interfaceName : beanDefinition.getInterfaceNames()) {
-					if (key.equals(interfaceName))
-						return beanDefinition;
-				}
-			}
-		}
-		return null;
-	}
 }

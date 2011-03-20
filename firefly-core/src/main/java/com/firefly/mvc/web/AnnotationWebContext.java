@@ -5,15 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.firefly.annotation.RequestMapping;
-import com.firefly.core.AnnotationApplicationContext;
+import com.firefly.core.XmlApplicationContext;
 import com.firefly.core.support.BeanDefinition;
-import com.firefly.core.support.BeanReader;
 import com.firefly.core.support.annotation.ConfigReader;
+import com.firefly.core.support.xml.XmlBeanReader;
 import com.firefly.mvc.web.support.MvcMetaInfo;
 import com.firefly.mvc.web.support.ViewHandle;
 import com.firefly.mvc.web.support.WebBeanDefinition;
@@ -31,8 +29,8 @@ import com.firefly.utils.VerifyUtils;
  * @author AlvinQiu
  * 
  */
-public class AnnotationWebContext extends AnnotationApplicationContext
-		implements WebContext {
+public class AnnotationWebContext extends XmlApplicationContext implements
+		WebContext {
 	private static Logger log = LoggerFactory
 			.getLogger(AnnotationWebContext.class);
 
@@ -46,14 +44,26 @@ public class AnnotationWebContext extends AnnotationApplicationContext
 		TextViewHandle.getInstance().init(getEncoding());
 		JsonViewHandle.getInstance().init(getEncoding());
 		List<String> uriList = new ArrayList<String>();
-		for (BeanDefinition beanDef : beanReader.loadBeanDefinitions()) {
-			addObjectToContext(beanDef, uriList);
+		for (BeanDefinition beanDef : beanDefinitions) {
+			if (beanDef instanceof WebBeanDefinition)
+				addObjectToContext(beanDef, uriList);
 		}
 	}
 
 	@Override
-	protected BeanReader getBeanReader(String file) {
-		return new WebBeanReader(file);
+	protected List<BeanDefinition> getBeanDefinitions(String file) {
+		List<BeanDefinition> list1 = new WebBeanReader(file)
+				.loadBeanDefinitions();
+		List<BeanDefinition> list2 = new XmlBeanReader(file)
+				.loadBeanDefinitions();
+		if (list1 != null && list2 != null) {
+			list1.addAll(list2);
+			return list1;
+		} else if (list1 != null)
+			return list1;
+		else if (list2 != null)
+			return list2;
+		return null;
 	}
 
 	@Override
@@ -67,8 +77,7 @@ public class AnnotationWebContext extends AnnotationApplicationContext
 	}
 
 	@SuppressWarnings("unchecked")
-	private void addObjectToContext(BeanDefinition beanDef,
-			List<String> uriList) {
+	private void addObjectToContext(BeanDefinition beanDef, List<String> uriList) {
 		WebBeanDefinition beanDefinition = (WebBeanDefinition) beanDef;
 		// 注册Controller里面声明的uri
 		List<Method> list = beanDefinition.getReqMethods();

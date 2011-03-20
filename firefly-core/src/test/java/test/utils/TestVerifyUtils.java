@@ -14,6 +14,16 @@ public class TestVerifyUtils {
 		Assert.assertThat(VerifyUtils.isNumeric("134"), is(true));
 		Assert.assertThat(VerifyUtils.isNumeric("134dfdfsfdf"), is(false));
 	}
+	
+	@Test
+	public void testIsDouble() {
+		Assert.assertThat(VerifyUtils.isDouble("30.2222"), is(true));
+		Assert.assertThat(VerifyUtils.isDouble("30"), is(false));
+		Assert.assertThat(VerifyUtils.isDouble("30ss"), is(false));
+		Assert.assertThat(VerifyUtils.isDouble(""), is(false));
+		Assert.assertThat(VerifyUtils.isDouble(".33"), is(true));
+		Assert.assertThat(VerifyUtils.isDouble("33."), is(true));
+	}
 
 	@Test
 	public void tesstSimpleWildcardMatch() {

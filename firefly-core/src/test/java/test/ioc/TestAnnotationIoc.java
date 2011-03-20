@@ -11,13 +11,13 @@ import test.component.FieldInject;
 import test.component.MethodInject;
 import test.component2.MethodInject2;
 
-import com.firefly.core.AnnotationApplicationContext;
 import com.firefly.core.ApplicationContext;
+import com.firefly.core.XmlApplicationContext;
 
 
 public class TestAnnotationIoc {
 //	private static Logger log = LoggerFactory.getLogger(TestAnnotationIoc.class);
-	public static ApplicationContext applicationContext = new AnnotationApplicationContext("annotation-config.xml");
+	public static ApplicationContext applicationContext = new XmlApplicationContext("annotation-config.xml");
 	
 	@Test
 	public void testFieldInject() {
