@@ -56,13 +56,10 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 		// 3.className或者interfaceName相同，且都定义的id，需要保存备忘，按类型或者接口自动注入的时候抛异常
 
 		for (int i = 0; i < beanDefinitions.size(); i++) {
-			for (int j = i; j < beanDefinitions.size(); j++) {
+			for (int j = i + 1; j < beanDefinitions.size(); j++) {
 				log.debug("check bean " + i + "|" + j);
 				BeanDefinition b1 = beanDefinitions.get(i);
 				BeanDefinition b2 = beanDefinitions.get(j);
-				// 同一个beanDefinition不需要比较
-				if(b1 == b2)
-					continue;
 				
 				if (VerifyUtils.isNotEmpty(b1.getId())
 						&& VerifyUtils.isNotEmpty(b2.getId())
