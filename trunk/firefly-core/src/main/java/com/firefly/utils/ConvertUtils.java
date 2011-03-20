@@ -46,6 +46,8 @@ abstract public class ConvertUtils {
 					ret = Integer.parseInt(value);
 				else
 					ret = v;
+			} else if (VerifyUtils.isDouble(value)) {
+				ret = Double.parseDouble(value);
 			} else
 				ret = value;
 		}
@@ -80,6 +82,8 @@ abstract public class ConvertUtils {
 					ret = Integer.parseInt(value);
 				else
 					ret = v;
+			} else if (VerifyUtils.isDouble(value)) {
+				ret = Double.parseDouble(value);
 			} else
 				ret = value;
 		}
@@ -88,7 +92,7 @@ abstract public class ConvertUtils {
 
 	/**
 	 * 把集合转换为指定类型的数组
-	 *
+	 * 
 	 * @param collection
 	 * @param type
 	 * @return
@@ -115,10 +119,11 @@ abstract public class ConvertUtils {
 
 	/**
 	 * 根据类型自动返回一个集合
+	 * 
 	 * @param clazz
 	 * @return
 	 */
-	@SuppressWarnings( { "rawtypes" })
+	@SuppressWarnings({ "rawtypes" })
 	public static Collection getCollectionObj(Class<?> clazz) {
 		if (clazz.isInterface()) {
 			if (clazz.isAssignableFrom(List.class))

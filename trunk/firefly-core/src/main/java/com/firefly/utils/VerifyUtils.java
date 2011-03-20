@@ -48,13 +48,29 @@ abstract public class VerifyUtils {
 		if (isEmpty(str)) {
 			return false;
 		}
-		int sz = str.length();
-		for (int i = 0; i < sz; i++) {
+		for (int i = 0; i < str.length(); i++) {
 			if (isDigit(str.charAt(i)) == false) {
 				return false;
 			}
 		}
 		return true;
+	}
+	
+	public static boolean isDouble(String str) {
+		if (isEmpty(str)) {
+			return false;
+		}
+		int point = 0;
+		for (int i = 0; i < str.length(); i++) {
+			char c = str.charAt(i);
+			if(c == '.') {
+				point++;
+			} else if (isDigit(c) == false) {
+				return false;
+			}
+		}
+		
+		return point == 1;
 	}
 
 	public static boolean isDigit(char ch) {
