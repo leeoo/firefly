@@ -3,9 +3,7 @@ package com.firefly.utils;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public abstract class ReflectUtils {
 	public static Method[] getSetterMethods(Class<?> clazz) {
@@ -30,12 +28,12 @@ public abstract class ReflectUtils {
 	 * @param c
 	 * @return
 	 */
-	public static Set<String> getInterfaceNames(Class<?> c) {
+	public static String[] getInterfaceNames(Class<?> c) {
 		Class<?>[] interfaces = c.getInterfaces();
-		Set<String> names = new HashSet<String>();
+		List<String> names = new ArrayList<String>();
 		for (Class<?> i : interfaces) {
 			names.add(i.getName());
 		}
-		return names;
+		return names.toArray(new String[0]);
 	}
 }

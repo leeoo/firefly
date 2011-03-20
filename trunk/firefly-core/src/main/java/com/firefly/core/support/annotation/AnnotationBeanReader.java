@@ -12,7 +12,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Set;
 import java.util.jar.JarEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,7 +132,7 @@ public class AnnotationBeanReader extends AbstractBeanReader {
 		String id = component.value();
 		annotationBeanDefinition.setId(id);
 
-		Set<String> names = ReflectUtils.getInterfaceNames(c);
+		String[] names = ReflectUtils.getInterfaceNames(c);
 		annotationBeanDefinition.setInterfaceNames(names);
 
 		List<Field> fields = getInjectField(c);
