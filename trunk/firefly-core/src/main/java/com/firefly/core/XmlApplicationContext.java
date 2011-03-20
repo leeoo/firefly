@@ -4,12 +4,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.firefly.core.support.BeanDefinition;
+import com.firefly.core.support.BeanReader;
 import com.firefly.core.support.xml.ManagedArray;
 import com.firefly.core.support.xml.ManagedList;
 import com.firefly.core.support.xml.ManagedRef;
@@ -21,94 +20,65 @@ import com.firefly.utils.ReflectUtils;
 import com.firefly.utils.VerifyUtils;
 
 /**
- *
+ * 
  * @author 须俊杰, alvinqiu
- *
+ * 
  */
 public class XmlApplicationContext extends AbstractApplicationContext {
 
 	private static Logger log = LoggerFactory
 			.getLogger(XmlApplicationContext.class);
-	protected List<BeanDefinition> beanDefinitions;
 
 	public XmlApplicationContext() {
 		this(null);
 	}
 
 	public XmlApplicationContext(String file) {
-		beanDefinitions = getBeanReader(file);
-		addObjectToContext();
-		inject();
+		super(file);
 	}
 
-	protected List<BeanDefinition> getBeanReader(String file) {
-		return new XmlBeanReader(file).loadBeanDefinitions();
+	@Override
+	protected BeanReader getBeanReader(String file) {
+		return new XmlBeanReader(file);
 	}
 
-	/**
-	 * 增加Xml中定义的组件到ApplicationContext
-	 */
-	private void addObjectToContext() {
-		for (BeanDefinition beanDefinition : this.beanDefinitions) {
-			// 增加声明的组件到 ApplicationContext
-			Object object = beanDefinition.getObject();
-			// 把id作为key
-			String id = beanDefinition.getId();
-			if (VerifyUtils.isNotEmpty(id))
-				map.put(id, object);
+	@Override
+	protected Object inject(BeanDefinition beanDef) {
+		XmlBeanDefinition beanDefinition = (XmlBeanDefinition) beanDef;
 
-			// 把类名作为key
-			map.put(beanDefinition.getClassName(), object);
+		// 取得需要注入的对象
+		Object object = beanDefinition.getObject();
 
-			// 把接口名作为key
-			Set<String> keys = beanDefinition.getInterfaceNames();
-			for (String k : keys) {
-				map.put(k, object);
-			}
-		}
-	}
+		// 取得对象所有的属性
+		Map<String, Object> properties = beanDefinition.getProperties();
 
-	/**
-	 * 依赖注入
-	 */
-	private void inject() {
+		Class<?> clazz = object.getClass();
 
-		for (BeanDefinition beanDefinition : this.beanDefinitions) {
-			XmlBeanDefinition xmlBeanDefinition = (XmlBeanDefinition) beanDefinition;
-
-			// 取得需要注入的对象
-			Object obj = xmlBeanDefinition.getObject();
-
-			// 取得对象所有的属性
-			Map<String, Object> properties = xmlBeanDefinition.getProperties();
-
-			Class<?> clazz = obj.getClass();
-
-			// 遍历所有注册的set方法注入
-			for (Method method : ReflectUtils.getSetterMethods(clazz)) {
-				String methodName = method.getName();
-				String propertyName = Character.toLowerCase(methodName
-						.charAt(3))
-						+ methodName.substring(4);
-				Object value = properties.get(propertyName);
-				if (value != null) {
-					try {
-						method.invoke(obj, getInjectArg(value, method));
-					} catch (IllegalArgumentException e) {
-						e.printStackTrace();
-					} catch (IllegalAccessException e) {
-						e.printStackTrace();
-					} catch (InvocationTargetException e) {
-						e.printStackTrace();
-					}
+		// 遍历所有注册的set方法注入
+		for (Method method : ReflectUtils.getSetterMethods(clazz)) {
+			String methodName = method.getName();
+			String propertyName = Character.toLowerCase(methodName.charAt(3))
+					+ methodName.substring(4);
+			Object value = properties.get(propertyName);
+			if (value != null) {
+				try {
+					method.invoke(object, getInjectArg(value, method));
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					e.printStackTrace();
 				}
 			}
 		}
 
+		addObjectToContext(beanDefinition);
+		return object;
 	}
 
 	/**
-	 *
+	 * 
 	 * @param value
 	 *            属性值的元信息
 	 * @param method
@@ -132,15 +102,20 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 	private Object getValueArg(Object value, Method method) {
 		ManagedValue managedValue = (ManagedValue) value;
 		String typeName = VerifyUtils.isEmpty(managedValue.getTypeName()) ? method
-				.getParameterTypes()[0].getName()
-				: managedValue.getTypeName();
+				.getParameterTypes()[0].getName() : managedValue.getTypeName();
 		log.debug("value type [{}]", typeName);
 		return ConvertUtils.convert(managedValue.getValue(), typeName);
 	}
 
 	private Object getRefArg(Object value, Method method) {
 		ManagedRef ref = (ManagedRef) value;
-		return map.get(ref.getBeanName());
+		Object instance = map.get(ref.getBeanName());
+		if(instance == null) {
+			BeanDefinition b = beanReader.findBeanDefinition(ref.getBeanName());
+			if (b != null)
+				instance = inject(b);
+		}
+		return instance;
 	}
 
 	@SuppressWarnings("unchecked")
