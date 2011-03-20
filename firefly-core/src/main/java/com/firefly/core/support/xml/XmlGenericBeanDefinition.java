@@ -2,7 +2,6 @@ package com.firefly.core.support.xml;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Xml方式Bean实现
@@ -20,7 +19,7 @@ public class XmlGenericBeanDefinition implements XmlBeanDefinition {
 
 	// 属性集合
 	private Map<String, Object> properties = new HashMap<String, Object>();
-	private Set<String> names;
+	private String[] names;
 	private Object object;
 
 	public String getId() {
@@ -48,7 +47,7 @@ public class XmlGenericBeanDefinition implements XmlBeanDefinition {
 	}
 
 	@Override
-	public Set<String> getInterfaceNames() {
+	public String[] getInterfaceNames() {
 		return names;
 	}
 
@@ -58,7 +57,7 @@ public class XmlGenericBeanDefinition implements XmlBeanDefinition {
 	}
 
 	@Override
-	public void setInterfaceNames(Set<String> names) {
+	public void setInterfaceNames(String[] names) {
 		this.names = names;
 	}
 

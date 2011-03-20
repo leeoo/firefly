@@ -3,11 +3,8 @@ package com.firefly.core;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.firefly.core.support.BeanDefinition;
 import com.firefly.core.support.exception.BeanDefinitionParsingException;
 import com.firefly.utils.VerifyUtils;
@@ -73,10 +70,8 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 					}
 				}
 
-				Set<String> i1 = b1.getInterfaceNames();
-				Set<String> i2 = b2.getInterfaceNames();
-				for (String iname1 : i1) {
-					for (String iname2 : i2) {
+				for (String iname1 : b1.getInterfaceNames()) {
+					for (String iname2 : b2.getInterfaceNames()) {
 						if (iname1.equals(iname2)) {
 							if (VerifyUtils.isEmpty(b1.getId())
 									|| VerifyUtils.isEmpty(b2.getId())) {
@@ -102,7 +97,7 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 		map.put(beanDefinition.getClassName(), object);
 
 		// 把接口名作为key
-		Set<String> keys = beanDefinition.getInterfaceNames();
+		String[] keys = beanDefinition.getInterfaceNames();
 		for (String k : keys) {
 			map.put(k, object);
 		}

@@ -19,9 +19,9 @@ public interface BeanDefinition {
 
 	void setClassName(String className);
 
-	Set<String> getInterfaceNames();
+	String[] getInterfaceNames();
 
-	void setInterfaceNames(Set<String> names);
+	void setInterfaceNames(String[] names);
 
 	// 该组件的对象实例
 	Object getObject();

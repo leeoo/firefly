@@ -3,12 +3,11 @@ package com.firefly.core.support.annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Set;
 
 public class AnnotatedBeanDefinition implements AnnotationBeanDefinition {
 
 	private String id, className;
-	private Set<String> names;
+	private String[] names;
 	private List<Field> fields;
 	private List<Method> methods;
 	private Object object;
@@ -34,7 +33,7 @@ public class AnnotatedBeanDefinition implements AnnotationBeanDefinition {
 	}
 
 	@Override
-	public Set<String> getInterfaceNames() {
+	public String[] getInterfaceNames() {
 		return names;
 	}
 
@@ -49,7 +48,7 @@ public class AnnotatedBeanDefinition implements AnnotationBeanDefinition {
 	}
 
 	@Override
-	public void setInterfaceNames(Set<String> names) {
+	public void setInterfaceNames(String[] names) {
 		this.names = names;
 
 	}

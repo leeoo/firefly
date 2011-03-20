@@ -2,7 +2,6 @@ package com.firefly.core.support.xml.parse;
 
 import static com.firefly.core.support.xml.parse.XmlNodeConstants.*;
 import java.util.List;
-import java.util.Set;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -43,9 +42,9 @@ public class BeanNodeParser extends AbstractXmlNodeParser implements XmlNodePars
 		xmlBeanDefinition.setObject(obj);
 
 		// 取得接口名称
-		Set<String> names = ReflectUtils.getInterfaceNames(clazz);
+		String[] names = ReflectUtils.getInterfaceNames(clazz);
 		xmlBeanDefinition.setInterfaceNames(names);
-		log.debug("class [{}] names size [{}]", className, names.size());
+		log.debug("class [{}] names size [{}]", className, names.length);
 
 		// 获取所有property
 		List<Element> properties = dom.elements(ele, PROPERTY_ELEMENT);
