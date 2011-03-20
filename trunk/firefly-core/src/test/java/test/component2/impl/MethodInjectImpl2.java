@@ -20,8 +20,8 @@ public class MethodInjectImpl2 implements MethodInject2 {
 	public void init(AddService addService, FieldInject fieldInject, String str) {
 		this.addService = addService;
 		this.fieldInject = fieldInject;
-		//TODO 此处有bug
-//		fieldInject.add(3, 4);
+		//TODO 此处测试注入对象图是否完整
+		fieldInject.add(3, 4);
 	}
 
 	@Override
