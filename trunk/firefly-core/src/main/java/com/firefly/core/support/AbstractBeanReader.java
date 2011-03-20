@@ -1,10 +1,8 @@
 package com.firefly.core.support;
 
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.firefly.core.support.exception.BeanDefinitionParsingException;
 
 public class AbstractBeanReader implements BeanReader {
