@@ -4,4 +4,6 @@ import java.util.List;
 
 public interface BeanReader {
 	List<BeanDefinition> loadBeanDefinitions();
+	
+	BeanDefinition findBeanDefinition(String key);
 }

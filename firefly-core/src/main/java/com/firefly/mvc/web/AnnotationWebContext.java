@@ -5,11 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.firefly.annotation.RequestMapping;
 import com.firefly.core.AnnotationApplicationContext;
 import com.firefly.core.support.BeanDefinition;
+import com.firefly.core.support.BeanReader;
 import com.firefly.core.support.annotation.ConfigReader;
 import com.firefly.mvc.web.support.MvcMetaInfo;
 import com.firefly.mvc.web.support.ViewHandle;
@@ -43,14 +46,14 @@ public class AnnotationWebContext extends AnnotationApplicationContext
 		TextViewHandle.getInstance().init(getEncoding());
 		JsonViewHandle.getInstance().init(getEncoding());
 		List<String> uriList = new ArrayList<String>();
-		for (BeanDefinition beanDef : beanDefinitions) {
+		for (BeanDefinition beanDef : beanReader.loadBeanDefinitions()) {
 			addObjectToContext(beanDef, uriList);
 		}
 	}
 
 	@Override
-	protected List<BeanDefinition> getBeanReader(String file) {
-		return new WebBeanReader(file).loadBeanDefinitions();
+	protected BeanReader getBeanReader(String file) {
+		return new WebBeanReader(file);
 	}
 
 	@Override

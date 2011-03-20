@@ -5,10 +5,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.firefly.annotation.Component;
 import com.firefly.annotation.Controller;
 import com.firefly.annotation.Interceptor;
@@ -16,7 +14,6 @@ import com.firefly.annotation.RequestMapping;
 import com.firefly.core.support.BeanDefinition;
 import com.firefly.core.support.annotation.AnnotationBeanReader;
 import com.firefly.utils.ReflectUtils;
-import com.firefly.utils.VerifyUtils;
 
 public class WebBeanReader extends AnnotationBeanReader {
 
@@ -53,7 +50,7 @@ public class WebBeanReader extends AnnotationBeanReader {
 		return webBeanDefinition;
 	}
 
-	protected BeanDefinition interceptorParser(Class<?> c) {
+	private BeanDefinition interceptorParser(Class<?> c) {
 		WebBeanDefinition webBeanDefinition = new WebAnnotatedBeanDefinition();
 		setWebBeanDefinition(webBeanDefinition, c);
 
@@ -77,12 +74,7 @@ public class WebBeanReader extends AnnotationBeanReader {
 		webBeanDefinition.setClassName(c.getName());
 
 		String id = getId(c);
-		if (VerifyUtils.isNotEmpty(id)) {
-			if (idSet.contains(id))
-				error("id: " + id + " duplicate error");
-			webBeanDefinition.setId(id);
-			idSet.add(id);
-		}
+		webBeanDefinition.setId(id);
 
 		Set<String> names = ReflectUtils.getInterfaceNames(c);
 		webBeanDefinition.setInterfaceNames(names);

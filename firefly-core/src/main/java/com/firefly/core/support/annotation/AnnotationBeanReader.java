@@ -11,7 +11,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
@@ -19,11 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.firefly.annotation.Component;
 import com.firefly.annotation.Inject;
+import com.firefly.core.support.AbstractBeanReader;
 import com.firefly.core.support.BeanDefinition;
-import com.firefly.core.support.BeanReader;
-import com.firefly.core.support.exception.BeanDefinitionParsingException;
 import com.firefly.utils.ReflectUtils;
-import com.firefly.utils.VerifyUtils;
 
 /**
  * 读取Bean信息
@@ -31,11 +28,9 @@ import com.firefly.utils.VerifyUtils;
  * @author AlvinQiu
  * 
  */
-public class AnnotationBeanReader implements BeanReader {
+public class AnnotationBeanReader extends AbstractBeanReader {
 	private static Logger log = LoggerFactory
 			.getLogger(AnnotationBeanReader.class);
-	protected List<BeanDefinition> beanDefinitions;
-	protected Set<String> idSet;
 
 	public AnnotationBeanReader() {
 		this(null);
@@ -43,7 +38,6 @@ public class AnnotationBeanReader implements BeanReader {
 
 	public AnnotationBeanReader(String file) {
 		beanDefinitions = new ArrayList<BeanDefinition>();
-		idSet = new HashSet<String>();
 		Config config = ConfigReader.getInstance().load(file);
 		for (String pack : config.getPaths()) {
 			log.info("componentPath [{}]", pack);
@@ -137,12 +131,7 @@ public class AnnotationBeanReader implements BeanReader {
 
 		Component component = c.getAnnotation(Component.class);
 		String id = component.value();
-		if (VerifyUtils.isNotEmpty(id)) {
-			if (idSet.contains(id))
-				error("id: " + id + " duplicate error");
-			annotationBeanDefinition.setId(id);
-			idSet.add(id);
-		}
+		annotationBeanDefinition.setId(id);
 
 		Set<String> names = ReflectUtils.getInterfaceNames(c);
 		annotationBeanDefinition.setInterfaceNames(names);
@@ -162,11 +151,6 @@ public class AnnotationBeanReader implements BeanReader {
 			e.printStackTrace();
 		}
 		return annotationBeanDefinition;
-	}
-
-	@Override
-	public List<BeanDefinition> loadBeanDefinitions() {
-		return beanDefinitions;
 	}
 
 	protected List<Field> getInjectField(Class<?> c) {
@@ -191,14 +175,4 @@ public class AnnotationBeanReader implements BeanReader {
 		return list;
 	}
 
-	/**
-	 * 处理异常
-	 * 
-	 * @param msg
-	 *            异常信息
-	 */
-	protected void error(String msg) {
-		log.error(msg);
-		throw new BeanDefinitionParsingException(msg);
-	}
 }
