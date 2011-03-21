@@ -1,11 +1,12 @@
 #summary firefly使用指南
 #labels Phase-Support
 <wiki:toc max_depth="3" />
-= 简介 =
- * firefly是一个追求高性能，精简轻量的应用程序框架
- * 零依赖，仅仅依赖jdk
- * 包含IOC容器、Web应用MVC框架等
- * 可以完全使用Annotation配置或者使用Annotation和XML混合配置方式
+= 特性 =
+ * firefly是一个追求高性能的应用程序框架，性能大幅超越spring3、struts2等，详情请看[https://code.google.com/p/firefly/wiki/firefly_performance_test1 性能测试报告]
+ * 零依赖，仅仅依赖于jdk
+ * 精简、轻量、无侵入
+ * core包含IOC、MVC、Interceptor等常用功能
+ * 使用简单，基于约定优于配置的思想，可完全使用Annotation方式 或 Annotation和XML混合方式 进行配置
 
 = IOC =
 [http://baike.baidu.com/view/1486379.htm IOC]为firefly的核心模块，使用类似Spring，使用Annotation或XML配置方式，标注的组件生命周期为单例
