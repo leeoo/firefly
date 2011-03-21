@@ -4,48 +4,113 @@
 = 简介 =
  * firefly是一个追求高性能，精简轻量的应用程序框架
  * 包含IOC容器、Web应用MVC框架等
- * 默认使用Annotation配置方式
-
-
-= 安装与配置 =
- # 把firefly.jar放入classpath下
- # 在classpath下创建firefly.properties文件
-firefly.properties文件例子：
-{{{
-viewPath = /WEB-INF/page
-componentPath = com.test.sample
-encoding = UTF-8
-}}}
-firefly.properties配置说明：
-|| * 配置项 * || * 说明 * || * 默认值 * ||
-|| componentPath || firefly组件扫描包名，可以用逗号（,）分隔多个包 || 无 ||
-|| viewPath （可选） || Web视图模版存储路径 || /WEB-INF/page ||
-|| encoding （可选） || Web请求相应的字符集 || UTF-8 ||
+ * 支持Annotation和XML混合配置方式，发挥这两种配置的最大威力
 
 = IOC =
-[http://baike.baidu.com/view/1486379.htm IOC]为firefly的核心模块，使用类似Spring，默认使用Annotation配置方式，标注的组件生命周期为单例
+[http://baike.baidu.com/view/1486379.htm IOC]为firefly的核心模块，使用类似Spring，使用Annotation或XML配置方式，标注的组件生命周期为单例
+== 简单例子 ==
+ # 把firefly.jar放入classpath下
+ # 在classpath下创建firefly.xml文件
+firefly.xml文件例子：
+{{{
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://code.google.com/p/firefly/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://code.google.com/p/firefly/beans http://firefly.googlecode.com/files/beans.xsd">
+
+	<component-scan base-package="test.mixed"/>
+	
+	<bean id="apple" class="test.mixed.Food">
+		<property name="name" value="apple"></property>
+		<property name="price" value="5.3"></property>
+	</bean>
+	
+	<bean id="orange" class="test.mixed.Food">
+		<property name="name" value="orange"></property>
+		<property name="price" value="3.52"></property>
+	</bean>
+	
+	<bean id="strawberry" class="test.mixed.Food">
+		<property name="name" value="strawberry"></property>
+		<property name="price" value="10."></property>
+	</bean>
+	
+	<bean id="foodRepository" class="test.mixed.impl.FoodRepositoryImpl">
+		<property name="food">
+			<list>
+				<ref bean="apple"/>
+				<ref bean="orange"/>
+				<ref bean="strawberry"/>
+			</list>
+		</property>
+	</bean>
+
+</beans>
+}}}
+firefly.xml配置说明：
+<component-scan base-package="test.mixed"/> 用来表示annotation包扫描路径，可以配置多个component-scan节点，表示对多个包进行扫描。
+<bean>...</bean> 使用xml方式声明组件，与annotation方式声明组件在同一个上下文中，可以互相依赖注入，例如：
+{{{
+public class FoodRepositoryImpl implements FoodRepository {
+
+	private List<Food> food;
+
+	@Override
+	public List<Food> getFood() {
+		return food;
+	}
+
+	public void setFood(List<Food> food) {
+		this.food = food;
+	}
+
+}
+
+@Component("foodService")
+public class FoodServiceImpl implements FoodService {
+
+	@Inject
+	private FoodRepository foodRepository;
+
+	@Override
+	public Food getFood(String name) {
+		for (Food f : foodRepository.getFood()) {
+			if (f.getName().equals(name))
+				return f;
+		}
+		return null;
+	}
+
+}
+}}}
+FoodRepositoryImpl使用xml声明，然后在foodService中使用annotation注入，这两种方式具有同等的效力。
+
 
 == 创建IOC容器 ==
 例子：
 {{{
-	public static ApplicationContext applicationContext = DefaultApplicationContext
-			.getInstance().load();
+	public static ApplicationContext applicationContext = new XmlApplicationContext(
+			"firefly.xml");
 
 	@Test
-	public void testFieldInject() {
-		FieldInject fieldInject = applicationContext.getBean("fieldInject");
-		Assert.assertThat(fieldInject.add(5, 4), is(9));
-		Assert.assertThat(fieldInject.add2(5, 4), is(9));
-
-		fieldInject = applicationContext.getBean(FieldInject.class);
-		Assert.assertThat(fieldInject.add(5, 4), is(9));
-		Assert.assertThat(fieldInject.add2(5, 4), is(9));
+	public void testInject() {
+		FoodService foodService = applicationContext.getBean("foodService");
+		Food food = foodService.getFood("apple");
+		log.debug(food.getName());
+		Assert.assertThat(food.getPrice(), is(5.3));
+		
+		foodService = applicationContext.getBean(FoodService.class);
+		food = foodService.getFood("strawberry");
+		log.debug(food.getName());
+		Assert.assertThat(food.getPrice(), is(10.00));
 	}
 }}}
+支持根据Bean Id获取bean，或者通过接口的类型自动获取bean：
+applicationContext.getBean("foodService");使用id获取bean实例对象
+applicationContext.getBean(FoodService.class);根据类型自动找到实例对象
 
-支持根据Bean Id获取bean，或者通过接口的类型自动获取bean
-
-== 声明一个组件 ==
+== annotation声明组件 ==
+=== 声明组件 ===
 例子：
 {{{
 @Component("addService")
@@ -58,9 +123,9 @@ public class AddServiceImpl implements AddService {
 
 }
 }}}
-组件id为可选向
+@Component("addService") 其中addService为组件id，这是可选项，不填写这一项的时候无法通过id获取bean，但可以按类型自动获取bean。
 
-== 方法参数注入 ==
+=== 方法参数注入 ===
 例子：
 {{{
 @Component("methodInject")
@@ -75,7 +140,7 @@ public class MethodInjectImpl implements MethodInject {
 }}}
 方法参数只支持按类型自动注入
 
-== 属性注入 ==
+=== 属性注入 ===
 例子：
 {{{
 @Component("fieldInject")
