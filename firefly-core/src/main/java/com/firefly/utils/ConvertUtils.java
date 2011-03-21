@@ -4,14 +4,23 @@ import java.lang.reflect.Array;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Queue;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.slf4j.Logger;
@@ -103,14 +112,14 @@ abstract public class ConvertUtils {
 		Iterator<?> iterator = collection.iterator();
 		Class<?> componentType = null;
 
-		if(arrayType == null){
+		if (arrayType == null) {
 			componentType = Object.class;
-		}else{
+		} else {
 			if (!arrayType.isArray())
 				throw new IllegalArgumentException("type is not a array");
 
 			componentType = arrayType.getComponentType();
-			log.debug("componentType = "+componentType.getName());
+			log.debug("componentType = " + componentType.getName());
 		}
 		Object newArray = Array.newInstance(componentType, size);
 
@@ -156,6 +165,34 @@ abstract public class ConvertUtils {
 				e.printStackTrace();
 			}
 			return collection;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static Map getMapObj(Class<?> clazz) {
+		if (clazz.isInterface()) {
+			if (clazz.isAssignableFrom(Map.class))
+				return new HashMap();
+			else if (clazz.isAssignableFrom(ConcurrentMap.class))
+				return new ConcurrentHashMap();
+			else if (clazz.isAssignableFrom(SortedMap.class))
+				return new TreeMap();
+			else if (clazz.isAssignableFrom(NavigableMap.class))
+				return new TreeMap();
+			else if (clazz.isAssignableFrom(ConcurrentNavigableMap.class))
+				return new ConcurrentSkipListMap();
+			else
+				return null;
+		} else {
+			Map map = null;
+			try {
+				map = (Map) clazz.newInstance();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+			return map;
 		}
 	}
 }

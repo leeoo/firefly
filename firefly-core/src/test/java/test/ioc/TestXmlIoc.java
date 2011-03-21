@@ -7,17 +7,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import test.component3.CollectionService;
 import test.component3.MapService;
 import test.component3.Person;
 import test.component3.PersonService;
-
 import com.firefly.core.ApplicationContext;
 import com.firefly.core.XmlApplicationContext;
 
@@ -90,9 +87,9 @@ public class TestXmlIoc {
 		collectionService = xmlApplicationContext.getBean("collectionService5");
 		Object[] obj = collectionService.getObjArray();
 		Assert.assertThat(obj.length, greaterThan(0));
-		Object[] obj2 = (Object[])obj[3];
+		Object[] obj2 = (Object[]) obj[3];
 		Assert.assertThat(obj2.length, greaterThan(0));
-		Assert.assertThat((Long)obj2[1], is(10000000000L));
+		Assert.assertThat((Long) obj2[1], is(10000000000L));
 	}
 
 	@Test(expected = ClassCastException.class)
@@ -106,12 +103,18 @@ public class TestXmlIoc {
 	}
 
 	@Test
-	public void testMapInject(){
+	public void testMapInject() {
 		MapService mapService = xmlApplicationContext.getBean("mapService");
-		Map<Object,Object> map = mapService.getMap();
-//		System.out.println("size ================================ "+map.size());
-		for(Entry<Object,Object> entry : map.entrySet()){
-			log.debug("key = "+entry.getKey());
+		Map<Object, Object> map = mapService.getMap();
+		// System.out.println("size ================================ "+map.size());
+		for (Entry<Object, Object> entry : map.entrySet()) {
+			log.info(entry.getKey() + "\t" + entry.getValue());
+			if(entry.getKey().getClass().isArray()) {
+				Object[] objects = (Object[])entry.getKey();
+				log.info("array key [{}]", Arrays.toString(objects));
+				Assert.assertThat(objects.length, greaterThan(0));
+			}
 		}
+		Assert.assertThat(map.get(1).toString(), is("www"));
 	}
 }
