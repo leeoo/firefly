@@ -202,7 +202,7 @@ public class FieldInjectImpl implements FieldInject {
 		</property>
 	</bean>
 }}}
-{{{<property/>}}}节点下可选节点有<value/><ref/><list/><array/><map/>节点。
+{{{<property/>}}}节点下可选节点有{{{<value/><ref/><list/><array/><map/>}}}节点。
 {{{<value/>}}}直接注入字面值
 {{{<ref/>}}}注入其他声明过的组件
 {{{<list/>}}}注入Collection接口的各种实现类
