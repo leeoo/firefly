@@ -13,6 +13,7 @@ public class XmlNodeParserFactory {
 		map.put(VALUE_ELEMENT, new ValueNodeParser());
 		map.put(LIST_ELEMENT, new ListNodeParser());
 		map.put(ARRAY_ELEMENT, new ArrayNodeParser());
+		map.put(MAP_ELEMENT, new MapNodeParser());
 	}
 
 	public static XmlNodeParser getParser(String elementName) {

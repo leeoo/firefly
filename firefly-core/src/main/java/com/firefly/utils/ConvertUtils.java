@@ -4,9 +4,11 @@ import java.lang.reflect.Array;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
@@ -98,12 +100,20 @@ abstract public class ConvertUtils {
 	 * @return
 	 */
 	public static Object convert(Collection<?> collection, Class<?> arrayType) {
-		if (!arrayType.isArray())
-			throw new IllegalArgumentException("type is not a array");
 		int size = collection.size();
 		// Allocate a new Array
 		Iterator<?> iterator = collection.iterator();
-		Class<?> componentType = arrayType.getComponentType();
+		Class<?> componentType = null;
+
+		if(arrayType == null){
+			componentType = Object.class;
+		}else{
+			if (!arrayType.isArray())
+				throw new IllegalArgumentException("type is not a array");
+
+			componentType = arrayType.getComponentType();
+			System.out.println("componentType = "+componentType.getName());
+		}
 		Object newArray = Array.newInstance(componentType, size);
 
 		// Convert and set each element in the new Array

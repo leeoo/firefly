@@ -8,6 +8,7 @@ public interface XmlNodeConstants {
 	public static final String REF_ATTRIBUTE = "ref";
 	public static final String VALUE_ATTRIBUTE = "value";
 	public static final String TYPE_ATTRIBUTE = "type";
+	public static final String KEY_ATTRIBUTE = "key";
 
 	public static final String BEAN_ELEMENT = "bean";
 	public static final String PROPERTY_ELEMENT = "property";

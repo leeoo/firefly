@@ -99,7 +99,7 @@ public class DefaultDom implements Dom {
 					sb.append(item.getNodeValue());
 				}
 			}
-			return sb.toString();
+			return sb.toString().trim();
 		}
 		return null;
 	}
