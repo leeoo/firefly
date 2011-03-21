@@ -208,8 +208,7 @@ public class FieldInjectImpl implements FieldInject {
  * {{{<list/>}}}注入Collection接口的各种实现类
  * {{{<array/>}}}注入数组类型
  * {{{<map/>}}}注入Map接口的各种实现类
-具体的xml配置参数可以参看schema
-[http://firefly.googlecode.com/files/beans.xsd schema定义]
+具体的xml配置参数可以参看 [http://firefly.googlecode.com/files/beans.xsd schema定义]
 
 = Web框架 =
 使用[http://baike.baidu.com/view/31.htm MVC]模式，依赖firefly的IOC模块，使用Annotation配置方式
