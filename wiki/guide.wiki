@@ -3,8 +3,9 @@
 <wiki:toc max_depth="3" />
 = 简介 =
  * firefly是一个追求高性能，精简轻量的应用程序框架
+ * 零依赖，仅仅依赖jdk
  * 包含IOC容器、Web应用MVC框架等
- * 支持Annotation和XML混合配置方式，发挥这两种配置的最大威力
+ * 可以完全使用Annotation配置或者使用Annotation和XML混合配置方式
 
 = IOC =
 [http://baike.baidu.com/view/1486379.htm IOC]为firefly的核心模块，使用类似Spring，使用Annotation或XML配置方式，标注的组件生命周期为单例
