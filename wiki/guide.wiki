@@ -2,6 +2,7 @@
 #labels Phase-Support
 <wiki:toc max_depth="3" />
 = 特性 =
+ * 高性能，性能大幅超越spring3、struts2
  * 零依赖，仅仅依赖于jdk
  * 精简、轻量、无侵入
  * core包含IOC、MVC、Interceptor等常用功能
