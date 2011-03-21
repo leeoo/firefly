@@ -18,6 +18,4 @@ public class ManagedList<T> extends ArrayList<T> {
 	public void setTypeName(String typeName) {
 		this.typeName = typeName;
 	}
-
-
 }

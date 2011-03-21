@@ -5,16 +5,20 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.firefly.annotation.Inject;
 import com.firefly.core.support.BeanDefinition;
 import com.firefly.core.support.annotation.AnnotationBeanDefinition;
 import com.firefly.core.support.annotation.AnnotationBeanReader;
 import com.firefly.core.support.xml.ManagedArray;
 import com.firefly.core.support.xml.ManagedList;
+import com.firefly.core.support.xml.ManagedMap;
 import com.firefly.core.support.xml.ManagedRef;
 import com.firefly.core.support.xml.ManagedValue;
 import com.firefly.core.support.xml.XmlBeanDefinition;
@@ -127,14 +131,24 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 			return getListArg(value, method);
 		} else if (value instanceof ManagedArray) { // array
 			return getArrayArg(value, method);
+		} else if (value instanceof ManagedMap) { // map
+			return getMapArg(value, method);
 		} else
 			return null;
 	}
 
 	private Object getValueArg(Object value, Method method) {
 		ManagedValue managedValue = (ManagedValue) value;
-		String typeName = VerifyUtils.isEmpty(managedValue.getTypeName()) ? method
-				.getParameterTypes()[0].getName() : managedValue.getTypeName();
+		String typeName = null;
+		if (method == null) {
+			typeName = VerifyUtils.isEmpty(managedValue.getTypeName()) ? "java.lang.String"
+					: managedValue.getTypeName();
+		} else {
+			typeName = VerifyUtils.isEmpty(managedValue.getTypeName()) ? method
+					.getParameterTypes()[0].getName() : managedValue
+					.getTypeName();
+		}
+
 		log.debug("value type [{}]", typeName);
 		return ConvertUtils.convert(managedValue.getValue(), typeName);
 	}
@@ -152,11 +166,12 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 
 	@SuppressWarnings("unchecked")
 	private Object getListArg(Object value, Method method) {
-		log.debug("xml inject method [{}]", method.getName());
-		Class<?> setterParamType = method.getParameterTypes()[0];
+		Class<?> setterParamType = null;
+		if(method != null){
+			setterParamType = method.getParameterTypes()[0];
+		}
 		ManagedList<Object> values = (ManagedList<Object>) value;
 		Collection collection = null;
-		log.debug("setter param type [{}]", setterParamType.getName());
 
 		if (VerifyUtils.isNotEmpty(values.getTypeName())) { // 指定了list的类型
 			try {
@@ -171,7 +186,8 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 				e.printStackTrace();
 			}
 		} else { // 根据set方法参数类型获取list类型
-			collection = ConvertUtils.getCollectionObj(setterParamType);
+			collection = setterParamType == null ? new ArrayList()
+					: ConvertUtils.getCollectionObj(setterParamType);
 		}
 
 		for (Object item : values) {
@@ -184,8 +200,10 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 
 	@SuppressWarnings("unchecked")
 	private Object getArrayArg(Object value, Method method) {
-		log.debug("xml inject method [{}]", method.getName());
-		Class<?> setterParamType = method.getParameterTypes()[0];
+		Class<?> setterParamType = null;
+		if(method != null){
+			setterParamType = method.getParameterTypes()[0];
+		}
 		ManagedArray<Object> values = (ManagedArray<Object>) value;
 		Collection collection = new ArrayList();
 		for (Object item : values) {
@@ -195,6 +213,32 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 		return ConvertUtils.convert(collection, setterParamType);
 	}
 
+	@SuppressWarnings( { "unchecked" })
+	private Object getMapArg(Object value, Method method) {
+		ManagedMap<Object, Object> values = (ManagedMap<Object, Object>) value;
+		Map m = null;
+		if (VerifyUtils.isNotEmpty(values.getTypeName())) {
+			try {
+				m = (Map) XmlApplicationContext.class.getClassLoader()
+						.loadClass(values.getTypeName()).newInstance();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		} else { // 根据set方法参数类型获取map类型
+			m = new HashMap();
+		}
+		for (Object o : values.keySet()) {
+			Object k = getInjectArg(o, null);
+			Object v = getInjectArg(values.get(o), null);
+			m.put(k, v);
+		}
+		return m;
+	}
+	
 	/**
 	 * annotation 注入方式
 	 * @param beanDef

@@ -4,14 +4,20 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import test.component3.CollectionService;
+import test.component3.MapService;
 import test.component3.Person;
 import test.component3.PersonService;
+
 import com.firefly.core.ApplicationContext;
 import com.firefly.core.XmlApplicationContext;
 
@@ -97,5 +103,15 @@ public class TestXmlIoc {
 		for (Integer i : collectionService.getSet())
 			i++;
 
+	}
+	
+	@Test
+	public void testMapInject(){
+		MapService mapService = xmlApplicationContext.getBean("mapService");
+		Map<Object,Object> map = mapService.getMap();
+//		System.out.println("size ================================ "+map.size());
+		for(Entry<Object,Object> entry : map.entrySet()){
+			System.out.println("key = "+entry.getKey());
+		}
 	}
 }
