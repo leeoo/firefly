@@ -4,11 +4,9 @@ import java.lang.reflect.Array;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
@@ -94,7 +92,7 @@ abstract public class ConvertUtils {
 
 	/**
 	 * 把集合转换为指定类型的数组
-	 * 
+	 *
 	 * @param collection
 	 * @param type
 	 * @return
@@ -129,11 +127,11 @@ abstract public class ConvertUtils {
 
 	/**
 	 * 根据类型自动返回一个集合
-	 * 
+	 *
 	 * @param clazz
 	 * @return
 	 */
-	@SuppressWarnings({ "rawtypes" })
+	@SuppressWarnings("unchecked")
 	public static Collection getCollectionObj(Class<?> clazz) {
 		if (clazz.isInterface()) {
 			if (clazz.isAssignableFrom(List.class))
