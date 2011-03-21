@@ -173,7 +173,7 @@ public class FieldInjectImpl implements FieldInject {
 		<property name="price" value="5.3"></property>
 	</bean>
 }}}
-<bean/>把test.mixed.Food声明为一个组件，id为apple，并且把name和price注入了值，其中<property/>节点的name属性对应类里面的set方法，其中value会根据其字面值自动转化成int,double,long或者string类型，5.3对应的字面值是double类型。如果和set方法参数类型不一致，会自动转化为set方法的类型
+{{{ <bean/> }}} 把test.mixed.Food声明为一个组件，id为apple，并且把name和price注入了值，其中{{{ <property/> }}} 节点的name属性对应类里面的set方法，其中value会根据其字面值自动转化成int,double,long或者string类型，5.3对应的字面值是double类型。如果和set方法参数类型不一致，会自动转化为set方法的类型
 === 依赖注入 ===
 {{{
 	<bean id="personService" class="test.component3.PersonService">
@@ -202,12 +202,12 @@ public class FieldInjectImpl implements FieldInject {
 		</property>
 	</bean>
 }}}
-<property/>节点下可选节点有<value/><ref/><list/><array/><map/>节点。
-<value/>直接注入字面值
-<ref/>注入其他声明过的组件
-<list/>注入Collection接口的各种实现类
-<array/>注入数组类型
-<map/>注入Map接口的各种实现类
+{{{<property/>}}}节点下可选节点有<value/><ref/><list/><array/><map/>节点。
+{{{<value/>}}}直接注入字面值
+{{{<ref/>}}}注入其他声明过的组件
+{{{<list/>}}}注入Collection接口的各种实现类
+{{{<array/>}}}注入数组类型
+{{{<map/>}}}注入Map接口的各种实现类
 具体的xml配置参数可以参看schema
 [http://firefly.googlecode.com/files/beans.xsd schema定义]
 
@@ -245,7 +245,7 @@ firefly.xml配置文件
 
 </beans>
 }}}
-<mvc/>节点有两个属性，view-path表示jsp视图存放的路径，view-encoding为返回视图的字符集
+{{{<mvc/>}}}节点有两个属性，view-path表示jsp视图存放的路径，view-encoding为返回视图的字符集
 
 == Controller使用 ==
  * @RequestMapping定义了请求地址和返回视图的类型，视图包括：jsp、text（文本）、redirect（重定向）、json
