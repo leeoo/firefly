@@ -48,8 +48,8 @@ firefly.xml文件例子：
 </beans>
 }}}
 firefly.xml配置说明：
-<component-scan base-package="test.mixed"/> 用来表示annotation包扫描路径，可以配置多个component-scan节点，表示对多个包进行扫描。
-<bean>...</bean> 使用xml方式声明组件，与annotation方式声明组件在同一个上下文中，可以互相依赖注入，例如：
+{{{ <component-scan base-package="test.mixed"/> }}} 用来表示annotation包扫描路径，可以配置多个component-scan节点，表示对多个包进行扫描。
+{{{ <bean/> }}} 使用xml方式声明组件，与annotation方式声明组件在同一个上下文中，可以互相依赖注入，例如：
 {{{
 public class FoodRepositoryImpl implements FoodRepository {
 
