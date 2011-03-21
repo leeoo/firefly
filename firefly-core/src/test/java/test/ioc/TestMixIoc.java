@@ -25,6 +25,8 @@ public class TestMixIoc {
 		Food food = foodService.getFood("apple");
 		log.debug(food.getName());
 		Assert.assertThat(food.getPrice(), is(5.3));
+		
+		foodService = applicationContext.getBean(FoodService.class);
 		food = foodService.getFood("strawberry");
 		log.debug(food.getName());
 		Assert.assertThat(food.getPrice(), is(10.00));

@@ -36,6 +36,12 @@ public class TestXmlIoc {
 				person = (Person) p;
 				i++;
 				log.debug(person.getName());
+			} else if (p instanceof Map) {
+				@SuppressWarnings("unchecked")
+				Map<Object, Object> map = (Map<Object, Object>)p;
+				log.info(map.toString());
+				Assert.assertThat(map.entrySet().size(), greaterThan(0));
+				Assert.assertThat((Double)map.get(2.2), is(3.3));
 			} else {
 				log.debug(p.toString());
 			}
