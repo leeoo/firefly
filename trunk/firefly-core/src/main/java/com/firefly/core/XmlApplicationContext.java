@@ -192,7 +192,7 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 		}
 
 		for (Object item : values) {
-			Object listValue = getInjectArg(item, method);
+			Object listValue = getInjectArg(item, null);
 			collection.add(listValue);
 		}
 
@@ -208,7 +208,7 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 		ManagedArray<Object> values = (ManagedArray<Object>) value;
 		Collection collection = new ArrayList();
 		for (Object item : values) {
-			Object listValue = getInjectArg(item, method);
+			Object listValue = getInjectArg(item, null);
 			collection.add(listValue);
 		}
 		return ConvertUtils.convert(collection, setterParamType);

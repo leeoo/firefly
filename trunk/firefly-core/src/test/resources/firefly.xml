@@ -13,6 +13,21 @@
 				<ref bean="person2"/>
 				<value type="java.lang.String">dfdf</value>
 				<ref bean="person"/>
+				<map>
+					<entry key="2.2" value="3.3"></entry>
+					<entry>
+						<key>
+							dddd
+						</key>
+						<value>
+							<array>
+								<value>11</value>
+								<value>12</value>
+								<value>11.5</value>
+							</array>
+						</value>
+					</entry>
+				</map>
 			</list>
 		</property>
 		<property name="testList2">
