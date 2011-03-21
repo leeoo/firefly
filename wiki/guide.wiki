@@ -163,12 +163,58 @@ public class FieldInjectImpl implements FieldInject {
 
 }
 }}}
-属性注入支持按照属性类型或者组件id的方式注入
+属性支持按照属性类型自动注入或者按组件id的方式注入
+
+== xml声明组件 ==
+=== 声明组件 ===
+{{{
+	<bean id="apple" class="test.mixed.Food">
+		<property name="name" value="apple"></property>
+		<property name="price" value="5.3"></property>
+	</bean>
+}}}
+<bean/>把test.mixed.Food声明为一个组件，id为apple，并且把name和price注入了值，其中<property/>节点的name属性对应类里面的set方法，其中value会根据其字面值自动转化成int,double,long或者string类型，5.3对应的字面值是double类型。如果和set方法参数类型不一致，会自动转化为set方法的类型
+=== 依赖注入 ===
+{{{
+	<bean id="personService" class="test.component3.PersonService">
+		<property name="testList">
+			<list>
+				<value type="int">123</value>
+				<ref bean="person2"/>
+				<value type="java.lang.String">dfdf</value>
+				<ref bean="person"/>
+				<map>
+					<entry key="2.2" value="3.3"></entry>
+					<entry>
+						<key>
+							dddd
+						</key>
+						<value>
+							<array>
+								<value>11</value>
+								<value>12</value>
+								<value>11.5</value>
+							</array>
+						</value>
+					</entry>
+				</map>
+			</list>
+		</property>
+	</bean>
+}}}
+<property/>节点下可选节点有<value/><ref/><list/><array/><map/>节点。
+<value/>直接注入字面值
+<ref/>注入其他声明过的组件
+<list/>注入Collection接口的各种实现类
+<array/>注入数组类型
+<map/>注入Map接口的各种实现类
+具体的xml配置参数可以参看schema
+[http://firefly.googlecode.com/files/beans.xsd schema定义]
 
 = Web框架 =
-使用[http://baike.baidu.com/view/31.htm MVC]模式，依赖firefly的IOC模块，默认使用Annotation配置方式
+使用[http://baike.baidu.com/view/31.htm MVC]模式，依赖firefly的IOC模块，使用Annotation配置方式
 == 前端控制器 ==
-在web.xml里面添加前端控制器，默认读取的配置文件为firefly.properties，也可以通过init-param自定义配置文件名
+在web.xml里面添加前端控制器，默认读取的配置文件为firefly.xml，也可以通过init-param自定义配置文件名
 {{{
 <servlet>
 	<servlet-name>fireflyMVC</servlet-name>
@@ -176,7 +222,7 @@ public class FieldInjectImpl implements FieldInject {
 	<!-- <init-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
-			firefly_mvc.properties
+			firefly_mvc.xml
 		</param-value>
 	</init-param> -->
 	<load-on-startup>1</load-on-startup>
@@ -186,6 +232,21 @@ public class FieldInjectImpl implements FieldInject {
 	<url-pattern>/app/*</url-pattern>
 </servlet-mapping>
 }}}
+
+firefly.xml配置文件
+{{{
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://code.google.com/p/firefly/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://code.google.com/p/firefly/beans http://firefly.googlecode.com/files/beans.xsd">
+
+	<component-scan base-package="com.test.sample"/>
+	<mvc view-path="/WEB-INF/page" view-encoding="UTF-8"/>
+
+</beans>
+}}}
+<mvc/>节点有两个属性，view-path表示jsp视图存放的路径，view-encoding为返回视图的字符集
+
 == Controller使用 ==
  * @RequestMapping定义了请求地址和返回视图的类型，视图包括：jsp、text（文本）、redirect（重定向）、json
  * 当视图为jsp、text和redirect时方法的返回值约定为String类型，json支持Object类型
