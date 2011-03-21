@@ -48,8 +48,8 @@ firefly.xml文件例子：
 </beans>
 }}}
 firefly.xml配置说明：
-{{{ <component-scan base-package="test.mixed"/> }}} 用来表示annotation包扫描路径，可以配置多个component-scan节点，表示对多个包进行扫描。
-{{{ <bean/> }}} 使用xml方式声明组件，与annotation方式声明组件在同一个上下文中，可以互相依赖注入，例如：
+ # {{{ <component-scan base-package="test.mixed"/> }}} 用来表示annotation包扫描路径，可以配置多个component-scan节点，表示对多个包进行扫描。
+ # {{{ <bean/> }}} 使用xml方式声明组件，与annotation方式声明组件在同一个上下文中，可以互相依赖注入，例如：
 {{{
 public class FoodRepositoryImpl implements FoodRepository {
 
@@ -106,8 +106,8 @@ FoodRepositoryImpl使用xml声明，然后在foodService中使用annotation注�
 	}
 }}}
 支持根据Bean Id获取bean，或者通过接口的类型自动获取bean：
-applicationContext.getBean("foodService");使用id获取bean实例对象
-applicationContext.getBean(FoodService.class);根据类型自动找到实例对象
+ # applicationContext.getBean("foodService");使用id获取bean实例对象
+ # applicationContext.getBean(FoodService.class);根据类型自动找到实例对象
 
 == annotation声明组件 ==
 === 声明组件 ===
@@ -203,11 +203,11 @@ public class FieldInjectImpl implements FieldInject {
 	</bean>
 }}}
 {{{<property/>}}}节点下可选节点有{{{<value/><ref/><list/><array/><map/>}}}节点。
-{{{<value/>}}}直接注入字面值
-{{{<ref/>}}}注入其他声明过的组件
-{{{<list/>}}}注入Collection接口的各种实现类
-{{{<array/>}}}注入数组类型
-{{{<map/>}}}注入Map接口的各种实现类
+ * {{{<value/>}}}直接注入字面值
+ * {{{<ref/>}}}注入其他声明过的组件
+ * {{{<list/>}}}注入Collection接口的各种实现类
+ * {{{<array/>}}}注入数组类型
+ * {{{<map/>}}}注入Map接口的各种实现类
 具体的xml配置参数可以参看schema
 [http://firefly.googlecode.com/files/beans.xsd schema定义]
 
