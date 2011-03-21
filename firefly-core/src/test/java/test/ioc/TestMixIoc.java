@@ -49,4 +49,9 @@ public class TestMixIoc {
 	public void testErrorConfig4() {
 		new XmlApplicationContext("error-config4.xml");
 	}
+	
+	@Test(expected = BeanDefinitionParsingException.class)
+	public void testErrorConfig5() {
+		new XmlApplicationContext("error-config5.xml");
+	}
 }
