@@ -104,14 +104,14 @@ public class TestXmlIoc {
 			i++;
 
 	}
-	
+
 	@Test
 	public void testMapInject(){
 		MapService mapService = xmlApplicationContext.getBean("mapService");
 		Map<Object,Object> map = mapService.getMap();
 //		System.out.println("size ================================ "+map.size());
 		for(Entry<Object,Object> entry : map.entrySet()){
-			System.out.println("key = "+entry.getKey());
+			log.debug("key = "+entry.getKey());
 		}
 	}
 }

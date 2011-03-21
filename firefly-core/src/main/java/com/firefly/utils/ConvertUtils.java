@@ -110,7 +110,7 @@ abstract public class ConvertUtils {
 				throw new IllegalArgumentException("type is not a array");
 
 			componentType = arrayType.getComponentType();
-			System.out.println("componentType = "+componentType.getName());
+			log.debug("componentType = "+componentType.getName());
 		}
 		Object newArray = Array.newInstance(componentType, size);
 
