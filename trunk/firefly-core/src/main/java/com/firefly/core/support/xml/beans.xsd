@@ -58,9 +58,7 @@
 							</element>
 						</sequence>
 						<attribute name="key" />
-						<attribute name="key-ref" />
 						<attribute name="value" />
-						<attribute name="value-ref" />
 					</complexType>
 				</element>
 			</sequence>

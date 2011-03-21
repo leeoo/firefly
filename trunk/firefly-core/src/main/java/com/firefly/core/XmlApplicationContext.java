@@ -28,9 +28,9 @@ import com.firefly.utils.ReflectUtils;
 import com.firefly.utils.VerifyUtils;
 
 /**
- * 
+ *
  * @author 须俊杰, alvinqiu
- * 
+ *
  */
 public class XmlApplicationContext extends AbstractApplicationContext {
 
@@ -77,6 +77,7 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 
 	/**
 	 * xml注入方式
+	 *
 	 * @param beanDef
 	 * @return
 	 */
@@ -114,7 +115,7 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param value
 	 *            属性值的元信息
 	 * @param method
@@ -141,7 +142,7 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 		ManagedValue managedValue = (ManagedValue) value;
 		String typeName = null;
 		if (method == null) {
-			typeName = VerifyUtils.isEmpty(managedValue.getTypeName()) ? "java.lang.String"
+			typeName = VerifyUtils.isEmpty(managedValue.getTypeName()) ? null
 					: managedValue.getTypeName();
 		} else {
 			typeName = VerifyUtils.isEmpty(managedValue.getTypeName()) ? method
@@ -167,7 +168,7 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 	@SuppressWarnings("unchecked")
 	private Object getListArg(Object value, Method method) {
 		Class<?> setterParamType = null;
-		if(method != null){
+		if (method != null) {
 			setterParamType = method.getParameterTypes()[0];
 		}
 		ManagedList<Object> values = (ManagedList<Object>) value;
@@ -186,8 +187,8 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 				e.printStackTrace();
 			}
 		} else { // 根据set方法参数类型获取list类型
-			collection = setterParamType == null ? new ArrayList()
-					: ConvertUtils.getCollectionObj(setterParamType);
+			collection = (setterParamType == null ? new ArrayList()
+					: ConvertUtils.getCollectionObj(setterParamType));
 		}
 
 		for (Object item : values) {
@@ -201,7 +202,7 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 	@SuppressWarnings("unchecked")
 	private Object getArrayArg(Object value, Method method) {
 		Class<?> setterParamType = null;
-		if(method != null){
+		if (method != null) {
 			setterParamType = method.getParameterTypes()[0];
 		}
 		ManagedArray<Object> values = (ManagedArray<Object>) value;
@@ -215,6 +216,10 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 
 	@SuppressWarnings( { "unchecked" })
 	private Object getMapArg(Object value, Method method) {
+		Class<?> setterParamType = null;
+		if (method != null) {
+			setterParamType = method.getParameterTypes()[0];
+		}
 		ManagedMap<Object, Object> values = (ManagedMap<Object, Object>) value;
 		Map m = null;
 		if (VerifyUtils.isNotEmpty(values.getTypeName())) {
@@ -229,7 +234,9 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 				e.printStackTrace();
 			}
 		} else { // 根据set方法参数类型获取map类型
-			m = new HashMap();
+			m = (setterParamType == null ? new HashMap() : ConvertUtils
+					.getMapObj(setterParamType));
+			log.debug("map ret [{}]", m.getClass().getName());
 		}
 		for (Object o : values.keySet()) {
 			Object k = getInjectArg(o, null);
@@ -238,9 +245,10 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 		}
 		return m;
 	}
-	
+
 	/**
 	 * annotation 注入方式
+	 *
 	 * @param beanDef
 	 * @return
 	 */
