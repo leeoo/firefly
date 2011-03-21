@@ -2,12 +2,16 @@ package com.firefly.core.support.xml;
 
 import static com.firefly.core.support.xml.parse.XmlNodeConstants.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import com.firefly.core.support.AbstractBeanReader;
 import com.firefly.core.support.BeanDefinition;
 import com.firefly.core.support.xml.parse.XmlNodeStateMachine;
+import com.firefly.utils.VerifyUtils;
 import com.firefly.utils.dom.DefaultDom;
 import com.firefly.utils.dom.Dom;
 
@@ -18,6 +22,8 @@ import com.firefly.utils.dom.Dom;
  */
 public class XmlBeanReader extends AbstractBeanReader {
 
+	private Set<String> errorMemo = new HashSet<String>();	// 判断循环引用
+	
 	public XmlBeanReader() {
 		this(null);
 	}
@@ -51,10 +57,24 @@ public class XmlBeanReader extends AbstractBeanReader {
 		List<Element> importList = dom.elements(root, IMPORT_ELEMENT);
 		if(importList != null){
 			for(Element ele : importList){
-				if(ele.hasAttribute("resource"))
-					parseXml(dom, ele.getAttribute("resource"), beansList);
-				else
+				if(ele.hasAttribute("resource")){
+					String resource = ele.getAttribute("resource");
+					if(errorMemo.contains(resource)){
+						error("disallow cyclic references between xml-file");
+						return;
+					}else{
+						if(VerifyUtils.isEmpty(resource)){
+							error("resource cannot be null");
+							return;
+						}else{
+							errorMemo.add(resource);
+							parseXml(dom, resource, beansList);
+						}
+					}
+				}else{
 					error("has no resource attribute");
+					return;
+				}
 			}
 		}
 		beansList.addAll(list);
