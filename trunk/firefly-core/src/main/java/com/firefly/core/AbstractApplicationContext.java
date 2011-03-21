@@ -60,7 +60,7 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 				log.debug("check bean " + i + "|" + j);
 				BeanDefinition b1 = beanDefinitions.get(i);
 				BeanDefinition b2 = beanDefinitions.get(j);
-				
+
 				if (VerifyUtils.isNotEmpty(b1.getId())
 						&& VerifyUtils.isNotEmpty(b2.getId())
 						&& b1.getId().equals(b2.getId())) {
@@ -72,7 +72,7 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 					if (VerifyUtils.isEmpty(b1.getId())
 							|| VerifyUtils.isEmpty(b2.getId())) {
 						error("class " + b1.getClassName()
-								+ " redundant definition");
+								+ " duplicate definition");
 					} else {
 						errorMemo.add(b1.getClassName());
 					}
@@ -84,21 +84,21 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 							if (VerifyUtils.isEmpty(b1.getId())
 									|| VerifyUtils.isEmpty(b2.getId())) {
 								error("class " + b1.getClassName()
-										+ " redundant definition");
+										+ " duplicate definition");
 							} else {
 								errorMemo.add(iname1);
 							}
 						}
 					}
 				}
-				
+
 			}
 		}
 	}
-	
+
 	protected void check(String key) {
 		if(errorMemo.contains(key)) {
-			error(key + "auto inject failure!");
+			error(key + " auto inject failure!");
 		}
 	}
 
@@ -144,7 +144,7 @@ abstract public class AbstractApplicationContext implements ApplicationContext {
 
 	/**
 	 * 处理异常
-	 * 
+	 *
 	 * @param msg
 	 *            异常信息
 	 */
