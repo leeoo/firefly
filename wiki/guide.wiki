@@ -41,7 +41,7 @@ firefly.xml配置说明：
  # {{{ <component-scan/> }}} 节点用来配置Annotation组件声明，表示annotation包扫描路径，可以配置多个component-scan节点，表示对多个包进行扫描。
  # {{{ <bean/> }}} 节点把 test.mixed.impl.FoodRepositoryImpl 声明成一个组件，id属性是可选的，不填写的时候只能按接口类型获取bean。
  # {{{ <property/> }}} 节点通过name属性指定javabean中的set方法给组件进行依赖注入。
- # {{{ <property/> }}} 节点下可选节点有{{{<value/><ref/><list/><array/><map/>}}}节点。
+ # {{{ <property/> }}} 节点下可选节点有{{{<value/><ref/><list/><array/><map/>}}}
    * {{{ <value/> }}} 直接注入字面值，并且会根据其字面值自动判断类型，或者通过type属性声明value的类型
    * {{{ <ref/> }}} 注入其他声明过的组件
    * {{{ <list/> }}} 注入Collection接口的各种实现类，会自动匹配set方法参数类型，或者通过type指定特定类型的Collection实现类
@@ -163,8 +163,6 @@ http://firefly.googlecode.com/files/beans.xsd">
 {{{<mvc/>}}}节点有两个属性，view-path表示jsp视图存放的路径，view-encoding为返回视图的字符集
 
 == Controller使用 ==
- * @RequestMapping定义了请求地址和返回视图的类型，视图包括：jsp、text（文本）、redirect（重定向）、json
- * 当视图为jsp、text和redirect时方法的返回值约定为String类型，json支持Object类型
 例子：
 {{{
 @Controller
@@ -200,9 +198,11 @@ public class HelloController {
 	}
 }
 }}}
+ * @RequestMapping中value定义了请求URI，view定义返回视图的类型，视图包括：jsp、text（文本）、redirect（重定向）、json
+ * 当视图为jsp、text和redirect时方法的返回值约定为String类型，json支持Object类型
 
 == 自动封装request参数到javabean ==
- * 自动封装请求参数到javabean，只要把方法的参数标记上@HttpParam即可，@HttpParam.value()是可选值，当不为空的时候会自动把Book对象setAttribute里面
+例子：
 {{{
 	@RequestMapping(value = "/book/add")
 	public String gotoCreateBook() {
@@ -217,45 +217,29 @@ public class HelloController {
 		return "/book.jsp";
 	}
 }}}
-
-页面book.jsp
-{{{
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Strict//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
-<head>
-<title>firefly</title>
-</head>
-<body>
-| ${book.id} | ${book.title} | ${book.text} | ${book.price} | ${book.sell} |
-</body>
-</html>
-}}}
-
 页面book_create.jsp
 {{{
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Strict//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
-<head>
-<title>firefly</title>
-</head>
-<body>
+......
 <form action="<c:url value="/app/book/create"></c:url>" method="POST">
 	书名：<input type="text" name="title"></input><br/>
 	价格：<input type="text" name="price"></input><br/>
 	<input type="submit" value="提交"></input>
 </form>
-</body>
-</html>
+......
 }}}
-
-输入价格：324 书名：fdsfsdf 后显示结果
-
+页面book.jsp
 {{{
-| 90 | fdsfsdf | 测试当前book | 324.0 | true | 
+......
+<body>
+| ${book.id} | ${book.title} | ${book.text} | ${book.price} | ${book.sell} |
+</body>
+......
 }}}
+在页面book_create.jsp输入 书名：book1和 价格：123.2，提交后book.jsp页面显示结果为：| 90 | book1 | 测试当前book | 123.2 | true | 
+ * @RequestMapping中method默认值为get，表示此方法用来处理get请求，可以通过设置method属性来控制处理不同的http请求
+ * @HttpParam自动封装请求参数注入到javabean，，@HttpParam.value()是可选值，当不为空的时候会自动把Book对象setAttribute里面
 
 == 灵活的controller方法参数 ==
- * controller的方法参数里面可以注入 request、response 或 标注有@HttpParam 的对象，可以灵活组合
 例如：
 {{{
 	@RequestMapping(value = "/hello/value")
@@ -264,11 +248,9 @@ public class HelloController {
 		return "/book.jsp";
 	}
 }}}
-
+* controller的方法参数里面可以注入 request、response 或 标注有@HttpParam 的对象，可以灵活组合
 
 == 拦截器的使用 ==
- * 拦截的uri支持使用“`*`”通配符
- * 拦截器约定方法名称为before和after，before为拦截到url请求时调用，after为controller执行之后并且在视图渲染之前调用
 例子：
 {{{
 @Interceptor(uri = "/hello*")
@@ -285,6 +267,8 @@ public class HelloInterceptor {
 	}
 }
 }}}
+ * 拦截的uri支持使用“`*`”通配符
+ * 拦截器约定方法名称为before和after，before为拦截到url请求时调用，after为controller执行之后并且在视图渲染之前调用
  
  * 拦截器能够改变被拦截的Controller的返回视图
 例子：
