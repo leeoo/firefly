@@ -41,12 +41,12 @@ firefly.xml配置说明：
  # {{{ <component-scan/> }}} 节点用来配置Annotation组件声明，表示annotation包扫描路径，可以配置多个component-scan节点，表示对多个包进行扫描。
  # {{{ <bean/> }}} 节点把 test.mixed.impl.FoodRepositoryImpl 声明成一个组件，id属性是可选的，不填写的时候只能按接口类型获取bean。
  # {{{ <property/> }}} 节点通过name属性指定javabean中的set方法给组件进行依赖注入。
- # {{{ <property/> }}}节点下可选节点有{{{<value/><ref/><list/><array/><map/>}}}节点。
- * {{{ <value/> }}}直接注入字面值，并且会根据其字面值自动判断类型，或者通过type属性声明value的类型
- * {{{ <ref/> }}}注入其他声明过的组件
- * {{{ <list/> }}}注入Collection接口的各种实现类，会自动匹配set方法参数类型，或者通过type指定特定类型的Collection实现类
- * {{{<array/>}}}注入数组类型，会自动匹配set方法参数类型
- * {{{<map/>}}}注入Map接口的各种实现类，可以通过type指定特定的map接口实现类，没有指定type时自动匹配set方法参数的类型
+ # {{{ <property/> }}} 节点下可选节点有{{{<value/><ref/><list/><array/><map/>}}}节点。
+ * {{{ <value/> }}} 直接注入字面值，并且会根据其字面值自动判断类型，或者通过type属性声明value的类型
+ * {{{ <ref/> }}} 注入其他声明过的组件
+ * {{{ <list/> }}} 注入Collection接口的各种实现类，会自动匹配set方法参数类型，或者通过type指定特定类型的Collection实现类
+ * {{{ <array/> }}} 注入数组类型，会自动匹配set方法参数类型
+ * {{{ <map/> }}} 注入Map接口的各种实现类，可以通过type指定特定的map接口实现类，没有指定type时自动匹配set方法参数的类型
 具体的xml配置参数可以参看 [http://firefly.googlecode.com/files/beans.xsd schema定义]
 
 == annotation声明组件 ==
