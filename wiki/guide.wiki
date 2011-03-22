@@ -9,7 +9,7 @@
  * 使用简单，基于约定优于配置的思想，可完全使用Annotation方式 或 Annotation和XML混合方式 进行配置
 
 = IOC =
-[http://baike.baidu.com/view/1486379.htm IOC]为firefly的核心模块，使用类似Spring，使用Annotation或XML配置方式，组件生命周期为单例。
+[http://baike.baidu.com/view/1486379.htm IOC]为firefly的核心模块，支持Annotation或XML配置方式，组件生命周期为单例。
 == xml组件声明 ==
  # 把firefly.jar放入classpath下
  # 在classpath下创建firefly.xml文件
