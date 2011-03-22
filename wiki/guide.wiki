@@ -10,7 +10,7 @@
 
 = IOC =
 [http://baike.baidu.com/view/1486379.htm IOC]为firefly的核心模块，支持Annotation或XML配置方式，组件生命周期为单例。
-== xml组件声明 ==
+== xml声明组件 ==
  # 把firefly.jar放入classpath下
  # 在classpath下创建firefly.xml文件
 firefly.xml文件例子：
