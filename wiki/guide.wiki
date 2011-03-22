@@ -10,7 +10,7 @@
 
 = IOC =
 [http://baike.baidu.com/view/1486379.htm IOC]为firefly的核心模块，使用类似Spring，使用Annotation或XML配置方式，标注的组件生命周期为单例
-== 简单例子 ==
+== xml组件声明 ==
  # 把firefly.jar放入classpath下
  # 在classpath下创建firefly.xml文件
 firefly.xml文件例子：
@@ -18,26 +18,11 @@ firefly.xml文件例子：
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://code.google.com/p/firefly/beans"
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:schemaLocation="http://code.google.com/p/firefly/beans 
-http://firefly.googlecode.com/files/beans.xsd">
+		xsi:schemaLocation="http://code.google.com/p/firefly/beans http://firefly.googlecode.com/files/beans.xsd">
 
+	<import resource="fruit.xml"/>
 	<component-scan base-package="test.mixed"/>
-	
-	<bean id="apple" class="test.mixed.Food">
-		<property name="name" value="apple"></property>
-		<property name="price" value="5.3"></property>
-	</bean>
-	
-	<bean id="orange" class="test.mixed.Food">
-		<property name="name" value="orange"></property>
-		<property name="price" value="3.52"></property>
-	</bean>
-	
-	<bean id="strawberry" class="test.mixed.Food">
-		<property name="name" value="strawberry"></property>
-		<property name="price" value="10."></property>
-	</bean>
-	
+
 	<bean id="foodRepository" class="test.mixed.impl.FoodRepositoryImpl">
 		<property name="food">
 			<list>
@@ -51,24 +36,21 @@ http://firefly.googlecode.com/files/beans.xsd">
 </beans>
 }}}
 firefly.xml配置说明：
- # {{{ <component-scan base-package="test.mixed"/> }}} 用来表示annotation包扫描路径，可以配置多个component-scan节点，表示对多个包进行扫描。
- # {{{ <bean/> }}} 使用xml方式声明组件，与annotation方式声明组件在同一个上下文中，可以互相依赖注入，例如：
+ # {{{ <import/> }}} 节点用来引入其他配置文件，可以声明多个引入多个配置xml文件
+ # {{{ <component-scan/> }}} 节点用来配置Annotation组件声明，表示annotation包扫描路径，可以配置多个component-scan节点，表示对多个包进行扫描。
+ # {{{ <bean/> }}} 节点把 test.mixed.impl.FoodRepositoryImpl 声明成一个组件，id属性是可选的，不填写的时候只能按接口类型获取bean。
+ # {{{ <property/> }}} 节点通过name属性指定javabean中的set方法给组件进行依赖注入。
+{{{<property/>}}}节点下可选节点有{{{<value/><ref/><list/><array/><map/>}}}节点。
+ * {{{ <value/> }}}直接注入字面值，并且会根据其字面值自动判断类型，或者通过type属性声明value的类型
+ * {{{ <ref/> }}}注入其他声明过的组件
+ * {{{ <list/> }}}注入Collection接口的各种实现类，会自动匹配set方法参数类型，或者通过type指定特定类型的Collection实现类
+ * {{{<array/>}}}注入数组类型，会自动匹配set方法参数类型
+ * {{{<map/>}}}注入Map接口的各种实现类，可以通过type指定特定的map接口实现类，没有指定type时自动匹配set方法参数的类型
+具体的xml配置参数可以参看 [http://firefly.googlecode.com/files/beans.xsd schema定义]
+
+== annotation声明组件 ==
+例子：
 {{{
-public class FoodRepositoryImpl implements FoodRepository {
-
-	private List<Food> food;
-
-	@Override
-	public List<Food> getFood() {
-		return food;
-	}
-
-	public void setFood(List<Food> food) {
-		this.food = food;
-	}
-
-}
-
 @Component("foodService")
 public class FoodServiceImpl implements FoodService {
 
@@ -86,47 +68,7 @@ public class FoodServiceImpl implements FoodService {
 
 }
 }}}
-FoodRepositoryImpl使用xml声明，然后在foodService中使用annotation注入，这两种方式具有同等的效力。
-
-
-== 创建IOC容器 ==
-例子：
-{{{
-	public static ApplicationContext applicationContext = new XmlApplicationContext(
-			"firefly.xml");
-
-	@Test
-	public void testInject() {
-		FoodService foodService = applicationContext.getBean("foodService");
-		Food food = foodService.getFood("apple");
-		log.debug(food.getName());
-		Assert.assertThat(food.getPrice(), is(5.3));
-		
-		foodService = applicationContext.getBean(FoodService.class);
-		food = foodService.getFood("strawberry");
-		log.debug(food.getName());
-		Assert.assertThat(food.getPrice(), is(10.00));
-	}
-}}}
-支持根据Bean Id获取bean，或者通过接口的类型自动获取bean：
- # applicationContext.getBean("foodService");使用id获取bean实例对象
- # applicationContext.getBean(FoodService.class);根据类型自动找到实例对象
-
-== annotation声明组件 ==
-=== 声明组件 ===
-例子：
-{{{
-@Component("addService")
-public class AddServiceImpl implements AddService {
-
-	@Override
-	public int add(int x, int y) {
-		return x + y;
-	}
-
-}
-}}}
-@Component("addService") 其中addService为组件id，这是可选项，不填写这一项的时候无法通过id获取bean，但可以按类型自动获取bean。
+@Component("foodService") 其中foodService对应xml声明中的bean id，这是可选项，不填写这一项的时候无法通过id获取bean，但可以按类型自动获取bean。其中FoodRepository组件是先前在firefly.xml中声明的，xml和annotation声明组件是等效的，在同一个上下文中，能互相注入。当这两种声明方式发生冲突时，ApplicationContext启动过程当中抛出BeanDefinitionParsingException异常。
 
 === 方法参数注入 ===
 例子：
@@ -154,64 +96,33 @@ public class FieldInjectImpl implements FieldInject {
 	@Inject("addService")
 	private AddService addService2;
 
-	@Override
-	public int add(int x, int y) {
-		return addService.add(x, y);
-	}
-
-	@Override
-	public int add2(int x, int y) {
-		return addService2.add(x, y);
-	}
-
+	......
 }
 }}}
 属性支持按照属性类型自动注入或者按组件id的方式注入
 
-== xml声明组件 ==
-=== 声明组件 ===
+== 创建IOC容器 ==
+例子：
 {{{
-	<bean id="apple" class="test.mixed.Food">
-		<property name="name" value="apple"></property>
-		<property name="price" value="5.3"></property>
-	</bean>
+	public static ApplicationContext applicationContext = new XmlApplicationContext(
+			"firefly.xml");
+
+	@Test
+	public void testInject() {
+		FoodService foodService = applicationContext.getBean("foodService");
+		Food food = foodService.getFood("apple");
+		log.debug(food.getName());
+		Assert.assertThat(food.getPrice(), is(5.3));
+		
+		foodService = applicationContext.getBean(FoodService.class);
+		food = foodService.getFood("strawberry");
+		log.debug(food.getName());
+		Assert.assertThat(food.getPrice(), is(10.00));
+	}
 }}}
-{{{ <bean/> }}} 把test.mixed.Food声明为一个组件，id为apple，并且把name和price注入了值，其中{{{ <property/> }}} 节点的name属性对应类里面的set方法，其中value会根据其字面值自动转化成int,double,long或者string类型，5.3对应的字面值是double类型。如果和set方法参数类型不一致，会自动转化为set方法的类型
-=== 依赖注入 ===
-{{{
-	<bean id="personService" class="test.component3.PersonService">
-		<property name="testList">
-			<list>
-				<value type="int">123</value>
-				<ref bean="person2"/>
-				<value type="java.lang.String">dfdf</value>
-				<ref bean="person"/>
-				<map>
-					<entry key="2.2" value="3.3"></entry>
-					<entry>
-						<key>
-							dddd
-						</key>
-						<value>
-							<array>
-								<value>11</value>
-								<value>12</value>
-								<value>11.5</value>
-							</array>
-						</value>
-					</entry>
-				</map>
-			</list>
-		</property>
-	</bean>
-}}}
-{{{<property/>}}}节点下可选节点有{{{<value/><ref/><list/><array/><map/>}}}节点。
- * {{{<value/>}}}直接注入字面值
- * {{{<ref/>}}}注入其他声明过的组件
- * {{{<list/>}}}注入Collection接口的各种实现类
- * {{{<array/>}}}注入数组类型
- * {{{<map/>}}}注入Map接口的各种实现类
-具体的xml配置参数可以参看 [http://firefly.googlecode.com/files/beans.xsd schema定义]
+支持根据Bean Id获取bean，或者通过接口的类型自动获取bean：
+ # applicationContext.getBean("foodService");使用id获取bean实例对象
+ # applicationContext.getBean(FoodService.class);根据类型自动找到实例对象
 
 = Web框架 =
 使用[http://baike.baidu.com/view/31.htm MVC]模式，依赖firefly的IOC模块，使用Annotation配置方式
