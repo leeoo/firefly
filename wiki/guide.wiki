@@ -71,7 +71,7 @@ public class FoodServiceImpl implements FoodService {
 }}}
 @Component("foodService") 其中foodService对应xml声明中的bean id，这是可选项，不填写这一项的时候无法通过id获取bean，但可以按类型自动获取bean。其中FoodRepository组件是先前在firefly.xml中声明的，xml和annotation声明组件是等效的，在同一个上下文中，能互相注入。当这两种声明方式发生冲突时，ApplicationContext启动过程当中抛出BeanDefinitionParsingException异常。
 
- # 方法参数注入
+ * 方法参数注入
 例子：
 {{{
 @Component("methodInject")
@@ -86,7 +86,7 @@ public class MethodInjectImpl implements MethodInject {
 }}}
 方法参数只支持按类型自动注入
 
- # 属性注入
+ * 属性注入
 例子：
 {{{
 @Component("fieldInject")
