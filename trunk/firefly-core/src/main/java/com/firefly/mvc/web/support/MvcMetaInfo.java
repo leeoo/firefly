@@ -23,12 +23,12 @@ import com.firefly.annotation.HttpParam;
  */
 public class MvcMetaInfo implements Comparable<MvcMetaInfo> {
 	private static Logger log = LoggerFactory.getLogger(MvcMetaInfo.class);
-	private final Object object;
-	private final Method method;
-	private final ParamMetaInfo[] paramMetaInfos;
-	private final byte[] methodParam;
-	private final ViewHandle viewHandle;
-	private Integer interceptOrder;
+	private final Object object; // controller的实例对象
+	private final Method method; // 请求uri对应的方法
+	private final ParamMetaInfo[] paramMetaInfos; // @HttpParam标注的类的元信息
+	private final byte[] methodParam; // 请求方法参数类型
+	private final ViewHandle viewHandle; // 返回的视图
+	private Integer interceptOrder; // 拦截链顺序
 
 	public MvcMetaInfo(Object object, Method method, ViewHandle viewHandle) {
 		super();
@@ -57,6 +57,11 @@ public class MvcMetaInfo implements Comparable<MvcMetaInfo> {
 		}
 	}
 
+	/**
+	 * 根据类型获取所有set方法
+	 * @param paraType
+	 * @return
+	 */
 	private Map<String, Method> getBeanSetMethod(Class<?> paraType) {
 		Map<String, Method> beanSetMethod = new HashMap<String, Method>();
 		Method[] paramMethods = paraType.getMethods();

@@ -6,9 +6,9 @@ import java.util.Map;
 import com.firefly.utils.ConvertUtils;
 
 public class ParamMetaInfo {
-	private final Class<?> paramClass;
-	private final Map<String, Method> beanSetMethod;
-	private final String attribute;
+	private final Class<?> paramClass; // 要注入的类型
+	private final Map<String, Method> beanSetMethod; // 要注入的bean的set方法
+	private final String attribute; // 要setAttribute的属性
 
 	public ParamMetaInfo(Class<?> paramClass, Map<String, Method> beanSetMethod,
 			String attribute) {

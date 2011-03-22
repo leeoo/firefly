@@ -25,9 +25,9 @@ import com.firefly.utils.VerifyUtils;
 
 /**
  * Web应用上下文默认实现
- * 
+ *
  * @author AlvinQiu
- * 
+ *
  */
 public class AnnotationWebContext extends XmlApplicationContext implements
 		WebContext {
@@ -92,6 +92,7 @@ public class AnnotationWebContext extends XmlApplicationContext implements
 						.view();
 				String key = method + "@" + uri;
 
+				// 构造请求uri对应的方法的元信息
 				MvcMetaInfo mvcMetaInfo = new MvcMetaInfo(
 						beanDefinition.getObject(), m, getViewHandle(view));
 				map.put(key, mvcMetaInfo);
@@ -117,6 +118,8 @@ public class AnnotationWebContext extends XmlApplicationContext implements
 				log.debug("interceptorUri size [{}]", l.size());
 				for (String i : l) {
 					String key = m.getName().charAt(0) + "#" + i;
+
+					// 构造拦截器的元信息
 					MvcMetaInfo mvcMetaInfo = new MvcMetaInfo(
 							beanDefinition.getObject(), m,
 							getViewHandle(beanDefinition.getView()));
@@ -138,7 +141,7 @@ public class AnnotationWebContext extends XmlApplicationContext implements
 
 	/**
 	 * 根据拦截器模式获取所有注册的Uri
-	 * 
+	 *
 	 * @param pattern
 	 * @return
 	 */
@@ -157,7 +160,7 @@ public class AnnotationWebContext extends XmlApplicationContext implements
 
 	/**
 	 * 拦截地址匹配，忽略uri和pattern最后的'/'
-	 * 
+	 *
 	 * @param pattern
 	 * @param uri
 	 * @return
