@@ -3,26 +3,19 @@ package com.firefly.mvc.web.support;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.firefly.annotation.HttpParam;
+import com.firefly.utils.ReflectUtils;
 
 /**
  * 保存请求key对应的对象
- *
+ * 
  * @author alvinqiu
- *
+ * 
  */
 public class MvcMetaInfo implements Comparable<MvcMetaInfo> {
-	private static Logger log = LoggerFactory.getLogger(MvcMetaInfo.class);
+
 	private final Object object; // controller的实例对象
 	private final Method method; // 请求uri对应的方法
 	private final ParamMetaInfo[] paramMetaInfos; // @HttpParam标注的类的元信息
@@ -45,7 +38,8 @@ public class MvcMetaInfo implements Comparable<MvcMetaInfo> {
 			HttpParam httpParam = getHttpParam(annotations[i]);
 			if (httpParam != null) {
 				ParamMetaInfo paramMetaInfo = new ParamMetaInfo(paraTypes[i],
-						getBeanSetMethod(paraTypes[i]), httpParam.value());
+						ReflectUtils.getSetterMethods(paraTypes[i]),
+						httpParam.value());
 				paramMetaInfos[i] = paramMetaInfo;
 				methodParam[i] = MethodParam.HTTP_PARAM;
 			} else {
@@ -55,35 +49,6 @@ public class MvcMetaInfo implements Comparable<MvcMetaInfo> {
 					methodParam[i] = MethodParam.RESPONSE;
 			}
 		}
-	}
-
-	/**
-	 * 根据类型获取所有set方法
-	 * @param paraType
-	 * @return
-	 */
-	private Map<String, Method> getBeanSetMethod(Class<?> paraType) {
-		Map<String, Method> beanSetMethod = new HashMap<String, Method>();
-		Method[] paramMethods = paraType.getMethods();
-
-		for (Method paramMethod : paramMethods) {
-
-			if (!paramMethod.getName().startsWith("set")
-					|| Modifier.isStatic(paramMethod.getModifiers())
-					|| !paramMethod.getReturnType().equals(Void.TYPE)
-					|| paramMethod.getParameterTypes().length != 1) {
-				continue;
-			}
-			// log.debug("paramMethod [{}]", paramMethod.getName());
-			// 根据javabean里面的set方法取出对应的属性
-			String paramName = Character.toLowerCase(paramMethod.getName()
-					.charAt(3))
-					+ paramMethod.getName().substring(4);
-			paramMethod.setAccessible(true);
-			beanSetMethod.put(paramName, paramMethod);
-		}
-		log.debug(beanSetMethod.toString());
-		return beanSetMethod;
 	}
 
 	private HttpParam getHttpParam(Annotation[] annotations) {

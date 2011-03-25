@@ -3,24 +3,36 @@ package com.firefly.utils;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class ReflectUtils {
-	public static Method[] getSetterMethods(Class<?> clazz) {
-		Method[] methods = clazz.getMethods();
-		List<Method> list = new ArrayList<Method>();
+	
+	public static String getPropertyNameBySetterMethod(Method method) {
+		String methodName = method.getName();
+		String propertyName = Character.toLowerCase(methodName.charAt(3))
+				+ methodName.substring(4);
+		return propertyName;
+	}
+	
+	public static Map<String, Method> getSetterMethods(Class<?> paraType) {
+		Map<String, Method> beanSetMethod = new HashMap<String, Method>();
+		Method[] methods = paraType.getMethods();
+
 		for (Method method : methods) {
-			method.setAccessible(true);
-			String methodName = method.getName();
-			if (!methodName.startsWith("set")
+
+			if (!method.getName().startsWith("set")
 					|| Modifier.isStatic(method.getModifiers())
 					|| !method.getReturnType().equals(Void.TYPE)
 					|| method.getParameterTypes().length != 1) {
 				continue;
 			}
-			list.add(method);
+			String propertyName = getPropertyNameBySetterMethod(method);
+			method.setAccessible(true);
+			beanSetMethod.put(propertyName, method);
 		}
-		return list.toArray(new Method[0]);
+		return beanSetMethod;
 	}
 	
 	/**
