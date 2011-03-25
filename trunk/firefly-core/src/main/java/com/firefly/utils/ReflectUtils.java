@@ -8,17 +8,26 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class ReflectUtils {
-	
+
 	public static String getPropertyNameBySetterMethod(Method method) {
 		String methodName = method.getName();
 		String propertyName = Character.toLowerCase(methodName.charAt(3))
 				+ methodName.substring(4);
 		return propertyName;
 	}
-	
-	public static Map<String, Method> getSetterMethods(Class<?> paraType) {
+
+	public static interface BeanMethodFilter {
+		boolean accept(String propertyName, Method method);
+	}
+
+	public static Map<String, Method> getSetterMethods(Class<?> clazz) {
+		return getSetterMethods(clazz, null);
+	}
+
+	public static Map<String, Method> getSetterMethods(Class<?> clazz,
+			BeanMethodFilter filter) {
 		Map<String, Method> beanSetMethod = new HashMap<String, Method>();
-		Method[] methods = paraType.getMethods();
+		Method[] methods = clazz.getMethods();
 
 		for (Method method : methods) {
 
@@ -30,13 +39,16 @@ public abstract class ReflectUtils {
 			}
 			String propertyName = getPropertyNameBySetterMethod(method);
 			method.setAccessible(true);
-			beanSetMethod.put(propertyName, method);
+
+			if (filter == null || filter.accept(propertyName, method))
+				beanSetMethod.put(propertyName, method);
 		}
 		return beanSetMethod;
 	}
-	
+
 	/**
 	 * 获取所有接口名称
+	 * 
 	 * @param c
 	 * @return
 	 */

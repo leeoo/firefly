@@ -8,9 +8,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.firefly.annotation.Inject;
 import com.firefly.core.support.BeanDefinition;
 import com.firefly.core.support.annotation.AnnotationBeanDefinition;
@@ -24,6 +25,7 @@ import com.firefly.core.support.xml.XmlBeanDefinition;
 import com.firefly.core.support.xml.XmlBeanReader;
 import com.firefly.utils.ConvertUtils;
 import com.firefly.utils.ReflectUtils;
+import com.firefly.utils.ReflectUtils.BeanMethodFilter;
 import com.firefly.utils.VerifyUtils;
 
 /**
@@ -83,30 +85,33 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 	private Object xmlInject(BeanDefinition beanDef) {
 		XmlBeanDefinition beanDefinition = (XmlBeanDefinition) beanDef;
 		// 取得需要注入的对象
-		Object object = beanDefinition.getObject();
+		final Object object = beanDefinition.getObject();
 
 		// 取得对象所有的属性
-		Map<String, Object> properties = beanDefinition.getProperties();
+		final Map<String, Object> properties = beanDefinition.getProperties();
 
 		Class<?> clazz = object.getClass();
 
 		// 遍历所有注册的set方法注入
-		for (Entry<String, Method> entry : ReflectUtils.getSetterMethods(clazz)
-				.entrySet()) {
-			Object value = properties.get(entry.getKey());
-			if (value != null) {
-				try {
-					entry.getValue().invoke(object,
-							getInjectArg(value, entry.getValue()));
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
-					e.printStackTrace();
+		ReflectUtils.getSetterMethods(clazz, new BeanMethodFilter(){
+
+			@Override
+			public boolean accept(String propertyName, Method method) {
+				Object value = properties.get(propertyName);
+				if (value != null) {
+					try {
+						method.invoke(object,
+								getInjectArg(value, method));
+					} catch (IllegalArgumentException e) {
+						e.printStackTrace();
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					} catch (InvocationTargetException e) {
+						e.printStackTrace();
+					}
 				}
-			}
-		}
+				return false;
+			}});
 
 		addObjectToContext(beanDefinition);
 		return object;
