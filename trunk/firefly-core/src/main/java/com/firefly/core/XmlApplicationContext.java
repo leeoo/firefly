@@ -8,10 +8,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.firefly.annotation.Inject;
 import com.firefly.core.support.BeanDefinition;
 import com.firefly.core.support.annotation.AnnotationBeanDefinition;
@@ -28,9 +27,9 @@ import com.firefly.utils.ReflectUtils;
 import com.firefly.utils.VerifyUtils;
 
 /**
- *
+ * 
  * @author 须俊杰, alvinqiu
- *
+ * 
  */
 public class XmlApplicationContext extends AbstractApplicationContext {
 
@@ -77,7 +76,7 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 
 	/**
 	 * xml注入方式
-	 *
+	 * 
 	 * @param beanDef
 	 * @return
 	 */
@@ -92,14 +91,13 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 		Class<?> clazz = object.getClass();
 
 		// 遍历所有注册的set方法注入
-		for (Method method : ReflectUtils.getSetterMethods(clazz)) {
-			String methodName = method.getName();
-			String propertyName = Character.toLowerCase(methodName.charAt(3))
-					+ methodName.substring(4);
-			Object value = properties.get(propertyName);
+		for (Entry<String, Method> entry : ReflectUtils.getSetterMethods(clazz)
+				.entrySet()) {
+			Object value = properties.get(entry.getKey());
 			if (value != null) {
 				try {
-					method.invoke(object, getInjectArg(value, method));
+					entry.getValue().invoke(object,
+							getInjectArg(value, entry.getValue()));
 				} catch (IllegalArgumentException e) {
 					e.printStackTrace();
 				} catch (IllegalAccessException e) {
@@ -115,7 +113,7 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 	}
 
 	/**
-	 *
+	 * 
 	 * @param value
 	 *            属性值的元信息
 	 * @param method
@@ -214,7 +212,7 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 		return ConvertUtils.convert(collection, setterParamType);
 	}
 
-	@SuppressWarnings( { "unchecked" })
+	@SuppressWarnings({ "unchecked" })
 	private Object getMapArg(Object value, Method method) {
 		Class<?> setterParamType = null;
 		if (method != null) {
@@ -248,7 +246,7 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 
 	/**
 	 * annotation 注入方式
-	 *
+	 * 
 	 * @param beanDef
 	 * @return
 	 */
