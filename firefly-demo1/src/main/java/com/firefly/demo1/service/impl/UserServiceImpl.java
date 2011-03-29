@@ -23,12 +23,14 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public List<User> getUsers() {
 		Connection connection = null;
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
 		List<User> ret = new ArrayList<User>();
 		try {
 			connection = dataSource.getConnection();
-			PreparedStatement preparedStatement = connection
+			preparedStatement = connection
 					.prepareStatement("select id, name, password from cms_user");
-			ResultSet resultSet = preparedStatement.executeQuery();
+			resultSet = preparedStatement.executeQuery();
 			while (resultSet.next()) {
 				User user = new User();
 				user.setId(resultSet.getString("id"));
@@ -39,20 +41,23 @@ public class UserServiceImpl implements UserService {
 			connection.commit();
 
 		} catch (SQLException e) {
-			if (connection != null)
-				try {
+			try {
+				if (connection != null)
 					connection.rollback();
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				}
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
 			e.printStackTrace();
 		} finally {
-			if (connection != null) {
-				try {
+			try {
+				if (resultSet != null)
+					resultSet.close();
+				if (preparedStatement != null)
+					preparedStatement.close();
+				if (connection != null)
 					connection.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
+			} catch (SQLException e1) {
+				e1.printStackTrace();
 			}
 		}
 		return ret;
