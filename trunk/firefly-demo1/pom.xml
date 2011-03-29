@@ -145,7 +145,7 @@
 					    <goal>execute</goal>
 					  </goals>
 					  <configuration>
-					    <sqlCommand>drop database ${project.artifactId}</sqlCommand>
+					    <sqlCommand>DROP ALL OBJECTS</sqlCommand>
 					  </configuration>
 					</execution>
  				</executions>
