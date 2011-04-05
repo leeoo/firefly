@@ -162,6 +162,7 @@ public class TestMvc {
 		log.info(request.getDispatcherTarget());
 		Assert.assertThat(request.getDispatcherTarget(),
 				is("/WEB-INF/page/foodView1.jsp"));
+		Assert.assertThat(request.getAttribute("into").toString(), is("2"));
 	}
 
 	@Test
