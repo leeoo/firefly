@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -194,5 +195,18 @@ abstract public class ConvertUtils {
 			}
 			return map;
 		}
+	}
+	
+	public static <T> Enumeration<T> enumeration(Collection<T> col) {
+		final Iterator<T> it = col.iterator();
+		return new Enumeration<T>() {
+			public boolean hasMoreElements() {
+				return it.hasNext();
+			}
+
+			public T nextElement() {
+				return it.next();
+			}
+		};
 	}
 }

@@ -1,0 +1,119 @@
+package test.mvc;
+
+import static org.hamcrest.Matchers.is;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import test.controller.Book;
+import test.mock.servlet.MockHttpServletRequest;
+import test.mock.servlet.MockHttpServletResponse;
+
+import com.firefly.mvc.web.DispatcherController;
+import com.firefly.mvc.web.HttpMethod;
+import com.firefly.mvc.web.servlet.HttpServletDispatcherController;
+
+public class TestMvc {
+	private static Logger log = LoggerFactory.getLogger(TestMvc.class);
+	private static DispatcherController dispatcherController = HttpServletDispatcherController
+			.getInstance().init("firefly-mvc.xml");
+
+	@Test
+	public void testControllerHello() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/firefly/app/hello");
+		request.setServletPath("/app");
+		request.setContextPath("/firefly");
+		request.setMethod("GET");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		dispatcherController.dispatcher(request, response);
+		Assert.assertThat(request.getAttribute("hello").toString(),
+				is("你好 firefly!"));
+	}
+
+	@Test
+	public void testBeanParamInject() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/firefly/app/book/value");
+		request.setServletPath("/app");
+		request.setContextPath("/firefly");
+		request.setMethod("GET");
+		request.setParameter("text", "ddd");
+		request.setParameter("id", "345");
+		request.setParameter("price", "23.3");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		dispatcherController.dispatcher(request, response);
+		Book book = (Book) request.getAttribute("book");
+		Assert.assertThat(book.getText(), is("ddd"));
+		Assert.assertThat(book.getPrice(), is(23.3));
+		Assert.assertThat(book.getId(), is(345));
+	}
+
+	@Test
+	public void testPostBeanParamInject() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/firefly/app/book/create/");
+		request.setServletPath("/app");
+		request.setContextPath("/firefly");
+		request.setMethod(HttpMethod.POST);
+		request.setParameter("title", "good book");
+		request.setParameter("text", "一本好书");
+		request.setParameter("id", "330");
+		request.setParameter("price", "79.9");
+		request.setParameter("sell", "true");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		dispatcherController.dispatcher(request, response);
+		Book book = (Book) request.getAttribute("book");
+		Assert.assertThat(book.getText(), is("一本好书"));
+		Assert.assertThat(book.getPrice(), is(79.9));
+		Assert.assertThat(book.getId(), is(330));
+		Assert.assertThat(book.getSell(), is(true));
+	}
+
+	@Test
+	public void testResponseOutput() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/firefly/app/hello/text");
+		request.setServletPath("/app");
+		request.setContextPath("/firefly");
+		request.setMethod("GET");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		dispatcherController.dispatcher(request, response);
+		Assert.assertThat(response.getAsString(), is("文本输出"));
+	}
+
+	@Test
+	public void testJsonOutput() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/firefly/app/book/json/");
+		request.setServletPath("/app");
+		request.setContextPath("/firefly");
+		request.setMethod(HttpMethod.POST);
+		request.setParameter("title", "good book");
+		request.setParameter("text", "very good");
+		request.setParameter("id", "331");
+		request.setParameter("price", "10.0");
+		request.setParameter("sell", "false");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		dispatcherController.dispatcher(request, response);
+		log.info(response.getAsString());
+		Assert.assertThat(
+				response.getAsString(),
+				is("{\"id\":331,\"price\":10.0,\"text\":\"very good\",\"sell\":false,\"title\":\"good book\"}"));
+	}
+	
+	@Test
+	public void testRedirect() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/firefly/app/hello/redirect");
+		request.setServletPath("/app");
+		request.setContextPath("/firefly");
+		request.setMethod("GET");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		dispatcherController.dispatcher(request, response);
+		log.info(response.getHeader("Location"));
+		Assert.assertThat(response.getHeader("Location"), is("/firefly/app/hello"));
+	}
+}
