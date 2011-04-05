@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import test.controller.Book;
+import test.mixed.Food;
 import test.mock.servlet.MockHttpServletRequest;
 import test.mock.servlet.MockHttpServletResponse;
 
@@ -103,7 +104,7 @@ public class TestMvc {
 				response.getAsString(),
 				is("{\"id\":331,\"price\":10.0,\"text\":\"very good\",\"sell\":false,\"title\":\"good book\"}"));
 	}
-	
+
 	@Test
 	public void testRedirect() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -114,6 +115,88 @@ public class TestMvc {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		dispatcherController.dispatcher(request, response);
 		log.info(response.getHeader("Location"));
-		Assert.assertThat(response.getHeader("Location"), is("/firefly/app/hello"));
+		Assert.assertThat(response.getHeader("Location"),
+				is("/firefly/app/hello"));
+	}
+
+	@Test
+	public void testInterceptor() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/firefly/app/food");
+		request.setServletPath("/app");
+		request.setContextPath("/firefly");
+		request.setMethod("GET");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		dispatcherController.dispatcher(request, response);
+		log.info(request.getDispatcherTarget());
+		Food food = (Food) request.getAttribute("fruit");
+		Assert.assertThat(food.getName(), is("orange"));
+
+	}
+
+	@Test
+	public void testInterceptorReturn() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/firefly/app/food");
+		request.setServletPath("/app");
+		request.setContextPath("/firefly");
+		request.setMethod("GET");
+		request.setParameter("fruit", "apple");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		dispatcherController.dispatcher(request, response);
+		log.info(request.getDispatcherTarget());
+		Food food = (Food) request.getAttribute("fruit");
+		Assert.assertThat(food.getName(), is("apple"));
+		Assert.assertThat(food.getPrice(), is(5.3));
+	}
+	
+	@Test
+	public void testInterceptorChain() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/firefly/app/food/view1");
+		request.setServletPath("/app");
+		request.setContextPath("/firefly");
+		request.setMethod("GET");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		dispatcherController.dispatcher(request, response);
+		log.info(request.getDispatcherTarget());
+		Assert.assertThat(request.getDispatcherTarget(),
+				is("/WEB-INF/page/foodView1.jsp"));
+	}
+
+	@Test
+	public void testInterceptorChainReturn1() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/firefly/app/food/view1");
+		request.setServletPath("/app");
+		request.setContextPath("/firefly");
+		request.setMethod("GET");
+		request.setParameter("strawberry", "strawberry");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		dispatcherController.dispatcher(request, response);
+		log.info(request.getDispatcherTarget());
+		Food food = (Food) request.getAttribute("fruit");
+		Assert.assertThat(food.getName(), is("strawberry"));
+		Assert.assertThat(food.getPrice(), is(10.00));
+		Assert.assertThat(request.getDispatcherTarget(),
+				is("/WEB-INF/page/foodView.jsp"));
+
+	}
+
+	@Test
+	public void testInterceptorChainReturn() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/firefly/app/food/view1");
+		request.setServletPath("/app");
+		request.setContextPath("/firefly");
+		request.setMethod("GET");
+		request.setParameter("fruit", "apple");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		dispatcherController.dispatcher(request, response);
+		Food food = (Food) request.getAttribute("fruit");
+		Assert.assertThat(food.getName(), is("apple"));
+		Assert.assertThat(food.getPrice(), is(5.3));
+		Assert.assertThat(request.getDispatcherTarget(),
+				is("/WEB-INF/page/food.jsp"));
 	}
 }
