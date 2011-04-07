@@ -6,11 +6,11 @@ import java.util.Map;
 import com.firefly.utils.json.ClassCache;
 
 public class JsonClassCache implements ClassCache {
-	public final Map<Class<?>, FieldHandle[]> map;
+	public final Map<Class<?>, JsonObjMetaInfo[]> map;
 
 	private JsonClassCache() {
-//		map = new ConcurrentHashMap<Class<?>, FieldHandle[]>();
-		map = new HashMap<Class<?>, FieldHandle[]>();
+//		map = new ConcurrentHashMap<Class<?>, JsonObjMetaInfo[]>();
+		map = new HashMap<Class<?>, JsonObjMetaInfo[]>();
 	}
 
 	private static class Holder {
@@ -21,11 +21,11 @@ public class JsonClassCache implements ClassCache {
 		return Holder.instance;
 	}
 
-	public void put(Class<?> clazz, FieldHandle[] FieldHandles) {
-		map.put(clazz, FieldHandles);
+	public void put(Class<?> clazz, JsonObjMetaInfo[] jsonObjMetaInfo) {
+		map.put(clazz, jsonObjMetaInfo);
 	}
 
-	public FieldHandle[] get(Class<?> clazz) {
+	public JsonObjMetaInfo[] get(Class<?> clazz) {
 		return map.get(clazz);
 	}
 }

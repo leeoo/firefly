@@ -2,7 +2,7 @@ package com.firefly.utils.json.support;
 
 import java.lang.reflect.Method;
 
-public class FieldHandle {
+public class JsonObjMetaInfo {
 	private String propertyName;
 	private Method method;
 
