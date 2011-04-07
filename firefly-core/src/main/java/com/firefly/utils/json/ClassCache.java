@@ -1,11 +1,11 @@
 package com.firefly.utils.json;
 
-import com.firefly.utils.json.support.FieldHandle;
+import com.firefly.utils.json.support.JsonObjMetaInfo;
 
 public interface ClassCache {
 
-	public abstract void put(Class<?> clazz, FieldHandle[] FieldHandles);
+	public abstract void put(Class<?> clazz, JsonObjMetaInfo[] jsonObjMetaInfo);
 
-	public abstract FieldHandle[] get(Class<?> clazz);
+	public abstract JsonObjMetaInfo[] get(Class<?> clazz);
 
 }

@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 import com.firefly.utils.SafeSimpleDateFormat;
-import com.firefly.utils.json.support.FieldHandle;
+import com.firefly.utils.json.support.JsonObjMetaInfo;
 import com.firefly.utils.json.support.JsonClassCache;
 import com.firefly.utils.json.support.TypeVerify;
 
@@ -75,9 +75,9 @@ class JsonSerializer {
 			return;
 		Class<?> clazz = obj.getClass();
 		sb.append(OBJ_PRE);
-		FieldHandle[] fieldHandles = classCache.get(clazz);
-		if (fieldHandles == null) {
-			List<FieldHandle> fieldList = new ArrayList<FieldHandle>();
+		JsonObjMetaInfo[] jsonObjMetaInfo = classCache.get(clazz);
+		if (jsonObjMetaInfo == null) {
+			List<JsonObjMetaInfo> fieldList = new ArrayList<JsonObjMetaInfo>();
 			Method[] methods = clazz.getMethods();
 			for (int i = 0; i < methods.length; i++) {
 				Method method = methods[i];
@@ -116,7 +116,7 @@ class JsonSerializer {
 					}
 
 					try {
-						FieldHandle fieldSerializer = new FieldHandle();
+						JsonObjMetaInfo fieldSerializer = new JsonObjMetaInfo();
 						fieldSerializer.setPropertyName(propertyName);
 						fieldSerializer.setMethod(method);
 						fieldList.add(fieldSerializer);
@@ -154,7 +154,7 @@ class JsonSerializer {
 					}
 
 					try {
-						FieldHandle fieldSerializer = new FieldHandle();
+						JsonObjMetaInfo fieldSerializer = new JsonObjMetaInfo();
 						fieldSerializer.setPropertyName(propertyName);
 						fieldSerializer.setMethod(method);
 						fieldList.add(fieldSerializer);
@@ -171,12 +171,12 @@ class JsonSerializer {
 				}
 			}
 
-			classCache.put(clazz, fieldList.toArray(new FieldHandle[0]));
+			classCache.put(clazz, fieldList.toArray(new JsonObjMetaInfo[0]));
 		} else {
-			for (int i = 0; i < fieldHandles.length; i++) {
+			for (int i = 0; i < jsonObjMetaInfo.length; i++) {
 				try {
-					appendPair(fieldHandles[i].getPropertyName(),
-							fieldHandles[i].getMethod().invoke(obj));
+					appendPair(jsonObjMetaInfo[i].getPropertyName(),
+							jsonObjMetaInfo[i].getMethod().invoke(obj));
 					sb.append(SEPARATOR);
 				} catch (IllegalArgumentException e) {
 					e.printStackTrace();
