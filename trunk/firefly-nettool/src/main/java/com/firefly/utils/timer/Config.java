@@ -3,8 +3,17 @@ package com.firefly.utils.timer;
 public class Config {
 	private int maxTimers = 10;
 	private long interval = 100;
+	private int initialDelay = 0;
 	private int timerThreads = 1;
 	private int workerThreads = Runtime.getRuntime().availableProcessors();
+
+	public int getInitialDelay() {
+		return initialDelay;
+	}
+
+	public void setInitialDelay(int initialDelay) {
+		this.initialDelay = initialDelay;
+	}
 
 	public int getWorkerThreads() {
 		return workerThreads;
