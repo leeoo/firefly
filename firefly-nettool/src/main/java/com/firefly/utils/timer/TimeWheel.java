@@ -3,6 +3,7 @@ package com.firefly.utils.timer;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -19,6 +20,8 @@ public class TimeWheel {
 	private AtomicInteger currentSlot = new AtomicInteger(0);
 	private volatile int currentSlotNum = 0;
 	private ScheduledFuture<?> fireHandle;
+	private ExecutorService workerThreadPool;
+	private ScheduledExecutorService scheduler;
 
 	public Config getConfig() {
 		return config;
@@ -49,10 +52,11 @@ public class TimeWheel {
 			timerSlot.setSlotNum(i);
 			list.add(timerSlot);
 		}
+		workerThreadPool = Executors.newFixedThreadPool(config
+				.getWorkerThreads());
+		scheduler = Executors.newScheduledThreadPool(config.getTimerThreads());
 
-		ScheduledExecutorService scheduler = Executors
-				.newScheduledThreadPool(config.getThreads());
-		final Runnable fire = new Runnable() {
+		fireHandle = scheduler.scheduleAtFixedRate(new Runnable() {
 			public void run() {
 				TimerSlot timerSlot = list.get(currentSlot.getAndIncrement());
 				currentSlotNum = timerSlot.getSlotNum();
@@ -62,7 +66,7 @@ public class TimeWheel {
 				while (iterator.hasNext()) {
 					TimerNode node = iterator.next();
 					if (node.getRound() == 0) {
-						node.getRun().run();
+						workerThreadPool.submit(node.getRun());
 						iterator.remove();
 					} else {
 						node.setRound(node.getRound() - 1);
@@ -71,11 +75,9 @@ public class TimeWheel {
 
 				currentSlot.compareAndSet(list.size(), 0);
 			}
-		};
-		fireHandle = scheduler.scheduleAtFixedRate(fire, 0,
-				config.getInterval(), TimeUnit.MILLISECONDS);
+		}, 0, config.getInterval(), TimeUnit.MILLISECONDS);
 	}
-	
+
 	public void stop() {
 		fireHandle.cancel(true);
 	}
