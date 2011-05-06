@@ -31,9 +31,13 @@ public class TestTimerWheel {
 			@Override
 			public void run() {
 				long end = System.currentTimeMillis();
-				log.info("ttt1: " + (end - start));
+				log.info("ttt2: " + (end - start));
 				Assert.assertThat((end - start), greaterThanOrEqualTo(2500L));
 			}
 		});
+	}
+
+	public static void main(String[] args) {
+		new TestTimerWheel().test();
 	}
 }
