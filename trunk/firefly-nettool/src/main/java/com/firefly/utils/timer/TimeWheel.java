@@ -35,10 +35,18 @@ public class TimeWheel {
 		return fireHandle;
 	}
 
+	/**
+	 * 增加一个触发任务
+	 *
+	 * @param delay
+	 *            触发延时时间
+	 * @param run
+	 *            任务处理
+	 */
 	public void add(long delay, Runnable run) {
-		int ticks = (int) (delay / config.getInterval());
-		int index = currentSlotNum + (ticks % config.getMaxTimers());
-		int round = ticks / config.getMaxTimers();
+		int ticks = (int) (delay / config.getInterval()); // 计算刻度长度
+		int index = currentSlotNum + (ticks % config.getMaxTimers()); // 放到wheel的位置
+		int round = ticks / config.getMaxTimers(); // wheel旋转的圈数
 
 		TimerNode node = new TimerNode();
 		node.setRound(round);
@@ -46,6 +54,9 @@ public class TimeWheel {
 		list.get(index).getQueue().add(node);
 	}
 
+	/**
+	 * TimeWheel开始旋转
+	 */
 	public void start() {
 		for (int i = 0; i < config.getMaxTimers(); i++) {
 			TimerSlot timerSlot = new TimerSlot();
