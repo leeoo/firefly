@@ -75,7 +75,8 @@ public class TimeWheel {
 
 				currentSlot.compareAndSet(list.size(), 0);
 			}
-		}, 0, config.getInterval(), TimeUnit.MILLISECONDS);
+		}, config.getInitialDelay(), config.getInterval(),
+				TimeUnit.MILLISECONDS);
 	}
 
 	public void stop() {
