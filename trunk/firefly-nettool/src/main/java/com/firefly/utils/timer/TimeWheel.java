@@ -37,7 +37,7 @@ public class TimeWheel {
 
 	/**
 	 * 增加一个触发任务
-	 *
+	 * 
 	 * @param delay
 	 *            触发延时时间
 	 * @param run
@@ -63,8 +63,10 @@ public class TimeWheel {
 			timerSlot.setSlotNum(i);
 			list.add(timerSlot);
 		}
-		workerThreadPool = Executors.newFixedThreadPool(config
-				.getWorkerThreads());
+		final boolean hasWorkers = config.getWorkerThreads() > 0;
+		if (hasWorkers)
+			workerThreadPool = Executors.newFixedThreadPool(config
+					.getWorkerThreads());
 		scheduler = Executors.newScheduledThreadPool(config.getTimerThreads());
 
 		fireHandle = scheduler.scheduleAtFixedRate(new Runnable() {
@@ -77,7 +79,10 @@ public class TimeWheel {
 				while (iterator.hasNext()) {
 					TimerNode node = iterator.next();
 					if (node.getRound() == 0) {
-						workerThreadPool.submit(node.getRun());
+						if(hasWorkers && workerThreadPool != null)
+							workerThreadPool.submit(node.getRun());
+						else
+							node.getRun().run();
 						iterator.remove();
 					} else {
 						node.setRound(node.getRound() - 1);
