@@ -6,6 +6,24 @@ public class Config {
 	private int connectionTime, latency, bandwidth;
 	private int backlog = 10240;
 	private int timeout = 30000;
+	private int port;
+	private String host;
+
+	public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public String getHost() {
+		return host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
 
 	public int getTimeout() {
 		return timeout;
