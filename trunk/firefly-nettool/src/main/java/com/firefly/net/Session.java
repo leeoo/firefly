@@ -8,20 +8,8 @@ public interface Session {
 	void removeAttribute(String key);
 
 	void clearAttributes();
-
-	Handler getHandler();
-
-	void setHandler(Handler handler);
-
-	Decoder getDecoder();
-
-	void setDecoder(Decoder decoder);
-
-	Encoder getEncoder();
-
-	void setEncoder(Encoder encoder);
 	
-	void executeHandler();
+	void executeHandler(Object message);
 	
-	
+	void write(Object message);
 }
