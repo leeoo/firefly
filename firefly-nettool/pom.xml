@@ -136,6 +136,13 @@
     			<log.path>/Users/qiupengtao/develop/logs/app.log</log.path>
     		</properties>
     	</profile>
+    	<profile>
+    		<id>macdebug</id>
+    		<properties>
+    			<log.level>DEBUG</log.level>
+    			<log.path>/Users/qiupengtao/develop/logs/app.log</log.path>
+    		</properties>
+    	</profile>
     </profiles>
     <repositories>
 		<!-- <repository>
