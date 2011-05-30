@@ -1,13 +1,18 @@
 package com.firefly.net.buffer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.firefly.net.ReceiveBufferSizePredictor;
 
 
 public class AdaptiveReceiveBufferSizePredictor implements
 		ReceiveBufferSizePredictor {
+	private static Logger log = LoggerFactory.getLogger(AdaptiveReceiveBufferSizePredictor.class);
 
 	static final int DEFAULT_MINIMUM = 64;
 	static final int DEFAULT_INITIAL = 1024;
@@ -43,6 +48,7 @@ public class AdaptiveReceiveBufferSizePredictor implements
 		for (int i = 0; i < SIZE_TABLE.length; i++) {
 			SIZE_TABLE[i] = sizeTable.get(i);
 		}
+		log.debug(Arrays.toString(SIZE_TABLE));
 	}
 
 	private static int getSizeTableIndex(final int size) {
