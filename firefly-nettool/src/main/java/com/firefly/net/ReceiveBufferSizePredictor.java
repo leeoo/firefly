@@ -1,4 +1,4 @@
-package com.firefly.net.buffer;
+package com.firefly.net;
 
 public interface ReceiveBufferSizePredictor {
 	int nextReceiveBufferSize();

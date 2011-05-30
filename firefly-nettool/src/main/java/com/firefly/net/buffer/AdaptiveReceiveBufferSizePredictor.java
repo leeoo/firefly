@@ -3,6 +3,8 @@ package com.firefly.net.buffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.firefly.net.ReceiveBufferSizePredictor;
+
 
 public class AdaptiveReceiveBufferSizePredictor implements
 		ReceiveBufferSizePredictor {

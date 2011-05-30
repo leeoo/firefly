@@ -1,5 +1,7 @@
 package com.firefly.net.buffer;
 
+import com.firefly.net.ReceiveBufferSizePredictor;
+
 
 public class FixedReceiveBufferSizePredictor implements
 		ReceiveBufferSizePredictor {
