@@ -3,11 +3,67 @@ package com.firefly.net;
 public class Config {
 	private int handleThreads = 1024;
 	private int workerThreads = Runtime.getRuntime().availableProcessors() * 2;
-	private int connectionTime, latency, bandwidth;
-	private int backlog = 10240;
+	private int connectionTime = 1;
+	private int latency = 2;
+	private int bandwidth = 0;
+	private int receiveBufferSize = 0;
+	private int sendBufferSize = 0;
+	private int backlog = 1024 * 16;
 	private int timeout = 30000;
 	private int port;
 	private String host;
+	private String serverName = "firefly-tcp-server";
+	private Decoder decoder;
+	private Encoder encoder;
+	private Handler handler;
+
+	public String getServerName() {
+		return serverName;
+	}
+
+	public void setServerName(String serverName) {
+		this.serverName = serverName;
+	}
+
+	public int getReceiveBufferSize() {
+		return receiveBufferSize;
+	}
+
+	public void setReceiveBufferSize(int receiveBufferSize) {
+		this.receiveBufferSize = receiveBufferSize;
+	}
+
+	public int getSendBufferSize() {
+		return sendBufferSize;
+	}
+
+	public void setSendBufferSize(int sendBufferSize) {
+		this.sendBufferSize = sendBufferSize;
+	}
+
+	public Decoder getDecoder() {
+		return decoder;
+	}
+
+	public void setDecoder(Decoder decoder) {
+		this.decoder = decoder;
+	}
+
+	public Encoder getEncoder() {
+		return encoder;
+	}
+
+	public void setEncoder(Encoder encoder) {
+		this.encoder = encoder;
+	}
+
+	public Handler getHandler() {
+		return handler;
+	}
+
+	public void setHandler(Handler handler) {
+		this.handler = handler;
+	}
 
 	public int getPort() {
 		return port;
@@ -79,6 +135,18 @@ public class Config {
 
 	public void setBandwidth(int bandwidth) {
 		this.bandwidth = bandwidth;
+	}
+
+	@Override
+	public String toString() {
+		return "Config [handleThreads=" + handleThreads + ", workerThreads="
+				+ workerThreads + ", connectionTime=" + connectionTime
+				+ ", latency=" + latency + ", bandwidth=" + bandwidth
+				+ ", receiveBufferSize=" + receiveBufferSize
+				+ ", sendBufferSize=" + sendBufferSize + ", backlog=" + backlog
+				+ ", timeout=" + timeout + ", port=" + port + ", host=" + host
+				+ ", serverName=" + serverName + ", decoder=" + decoder
+				+ ", encoder=" + encoder + ", handler=" + handler + "]";
 	}
 
 }
