@@ -2,7 +2,6 @@ package com.firefly.net.tcp;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -15,7 +14,6 @@ import com.firefly.net.Decoder;
 import com.firefly.net.Encoder;
 import com.firefly.net.Handler;
 import com.firefly.net.Server;
-import com.firefly.net.Session;
 import com.firefly.net.Worker;
 import com.firefly.net.exception.NetException;
 
@@ -168,41 +166,6 @@ public class TcpServer implements Server {
 					.registerSocketChannel(socketChannel, sessionId);
 		}
 
-	}
-
-	public static void main(String[] args) {
-		new TcpServer("localhost", 9900, new Decoder() {
-			@Override
-			public void decode(ByteBuffer buf, Session session) {
-
-			}
-		}, new Encoder() {
-			@Override
-			public void encode(Object message, Session session) {
-
-			}
-		}, new Handler() {
-
-			@Override
-			public void sessionOpened(Session session) {
-
-			}
-
-			@Override
-			public void sessionClosed(Session session) {
-
-			}
-
-			@Override
-			public void messageRecieved(Session session, Object message) {
-
-			}
-
-			@Override
-			public void exceptionCaught(Session session) {
-
-			}
-		}).start();
 	}
 
 }
