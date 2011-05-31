@@ -17,5 +17,11 @@
 			</list>
 		</property>
 	</bean>
+	
+	<bean id="foodService2" class="test.mixed.impl.FoodService2Impl">
+		<property name="foodService">
+			<ref bean="foodService" />
+		</property>
+	</bean>
 
 </beans>
