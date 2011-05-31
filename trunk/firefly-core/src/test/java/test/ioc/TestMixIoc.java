@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import test.mixed.Food;
 import test.mixed.FoodService;
+import test.mixed.FoodService2;
 
 import com.firefly.core.ApplicationContext;
 import com.firefly.core.XmlApplicationContext;
@@ -21,12 +22,12 @@ public class TestMixIoc {
 
 	@Test
 	public void testInject() {
-		FoodService foodService = applicationContext.getBean("foodService");
-		Food food = foodService.getFood("apple");
+		FoodService2 foodService2 = applicationContext.getBean("foodService2");
+		Food food = foodService2.getFood("apple");
 		log.debug(food.getName());
 		Assert.assertThat(food.getPrice(), is(5.3));
 		
-		foodService = applicationContext.getBean(FoodService.class);
+		FoodService foodService = applicationContext.getBean(FoodService.class);
 		food = foodService.getFood("strawberry");
 		log.debug(food.getName());
 		Assert.assertThat(food.getPrice(), is(10.00));
