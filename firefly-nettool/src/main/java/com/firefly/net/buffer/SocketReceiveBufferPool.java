@@ -3,7 +3,9 @@ package com.firefly.net.buffer;
 import java.lang.ref.SoftReference;
 import java.nio.ByteBuffer;
 
-public class SocketReceiveBufferPool {
+import com.firefly.net.ReceiveBufferPool;
+
+public class SocketReceiveBufferPool implements ReceiveBufferPool {
 	private static final int POOL_SIZE = 8;
 
 	@SuppressWarnings("unchecked")
