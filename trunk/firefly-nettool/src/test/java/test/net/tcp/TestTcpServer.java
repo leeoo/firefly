@@ -38,7 +38,7 @@ public class TestTcpServer {
 			}
 
 			@Override
-			public void exceptionCaught(Session session) {
+			public void exceptionCaught(Session session, Throwable t) {
 
 			}
 		}).start();
