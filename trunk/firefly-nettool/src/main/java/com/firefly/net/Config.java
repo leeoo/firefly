@@ -1,8 +1,6 @@
 package com.firefly.net;
 
 public class Config {
-	private int handleThreads = 1024;
-	private int workerThreads = Runtime.getRuntime().availableProcessors() * 2;
 	private int connectionTime = 1;
 	private int latency = 2;
 	private int bandwidth = 0;
@@ -12,10 +10,32 @@ public class Config {
 	private int timeout = 30000;
 	private int port;
 	private String host;
-	private String serverName = "firefly-tcp-server";
+
+	private int handleThreads = 1024;
+	private int workerThreads = Runtime.getRuntime().availableProcessors() * 2;
+	private int cleanupInterval = 256;
+
+	private String serverName = "firefly-server";
+	private String clientName = "firefly-client";
 	private Decoder decoder;
 	private Encoder encoder;
 	private Handler handler;
+
+	public int getCleanupInterval() {
+		return cleanupInterval;
+	}
+
+	public void setCleanupInterval(int cleanupInterval) {
+		this.cleanupInterval = cleanupInterval;
+	}
+
+	public String getClientName() {
+		return clientName;
+	}
+
+	public void setClientName(String clientName) {
+		this.clientName = clientName;
+	}
 
 	public String getServerName() {
 		return serverName;
