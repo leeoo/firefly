@@ -101,9 +101,7 @@ public class TcpServer implements Server {
 	private void listen(ServerSocketChannel serverSocketChannel) {
 		workers = new Worker[config.getWorkerThreads()];
 		for (int i = 0; i < config.getWorkerThreads(); i++) {
-			Worker worker = new TcpWorker();
-			worker.setConfig(config);
-			workers[i] = worker;
+			workers[i] = new TcpWorker(config);
 		}
 
 		Boss boss = null;
@@ -159,11 +157,21 @@ public class TcpServer implements Server {
 		}
 
 		public void accept(SocketChannel socketChannel, int sessionId) {
-			int workerIndex = Math.abs(sessionId) % workers.length;
-			log.debug("accept sessionId [{}] and worker index [{}]", sessionId,
-					workerIndex);
-			workers[workerIndex]
-					.registerSocketChannel(socketChannel, sessionId);
+			try {
+				int workerIndex = Math.abs(sessionId) % workers.length;
+				log.debug("accept sessionId [{}] and worker index [{}]",
+						sessionId, workerIndex);
+				workers[workerIndex].registerSocketChannel(socketChannel,
+						sessionId);
+			} catch (Exception e) {
+				log.error("Failed to initialize an accepted socket.", e);
+				try {
+					socketChannel.close();
+				} catch (IOException e1) {
+					log.error("Failed to close a partially accepted socket.",
+							e1);
+				}
+			}
 		}
 
 	}

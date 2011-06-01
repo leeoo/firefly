@@ -1,6 +1,11 @@
 package com.firefly.net;
 
+import com.firefly.net.buffer.AdaptiveReceiveBufferSizePredictor;
+import com.firefly.net.buffer.SocketReceiveBufferPool;
+import com.firefly.net.buffer.SocketSendBufferPool;
+
 public class Config {
+	// tcp/udp参数
 	private int connectionTime = 1;
 	private int latency = 2;
 	private int bandwidth = 0;
@@ -11,15 +16,72 @@ public class Config {
 	private int port;
 	private String host;
 
+	// firefly-nettool 参数
 	private int handleThreads = 1024;
 	private int workerThreads = Runtime.getRuntime().availableProcessors() * 2;
 	private int cleanupInterval = 256;
-
+	private int writeSpinCount = 16;
+	private int writeBufferHighWaterMark = 64 * 1024;
+	private int writeBufferLowWaterMark = 32 * 1024;
 	private String serverName = "firefly-server";
 	private String clientName = "firefly-client";
+
+	private ReceiveBufferSizePredictor receiveBufferSizePredictor = new AdaptiveReceiveBufferSizePredictor();
+	private ReceiveBufferPool receiveBufferPool = new SocketReceiveBufferPool();
+	private SendBufferPool sendBufferPool = new SocketSendBufferPool();
+
 	private Decoder decoder;
 	private Encoder encoder;
 	private Handler handler;
+
+	public SendBufferPool getSendBufferPool() {
+		return sendBufferPool;
+	}
+
+	public void setSendBufferPool(SendBufferPool sendBufferPool) {
+		this.sendBufferPool = sendBufferPool;
+	}
+
+	public int getWriteBufferHighWaterMark() {
+		return writeBufferHighWaterMark;
+	}
+
+	public void setWriteBufferHighWaterMark(int writeBufferHighWaterMark) {
+		this.writeBufferHighWaterMark = writeBufferHighWaterMark;
+	}
+
+	public int getWriteBufferLowWaterMark() {
+		return writeBufferLowWaterMark;
+	}
+
+	public void setWriteBufferLowWaterMark(int writeBufferLowWaterMark) {
+		this.writeBufferLowWaterMark = writeBufferLowWaterMark;
+	}
+
+	public ReceiveBufferSizePredictor getReceiveBufferSizePredictor() {
+		return receiveBufferSizePredictor;
+	}
+
+	public void setReceiveBufferSizePredictor(
+			ReceiveBufferSizePredictor receiveBufferSizePredictor) {
+		this.receiveBufferSizePredictor = receiveBufferSizePredictor;
+	}
+
+	public ReceiveBufferPool getReceiveBufferPool() {
+		return receiveBufferPool;
+	}
+
+	public void setReceiveBufferPool(ReceiveBufferPool receiveBufferPool) {
+		this.receiveBufferPool = receiveBufferPool;
+	}
+
+	public int getWriteSpinCount() {
+		return writeSpinCount;
+	}
+
+	public void setWriteSpinCount(int writeSpinCount) {
+		this.writeSpinCount = writeSpinCount;
+	}
 
 	public int getCleanupInterval() {
 		return cleanupInterval;
