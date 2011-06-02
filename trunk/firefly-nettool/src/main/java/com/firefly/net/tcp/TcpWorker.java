@@ -1,6 +1,7 @@
 package com.firefly.net.tcp;
 
 import java.io.IOException;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.CancelledKeyException;
@@ -375,6 +376,7 @@ public class TcpWorker implements Worker {
 
 		@Override
 		public void run() {
+			
 			SelectionKey key = null;
 			try {
 				socketChannel.configureBlocking(false);
@@ -392,6 +394,13 @@ public class TcpWorker implements Worker {
 				Session session = new TcpSession(sessionId, TcpWorker.this,
 						config, timeProvider.currentTimeMillis(), key);
 				key.attach(session);
+				
+				SocketAddress localAddress = session.getLocalAddress();
+	            SocketAddress remoteAddress = session.getRemoteAddress();
+	            if (localAddress == null || remoteAddress == null) {
+	            	TcpWorker.this.close(key);
+	            }
+	            
 				TcpWorker.this.fire(EventType.OPEN, session, null, null);
 			} catch (IOException e) {
 				log.error("socketChannel register error", e);
@@ -407,9 +416,10 @@ public class TcpWorker implements Worker {
 			key.channel().close();
 			increaseCancelledKey();
 			Session session = (Session) key.attachment();
+			session.setState(Session.CLOSE);
 			cleanUpWriteBuffer(session);
 			fire(EventType.CLOSE, session, null, null);
-			session.setState(Session.CLOSE);
+			
 		} catch (IOException e) {
 			log.error("channel close error", e);
 		}
