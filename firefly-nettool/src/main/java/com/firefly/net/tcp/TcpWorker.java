@@ -525,8 +525,10 @@ public class TcpWorker implements Worker {
 				}
 			}
 
-			if (changed)
+			if (changed) {
 				log.debug("interestOps change [{}]", interestOps);
+				setInterestOps(session, SelectionKey.OP_READ);
+			}
 		} catch (CancelledKeyException e) {
 			// setInterestOps() was called on a closed channel.
 			ClosedChannelException cce = new ClosedChannelException();
@@ -548,7 +550,7 @@ public class TcpWorker implements Worker {
 							config.getHandler().sessionOpened(session);
 						} catch (Throwable t0) {
 							TcpWorker.this.fire(EventType.EXCEPTION, session,
-									message, t);
+									message, t0);
 						}
 					}
 				});
@@ -562,7 +564,7 @@ public class TcpWorker implements Worker {
 									message);
 						} catch (Throwable t0) {
 							TcpWorker.this.fire(EventType.EXCEPTION, session,
-									message, t);
+									message, t0);
 						}
 					}
 				});
@@ -575,7 +577,7 @@ public class TcpWorker implements Worker {
 							config.getHandler().sessionClosed(session);
 						} catch (Throwable t0) {
 							TcpWorker.this.fire(EventType.EXCEPTION, session,
-									message, t);
+									message, t0);
 						}
 					}
 				});
