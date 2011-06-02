@@ -9,6 +9,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.firefly.net.buffer.SocketSendBufferPool.SendBuffer;
 
 public interface Session {
+	public static final int CLOSE = 0;
+	public static final int OPEN = 1;
+
 	void setAttribute(String key, Object value);
 
 	Object getAttribute(String key);
@@ -66,4 +69,10 @@ public interface Session {
 	SendBuffer getCurrentWriteBuffer();
 
 	void setCurrentWriteBuffer(SendBuffer currentWriteBuffer);
+
+	int getState();
+
+	void setState(int state);
+
+	boolean isOpen();
 }

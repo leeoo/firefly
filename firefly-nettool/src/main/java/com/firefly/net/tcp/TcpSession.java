@@ -33,6 +33,7 @@ public class TcpSession implements Session {
 	private final Queue<ByteBuffer> writeBuffer = new WriteRequestQueue();
 	private ByteBuffer currentWrite;
 	private SendBuffer currentWriteBuffer;
+	private volatile int state;
 
 	public TcpSession(int sessionId, TcpWorker worker, Config config,
 			long openTime, SelectionKey selectionKey) {
@@ -42,8 +43,21 @@ public class TcpSession implements Session {
 		this.config = config;
 		this.openTime = openTime;
 		this.selectionKey = selectionKey;
+		state = OPEN;
 	}
 
+
+	public int getState() {
+		return state;
+	}
+
+	public void setState(int state) {
+		this.state = state;
+	}
+
+	public boolean isOpen() {
+		return state > 0;
+	}
 
 	public SendBuffer getCurrentWriteBuffer() {
 		return currentWriteBuffer;
@@ -155,32 +169,6 @@ public class TcpSession implements Session {
         assert offered;
         worker.writeFromUserCode(this);
 	}
-
-	// @Override
-	// public int getInterestOps() {
-	// int interestOps = getRawInterestOps();
-	// int writeBufferSize = this.writeBufferSize.get();
-	// if (writeBufferSize != 0) {
-	// if (highWaterMarkCounter.get() > 0) {
-	// int lowWaterMark = config.getWriteBufferLowWaterMark();
-	// if (writeBufferSize >= lowWaterMark) {
-	// interestOps |= SelectionKey.OP_WRITE;
-	// } else {
-	// interestOps &= ~SelectionKey.OP_WRITE;
-	// }
-	// } else {
-	// int highWaterMark = config.getWriteBufferHighWaterMark();
-	// if (writeBufferSize >= highWaterMark) {
-	// interestOps |= SelectionKey.OP_WRITE;
-	// } else {
-	// interestOps &= ~SelectionKey.OP_WRITE;
-	// }
-	// }
-	// } else {
-	// interestOps &= ~SelectionKey.OP_WRITE;
-	// }
-	// return interestOps;
-	// }
 
 	@Override
 	public int getRawInterestOps() {
