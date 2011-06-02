@@ -136,10 +136,10 @@ public class TcpWorker implements Worker {
 	}
 
 	void writeFromUserCode(final Session session) {
-		// if (!session.isConnected()) {
-		// cleanUpWriteBuffer(channel);
-		// return;
-		// }
+		if (!session.isOpen()) {
+			cleanUpWriteBuffer(session);
+			return;
+		}
 
 		if (scheduleWriteIfNecessary(session)) {
 			return;
@@ -409,6 +409,7 @@ public class TcpWorker implements Worker {
 			Session session = (Session) key.attachment();
 			cleanUpWriteBuffer(session);
 			fire(EventType.CLOSE, session, null, null);
+			session.setState(Session.CLOSE);
 		} catch (IOException e) {
 			log.error("channel close error", e);
 		}
