@@ -77,8 +77,13 @@ public class TestTcpServer {
 			@Override
 			public void messageRecieved(Session session, Object message) {
 				String str = (String) message;
-				System.out.println("recive: " + str);
-				session.encode(message);
+				if(str.equals("quit")) {
+					session.encode("bye!");
+					session.close();
+				} else {
+					System.out.println("recive: " + str);
+					session.encode(message);
+				}
 			}
 
 			@Override
