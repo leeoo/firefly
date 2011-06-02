@@ -2,18 +2,21 @@ package com.firefly.net.tcp;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.firefly.net.Config;
 import com.firefly.net.EventType;
 import com.firefly.net.Session;
+import com.firefly.net.ThreadLocalBoolean;
+import com.firefly.net.buffer.SocketSendBufferPool.SendBuffer;
 
 public class TcpSession implements Session {
 	private final int sessionId;
-	private final SocketChannel socketChannel;
+	private final SelectionKey selectionKey;
 	private long openTime;
 	private final TcpWorker worker;
 	private final Config config;
@@ -27,23 +30,53 @@ public class TcpSession implements Session {
 	private boolean writeSuspended;
 	private final Object interestOpsLock = new Object();
 	private final Object writeLock = new Object();
+	private final Queue<ByteBuffer> writeBuffer = new WriteRequestQueue();
+	private ByteBuffer currentWrite;
+	private SendBuffer currentWriteBuffer;
 
 	public TcpSession(int sessionId, TcpWorker worker, Config config,
-			long openTime, SocketChannel socketChannel) {
+			long openTime, SelectionKey selectionKey) {
 		super();
 		this.sessionId = sessionId;
 		this.worker = worker;
 		this.config = config;
 		this.openTime = openTime;
-		this.socketChannel = socketChannel;
+		this.selectionKey = selectionKey;
+	}
+
+
+	public SendBuffer getCurrentWriteBuffer() {
+		return currentWriteBuffer;
+	}
+
+
+	public void setCurrentWriteBuffer(SendBuffer currentWriteBuffer) {
+		this.currentWriteBuffer = currentWriteBuffer;
+	}
+
+
+	public void setCurrentWrite(ByteBuffer currentWrite) {
+		this.currentWrite = currentWrite;
+	}
+
+	public ByteBuffer getCurrentWrite() {
+		return currentWrite;
+	}
+
+	public Queue<ByteBuffer> getWriteBuffer() {
+		return writeBuffer;
+	}
+
+	public AtomicBoolean getWriteTaskInTaskQueue() {
+		return writeTaskInTaskQueue;
 	}
 
 	public Runnable getWriteTask() {
 		return writeTask;
 	}
 
-	public SocketChannel getSocketChannel() {
-		return socketChannel;
+	public SelectionKey getSelectionKey() {
+		return selectionKey;
 	}
 
 	public Object getInterestOpsLock() {
@@ -118,35 +151,36 @@ public class TcpSession implements Session {
 
 	@Override
 	public void write(ByteBuffer byteBuffer) {
-		// TODO Auto-generated method stub
-
+        boolean offered = writeBuffer.offer(byteBuffer);
+        assert offered;
+        worker.writeFromUserCode(this);
 	}
 
-	@Override
-	public int getInterestOps() {
-		int interestOps = getRawInterestOps();
-		int writeBufferSize = this.writeBufferSize.get();
-		if (writeBufferSize != 0) {
-			if (highWaterMarkCounter.get() > 0) {
-				int lowWaterMark = config.getWriteBufferLowWaterMark();
-				if (writeBufferSize >= lowWaterMark) {
-					interestOps |= SelectionKey.OP_WRITE;
-				} else {
-					interestOps &= ~SelectionKey.OP_WRITE;
-				}
-			} else {
-				int highWaterMark = config.getWriteBufferHighWaterMark();
-				if (writeBufferSize >= highWaterMark) {
-					interestOps |= SelectionKey.OP_WRITE;
-				} else {
-					interestOps &= ~SelectionKey.OP_WRITE;
-				}
-			}
-		} else {
-			interestOps &= ~SelectionKey.OP_WRITE;
-		}
-		return interestOps;
-	}
+	// @Override
+	// public int getInterestOps() {
+	// int interestOps = getRawInterestOps();
+	// int writeBufferSize = this.writeBufferSize.get();
+	// if (writeBufferSize != 0) {
+	// if (highWaterMarkCounter.get() > 0) {
+	// int lowWaterMark = config.getWriteBufferLowWaterMark();
+	// if (writeBufferSize >= lowWaterMark) {
+	// interestOps |= SelectionKey.OP_WRITE;
+	// } else {
+	// interestOps &= ~SelectionKey.OP_WRITE;
+	// }
+	// } else {
+	// int highWaterMark = config.getWriteBufferHighWaterMark();
+	// if (writeBufferSize >= highWaterMark) {
+	// interestOps |= SelectionKey.OP_WRITE;
+	// } else {
+	// interestOps &= ~SelectionKey.OP_WRITE;
+	// }
+	// }
+	// } else {
+	// interestOps &= ~SelectionKey.OP_WRITE;
+	// }
+	// return interestOps;
+	// }
 
 	@Override
 	public int getRawInterestOps() {
@@ -156,6 +190,11 @@ public class TcpSession implements Session {
 	@Override
 	public void setInterestOpsNow(int interestOps) {
 		this.interestOps = interestOps;
+	}
+
+	@Override
+	public void close() {
+		worker.close(selectionKey);
 	}
 
 	private final class WriteTask implements Runnable {
@@ -168,6 +207,64 @@ public class TcpSession implements Session {
 		public void run() {
 			writeTaskInTaskQueue.set(false);
 			worker.writeFromTaskLoop(TcpSession.this);
+		}
+	}
+
+	private final class WriteRequestQueue extends
+			ConcurrentLinkedQueue<ByteBuffer> {
+		private static final long serialVersionUID = -2493148252918843163L;
+		private final ThreadLocalBoolean notifying = new ThreadLocalBoolean();
+
+		private WriteRequestQueue() {
+			super();
+		}
+
+		@Override
+		public boolean offer(ByteBuffer byteBuffer) {
+			boolean success = super.offer(byteBuffer);
+			assert success;
+
+			int messageSize = byteBuffer.remaining();
+			int newWriteBufferSize = writeBufferSize.addAndGet(messageSize);
+			int highWaterMark = config.getWriteBufferHighWaterMark();
+
+			if (newWriteBufferSize >= highWaterMark) {
+				if (newWriteBufferSize - messageSize < highWaterMark) {
+					highWaterMarkCounter.incrementAndGet();
+					if (!notifying.get()) {
+						notifying.set(Boolean.TRUE);
+						worker.setInterestOps(TcpSession.this,
+								SelectionKey.OP_READ);
+						notifying.set(Boolean.FALSE);
+					}
+				}
+			}
+			return true;
+		}
+
+		@Override
+		public ByteBuffer poll() {
+			ByteBuffer byteBuffer = super.poll();
+			if (byteBuffer != null) {
+				int messageSize = byteBuffer.remaining();
+				int newWriteBufferSize = writeBufferSize
+						.addAndGet(-messageSize);
+				int lowWaterMark = config.getWriteBufferLowWaterMark();
+
+				if (newWriteBufferSize == 0
+						|| newWriteBufferSize < lowWaterMark) {
+					if (newWriteBufferSize + messageSize >= lowWaterMark) {
+						highWaterMarkCounter.decrementAndGet();
+						if (!notifying.get()) {
+							notifying.set(Boolean.TRUE);
+							worker.setInterestOps(TcpSession.this,
+									SelectionKey.OP_READ);
+							notifying.set(Boolean.FALSE);
+						}
+					}
+				}
+			}
+			return byteBuffer;
 		}
 	}
 
