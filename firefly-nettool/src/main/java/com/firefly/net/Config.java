@@ -17,7 +17,7 @@ public class Config {
 	private String host;
 
 	// firefly-nettool 参数
-	private int handleThreads = 1024;
+	private int handleThreads = 0;
 	private int workerThreads = Runtime.getRuntime().availableProcessors() * 2;
 	private int cleanupInterval = 256;
 	private int writeSpinCount = 16;

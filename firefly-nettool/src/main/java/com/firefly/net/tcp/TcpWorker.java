@@ -41,18 +41,23 @@ public class TcpWorker implements Worker {
 	private volatile int cancelledKeys;
 	static TimeProvider timeProvider = new TimeProvider(100);
 	private volatile Thread thread;
+	private final int workerId;
 
-	public TcpWorker(Config config) {
+	public TcpWorker(Config config, int workerId) {
 		try {
+			this.workerId = workerId;
 			this.config = config;
 			timeProvider.start();
 			selector = Selector.open();
-			if (config.getWorkerThreads() > 0) {
+			if (config.getHandleThreads() > 0) {
+				log.debug("worker {} newFixedThreadPool: {}", workerId, config.getHandleThreads());
 				executorService = Executors.newFixedThreadPool(config
-						.getWorkerThreads());
-			} else if (config.getWorkerThreads() == 0) {
+						.getHandleThreads());
+			} else if (config.getHandleThreads() == 0) {
+				log.debug("worker {} newCachedThreadPool", workerId);
 				executorService = Executors.newCachedThreadPool();
-			} else if (config.getWorkerThreads() < 0) {
+			} else if (config.getHandleThreads() < 0) {
+				log.debug("worker {} use worker thread pool", workerId);
 				executorService = null;
 			}
 			new Thread(this, "Tcp-worker").start();
@@ -60,6 +65,10 @@ public class TcpWorker implements Worker {
 			log.error("worker init error", e);
 			throw new NetException("worker init error");
 		}
+	}
+
+	public int getWorkerId() {
+		return workerId;
 	}
 
 	@Override
@@ -376,7 +385,7 @@ public class TcpWorker implements Worker {
 
 		@Override
 		public void run() {
-			
+
 			SelectionKey key = null;
 			try {
 				socketChannel.configureBlocking(false);
@@ -394,13 +403,13 @@ public class TcpWorker implements Worker {
 				Session session = new TcpSession(sessionId, TcpWorker.this,
 						config, timeProvider.currentTimeMillis(), key);
 				key.attach(session);
-				
+
 				SocketAddress localAddress = session.getLocalAddress();
-	            SocketAddress remoteAddress = session.getRemoteAddress();
-	            if (localAddress == null || remoteAddress == null) {
-	            	TcpWorker.this.close(key);
-	            }
-	            
+				SocketAddress remoteAddress = session.getRemoteAddress();
+				if (localAddress == null || remoteAddress == null) {
+					TcpWorker.this.close(key);
+				}
+
 				TcpWorker.this.fire(EventType.OPEN, session, null, null);
 			} catch (IOException e) {
 				log.error("socketChannel register error", e);
@@ -419,7 +428,7 @@ public class TcpWorker implements Worker {
 			session.setState(Session.CLOSE);
 			cleanUpWriteBuffer(session);
 			fire(EventType.CLOSE, session, null, null);
-			
+
 		} catch (IOException e) {
 			log.error("channel close error", e);
 		}

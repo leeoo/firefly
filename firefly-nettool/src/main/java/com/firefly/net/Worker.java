@@ -10,4 +10,6 @@ public interface Worker extends Runnable {
 	void close(SelectionKey key);
 
 	void setInterestOps(Session session, int interestOps);
+	
+	int getWorkerId();
 }
