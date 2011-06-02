@@ -55,7 +55,7 @@ public class TestTcpServer {
 		}, new Encoder() {
 			@Override
 			public void encode(Object message, Session session) {
-				String str = "server response: " + message + System.getProperty("line.separator");
+				String str = "server say: " + message + System.getProperty("line.separator");
 
 				ByteBuffer byteBuffer = ByteBuffer.wrap(str.getBytes());
 				session.write(byteBuffer);
@@ -64,12 +64,14 @@ public class TestTcpServer {
 
 			@Override
 			public void sessionOpened(Session session) {
-				System.out.println("session open");
+				System.out.println("session open |" + session.getSessionId());
+				System.out.println("local: " + session.getLocalAddress());
+				System.out.println("remote: " + session.getRemoteAddress());
 			}
 
 			@Override
 			public void sessionClosed(Session session) {
-				System.out.println("session close");
+				System.out.println("session close|" + session.getSessionId());
 			}
 
 			@Override
@@ -81,8 +83,9 @@ public class TestTcpServer {
 
 			@Override
 			public void exceptionCaught(Session session, Throwable t) {
-				System.out.println("session exception");
+				System.out.println("session exception|" + session.getSessionId());
 			}
+
 		}).start();
 	}
 }

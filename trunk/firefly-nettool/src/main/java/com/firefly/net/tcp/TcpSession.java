@@ -1,13 +1,19 @@
 package com.firefly.net.tcp;
 
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.firefly.net.Config;
 import com.firefly.net.EventType;
 import com.firefly.net.Session;
@@ -15,6 +21,7 @@ import com.firefly.net.ThreadLocalBoolean;
 import com.firefly.net.buffer.SocketSendBufferPool.SendBuffer;
 
 public class TcpSession implements Session {
+	private static Logger log = LoggerFactory.getLogger(TcpSession.class);
 	private final int sessionId;
 	private final SelectionKey selectionKey;
 	private long openTime;
@@ -25,6 +32,8 @@ public class TcpSession implements Session {
 	private final AtomicInteger writeBufferSize = new AtomicInteger();
 	private final AtomicInteger highWaterMarkCounter = new AtomicInteger();
 	private final AtomicBoolean writeTaskInTaskQueue = new AtomicBoolean();
+	private InetSocketAddress localAddress;
+	private volatile InetSocketAddress remoteAddress;
 	private volatile int interestOps = SelectionKey.OP_READ;
 	private boolean inWriteNowLoop;
 	private boolean writeSuspended;
@@ -46,6 +55,36 @@ public class TcpSession implements Session {
 		state = OPEN;
 	}
 
+	public InetSocketAddress getLocalAddress() {
+		if (localAddress == null) {
+			SocketChannel socket = (SocketChannel) selectionKey.channel();
+			try {
+				localAddress = (InetSocketAddress) socket.socket()
+						.getLocalSocketAddress();
+
+			} catch (Throwable t) {
+				log.error("get localAddress error", t);
+			}
+		}
+		return localAddress;
+	}
+
+	public InetSocketAddress getRemoteAddress() {
+		if (remoteAddress == null) {
+			SocketChannel socket = (SocketChannel) selectionKey.channel();
+			try {
+				remoteAddress = (InetSocketAddress) socket.socket()
+						.getRemoteSocketAddress();
+			} catch (Throwable t) {
+				log.error("get remoteAddress error", t);
+			}
+		}
+		return remoteAddress;
+	}
+
+	public AtomicBoolean getWriteTaskInTaskQueue() {
+		return writeTaskInTaskQueue;
+	}
 
 	public int getState() {
 		return state;
@@ -63,11 +102,9 @@ public class TcpSession implements Session {
 		return currentWriteBuffer;
 	}
 
-
 	public void setCurrentWriteBuffer(SendBuffer currentWriteBuffer) {
 		this.currentWriteBuffer = currentWriteBuffer;
 	}
-
 
 	public void setCurrentWrite(ByteBuffer currentWrite) {
 		this.currentWrite = currentWrite;
@@ -79,10 +116,6 @@ public class TcpSession implements Session {
 
 	public Queue<ByteBuffer> getWriteBuffer() {
 		return writeBuffer;
-	}
-
-	public AtomicBoolean getWriteTaskInTaskQueue() {
-		return writeTaskInTaskQueue;
 	}
 
 	public Runnable getWriteTask() {
@@ -165,9 +198,9 @@ public class TcpSession implements Session {
 
 	@Override
 	public void write(ByteBuffer byteBuffer) {
-        boolean offered = writeBuffer.offer(byteBuffer);
-        assert offered;
-        worker.writeFromUserCode(this);
+		boolean offered = writeBuffer.offer(byteBuffer);
+		assert offered;
+		worker.writeFromUserCode(this);
 	}
 
 	@Override
@@ -254,6 +287,37 @@ public class TcpSession implements Session {
 			}
 			return byteBuffer;
 		}
+	}
+
+	@Override
+	public int getInterestOps() {
+		if (!isOpen()) {
+			return SelectionKey.OP_WRITE;
+		}
+
+		int interestOps = getRawInterestOps();
+		int writeBufferSize = this.writeBufferSize.get();
+		if (writeBufferSize != 0) {
+			if (highWaterMarkCounter.get() > 0) {
+				int lowWaterMark = config.getWriteBufferLowWaterMark();
+				if (writeBufferSize >= lowWaterMark) {
+					interestOps |= SelectionKey.OP_WRITE;
+				} else {
+					interestOps &= ~SelectionKey.OP_WRITE;
+				}
+			} else {
+				int highWaterMark = config.getWriteBufferHighWaterMark();
+				if (writeBufferSize >= highWaterMark) {
+					interestOps |= SelectionKey.OP_WRITE;
+				} else {
+					interestOps &= ~SelectionKey.OP_WRITE;
+				}
+			}
+		} else {
+			interestOps &= ~SelectionKey.OP_WRITE;
+		}
+
+		return interestOps;
 	}
 
 }

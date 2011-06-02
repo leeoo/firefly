@@ -1,10 +1,10 @@
 package com.firefly.net;
 
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.firefly.net.buffer.SocketSendBufferPool.SendBuffer;
 
@@ -26,17 +26,13 @@ public interface Session {
 
 	void write(ByteBuffer byteBuffer);
 
-//	int getInterestOps();
+	int getInterestOps();
 
 	int getRawInterestOps();
 
 	int getSessionId();
 
 	long getOpenTime();
-
-	AtomicInteger getHighWaterMarkCounter();
-
-	AtomicInteger getWriteBufferSize();
 
 	void setWriteSuspended(boolean writeSuspended);
 
@@ -75,4 +71,8 @@ public interface Session {
 	void setState(int state);
 
 	boolean isOpen();
+	
+	InetSocketAddress getLocalAddress();
+	
+	InetSocketAddress getRemoteAddress();
 }
