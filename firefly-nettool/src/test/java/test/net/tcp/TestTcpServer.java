@@ -11,7 +11,7 @@ public class TestTcpServer {
 	private static final byte LINE_LIMITOR = '\n';
 
 	public static void main(String[] args) {
-		new TcpServer("10.4.78.19", 9900, new Decoder() {
+		new TcpServer("localhost", 9900, new Decoder() {
 			@Override
 			public void decode(ByteBuffer buffer, Session session) {
 				ByteBuffer now = buffer;
