@@ -27,6 +27,7 @@ public class TestTcpClient {
 			public void messageRecieved(Session session, Object message) {
 				String str = (String) message;
 				System.out.println("client receive[" + str + "]");
+				queue.offer(session);
 			}
 
 			@Override
@@ -39,8 +40,10 @@ public class TestTcpClient {
 		try {
 			Session session = queue.take();
 			session.encode("hello client");
-			session.encode("test 3");
-//			session.encode("quit");
+			session = queue.take();
+			session.encode("test2");
+			session = queue.take();
+			session.encode("quit");
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
