@@ -13,19 +13,19 @@ import java.util.Iterator;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.firefly.net.Config;
-import com.firefly.net.EventType;
+import com.firefly.net.EventManager;
 import com.firefly.net.ReceiveBufferPool;
 import com.firefly.net.ReceiveBufferSizePredictor;
 import com.firefly.net.SendBufferPool;
 import com.firefly.net.Session;
 import com.firefly.net.Worker;
 import com.firefly.net.buffer.SocketSendBufferPool.SendBuffer;
+import com.firefly.net.event.CurrentThreadEventManager;
+import com.firefly.net.event.ThreadPoolEventManager;
 import com.firefly.net.exception.NetException;
 import com.firefly.utils.timer.TimeProvider;
 
@@ -37,11 +37,11 @@ public class TcpWorker implements Worker {
 	private final Queue<Runnable> writeTaskQueue = new ConcurrentLinkedQueue<Runnable>();
 	private final AtomicBoolean wakenUp = new AtomicBoolean();
 	private final Selector selector;
-	private ExecutorService executorService;
 	private volatile int cancelledKeys;
 	static final TimeProvider timeProvider = new TimeProvider(100);
 	private Thread thread;
 	private final int workerId;
+	private EventManager eventManager;
 
 	public TcpWorker(Config config, int workerId) {
 		try {
@@ -49,22 +49,20 @@ public class TcpWorker implements Worker {
 			this.config = config;
 			timeProvider.start();
 			selector = Selector.open();
-			if (config.getHandleThreads() > 0) {
-				log.debug("worker {} newFixedThreadPool: {}", workerId, config.getHandleThreads());
-				executorService = Executors.newFixedThreadPool(config
-						.getHandleThreads());
-			} else if (config.getHandleThreads() == 0) {
-				log.debug("worker {} newCachedThreadPool", workerId);
-				executorService = Executors.newCachedThreadPool();
-			} else if (config.getHandleThreads() < 0) {
-				log.debug("worker {} use worker thread pool", workerId);
-				executorService = null;
+			if (config.getHandleThreads() >= 0) {
+				eventManager = new ThreadPoolEventManager(config);
+			} else {
+				eventManager = new CurrentThreadEventManager(config);
 			}
 			new Thread(this, "Tcp-worker: " + workerId).start();
 		} catch (IOException e) {
 			log.error("worker init error", e);
 			throw new NetException("worker init error");
 		}
+	}
+
+	public EventManager getEventManager() {
+		return eventManager;
 	}
 
 	public int getWorkerId() {
@@ -212,10 +210,17 @@ public class TcpWorker implements Worker {
 						session.setWriteSuspended(false);
 						break;
 					}
-
+					if(byteBuffer == Session.CLOSE_FLAG) {
+						close(session.getSelectionKey());
+						break;
+					}
 					buf = sendBufferPool.acquire(byteBuffer);
 					session.setCurrentWriteBuffer(buf);
 				} else {
+					if(byteBuffer == Session.CLOSE_FLAG) {
+						close(session.getSelectionKey());
+						break;
+					}
 					buf = session.getCurrentWriteBuffer();
 				}
 
@@ -254,7 +259,7 @@ public class TcpWorker implements Worker {
 					session.setCurrentWriteBuffer(null);
 					buf = null;
 					byteBuffer = null;
-					fire(EventType.EXCEPTION, session, null, t);
+					eventManager.executeExceptionTask(session, t);
 					if (t instanceof IOException) {
 						open = false;
 						close(session.getSelectionKey());
@@ -311,7 +316,7 @@ public class TcpWorker implements Worker {
 		}
 
 		if (fireExceptionCaught)
-			fire(EventType.EXCEPTION, session, null, cause);
+			eventManager.executeExceptionTask(session, cause);
 
 	}
 
@@ -338,7 +343,7 @@ public class TcpWorker implements Worker {
 		} catch (ClosedChannelException e) {
 			// Can happen, and does not need a user attention.
 		} catch (Throwable t) {
-			fire(EventType.EXCEPTION, session, null, t);
+			eventManager.executeExceptionTask(session, t);
 		}
 
 		if (readBytes > 0) {
@@ -410,7 +415,7 @@ public class TcpWorker implements Worker {
 					TcpWorker.this.close(key);
 				}
 
-				TcpWorker.this.fire(EventType.OPEN, session, null, null);
+				eventManager.executeOpenTask(session);
 			} catch (IOException e) {
 				log.error("socketChannel register error", e);
 				close(key);
@@ -427,7 +432,7 @@ public class TcpWorker implements Worker {
 			Session session = (Session) key.attachment();
 			session.setState(Session.CLOSE);
 			cleanUpWriteBuffer(session);
-			fire(EventType.CLOSE, session, null, null);
+			eventManager.executeCloseTask(session);
 
 		} catch (IOException e) {
 			log.error("channel close error", e);
@@ -551,107 +556,9 @@ public class TcpWorker implements Worker {
 		} catch (CancelledKeyException e) {
 			// setInterestOps() was called on a closed channel.
 			ClosedChannelException cce = new ClosedChannelException();
-			fire(EventType.EXCEPTION, session, null, cce);
+			eventManager.executeExceptionTask(session, cce);
 		} catch (Throwable t) {
-			fire(EventType.EXCEPTION, session, null, t);
-		}
-	}
-
-	public void fire(EventType eventType, final Session session,
-			final Object message, final Throwable t) {
-		if (executorService != null) {
-			switch (eventType) {
-			case OPEN:
-				executorService.submit(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							config.getHandler().sessionOpened(session);
-						} catch (Throwable t0) {
-							TcpWorker.this.fire(EventType.EXCEPTION, session,
-									message, t0);
-						}
-					}
-				});
-				break;
-			case RECEIVE:
-				executorService.submit(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							config.getHandler().messageRecieved(session,
-									message);
-						} catch (Throwable t0) {
-							TcpWorker.this.fire(EventType.EXCEPTION, session,
-									message, t0);
-						}
-					}
-				});
-				break;
-			case CLOSE:
-				executorService.submit(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							config.getHandler().sessionClosed(session);
-						} catch (Throwable t0) {
-							TcpWorker.this.fire(EventType.EXCEPTION, session,
-									message, t0);
-						}
-					}
-				});
-				break;
-			case EXCEPTION:
-				executorService.submit(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							config.getHandler().exceptionCaught(session, t);
-						} catch (Throwable t0) {
-							log.error("handle exception", t0);
-						}
-					}
-				});
-				break;
-			default:
-				break;
-			}
-		} else {
-			switch (eventType) {
-			case OPEN:
-				try {
-					config.getHandler().sessionOpened(session);
-				} catch (Throwable t0) {
-					TcpWorker.this.fire(EventType.EXCEPTION, session, message,
-							t);
-				}
-				break;
-			case RECEIVE:
-				try {
-					config.getHandler().messageRecieved(session, message);
-				} catch (Throwable t0) {
-					TcpWorker.this.fire(EventType.EXCEPTION, session, message,
-							t);
-				}
-				break;
-			case CLOSE:
-				try {
-					config.getHandler().sessionClosed(session);
-				} catch (Throwable t0) {
-					TcpWorker.this.fire(EventType.EXCEPTION, session, message,
-							t);
-				}
-				break;
-			case EXCEPTION:
-				try {
-					config.getHandler().exceptionCaught(session, t);
-				} catch (Throwable t0) {
-					log.error("handle exception", t0);
-				}
-				break;
-			default:
-				break;
-			}
+			eventManager.executeExceptionTask(session, t);
 		}
 	}
 }

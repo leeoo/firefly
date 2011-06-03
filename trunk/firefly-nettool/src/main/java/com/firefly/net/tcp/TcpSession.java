@@ -10,12 +10,9 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.firefly.net.Config;
-import com.firefly.net.EventType;
 import com.firefly.net.Session;
 import com.firefly.net.ThreadLocalBoolean;
 import com.firefly.net.Worker;
@@ -189,7 +186,7 @@ public class TcpSession implements Session {
 
 	@Override
 	public void fireReceiveMessage(Object message) {
-		worker.fire(EventType.RECEIVE, this, message, null);
+		worker.getEventManager().executeReceiveTask(this, message);
 	}
 
 	@Override
@@ -215,8 +212,11 @@ public class TcpSession implements Session {
 	}
 
 	@Override
-	public void close() {
-		worker.close(selectionKey);
+	public void close(boolean immediately) {
+		if(immediately)
+			worker.close(selectionKey);
+		else
+			write(CLOSE_FLAG);
 	}
 
 	private final class WriteTask implements Runnable {

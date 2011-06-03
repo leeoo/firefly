@@ -22,7 +22,7 @@ public class StringLineHandler implements Handler {
 		String str = (String) message;
 		if (str.equals("quit")) {
 			session.encode("bye!");
-			session.close();
+			session.close(false);
 		} else {
 			System.out.println("recive: " + str);
 			session.encode(message);
@@ -31,7 +31,7 @@ public class StringLineHandler implements Handler {
 
 	@Override
 	public void exceptionCaught(Session session, Throwable t) {
-		System.out.println("session exception|" + session.getSessionId());
+		System.out.println( t.getMessage() + "|" + session.getSessionId());
 	}
 
 }
