@@ -5,7 +5,6 @@ import com.firefly.net.buffer.SocketReceiveBufferPool;
 import com.firefly.net.buffer.SocketSendBufferPool;
 
 public class Config {
-	// tcp/udp参数
 	private int connectionTime = 1;
 	private int latency = 2;
 	private int bandwidth = 0;
@@ -16,7 +15,6 @@ public class Config {
 	private int port;
 	private String host;
 
-	// firefly-nettool 参数
 	private int handleThreads = 0;
 	private int workerThreads = Runtime.getRuntime().availableProcessors() * 2;
 	private int cleanupInterval = 256;

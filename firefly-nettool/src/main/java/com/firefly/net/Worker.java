@@ -13,10 +13,9 @@ public interface Worker extends Runnable {
 
 	int getWorkerId();
 
-	void fire(EventType eventType, final Session session, final Object message,
-			final Throwable t);
-
 	void writeFromUserCode(final Session session);
 
 	void writeFromTaskLoop(final Session session);
+
+	EventManager getEventManager();
 }

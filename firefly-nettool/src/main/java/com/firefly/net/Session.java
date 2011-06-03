@@ -9,8 +9,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.firefly.net.buffer.SocketSendBufferPool.SendBuffer;
 
 public interface Session {
-	public static final int CLOSE = 0;
-	public static final int OPEN = 1;
+	int CLOSE = 0;
+	int OPEN = 1;
+	ByteBuffer CLOSE_FLAG = ByteBuffer.allocate(0);
 
 	void setAttribute(String key, Object value);
 
@@ -54,7 +55,7 @@ public interface Session {
 
 	AtomicBoolean getWriteTaskInTaskQueue();
 
-	void close();
+	void close(boolean immediately);
 
 	Queue<ByteBuffer> getWriteBuffer();
 
@@ -71,8 +72,8 @@ public interface Session {
 	void setState(int state);
 
 	boolean isOpen();
-	
+
 	InetSocketAddress getLocalAddress();
-	
+
 	InetSocketAddress getRemoteAddress();
 }
