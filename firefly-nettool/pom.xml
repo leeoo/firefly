@@ -143,6 +143,13 @@
     			<log.path>/Users/qiupengtao/develop/logs/app.log</log.path>
     		</properties>
     	</profile>
+    	<profile>
+    		<id>windebug</id>
+    		<properties>
+    			<log.level>DEBUG</log.level>
+    			<log.path>D:/log/app.log</log.path>
+    		</properties>
+    	</profile>
     </profiles>
     <repositories>
 		<!-- <repository>
