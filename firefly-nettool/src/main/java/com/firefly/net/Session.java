@@ -2,11 +2,6 @@ package com.firefly.net;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.util.Queue;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.firefly.net.buffer.SocketSendBufferPool.SendBuffer;
 
 public interface Session {
 	int CLOSE = 0;
@@ -27,49 +22,13 @@ public interface Session {
 
 	void write(ByteBuffer byteBuffer);
 
-	int getInterestOps();
-
-	int getRawInterestOps();
-
 	int getSessionId();
 
 	long getOpenTime();
 
-	void setWriteSuspended(boolean writeSuspended);
-
-	boolean isWriteSuspended();
-
-	void setInWriteNowLoop(boolean inWriteNowLoop);
-
-	boolean isInWriteNowLoop();
-
-	void setInterestOpsNow(int interestOps);
-
-	Object getInterestOpsLock();
-
-	Object getWriteLock();
-
-	SelectionKey getSelectionKey();
-
-	Runnable getWriteTask();
-
-	AtomicBoolean getWriteTaskInTaskQueue();
-
 	void close(boolean immediately);
 
-	Queue<ByteBuffer> getWriteBuffer();
-
-	void setCurrentWrite(ByteBuffer currentWrite);
-
-	ByteBuffer getCurrentWrite();
-
-	SendBuffer getCurrentWriteBuffer();
-
-	void setCurrentWriteBuffer(SendBuffer currentWriteBuffer);
-
 	int getState();
-
-	void setState(int state);
 
 	boolean isOpen();
 
