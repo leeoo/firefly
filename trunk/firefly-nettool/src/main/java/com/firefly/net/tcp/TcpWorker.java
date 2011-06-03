@@ -143,7 +143,7 @@ public class TcpWorker implements Worker {
 
 	}
 
-	public void writeFromUserCode(final Session session) {
+	void writeFromUserCode(final TcpSession session) {
 		if (!session.isOpen()) {
 			cleanUpWriteBuffer(session);
 			return;
@@ -160,7 +160,7 @@ public class TcpWorker implements Worker {
 		write0(session);
 	}
 
-	private boolean scheduleWriteIfNecessary(final Session session) {
+	private boolean scheduleWriteIfNecessary(final TcpSession session) {
 		final Thread currentThread = Thread.currentThread();
 		final Thread workerThread = thread;
 		if (currentThread != workerThread) {
@@ -176,18 +176,18 @@ public class TcpWorker implements Worker {
 		return false;
 	}
 
-	public void writeFromTaskLoop(final Session session) {
+	void writeFromTaskLoop(final TcpSession session) {
 		if (!session.isWriteSuspended())
 			write0(session);
 	}
 
 	private void writeFromSelectorLoop(SelectionKey k) {
-		final Session session = (Session) k.attachment();
+		final TcpSession session = (TcpSession) k.attachment();
 		session.setWriteSuspended(false);
 		write0(session);
 	}
 
-	private void write0(Session session) {
+	private void write0(TcpSession session) {
 		boolean open = true;
 		boolean addOpWrite = false;
 		boolean removeOpWrite = false;
@@ -280,7 +280,7 @@ public class TcpWorker implements Worker {
 		}
 	}
 
-	private void cleanUpWriteBuffer(Session session) {
+	private void cleanUpWriteBuffer(TcpSession session) {
 		Exception cause = null;
 		boolean fireExceptionCaught = false;
 
@@ -429,7 +429,7 @@ public class TcpWorker implements Worker {
 		try {
 			key.channel().close();
 			increaseCancelledKey();
-			Session session = (Session) key.attachment();
+			TcpSession session = (TcpSession) key.attachment();
 			session.setState(Session.CLOSE);
 			cleanUpWriteBuffer(session);
 			eventManager.executeCloseTask(session);
@@ -464,7 +464,7 @@ public class TcpWorker implements Worker {
 		cancelledKeys = temp;
 	}
 
-	private void setOpWrite(Session session) {
+	private void setOpWrite(TcpSession session) {
 		SelectionKey key = session.getSelectionKey();
 		if (key == null) {
 			return;
@@ -486,7 +486,7 @@ public class TcpWorker implements Worker {
 		}
 	}
 
-	private void clearOpWrite(Session session) {
+	private void clearOpWrite(TcpSession session) {
 		SelectionKey key = session.getSelectionKey();
 		if (key == null) {
 			return;
@@ -508,7 +508,7 @@ public class TcpWorker implements Worker {
 		}
 	}
 
-	public void setInterestOps(Session session, int interestOps) {
+	void setInterestOps(TcpSession session, int interestOps) {
 		boolean changed = false;
 		try {
 			// interestOps can change at any time and at any thread.

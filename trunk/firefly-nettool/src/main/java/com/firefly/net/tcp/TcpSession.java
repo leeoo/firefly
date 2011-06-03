@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import com.firefly.net.Config;
 import com.firefly.net.Session;
 import com.firefly.net.ThreadLocalBoolean;
-import com.firefly.net.Worker;
 import com.firefly.net.buffer.SocketSendBufferPool.SendBuffer;
 
 public class TcpSession implements Session {
@@ -23,7 +22,7 @@ public class TcpSession implements Session {
 	private final int sessionId;
 	private final SelectionKey selectionKey;
 	private long openTime;
-	private final Worker worker;
+	private final TcpWorker worker;
 	private final Config config;
 	private final Map<String, Object> map = new HashMap<String, Object>();
 	private final Runnable writeTask = new WriteTask();
@@ -42,7 +41,7 @@ public class TcpSession implements Session {
 	private SendBuffer currentWriteBuffer;
 	private volatile int state;
 
-	public TcpSession(int sessionId, Worker worker, Config config,
+	public TcpSession(int sessionId, TcpWorker worker, Config config,
 			long openTime, SelectionKey selectionKey) {
 		super();
 		this.sessionId = sessionId;
@@ -80,7 +79,7 @@ public class TcpSession implements Session {
 		return remoteAddress;
 	}
 
-	public AtomicBoolean getWriteTaskInTaskQueue() {
+	AtomicBoolean getWriteTaskInTaskQueue() {
 		return writeTaskInTaskQueue;
 	}
 
@@ -88,78 +87,81 @@ public class TcpSession implements Session {
 		return state;
 	}
 
-	public void setState(int state) {
+	void setState(int state) {
 		this.state = state;
 	}
 
+	@Override
 	public boolean isOpen() {
 		return state > 0;
 	}
 
-	public SendBuffer getCurrentWriteBuffer() {
+	SendBuffer getCurrentWriteBuffer() {
 		return currentWriteBuffer;
 	}
 
-	public void setCurrentWriteBuffer(SendBuffer currentWriteBuffer) {
+	void setCurrentWriteBuffer(SendBuffer currentWriteBuffer) {
 		this.currentWriteBuffer = currentWriteBuffer;
 	}
 
-	public void setCurrentWrite(ByteBuffer currentWrite) {
+	void setCurrentWrite(ByteBuffer currentWrite) {
 		this.currentWrite = currentWrite;
 	}
 
-	public ByteBuffer getCurrentWrite() {
+	ByteBuffer getCurrentWrite() {
 		return currentWrite;
 	}
 
-	public Queue<ByteBuffer> getWriteBuffer() {
+	Queue<ByteBuffer> getWriteBuffer() {
 		return writeBuffer;
 	}
 
-	public Runnable getWriteTask() {
+	Runnable getWriteTask() {
 		return writeTask;
 	}
 
-	public SelectionKey getSelectionKey() {
+	SelectionKey getSelectionKey() {
 		return selectionKey;
 	}
 
-	public Object getInterestOpsLock() {
+	Object getInterestOpsLock() {
 		return interestOpsLock;
 	}
 
-	public Object getWriteLock() {
+	Object getWriteLock() {
 		return writeLock;
 	}
 
-	public boolean isInWriteNowLoop() {
+	boolean isInWriteNowLoop() {
 		return inWriteNowLoop;
 	}
 
-	public void setInWriteNowLoop(boolean inWriteNowLoop) {
+	void setInWriteNowLoop(boolean inWriteNowLoop) {
 		this.inWriteNowLoop = inWriteNowLoop;
 	}
 
-	public boolean isWriteSuspended() {
+	boolean isWriteSuspended() {
 		return writeSuspended;
 	}
 
-	public void setWriteSuspended(boolean writeSuspended) {
+	void setWriteSuspended(boolean writeSuspended) {
 		this.writeSuspended = writeSuspended;
 	}
 
-	public AtomicInteger getWriteBufferSize() {
+	AtomicInteger getWriteBufferSize() {
 		return writeBufferSize;
 	}
 
-	public AtomicInteger getHighWaterMarkCounter() {
+	AtomicInteger getHighWaterMarkCounter() {
 		return highWaterMarkCounter;
 	}
 
+	@Override
 	public long getOpenTime() {
 		return openTime;
 	}
 
+	@Override
 	public int getSessionId() {
 		return sessionId;
 	}
@@ -201,13 +203,12 @@ public class TcpSession implements Session {
 		worker.writeFromUserCode(this);
 	}
 
-	@Override
-	public int getRawInterestOps() {
+
+	int getRawInterestOps() {
 		return interestOps;
 	}
 
-	@Override
-	public void setInterestOpsNow(int interestOps) {
+	void setInterestOpsNow(int interestOps) {
 		this.interestOps = interestOps;
 	}
 
@@ -290,8 +291,7 @@ public class TcpSession implements Session {
 		}
 	}
 
-	@Override
-	public int getInterestOps() {
+	int getInterestOps() {
 		if (!isOpen()) {
 			return SelectionKey.OP_WRITE;
 		}
