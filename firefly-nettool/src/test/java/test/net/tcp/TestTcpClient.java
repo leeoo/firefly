@@ -10,6 +10,7 @@ import com.firefly.net.tcp.TcpClient;
 public class TestTcpClient {
 	public static void main(String[] args) {
 		final BlockingQueue<Session> queue = new LinkedBlockingQueue<Session>();
+		final BlockingQueue<String> receive = new LinkedBlockingQueue<String>();
 		Client client = new TcpClient(new StringLineDecoder(), new StringLineEncoder(), new Handler() {
 
 			@Override
@@ -26,8 +27,7 @@ public class TestTcpClient {
 			@Override
 			public void messageRecieved(Session session, Object message) {
 				String str = (String) message;
-				System.out.println("client receive[" + str + "]");
-				queue.offer(session);
+				receive.offer(str);
 			}
 
 			@Override
@@ -40,10 +40,16 @@ public class TestTcpClient {
 		try {
 			Session session = queue.take();
 			session.encode("hello client");
-			session = queue.take();
+			String ret = receive.take();
+			System.out.println("receive[" + ret + "]");
+			
 			session.encode("test2");
-			session = queue.take();
+			ret = receive.take();
+			System.out.println("receive[" + ret + "]");
+			
 			session.encode("quit");
+			ret = receive.take();
+			System.out.println("receive[" + ret + "]");
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
