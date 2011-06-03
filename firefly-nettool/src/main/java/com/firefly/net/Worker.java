@@ -10,6 +10,13 @@ public interface Worker extends Runnable {
 	void close(SelectionKey key);
 
 	void setInterestOps(Session session, int interestOps);
-	
+
 	int getWorkerId();
+
+	void fire(EventType eventType, final Session session, final Object message,
+			final Throwable t);
+
+	void writeFromUserCode(final Session session);
+
+	void writeFromTaskLoop(final Session session);
 }

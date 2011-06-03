@@ -18,6 +18,7 @@ import com.firefly.net.Config;
 import com.firefly.net.EventType;
 import com.firefly.net.Session;
 import com.firefly.net.ThreadLocalBoolean;
+import com.firefly.net.Worker;
 import com.firefly.net.buffer.SocketSendBufferPool.SendBuffer;
 
 public class TcpSession implements Session {
@@ -25,7 +26,7 @@ public class TcpSession implements Session {
 	private final int sessionId;
 	private final SelectionKey selectionKey;
 	private long openTime;
-	private final TcpWorker worker;
+	private final Worker worker;
 	private final Config config;
 	private final Map<String, Object> map = new HashMap<String, Object>();
 	private final Runnable writeTask = new WriteTask();
@@ -44,7 +45,7 @@ public class TcpSession implements Session {
 	private SendBuffer currentWriteBuffer;
 	private volatile int state;
 
-	public TcpSession(int sessionId, TcpWorker worker, Config config,
+	public TcpSession(int sessionId, Worker worker, Config config,
 			long openTime, SelectionKey selectionKey) {
 		super();
 		this.sessionId = sessionId;

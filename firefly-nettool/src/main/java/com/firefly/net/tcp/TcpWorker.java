@@ -39,8 +39,8 @@ public class TcpWorker implements Worker {
 	private final Selector selector;
 	private ExecutorService executorService;
 	private volatile int cancelledKeys;
-	static TimeProvider timeProvider = new TimeProvider(100);
-	private volatile Thread thread;
+	static final TimeProvider timeProvider = new TimeProvider(100);
+	private Thread thread;
 	private final int workerId;
 
 	public TcpWorker(Config config, int workerId) {
@@ -60,7 +60,7 @@ public class TcpWorker implements Worker {
 				log.debug("worker {} use worker thread pool", workerId);
 				executorService = null;
 			}
-			new Thread(this, "Tcp-worker").start();
+			new Thread(this, "Tcp-worker: " + workerId).start();
 		} catch (IOException e) {
 			log.error("worker init error", e);
 			throw new NetException("worker init error");
@@ -145,7 +145,7 @@ public class TcpWorker implements Worker {
 
 	}
 
-	void writeFromUserCode(final Session session) {
+	public void writeFromUserCode(final Session session) {
 		if (!session.isOpen()) {
 			cleanUpWriteBuffer(session);
 			return;
@@ -178,7 +178,7 @@ public class TcpWorker implements Worker {
 		return false;
 	}
 
-	void writeFromTaskLoop(final Session session) {
+	public void writeFromTaskLoop(final Session session) {
 		if (!session.isWriteSuspended())
 			write0(session);
 	}
