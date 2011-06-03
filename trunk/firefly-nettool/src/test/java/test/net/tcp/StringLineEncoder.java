@@ -9,7 +9,7 @@ public class StringLineEncoder implements Encoder {
 
 	@Override
 	public void encode(Object message, Session session) {
-		String str = "server say: " + message + System.getProperty("line.separator");
+		String str = message + System.getProperty("line.separator");
 
 		ByteBuffer byteBuffer = ByteBuffer.wrap(str.getBytes());
 		session.write(byteBuffer);
