@@ -35,6 +35,7 @@ public class TestTcpCs {
 					public void sessionOpened(Session session) {
 						System.out.println("client session open |"
 								+ session.getSessionId());
+						log.debug("client session thread {}", Thread.currentThread().toString());
 						clientConnectionPool.putSession(session);
 					}
 
@@ -49,6 +50,7 @@ public class TestTcpCs {
 						String str = (String) message;
 						clientConnectionPool.putReceive(str);
 						log.debug("session interest ops {}", session.getInterestOps());
+						log.debug("client session thread {}", Thread.currentThread().toString());
 					}
 
 					@Override
@@ -58,9 +60,12 @@ public class TestTcpCs {
 					}
 				});
 		client.connect("localhost", 9900);
+		
+		
 
 		Session session = clientConnectionPool.getSession();
 		session.encode("hello client");
+		log.debug("main thread {}", Thread.currentThread().toString());
 		String ret = (String) clientConnectionPool.getReceive();
 		log.info("receive[" + ret + "]");
 		Assert.assertThat(ret, is("hello client"));
