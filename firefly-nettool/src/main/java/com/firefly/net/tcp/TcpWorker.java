@@ -42,12 +42,15 @@ public class TcpWorker implements Worker {
 	private Thread thread;
 	private final int workerId;
 	private EventManager eventManager;
+	
+	static {
+		timeProvider.start();
+	}
 
 	public TcpWorker(Config config, int workerId) {
 		try {
 			this.workerId = workerId;
 			this.config = config;
-			timeProvider.start();
 			selector = Selector.open();
 			if (config.getHandleThreads() >= 0) {
 				log.debug("new ThreadPoolEventManager");
