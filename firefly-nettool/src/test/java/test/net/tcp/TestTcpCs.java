@@ -21,7 +21,7 @@ public class TestTcpCs {
 				new StringLineEncoder(), new StringLineHandler()).start();
 
 		try {
-			Thread.sleep(2000);
+			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
