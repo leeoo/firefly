@@ -1,5 +1,6 @@
 package com.firefly.net;
 
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -16,12 +17,12 @@ public class ClientConnectionPool {
 
 	public ClientConnectionPool(int sessionSize, int retSize, long timeout) {
 		if (sessionSize > 0)
-			sessionQueue = new LinkedBlockingQueue<Session>(sessionSize);
+			sessionQueue = new ArrayBlockingQueue<Session>(sessionSize);
 		else
 			sessionQueue = new LinkedBlockingQueue<Session>();
 
 		if (retSize > 0)
-			receive = new LinkedBlockingQueue<Object>(retSize);
+			receive = new ArrayBlockingQueue<Object>(retSize);
 		else
 			receive = new LinkedBlockingQueue<Object>();
 
