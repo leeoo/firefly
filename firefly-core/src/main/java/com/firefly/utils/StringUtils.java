@@ -316,7 +316,7 @@ public class StringUtils {
 		if (match || (preserveAllTokens && lastMatch)) {
 			list.add(str.substring(start, i));
 		}
-		return (String[]) list.toArray(new String[list.size()]);
+		return list.toArray(EMPTY_STRING_ARRAY);
 	}
 	
 	public static boolean hasText(String str) {

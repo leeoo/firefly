@@ -13,19 +13,20 @@ public class SplitPerformance {
 		// TODO Auto-generated method stub
 		String str = "fdsf@dsfsdf";
 		long start = System.currentTimeMillis();
-		String t1 = null;
+		String [] strs = null;
 		for (int i = 0; i < TIMES; i++) {
-			t1 = str.split("@")[1];
+			strs = str.split("@");
+			
 		}
 		long end = System.currentTimeMillis();
-		System.out.println("String split [" + (end - start) + "ms]" + t1);
+		System.out.println("String split [" + (end - start) + "ms] " + strs[0] + strs[1]);
 
 		start = System.currentTimeMillis();
 		for (int i = 0; i < TIMES; i++) {
-			t1 = StringUtils.split(str, "@")[1];
+			strs = StringUtils.split(str, "@");
 		}
 		end = System.currentTimeMillis();
-		System.out.println("String split [" + (end - start) + "ms]" + t1);
+		System.out.println("StringUtils split [" + (end - start) + "ms] " + strs[0] + strs[1]);
 	}
 
 }
