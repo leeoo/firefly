@@ -291,7 +291,8 @@ public class TcpSession implements Session {
 		}
 	}
 
-	int getInterestOps() {
+	@Override
+	public int getInterestOps() {
 		if (!isOpen()) {
 			return SelectionKey.OP_WRITE;
 		}
