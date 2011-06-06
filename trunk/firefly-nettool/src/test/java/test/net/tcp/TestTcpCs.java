@@ -1,24 +1,38 @@
 package test.net.tcp;
 
+import static org.hamcrest.Matchers.is;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.firefly.net.Client;
 import com.firefly.net.ClientSynchronizer;
+import com.firefly.net.Config;
 import com.firefly.net.Handler;
+import com.firefly.net.Server;
 import com.firefly.net.Session;
 import com.firefly.net.tcp.TcpClient;
 import com.firefly.net.tcp.TcpServer;
-import static org.hamcrest.Matchers.*;
 
 public class TestTcpCs {
 	private static Logger log = LoggerFactory.getLogger(TestTcpCs.class);
 
 	@Test
 	public void testHello() {
-		new TcpServer("localhost", 9900, new StringLineDecoder(),
-				new StringLineEncoder(), new StringLineHandler()).start();
+		Server server = new TcpServer();
+		Config config = new Config();
+		config.setHandleThreads(-1);
+		config.setDecoder(new StringLineDecoder());
+		config.setEncoder(new StringLineEncoder());
+		config.setHandler(new StringLineHandler());
+		config.setHost("localhost");
+		config.setPort(9900);
+		server.setConfig(config);
+		server.start();
+//		new TcpServer("localhost", 9900, new StringLineDecoder(),
+//				new StringLineEncoder(), new StringLineHandler()).start();
 
 		try {
 			Thread.sleep(1000);
