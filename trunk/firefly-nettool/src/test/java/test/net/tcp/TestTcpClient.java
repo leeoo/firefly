@@ -1,15 +1,15 @@
 package test.net.tcp;
 
 import com.firefly.net.Client;
-import com.firefly.net.ClientConnectionPool;
+import com.firefly.net.ClientSynchronizer;
 import com.firefly.net.Handler;
 import com.firefly.net.Session;
 import com.firefly.net.tcp.TcpClient;
 
 public class TestTcpClient {
 	public static void main(String[] args) {
-		final ClientConnectionPool clientConnectionPool = new ClientConnectionPool(
-				1024, 1024, 1000);
+		final ClientSynchronizer clientSynchronizer = new ClientSynchronizer(
+				5, 1024, 1000);
 		Client client = new TcpClient(new StringLineDecoder(),
 				new StringLineEncoder(), new Handler() {
 
@@ -17,7 +17,7 @@ public class TestTcpClient {
 					public void sessionOpened(Session session) {
 						System.out.println("client session open |"
 								+ session.getSessionId());
-						clientConnectionPool.putSession(session);
+						clientSynchronizer.putSession(session);
 					}
 
 					@Override
@@ -29,7 +29,7 @@ public class TestTcpClient {
 					@Override
 					public void messageRecieved(Session session, Object message) {
 						String str = (String) message;
-						clientConnectionPool.putReceive(str);
+						clientSynchronizer.putReceive(str);
 					}
 
 					@Override
@@ -40,17 +40,17 @@ public class TestTcpClient {
 				});
 		client.connect("192.168.1.102", 9900);
 
-		Session session = clientConnectionPool.getSession();
+		Session session = clientSynchronizer.getSession();
 		session.encode("hello client");
-		String ret = (String) clientConnectionPool.getReceive();
+		String ret = (String) clientSynchronizer.getReceive();
 		System.out.println("receive[" + ret + "]");
 
 		session.encode("test2");
-		ret = (String) clientConnectionPool.getReceive();
+		ret = (String) clientSynchronizer.getReceive();
 		System.out.println("receive[" + ret + "]");
 
 		session.encode("quit");
-		ret = (String) clientConnectionPool.getReceive();
+		ret = (String) clientSynchronizer.getReceive();
 		System.out.println("receive[" + ret + "]");
 
 	}

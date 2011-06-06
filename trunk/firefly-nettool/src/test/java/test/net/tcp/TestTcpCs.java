@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.firefly.net.Client;
-import com.firefly.net.ClientConnectionPool;
+import com.firefly.net.ClientSynchronizer;
 import com.firefly.net.Handler;
 import com.firefly.net.Session;
 import com.firefly.net.tcp.TcpClient;
@@ -26,7 +26,7 @@ public class TestTcpCs {
 			e.printStackTrace();
 		}
 
-		final ClientConnectionPool clientConnectionPool = new ClientConnectionPool(
+		final ClientSynchronizer clientSynchronizer = new ClientSynchronizer(
 				1024, 1024, 1000);
 		Client client = new TcpClient(new StringLineDecoder(),
 				new StringLineEncoder(), new Handler() {
@@ -36,7 +36,7 @@ public class TestTcpCs {
 						System.out.println("client session open |"
 								+ session.getSessionId());
 						log.debug("client session thread {}", Thread.currentThread().toString());
-						clientConnectionPool.putSession(session);
+						clientSynchronizer.putSession(session);
 					}
 
 					@Override
@@ -48,7 +48,7 @@ public class TestTcpCs {
 					@Override
 					public void messageRecieved(Session session, Object message) {
 						String str = (String) message;
-						clientConnectionPool.putReceive(str);
+						clientSynchronizer.putReceive(str);
 						log.debug("session interest ops {}", session.getInterestOps());
 						log.debug("client session thread {}", Thread.currentThread().toString());
 					}
@@ -63,20 +63,20 @@ public class TestTcpCs {
 		
 		
 
-		Session session = clientConnectionPool.getSession();
+		Session session = clientSynchronizer.getSession();
 		session.encode("hello client");
 		log.debug("main thread {}", Thread.currentThread().toString());
-		String ret = (String) clientConnectionPool.getReceive();
+		String ret = (String) clientSynchronizer.getReceive();
 		log.info("receive[" + ret + "]");
 		Assert.assertThat(ret, is("hello client"));
 
 		session.encode("test2");
-		ret = (String) clientConnectionPool.getReceive();
+		ret = (String) clientSynchronizer.getReceive();
 		log.info("receive[" + ret + "]");
 		Assert.assertThat(ret, is("test2"));
 
 		session.encode("quit");
-		ret = (String) clientConnectionPool.getReceive();
+		ret = (String) clientSynchronizer.getReceive();
 		log.info("receive[" + ret + "]");
 		Assert.assertThat(ret, is("bye!"));
 	}
