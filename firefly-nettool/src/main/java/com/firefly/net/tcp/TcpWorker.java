@@ -159,6 +159,7 @@ public class TcpWorker implements Worker {
 		if (session.isWriteSuspended() || session.isInWriteNowLoop())
 			return;
 
+		log.debug("worker thread write");
 		write0(session);
 	}
 
