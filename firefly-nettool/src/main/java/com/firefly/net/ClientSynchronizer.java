@@ -8,14 +8,14 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ClientConnectionPool {
+public class ClientSynchronizer {
 	private static Logger log = LoggerFactory
-			.getLogger(ClientConnectionPool.class);
+			.getLogger(ClientSynchronizer.class);
 	private final BlockingQueue<Session> sessionQueue;
 	private final BlockingQueue<Object> receive;
 	private final long timeout;
 
-	public ClientConnectionPool(int sessionSize, int retSize, long timeout) {
+	public ClientSynchronizer(int sessionSize, int retSize, long timeout) {
 		if (sessionSize > 0)
 			sessionQueue = new ArrayBlockingQueue<Session>(sessionSize);
 		else
