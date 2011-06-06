@@ -48,6 +48,7 @@ public class TestTcpCs {
 					public void messageRecieved(Session session, Object message) {
 						String str = (String) message;
 						clientConnectionPool.putReceive(str);
+						log.debug("session interest ops {}", session.getInterestOps());
 					}
 
 					@Override

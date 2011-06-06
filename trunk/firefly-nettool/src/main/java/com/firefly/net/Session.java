@@ -21,6 +21,8 @@ public interface Session {
 	void encode(Object message);
 
 	void write(ByteBuffer byteBuffer);
+	
+	int getInterestOps();
 
 	int getSessionId();
 
