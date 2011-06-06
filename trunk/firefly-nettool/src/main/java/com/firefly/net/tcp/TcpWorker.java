@@ -50,8 +50,10 @@ public class TcpWorker implements Worker {
 			timeProvider.start();
 			selector = Selector.open();
 			if (config.getHandleThreads() >= 0) {
+				log.debug("new ThreadPoolEventManager");
 				eventManager = new ThreadPoolEventManager(config);
 			} else {
+				log.debug("new CurrentThreadEventManager");
 				eventManager = new CurrentThreadEventManager(config);
 			}
 			new Thread(this, "Tcp-worker: " + workerId).start();
@@ -161,9 +163,8 @@ public class TcpWorker implements Worker {
 	}
 
 	private boolean scheduleWriteIfNecessary(final TcpSession session) {
-		final Thread currentThread = Thread.currentThread();
-		final Thread workerThread = thread;
-		if (currentThread != workerThread) {
+		log.debug("worker thread {} | current thread {}", thread.toString(), Thread.currentThread().toString());
+		if (Thread.currentThread() != thread) {
 			if (session.getWriteTaskInTaskQueue().compareAndSet(false, true)) {
 				boolean offered = writeTaskQueue.offer(session.getWriteTask());
 				assert offered;
@@ -172,7 +173,6 @@ public class TcpWorker implements Worker {
 				selector.wakeup();
 			return true;
 		}
-
 		return false;
 	}
 

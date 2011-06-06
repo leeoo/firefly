@@ -11,7 +11,7 @@ public class Config {
 	private int receiveBufferSize = 0;
 	private int sendBufferSize = 0;
 	private int backlog = 1024 * 16;
-	private int timeout = 30000;
+	private int timeout = 30000; // cliect connect timeout
 	private int port;
 	private String host;
 
