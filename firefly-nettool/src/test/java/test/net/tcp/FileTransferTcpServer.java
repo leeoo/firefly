@@ -4,7 +4,7 @@ import java.net.URISyntaxException;
 
 import com.firefly.net.tcp.TcpServer;
 
-public class TestFileHandler {
+public class FileTransferTcpServer {
 
 	/**
 	 * @param args

@@ -16,8 +16,8 @@ import com.firefly.net.Session;
 import com.firefly.net.tcp.TcpClient;
 import com.firefly.net.tcp.TcpServer;
 
-public class TestTcpCs {
-	private static Logger log = LoggerFactory.getLogger(TestTcpCs.class);
+public class TestTcpClientAndServer {
+	private static Logger log = LoggerFactory.getLogger(TestTcpClientAndServer.class);
 
 	@Test
 	public void testHello() {

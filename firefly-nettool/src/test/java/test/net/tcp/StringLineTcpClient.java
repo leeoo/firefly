@@ -6,7 +6,7 @@ import com.firefly.net.Handler;
 import com.firefly.net.Session;
 import com.firefly.net.tcp.TcpClient;
 
-public class TestTcpClient {
+public class StringLineTcpClient {
 	public static void main(String[] args) {
 		final ClientSynchronizer clientSynchronizer = new ClientSynchronizer(
 				5, 1024, 1000);
