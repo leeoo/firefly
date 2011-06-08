@@ -34,14 +34,14 @@ public class TestTcpCs {
 //		new TcpServer("localhost", 9900, new StringLineDecoder(),
 //				new StringLineEncoder(), new StringLineHandler()).start();
 
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			Thread.sleep(1000);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
 
 		final ClientSynchronizer clientSynchronizer = new ClientSynchronizer(
-				1024, 1024, 1000);
+				5, 512, 1000);
 		Client client = new TcpClient(new StringLineDecoder(),
 				new StringLineEncoder(), new Handler() {
 
@@ -75,8 +75,6 @@ public class TestTcpCs {
 				});
 		client.connect("localhost", 9900);
 
-
-
 		Session session = clientSynchronizer.getSession();
 		session.encode("hello client");
 		log.debug("main thread {}", Thread.currentThread().toString());
@@ -84,10 +82,11 @@ public class TestTcpCs {
 		log.info("receive[" + ret + "]");
 		Assert.assertThat(ret, is("hello client"));
 
-		session.encode("test2");
-		ret = (String) clientSynchronizer.getReceive();
-		log.info("receive[" + ret + "]");
-		Assert.assertThat(ret, is("test2"));
+		for(int i = 0; i < 500; i++) {
+			session.encode("test2");
+			ret = (String) clientSynchronizer.getReceive();
+			Assert.assertThat(ret, is("test2"));
+		}
 
 		session.encode("getfile");
 		ret = (String) clientSynchronizer.getReceive();
