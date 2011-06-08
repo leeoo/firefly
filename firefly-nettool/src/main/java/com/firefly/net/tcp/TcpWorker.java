@@ -42,7 +42,7 @@ public class TcpWorker implements Worker {
 	private Thread thread;
 	private final int workerId;
 	private EventManager eventManager;
-	
+
 	static {
 		timeProvider.start();
 	}
@@ -200,28 +200,28 @@ public class TcpWorker implements Worker {
 		final SendBufferPool sendBufferPool = config.getSendBufferPool();
 		final SocketChannel ch = (SocketChannel) session.getSelectionKey()
 				.channel();
-		final Queue<ByteBuffer> writeBuffer = session.getWriteBuffer();
+		final Queue<Object> writeBuffer = session.getWriteBuffer();
 		final int writeSpinCount = config.getWriteSpinCount();
 		synchronized (session.getWriteLock()) {
 			session.setInWriteNowLoop(true);
 			while (true) {
-				ByteBuffer byteBuffer = session.getCurrentWrite();
+				Object obj = session.getCurrentWrite();
 				SendBuffer buf;
-				if (byteBuffer == null) {
-					if ((byteBuffer = writeBuffer.poll()) == null) {
-						session.setCurrentWrite(byteBuffer);
+				if (obj == null) {
+					if ((obj = writeBuffer.poll()) == null) {
+						session.setCurrentWrite(obj);
 						removeOpWrite = true;
 						session.setWriteSuspended(false);
 						break;
 					}
-					if(byteBuffer == Session.CLOSE_FLAG) {
+					if(obj == Session.CLOSE_FLAG) {
 						close(session.getSelectionKey());
 						break;
 					}
-					buf = sendBufferPool.acquire(byteBuffer);
+					buf = sendBufferPool.acquire(obj);
 					session.setCurrentWriteBuffer(buf);
 				} else {
-					if(byteBuffer == Session.CLOSE_FLAG) {
+					if(obj == Session.CLOSE_FLAG) {
 						close(session.getSelectionKey());
 						break;
 					}
@@ -246,7 +246,7 @@ public class TcpWorker implements Worker {
 						buf.release();
 						session.setCurrentWrite(null);
 						session.setCurrentWriteBuffer(null);
-						byteBuffer = null;
+						obj = null;
 						buf = null;
 					} else {
 						// Not written fully - perhaps the kernel buffer is
@@ -262,7 +262,7 @@ public class TcpWorker implements Worker {
 					session.setCurrentWrite(null);
 					session.setCurrentWriteBuffer(null);
 					buf = null;
-					byteBuffer = null;
+					obj = null;
 					eventManager.executeExceptionTask(session, t);
 					if (t instanceof IOException) {
 						open = false;
@@ -290,17 +290,17 @@ public class TcpWorker implements Worker {
 
 		// Clean up the stale messages in the write buffer.
 		synchronized (session.getWriteLock()) {
-			ByteBuffer evt = session.getCurrentWrite();
-			if (evt != null) {
+			Object obj = session.getCurrentWrite();
+			if (obj != null) {
 				cause = new NetException("cleanUpWriteBuffer error");
 				session.getCurrentWriteBuffer().release();
 				session.setCurrentWriteBuffer(null);
 				session.setCurrentWrite(null);
-				evt = null;
+				obj = null;
 				fireExceptionCaught = true;
 			}
 
-			Queue<ByteBuffer> writeBuffer = session.getWriteBuffer();
+			Queue<Object> writeBuffer = session.getWriteBuffer();
 			if (!writeBuffer.isEmpty()) {
 				// Create the exception only once to avoid the excessive
 				// overhead
@@ -310,8 +310,8 @@ public class TcpWorker implements Worker {
 				}
 
 				while (true) {
-					evt = writeBuffer.poll();
-					if (evt == null) {
+					obj = writeBuffer.poll();
+					if (obj == null) {
 						break;
 					}
 					fireExceptionCaught = true;
