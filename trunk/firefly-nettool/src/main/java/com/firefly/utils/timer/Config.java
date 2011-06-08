@@ -1,7 +1,7 @@
 package com.firefly.utils.timer;
 
 public class Config {
-	private int maxTimers = 10; // wheel的格子数量
+	private int maxTimers = 512; // wheel的格子数量
 	private long interval = 100; // wheel旋转时间间隔
 	private int initialDelay = 0; // wheel开始旋转的延时时间
 	private int timerThreads = 1; // wheel旋转线程数量
