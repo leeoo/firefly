@@ -36,8 +36,8 @@ public class TcpSession implements Session {
 	private boolean writeSuspended;
 	private final Object interestOpsLock = new Object();
 	private final Object writeLock = new Object();
-	private final Queue<ByteBuffer> writeBuffer = new WriteRequestQueue();
-	private ByteBuffer currentWrite;
+	private final Queue<Object> writeBuffer = new WriteRequestQueue();
+	private Object currentWrite;
 	private SendBuffer currentWriteBuffer;
 	private volatile int state;
 
@@ -104,15 +104,15 @@ public class TcpSession implements Session {
 		this.currentWriteBuffer = currentWriteBuffer;
 	}
 
-	void setCurrentWrite(ByteBuffer currentWrite) {
+	void setCurrentWrite(Object currentWrite) {
 		this.currentWrite = currentWrite;
 	}
 
-	ByteBuffer getCurrentWrite() {
+	Object getCurrentWrite() {
 		return currentWrite;
 	}
 
-	Queue<ByteBuffer> getWriteBuffer() {
+	Queue<Object> getWriteBuffer() {
 		return writeBuffer;
 	}
 
@@ -203,7 +203,6 @@ public class TcpSession implements Session {
 		worker.writeFromUserCode(this);
 	}
 
-
 	int getRawInterestOps() {
 		return interestOps;
 	}
@@ -214,7 +213,7 @@ public class TcpSession implements Session {
 
 	@Override
 	public void close(boolean immediately) {
-		if(immediately)
+		if (immediately)
 			worker.close(selectionKey);
 		else
 			write(CLOSE_FLAG);
@@ -233,8 +232,7 @@ public class TcpSession implements Session {
 		}
 	}
 
-	private final class WriteRequestQueue extends
-			ConcurrentLinkedQueue<ByteBuffer> {
+	private final class WriteRequestQueue extends ConcurrentLinkedQueue<Object> {
 		private static final long serialVersionUID = -2493148252918843163L;
 		private final ThreadLocalBoolean notifying = new ThreadLocalBoolean();
 
@@ -243,11 +241,11 @@ public class TcpSession implements Session {
 		}
 
 		@Override
-		public boolean offer(ByteBuffer byteBuffer) {
-			boolean success = super.offer(byteBuffer);
+		public boolean offer(Object object) {
+			boolean success = super.offer(object);
 			assert success;
 
-			int messageSize = byteBuffer.remaining();
+			int messageSize = getMessageSize(object);
 			int newWriteBufferSize = writeBufferSize.addAndGet(messageSize);
 			int highWaterMark = config.getWriteBufferHighWaterMark();
 
@@ -266,10 +264,10 @@ public class TcpSession implements Session {
 		}
 
 		@Override
-		public ByteBuffer poll() {
-			ByteBuffer byteBuffer = super.poll();
-			if (byteBuffer != null) {
-				int messageSize = byteBuffer.remaining();
+		public Object poll() {
+			Object object = super.poll();
+			if (object != null) {
+				int messageSize = getMessageSize(object);
 				int newWriteBufferSize = writeBufferSize
 						.addAndGet(-messageSize);
 				int lowWaterMark = config.getWriteBufferLowWaterMark();
@@ -287,7 +285,14 @@ public class TcpSession implements Session {
 					}
 				}
 			}
-			return byteBuffer;
+			return object;
+		}
+
+		private int getMessageSize(Object obj) {
+			if (obj instanceof ByteBuffer) {
+				return ((ByteBuffer) obj).remaining();
+			}
+			return 0;
 		}
 	}
 
