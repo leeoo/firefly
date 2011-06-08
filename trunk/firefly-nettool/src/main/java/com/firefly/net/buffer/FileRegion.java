@@ -43,6 +43,7 @@ public class FileRegion {
 
 	public void releaseExternalResources() {
 		try {
+			log.debug("FileChannel close");
 			file.close();
 		} catch (IOException e) {
 			log.error("Failed to close a file.", e);

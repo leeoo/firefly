@@ -26,7 +26,7 @@ public class TestTcpCs {
 		config.setHandleThreads(-1);
 		config.setDecoder(new StringLineDecoder());
 		config.setEncoder(new StringLineEncoder());
-		config.setHandler(new StringLineHandler());
+		config.setHandler(new SendFileHandler());
 		config.setHost("localhost");
 		config.setPort(9900);
 		server.setConfig(config);
@@ -74,8 +74,8 @@ public class TestTcpCs {
 					}
 				});
 		client.connect("localhost", 9900);
-		
-		
+
+
 
 		Session session = clientSynchronizer.getSession();
 		session.encode("hello client");
@@ -88,6 +88,11 @@ public class TestTcpCs {
 		ret = (String) clientSynchronizer.getReceive();
 		log.info("receive[" + ret + "]");
 		Assert.assertThat(ret, is("test2"));
+
+		session.encode("getfile");
+		ret = (String) clientSynchronizer.getReceive();
+		log.info("receive[" + ret + "]");
+		Assert.assertThat(ret, is("zero copy file transfers"));
 
 		session.encode("quit");
 		ret = (String) clientSynchronizer.getReceive();
