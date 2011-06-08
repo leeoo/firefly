@@ -197,8 +197,8 @@ public class TcpSession implements Session {
 	}
 
 	@Override
-	public void write(ByteBuffer byteBuffer) {
-		boolean offered = writeBuffer.offer(byteBuffer);
+	public void write(Object object) {
+		boolean offered = writeBuffer.offer(object);
 		assert offered;
 		worker.writeFromUserCode(this);
 	}

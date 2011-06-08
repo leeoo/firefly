@@ -20,8 +20,8 @@ public interface Session {
 
 	void encode(Object message);
 
-	void write(ByteBuffer byteBuffer);
-	
+	void write(Object object);
+
 	int getInterestOps();
 
 	int getSessionId();
