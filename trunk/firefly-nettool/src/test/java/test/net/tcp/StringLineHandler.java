@@ -1,20 +1,24 @@
 package test.net.tcp;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.firefly.net.Handler;
 import com.firefly.net.Session;
 
 public class StringLineHandler implements Handler {
-
+	private static Logger log = LoggerFactory.getLogger(StringLineHandler.class);
+	
 	@Override
 	public void sessionOpened(Session session) {
-		System.out.println("session open |" + session.getSessionId());
-		System.out.println("local: " + session.getLocalAddress());
-		System.out.println("remote: " + session.getRemoteAddress());
+		log.info("session open |" + session.getSessionId());
+		log.info("local: " + session.getLocalAddress());
+		log.info("remote: " + session.getRemoteAddress());
 	}
 
 	@Override
 	public void sessionClosed(Session session) {
-		System.out.println("session close|" + session.getSessionId());
+		log.info("session close|" + session.getSessionId());
 	}
 
 	@Override
@@ -24,14 +28,14 @@ public class StringLineHandler implements Handler {
 			session.encode("bye!");
 			session.close(false);
 		} else {
-			System.out.println("recive: " + str);
+			log.debug("recive: " + str);
 			session.encode(message);
 		}
 	}
 
 	@Override
 	public void exceptionCaught(Session session, Throwable t) {
-		System.out.println( t.getMessage() + "|" + session.getSessionId());
+		log.error( t.getMessage() + "|" + session.getSessionId());
 	}
 
 }
