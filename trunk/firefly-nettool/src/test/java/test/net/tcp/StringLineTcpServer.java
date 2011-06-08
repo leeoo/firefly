@@ -2,7 +2,7 @@ package test.net.tcp;
 
 import com.firefly.net.tcp.TcpServer;
 
-public class TestTcpServer {
+public class StringLineTcpServer {
 
 	public static void main(String[] args) {
 		new TcpServer("localhost", 9900, new StringLineDecoder(),
