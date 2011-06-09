@@ -1,9 +1,5 @@
 package com.firefly.net;
 
-import com.firefly.net.buffer.AdaptiveReceiveBufferSizePredictor;
-import com.firefly.net.buffer.SocketReceiveBufferPool;
-import com.firefly.net.buffer.SocketSendBufferPool;
-
 public class Config {
 	private int connectionTime = 1;
 	private int latency = 2;
@@ -24,21 +20,9 @@ public class Config {
 	private String serverName = "firefly-server";
 	private String clientName = "firefly-client";
 
-	private ReceiveBufferSizePredictor receiveBufferSizePredictor = new AdaptiveReceiveBufferSizePredictor();
-	private ReceiveBufferPool receiveBufferPool = new SocketReceiveBufferPool();
-	private SendBufferPool sendBufferPool = new SocketSendBufferPool();
-
 	private Decoder decoder;
 	private Encoder encoder;
 	private Handler handler;
-
-	public SendBufferPool getSendBufferPool() {
-		return sendBufferPool;
-	}
-
-	public void setSendBufferPool(SendBufferPool sendBufferPool) {
-		this.sendBufferPool = sendBufferPool;
-	}
 
 	public int getWriteBufferHighWaterMark() {
 		return writeBufferHighWaterMark;
@@ -54,23 +38,6 @@ public class Config {
 
 	public void setWriteBufferLowWaterMark(int writeBufferLowWaterMark) {
 		this.writeBufferLowWaterMark = writeBufferLowWaterMark;
-	}
-
-	public ReceiveBufferSizePredictor getReceiveBufferSizePredictor() {
-		return receiveBufferSizePredictor;
-	}
-
-	public void setReceiveBufferSizePredictor(
-			ReceiveBufferSizePredictor receiveBufferSizePredictor) {
-		this.receiveBufferSizePredictor = receiveBufferSizePredictor;
-	}
-
-	public ReceiveBufferPool getReceiveBufferPool() {
-		return receiveBufferPool;
-	}
-
-	public void setReceiveBufferPool(ReceiveBufferPool receiveBufferPool) {
-		this.receiveBufferPool = receiveBufferPool;
 	}
 
 	public int getWriteSpinCount() {

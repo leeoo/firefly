@@ -23,6 +23,8 @@ import com.firefly.net.ReceiveBufferSizePredictor;
 import com.firefly.net.SendBufferPool;
 import com.firefly.net.Session;
 import com.firefly.net.Worker;
+import com.firefly.net.buffer.SocketReceiveBufferPool;
+import com.firefly.net.buffer.SocketSendBufferPool;
 import com.firefly.net.buffer.SocketSendBufferPool.SendBuffer;
 import com.firefly.net.event.CurrentThreadEventManager;
 import com.firefly.net.event.ThreadPoolEventManager;
@@ -36,6 +38,8 @@ public class TcpWorker implements Worker {
 	private final Queue<Runnable> registerTaskQueue = new ConcurrentLinkedQueue<Runnable>();
 	private final Queue<Runnable> writeTaskQueue = new ConcurrentLinkedQueue<Runnable>();
 	private final AtomicBoolean wakenUp = new AtomicBoolean();
+	private final ReceiveBufferPool receiveBufferPool = new SocketReceiveBufferPool();
+	private final SendBufferPool sendBufferPool = new SocketSendBufferPool();
 	private final Selector selector;
 	private volatile int cancelledKeys;
 	static final TimeProvider timeProvider = new TimeProvider(100);
@@ -197,7 +201,6 @@ public class TcpWorker implements Worker {
 		boolean removeOpWrite = false;
 		long writtenBytes = 0;
 
-		final SendBufferPool sendBufferPool = config.getSendBufferPool();
 		final SocketChannel ch = (SocketChannel) session.getSelectionKey()
 				.channel();
 		final Queue<Object> writeBuffer = session.getWriteBuffer();
@@ -326,17 +329,15 @@ public class TcpWorker implements Worker {
 
 	private boolean read(SelectionKey k) {
 		final SocketChannel ch = (SocketChannel) k.channel();
-		final Session session = (Session) k.attachment();
-		final ReceiveBufferPool recvBufferPool = config.getReceiveBufferPool();
-		final ReceiveBufferSizePredictor predictor = config
-				.getReceiveBufferSizePredictor();
+		final TcpSession session = (TcpSession) k.attachment();
+		final ReceiveBufferSizePredictor predictor = session.getReceiveBufferSizePredictor();
 		final int predictedRecvBufSize = predictor.nextReceiveBufferSize();
 
 		int ret = 0;
 		int readBytes = 0;
 		boolean failure = true;
 
-		ByteBuffer bb = recvBufferPool.acquire(predictedRecvBufSize);
+		ByteBuffer bb = receiveBufferPool.acquire(predictedRecvBufSize);
 		try {
 			while ((ret = ch.read(bb)) > 0) {
 				readBytes += ret;
@@ -353,7 +354,7 @@ public class TcpWorker implements Worker {
 		if (readBytes > 0) {
 			bb.flip();
 
-			recvBufferPool.release(bb);
+			receiveBufferPool.release(bb);
 
 			// Update the predictor.
 			predictor.previousReceiveBufferSize(readBytes);
@@ -361,7 +362,7 @@ public class TcpWorker implements Worker {
 			// Decode
 			config.getDecoder().decode(bb, session);
 		} else {
-			recvBufferPool.release(bb);
+			receiveBufferPool.release(bb);
 		}
 
 		if (ret < 0 || failure) {
