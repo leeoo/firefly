@@ -17,6 +17,7 @@ import com.firefly.net.ReceiveBufferSizePredictor;
 import com.firefly.net.Session;
 import com.firefly.net.ThreadLocalBoolean;
 import com.firefly.net.buffer.AdaptiveReceiveBufferSizePredictor;
+import com.firefly.net.buffer.FixedReceiveBufferSizePredictor;
 import com.firefly.net.buffer.SocketSendBufferPool.SendBuffer;
 
 public class TcpSession implements Session {
@@ -42,7 +43,7 @@ public class TcpSession implements Session {
 	private Object currentWrite;
 	private SendBuffer currentWriteBuffer;
 	private volatile int state;
-	private ReceiveBufferSizePredictor receiveBufferSizePredictor = new AdaptiveReceiveBufferSizePredictor();
+	private ReceiveBufferSizePredictor receiveBufferSizePredictor;
 
 	public TcpSession(int sessionId, TcpWorker worker, Config config,
 			long openTime, SelectionKey selectionKey) {
@@ -52,6 +53,14 @@ public class TcpSession implements Session {
 		this.config = config;
 		this.openTime = openTime;
 		this.selectionKey = selectionKey;
+		if (config.getReceiveByteBufferSize() > 0) {
+			log.debug("fix buffer size: {}", config.getReceiveByteBufferSize());
+			receiveBufferSizePredictor = new FixedReceiveBufferSizePredictor(
+					config.getReceiveByteBufferSize());
+		} else {
+			log.debug("adaptive buffer size");
+			receiveBufferSizePredictor = new AdaptiveReceiveBufferSizePredictor();
+		}
 		state = OPEN;
 	}
 
@@ -84,11 +93,6 @@ public class TcpSession implements Session {
 
 	ReceiveBufferSizePredictor getReceiveBufferSizePredictor() {
 		return receiveBufferSizePredictor;
-	}
-
-	void setReceiveBufferSizePredictor(
-			ReceiveBufferSizePredictor receiveBufferSizePredictor) {
-		this.receiveBufferSizePredictor = receiveBufferSizePredictor;
 	}
 
 	AtomicBoolean getWriteTaskInTaskQueue() {
@@ -158,14 +162,6 @@ public class TcpSession implements Session {
 
 	void setWriteSuspended(boolean writeSuspended) {
 		this.writeSuspended = writeSuspended;
-	}
-
-	AtomicInteger getWriteBufferSize() {
-		return writeBufferSize;
-	}
-
-	AtomicInteger getHighWaterMarkCounter() {
-		return highWaterMarkCounter;
 	}
 
 	@Override
@@ -356,9 +352,7 @@ public class TcpSession implements Session {
 		if (getClass() != obj.getClass())
 			return false;
 		TcpSession other = (TcpSession) obj;
-		if (sessionId != other.sessionId)
-			return false;
-		return true;
+		return sessionId != other.sessionId;
 	}
 
 }

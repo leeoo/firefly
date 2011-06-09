@@ -17,12 +17,21 @@ public class Config {
 	private int writeSpinCount = 16;
 	private int writeBufferHighWaterMark = 64 * 1024;
 	private int writeBufferLowWaterMark = 32 * 1024;
+	private int receiveByteBufferSize = 0;
 	private String serverName = "firefly-server";
 	private String clientName = "firefly-client";
 
 	private Decoder decoder;
 	private Encoder encoder;
 	private Handler handler;
+
+	public int getReceiveByteBufferSize() {
+		return receiveByteBufferSize;
+	}
+
+	public void setReceiveByteBufferSize(int receiveByteBufferSize) {
+		this.receiveByteBufferSize = receiveByteBufferSize;
+	}
 
 	public int getWriteBufferHighWaterMark() {
 		return writeBufferHighWaterMark;

@@ -6,10 +6,6 @@ import com.firefly.net.tcp.TcpServer;
 
 public class FileTransferTcpServer {
 
-	/**
-	 * @param args
-	 * @throws URISyntaxException
-	 */
 	public static void main(String[] args) throws URISyntaxException {
 //		System.out.println(SendFileHandler.class.getResource("/testFile.txt").toURI());
 
