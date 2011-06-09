@@ -13,8 +13,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.firefly.net.Config;
+import com.firefly.net.ReceiveBufferSizePredictor;
 import com.firefly.net.Session;
 import com.firefly.net.ThreadLocalBoolean;
+import com.firefly.net.buffer.AdaptiveReceiveBufferSizePredictor;
 import com.firefly.net.buffer.SocketSendBufferPool.SendBuffer;
 
 public class TcpSession implements Session {
@@ -40,6 +42,7 @@ public class TcpSession implements Session {
 	private Object currentWrite;
 	private SendBuffer currentWriteBuffer;
 	private volatile int state;
+	private ReceiveBufferSizePredictor receiveBufferSizePredictor = new AdaptiveReceiveBufferSizePredictor();
 
 	public TcpSession(int sessionId, TcpWorker worker, Config config,
 			long openTime, SelectionKey selectionKey) {
@@ -77,6 +80,15 @@ public class TcpSession implements Session {
 			}
 		}
 		return remoteAddress;
+	}
+
+	ReceiveBufferSizePredictor getReceiveBufferSizePredictor() {
+		return receiveBufferSizePredictor;
+	}
+
+	void setReceiveBufferSizePredictor(
+			ReceiveBufferSizePredictor receiveBufferSizePredictor) {
+		this.receiveBufferSizePredictor = receiveBufferSizePredictor;
 	}
 
 	AtomicBoolean getWriteTaskInTaskQueue() {
