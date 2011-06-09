@@ -38,7 +38,7 @@ public class StringLineTcpClient {
 								+ session.getSessionId());
 					}
 				});
-		client.connect("192.168.1.102", 9900);
+		client.connect("localhost", 9900);
 
 		Session session = clientSynchronizer.getSession();
 		session.encode("hello client");
