@@ -232,7 +232,7 @@ public class TcpWorker implements Worker {
 				}
 
 				try {
-					long localWrittenBytes = 0;
+					long localWrittenBytes;
 					for (int i = writeSpinCount; i > 0; i--) {
 						localWrittenBytes = buf.transferTo(ch);
 						if (localWrittenBytes != 0) {
@@ -276,7 +276,7 @@ public class TcpWorker implements Worker {
 			session.setInWriteNowLoop(false);
 		}
 
-		log.debug("write complete");
+		log.debug("write complete size: {}", writtenBytes);
 
 		if (open) {
 			if (addOpWrite) {
