@@ -205,8 +205,9 @@ public class TcpWorker implements Worker {
                 Object obj = session.getCurrentWrite();
                 SendBuffer buf = null;
                 if (obj == null) {
-                    if ((obj = writeBuffer.poll()) == null) {
-                    	session.setCurrentWrite(obj);
+                	obj = writeBuffer.poll();
+                	session.setCurrentWrite(obj);
+                    if (session.getCurrentWrite() == null) {
                         removeOpWrite = true;
                         session.setWriteSuspended(false);
                         break;
