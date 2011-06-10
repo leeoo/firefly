@@ -27,10 +27,8 @@ public class TestTcpClientAndServer {
 		config.setDecoder(new StringLineDecoder());
 		config.setEncoder(new StringLineEncoder());
 		config.setHandler(new SendFileHandler());
-		config.setHost("localhost");
-		config.setPort(9900);
 		server.setConfig(config);
-		server.start();
+		server.start("localhost", 9900);
 //		new TcpServer("localhost", 9900, new StringLineDecoder(),
 //				new StringLineEncoder(), new StringLineHandler()).start();
 
