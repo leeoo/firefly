@@ -1,179 +1,182 @@
 package com.firefly.net;
 
 public class Config {
-	private int connectionTime = 1;
-	private int latency = 2;
-	private int bandwidth = 0;
-	private int receiveBufferSize = 0;
-	private int sendBufferSize = 0;
-	private int backlog = 1024 * 16;
-	private int timeout = 30000; // client connect timeout
+    // tcp parameter
+    private int connectionTime = 1;
+    private int latency = 2;
+    private int bandwidth = 0;
+    private int receiveBufferSize = 0;
+    private int sendBufferSize = 0;
+    private int backlog = 1024 * 16;
 
-	private int handleThreads = 0;
-	private int workerThreads = Runtime.getRuntime().availableProcessors() * 2;
-	private int cleanupInterval = 256;
-	private int writeSpinCount = 16;
-	private int writeBufferHighWaterMark = 64 * 1024;
-	private int writeBufferLowWaterMark = 32 * 1024;
-	private int receiveByteBufferSize = 0;
-	private String serverName = "firefly-server";
-	private String clientName = "firefly-client";
+    private int timeout = 30000; // client connect timeout
 
-	private Decoder decoder;
-	private Encoder encoder;
-	private Handler handler;
+    // handle threads 0: use cachedThreadPool, >0 : use fixedThreadPool, <0: use worker thread
+    private int handleThreads = 0;
+    private int workerThreads = Runtime.getRuntime().availableProcessors() * 2;
+    private int cleanupInterval = 256;
+    private int writeSpinCount = 16;
+    private int writeBufferHighWaterMark = 64 * 1024;
+    private int writeBufferLowWaterMark = 32 * 1024;
+    private int receiveByteBufferSize = 0;
+    private String serverName = "firefly-server";
+    private String clientName = "firefly-client";
 
-	public int getReceiveByteBufferSize() {
-		return receiveByteBufferSize;
-	}
+    private Decoder decoder;
+    private Encoder encoder;
+    private Handler handler;
 
-	public void setReceiveByteBufferSize(int receiveByteBufferSize) {
-		this.receiveByteBufferSize = receiveByteBufferSize;
-	}
+    public int getReceiveByteBufferSize() {
+        return receiveByteBufferSize;
+    }
 
-	public int getWriteBufferHighWaterMark() {
-		return writeBufferHighWaterMark;
-	}
+    public void setReceiveByteBufferSize(int receiveByteBufferSize) {
+        this.receiveByteBufferSize = receiveByteBufferSize;
+    }
 
-	public void setWriteBufferHighWaterMark(int writeBufferHighWaterMark) {
-		this.writeBufferHighWaterMark = writeBufferHighWaterMark;
-	}
+    public int getWriteBufferHighWaterMark() {
+        return writeBufferHighWaterMark;
+    }
 
-	public int getWriteBufferLowWaterMark() {
-		return writeBufferLowWaterMark;
-	}
+    public void setWriteBufferHighWaterMark(int writeBufferHighWaterMark) {
+        this.writeBufferHighWaterMark = writeBufferHighWaterMark;
+    }
 
-	public void setWriteBufferLowWaterMark(int writeBufferLowWaterMark) {
-		this.writeBufferLowWaterMark = writeBufferLowWaterMark;
-	}
+    public int getWriteBufferLowWaterMark() {
+        return writeBufferLowWaterMark;
+    }
 
-	public int getWriteSpinCount() {
-		return writeSpinCount;
-	}
+    public void setWriteBufferLowWaterMark(int writeBufferLowWaterMark) {
+        this.writeBufferLowWaterMark = writeBufferLowWaterMark;
+    }
 
-	public void setWriteSpinCount(int writeSpinCount) {
-		this.writeSpinCount = writeSpinCount;
-	}
+    public int getWriteSpinCount() {
+        return writeSpinCount;
+    }
 
-	public int getCleanupInterval() {
-		return cleanupInterval;
-	}
+    public void setWriteSpinCount(int writeSpinCount) {
+        this.writeSpinCount = writeSpinCount;
+    }
 
-	public void setCleanupInterval(int cleanupInterval) {
-		this.cleanupInterval = cleanupInterval;
-	}
+    public int getCleanupInterval() {
+        return cleanupInterval;
+    }
 
-	public String getClientName() {
-		return clientName;
-	}
+    public void setCleanupInterval(int cleanupInterval) {
+        this.cleanupInterval = cleanupInterval;
+    }
 
-	public void setClientName(String clientName) {
-		this.clientName = clientName;
-	}
+    public String getClientName() {
+        return clientName;
+    }
 
-	public String getServerName() {
-		return serverName;
-	}
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
+    }
 
-	public void setServerName(String serverName) {
-		this.serverName = serverName;
-	}
+    public String getServerName() {
+        return serverName;
+    }
 
-	public int getReceiveBufferSize() {
-		return receiveBufferSize;
-	}
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
+    }
 
-	public void setReceiveBufferSize(int receiveBufferSize) {
-		this.receiveBufferSize = receiveBufferSize;
-	}
+    public int getReceiveBufferSize() {
+        return receiveBufferSize;
+    }
 
-	public int getSendBufferSize() {
-		return sendBufferSize;
-	}
+    public void setReceiveBufferSize(int receiveBufferSize) {
+        this.receiveBufferSize = receiveBufferSize;
+    }
 
-	public void setSendBufferSize(int sendBufferSize) {
-		this.sendBufferSize = sendBufferSize;
-	}
+    public int getSendBufferSize() {
+        return sendBufferSize;
+    }
 
-	public Decoder getDecoder() {
-		return decoder;
-	}
+    public void setSendBufferSize(int sendBufferSize) {
+        this.sendBufferSize = sendBufferSize;
+    }
 
-	public void setDecoder(Decoder decoder) {
-		this.decoder = decoder;
-	}
+    public Decoder getDecoder() {
+        return decoder;
+    }
 
-	public Encoder getEncoder() {
-		return encoder;
-	}
+    public void setDecoder(Decoder decoder) {
+        this.decoder = decoder;
+    }
 
-	public void setEncoder(Encoder encoder) {
-		this.encoder = encoder;
-	}
+    public Encoder getEncoder() {
+        return encoder;
+    }
 
-	public Handler getHandler() {
-		return handler;
-	}
+    public void setEncoder(Encoder encoder) {
+        this.encoder = encoder;
+    }
 
-	public void setHandler(Handler handler) {
-		this.handler = handler;
-	}
+    public Handler getHandler() {
+        return handler;
+    }
 
-	public int getTimeout() {
-		return timeout;
-	}
+    public void setHandler(Handler handler) {
+        this.handler = handler;
+    }
 
-	public void setTimeout(int timeout) {
-		this.timeout = timeout;
-	}
+    public int getTimeout() {
+        return timeout;
+    }
 
-	public int getBacklog() {
-		return backlog;
-	}
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
 
-	public void setBacklog(int backlog) {
-		this.backlog = backlog;
-	}
+    public int getBacklog() {
+        return backlog;
+    }
 
-	public int getHandleThreads() {
-		return handleThreads;
-	}
+    public void setBacklog(int backlog) {
+        this.backlog = backlog;
+    }
 
-	public void setHandleThreads(int handleThreads) {
-		this.handleThreads = handleThreads;
-	}
+    public int getHandleThreads() {
+        return handleThreads;
+    }
 
-	public int getWorkerThreads() {
-		return workerThreads;
-	}
+    public void setHandleThreads(int handleThreads) {
+        this.handleThreads = handleThreads;
+    }
 
-	public void setWorkerThreads(int workerThreads) {
-		this.workerThreads = workerThreads;
-	}
+    public int getWorkerThreads() {
+        return workerThreads;
+    }
 
-	public int getConnectionTime() {
-		return connectionTime;
-	}
+    public void setWorkerThreads(int workerThreads) {
+        this.workerThreads = workerThreads;
+    }
 
-	public void setConnectionTime(int connectionTime) {
-		this.connectionTime = connectionTime;
-	}
+    public int getConnectionTime() {
+        return connectionTime;
+    }
 
-	public int getLatency() {
-		return latency;
-	}
+    public void setConnectionTime(int connectionTime) {
+        this.connectionTime = connectionTime;
+    }
 
-	public void setLatency(int latency) {
-		this.latency = latency;
-	}
+    public int getLatency() {
+        return latency;
+    }
 
-	public int getBandwidth() {
-		return bandwidth;
-	}
+    public void setLatency(int latency) {
+        this.latency = latency;
+    }
 
-	public void setBandwidth(int bandwidth) {
-		this.bandwidth = bandwidth;
-	}
+    public int getBandwidth() {
+        return bandwidth;
+    }
+
+    public void setBandwidth(int bandwidth) {
+        this.bandwidth = bandwidth;
+    }
 
     @Override
     public String toString() {
