@@ -1,12 +1,11 @@
 package com.firefly.net;
 
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 
 public interface Session {
 	int CLOSE = 0;
 	int OPEN = 1;
-	ByteBuffer CLOSE_FLAG = ByteBuffer.allocate(0);
+	String CLOSE_FLAG = "firefly-session-close";
 
 	void setAttribute(String key, Object value);
 

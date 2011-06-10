@@ -163,6 +163,7 @@ public class TcpWorker implements Worker {
     private boolean scheduleWriteIfNecessary(final TcpSession session) {
         log.debug("worker thread {} | current thread {}", thread.toString(), Thread.currentThread().toString());
         if (Thread.currentThread() != thread) {
+        	log.debug("schedule write >>>>");
             if (session.getWriteTaskInTaskQueue().compareAndSet(false, true)) {
                 boolean offered = writeTaskQueue.offer(session.getWriteTask());
                 assert offered;
@@ -186,6 +187,9 @@ public class TcpWorker implements Worker {
     }
 
     private void write0(TcpSession session) {
+    	if(!session.isOpen())
+    		return;
+    	
         boolean open = true;
         boolean addOpWrite = false;
         boolean removeOpWrite = false;
@@ -199,29 +203,42 @@ public class TcpWorker implements Worker {
             session.setInWriteNowLoop(true);
             while (true) {
                 Object obj = session.getCurrentWrite();
-                SendBuffer buf;
+                SendBuffer buf = null;
                 if (obj == null) {
                     if ((obj = writeBuffer.poll()) == null) {
-                        session.setCurrentWrite(obj);
+                    	session.setCurrentWrite(obj);
                         removeOpWrite = true;
                         session.setWriteSuspended(false);
                         break;
                     }
                     if (obj == Session.CLOSE_FLAG) {
-                        close(session.getSelectionKey());
-                        break;
+                        open = false;
+                    } else {
+	                    buf = sendBufferPool.acquire(obj);
+	                    session.setCurrentWriteBuffer(buf);
                     }
-                    buf = sendBufferPool.acquire(obj);
-                    session.setCurrentWriteBuffer(buf);
                 } else {
-                    if (obj == Session.CLOSE_FLAG) {
-                        close(session.getSelectionKey());
-                        break;
-                    }
-                    buf = session.getCurrentWriteBuffer();
+                    if (obj == Session.CLOSE_FLAG)
+                        open = false;
+                    else
+                    	buf = session.getCurrentWriteBuffer();
                 }
 
                 try {
+                	log.debug("0> session is open: {}", open);
+                	if(!open) {
+                		log.debug("receive close flag");
+                		assert buf == null;
+                		
+                        session.setCurrentWrite(null);
+                        session.setCurrentWriteBuffer(null);
+                        buf = null;
+                        obj = null;
+                        clearOpWrite(session);
+                        close(session.getSelectionKey());
+                        break;
+                	}
+                	
                     long localWrittenBytes;
                     for (int i = writeSpinCount; i > 0; i--) {
                         localWrittenBytes = buf.transferTo(ch);
@@ -258,6 +275,7 @@ public class TcpWorker implements Worker {
                     obj = null;
                     eventManager.executeExceptionTask(session, t);
                     if (t instanceof IOException) {
+                    	log.debug("IOException session close");
                         open = false;
                         close(session.getSelectionKey());
                     }
@@ -275,6 +293,8 @@ public class TcpWorker implements Worker {
                 clearOpWrite(session);
             }
         }
+        log.debug("1> session is open: {}", open);
+        log.debug("is in write loop: {}", session.isInWriteNowLoop());
     }
 
     private void cleanUpWriteBuffer(TcpSession session) {
@@ -497,6 +517,7 @@ public class TcpWorker implements Worker {
             int interestOps = session.getRawInterestOps();
             if ((interestOps & SelectionKey.OP_WRITE) != 0) {
                 interestOps &= ~SelectionKey.OP_WRITE;
+                log.debug("clear write op >>> {}", interestOps);
                 key.interestOps(interestOps);
                 session.setInterestOpsNow(interestOps);
             }
