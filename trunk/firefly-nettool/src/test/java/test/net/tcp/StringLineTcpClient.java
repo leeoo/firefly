@@ -53,5 +53,14 @@ public class StringLineTcpClient {
 		ret = (String) clientSynchronizer.getReceive();
 		System.out.println("receive[" + ret + "]");
 
+        client.connect("localhost", 9900);
+        session = clientSynchronizer.getSession();
+        session.encode("getfile");
+        ret = (String) clientSynchronizer.getReceive();
+		System.out.println("receive[" + ret + "]");
+
+        session.encode("quit");
+		ret = (String) clientSynchronizer.getReceive();
+		System.out.println("receive[" + ret + "]");
 	}
 }
