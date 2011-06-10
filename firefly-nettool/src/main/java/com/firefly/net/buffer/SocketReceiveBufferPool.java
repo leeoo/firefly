@@ -3,9 +3,14 @@ package com.firefly.net.buffer;
 import java.lang.ref.SoftReference;
 import java.nio.ByteBuffer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.firefly.net.ReceiveBufferPool;
 
 public class SocketReceiveBufferPool implements ReceiveBufferPool {
+	private static Logger log = LoggerFactory.getLogger(SocketReceiveBufferPool.class);
+
 	private static final int POOL_SIZE = 8;
 
 	@SuppressWarnings("unchecked")
@@ -35,7 +40,10 @@ public class SocketReceiveBufferPool implements ReceiveBufferPool {
 			return buf;
 		}
 
-		ByteBuffer buf = ByteBuffer.allocateDirect(normalizeCapacity(size));
+		int allocateSize = normalizeCapacity(size);
+		log.debug("acquire read size: {}", allocateSize);
+
+		ByteBuffer buf = ByteBuffer.allocateDirect(allocateSize);
 		buf.clear();
 		return buf;
 	}
