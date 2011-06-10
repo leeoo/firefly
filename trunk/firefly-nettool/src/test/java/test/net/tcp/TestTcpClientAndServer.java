@@ -80,7 +80,7 @@ public class TestTcpClientAndServer {
 		log.info("receive[" + ret + "]");
 		Assert.assertThat(ret, is("hello client"));
 
-		for(int i = 0; i < 500; i++) {
+		for(int i = 0; i < 50; i++) {
 			session.encode("test2");
 			ret = (String) clientSynchronizer.getReceive();
 			Assert.assertThat(ret, is("test2"));
