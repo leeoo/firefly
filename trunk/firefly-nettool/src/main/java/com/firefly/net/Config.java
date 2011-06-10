@@ -18,7 +18,7 @@ public class Config {
     private int writeSpinCount = 16;
     private int writeBufferHighWaterMark = 64 * 1024;
     private int writeBufferLowWaterMark = 32 * 1024;
-    private int receiveByteBufferSize = 0;
+    private int receiveByteBufferSize = 0; // >0: use fixed buffer size, <=0: use adaptive buffer size
     private String serverName = "firefly-server";
     private String clientName = "firefly-client";
 
