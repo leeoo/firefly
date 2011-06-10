@@ -7,9 +7,7 @@ public class Config {
 	private int receiveBufferSize = 0;
 	private int sendBufferSize = 0;
 	private int backlog = 1024 * 16;
-	private int timeout = 30000; // cliect connect timeout
-	private int port;
-	private String host;
+	private int timeout = 30000; // client connect timeout
 
 	private int handleThreads = 0;
 	private int workerThreads = Runtime.getRuntime().availableProcessors() * 2;
@@ -121,22 +119,6 @@ public class Config {
 		this.handler = handler;
 	}
 
-	public int getPort() {
-		return port;
-	}
-
-	public void setPort(int port) {
-		this.port = port;
-	}
-
-	public String getHost() {
-		return host;
-	}
-
-	public void setHost(String host) {
-		this.host = host;
-	}
-
 	public int getTimeout() {
 		return timeout;
 	}
@@ -193,16 +175,28 @@ public class Config {
 		this.bandwidth = bandwidth;
 	}
 
-	@Override
-	public String toString() {
-		return "Config [handleThreads=" + handleThreads + ", workerThreads="
-				+ workerThreads + ", connectionTime=" + connectionTime
-				+ ", latency=" + latency + ", bandwidth=" + bandwidth
-				+ ", receiveBufferSize=" + receiveBufferSize
-				+ ", sendBufferSize=" + sendBufferSize + ", backlog=" + backlog
-				+ ", timeout=" + timeout + ", port=" + port + ", host=" + host
-				+ ", serverName=" + serverName + ", decoder=" + decoder
-				+ ", encoder=" + encoder + ", handler=" + handler + "]";
-	}
-
+    @Override
+    public String toString() {
+        return "Config{" +
+                "connectionTime=" + connectionTime +
+                ", latency=" + latency +
+                ", bandwidth=" + bandwidth +
+                ", receiveBufferSize=" + receiveBufferSize +
+                ", sendBufferSize=" + sendBufferSize +
+                ", backlog=" + backlog +
+                ", timeout=" + timeout +
+                ", handleThreads=" + handleThreads +
+                ", workerThreads=" + workerThreads +
+                ", cleanupInterval=" + cleanupInterval +
+                ", writeSpinCount=" + writeSpinCount +
+                ", writeBufferHighWaterMark=" + writeBufferHighWaterMark +
+                ", writeBufferLowWaterMark=" + writeBufferLowWaterMark +
+                ", receiveByteBufferSize=" + receiveByteBufferSize +
+                ", serverName='" + serverName + '\'' +
+                ", clientName='" + clientName + '\'' +
+                ", decoder=" + decoder +
+                ", encoder=" + encoder +
+                ", handler=" + handler +
+                '}';
+    }
 }
