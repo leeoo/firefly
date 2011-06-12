@@ -11,8 +11,7 @@ public class Config {
 
     private int timeout = 30000; // client connect timeout
 
-    // handle threads 0: use cachedThreadPool, >0 : use fixedThreadPool, <0: use worker thread
-    private int handleThreads = 0;
+    private int handleThreads = 0; // handle threads 0: use cachedThreadPool, >0 : use fixedThreadPool, <0: use worker thread
     private int workerThreads = Runtime.getRuntime().availableProcessors() * 2;
     private int cleanupInterval = 256;
     private int writeSpinCount = 16;

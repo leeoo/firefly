@@ -28,7 +28,6 @@ public class StringLinePerformance {
 			handler = new StringLineClientHandler();
 			client = new TcpClient(new StringLineDecoder(),
 					new StringLineEncoder(), handler);
-
 			this.barrier = barrier;
 		}
 
