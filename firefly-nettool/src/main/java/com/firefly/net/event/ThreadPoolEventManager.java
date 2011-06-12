@@ -26,6 +26,11 @@ public class ThreadPoolEventManager implements EventManager {
 			executorService = Executors.newCachedThreadPool();
 		}
 	}
+	
+	public void shutdown() {
+		executorService.shutdown();
+		log.debug("executorService is shutdown: {}", executorService.isShutdown());
+	}
 
 	public void executeOpenTask(Session session) {
 		executorService.submit(new OpenTask(session));

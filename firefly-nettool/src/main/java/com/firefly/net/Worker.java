@@ -12,4 +12,6 @@ public interface Worker extends Runnable {
 	int getWorkerId();
 
 	EventManager getEventManager();
+	
+	void shutdown();
 }

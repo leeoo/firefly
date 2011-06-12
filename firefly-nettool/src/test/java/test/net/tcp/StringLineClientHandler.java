@@ -12,7 +12,7 @@ public class StringLineClientHandler implements Handler {
 	private static Logger log = LoggerFactory
 			.getLogger(StringLineClientHandler.class);
 	private ClientSynchronizer clientSynchronizer = new ClientSynchronizer(5,
-			1024, 1000);
+			StringLinePerformance.LOOP, 1000);
 
 	public Session getSession() {
 		return clientSynchronizer.getSession();

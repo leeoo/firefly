@@ -37,14 +37,12 @@ public class StringLinePerformance {
 			client.connect("localhost", 9900);
 			Session session = handler.getSession();
 			for (int i = 0; i < LOOP; i++) {
-				session.encode("hello client");
+				session.encode("hello world!");
 				String ret = (String) handler.getReceive();
 				log.debug("receive ret: {}", ret);
 			}
-			session.encode("quit");
-			String ret = (String) handler.getReceive();
-			log.debug("receive ret: {}", ret);
-
+			session.close(false);
+//			client.shutdown();
 			try {
 				barrier.await();
 			} catch (InterruptedException e) {

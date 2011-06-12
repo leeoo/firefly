@@ -1,6 +1,7 @@
 package com.firefly.net.tcp;
 
 import com.firefly.net.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,5 +78,12 @@ public class TcpClient implements Client {
             }
         }
     }
+
+	@Override
+	public void shutdown() {
+		for(Worker worker : workers) {
+			worker.shutdown();
+		}
+	}
 
 }
