@@ -14,6 +14,7 @@ public class TcpServer implements Server {
     private static Logger log = LoggerFactory.getLogger(TcpServer.class);
     private Config config;
     private Worker[] workers;
+    private Thread bossThread;
 
     public TcpServer() {
 
@@ -76,7 +77,8 @@ public class TcpServer implements Server {
         } catch (IOException e) {
             log.error("Boss create error", e);
         }
-        new Thread(boss, config.getServerName()).start();
+        bossThread = new Thread(boss, config.getServerName());
+        bossThread.start();
     }
 
     private final class Boss implements Runnable {
@@ -141,5 +143,14 @@ public class TcpServer implements Server {
         }
 
     }
+
+	@Override
+	public void shutdown() {
+		for(Worker worker : workers) {
+			worker.shutdown();
+		}
+		bossThread.interrupt();
+		log.debug("thread {} is shutdown: {}", bossThread.getName(), bossThread.isInterrupted());
+	}
 
 }

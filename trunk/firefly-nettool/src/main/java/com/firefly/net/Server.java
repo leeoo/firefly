@@ -5,4 +5,5 @@ public interface Server {
 	
 	void start(String host, int port);
 	
+	void shutdown();
 }

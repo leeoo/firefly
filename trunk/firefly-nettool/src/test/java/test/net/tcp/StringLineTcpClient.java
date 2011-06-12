@@ -30,8 +30,7 @@ public class StringLineTcpClient {
         ret = (String) handler.getReceive();
 		System.out.println("receive[" + ret + "]");
 
-        session.encode("quit");
-		ret = (String) handler.getReceive();
-		System.out.println("receive[" + ret + "]");
+        session.close(false);
+        client.shutdown();
 	}
 }

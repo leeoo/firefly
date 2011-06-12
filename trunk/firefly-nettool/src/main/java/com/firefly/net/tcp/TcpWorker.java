@@ -578,4 +578,13 @@ public class TcpWorker implements Worker {
             eventManager.executeExceptionTask(session, t);
         }
     }
+
+	@Override
+	public void shutdown() {
+		if(eventManager instanceof ThreadPoolEventManager) {
+			((ThreadPoolEventManager)eventManager).shutdown();
+		}
+		thread.interrupt();
+		log.debug("thread {} is shutdown: {}", thread.getName(), thread.isInterrupted());
+	}
 }
