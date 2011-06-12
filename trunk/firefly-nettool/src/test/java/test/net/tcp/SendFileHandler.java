@@ -18,14 +18,14 @@ public class SendFileHandler implements Handler {
 
 	@Override
 	public void sessionOpened(Session session) {
-		log.info("session open |" + session.getSessionId());
-		log.info("local: " + session.getLocalAddress());
-		log.info("remote: " + session.getRemoteAddress());
+		log.debug("session open |" + session.getSessionId());
+		log.debug("local: " + session.getLocalAddress());
+		log.debug("remote: " + session.getRemoteAddress());
 	}
 
 	@Override
 	public void sessionClosed(Session session) {
-		log.info("session close|" + session.getSessionId());
+		log.debug("session close|" + session.getSessionId());
 	}
 
 	@Override
