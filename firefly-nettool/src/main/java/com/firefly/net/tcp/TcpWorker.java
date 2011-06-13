@@ -328,6 +328,7 @@ public class TcpWorker implements Worker {
                     if (obj == null) {
                         break;
                     }
+                    log.info("error clear obj: {}", obj.getClass().toString());
                     fireExceptionCaught = true;
                 }
             }

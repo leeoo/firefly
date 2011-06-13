@@ -12,9 +12,9 @@ public class UdpClient implements Client {
 	}
 
 	@Override
-	public void connect(String host, int port) {
+	public int connect(String host, int port) {
 		// TODO Auto-generated method stub
-		
+		return 0;
 	}
 
 	@Override
