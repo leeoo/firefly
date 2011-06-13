@@ -1,127 +1,62 @@
 package com.firefly.net;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ClientSynchronizer {
-	private static Logger log = LoggerFactory
-			.getLogger(ClientSynchronizer.class);
-	private final BlockingQueue<Session> sessionQueue;
-	private final BlockingQueue<Object> receive;
-	private final long timeout;
+public class ClientSynchronizer<T> {
+    private static Logger log = LoggerFactory
+            .getLogger(ClientSynchronizer.class);
+    private SynchronousObject<Session>[] sessionArray;
+    private SynchronousObject<T>[] receiveArray;
+    private final long timeout;
+    private int sessionSize, retSize;
 
-	public ClientSynchronizer(int sessionSize, int retSize, long timeout) {
-		if (sessionSize > 0)
-			sessionQueue = new ArrayBlockingQueue<Session>(sessionSize);
-		else
-			sessionQueue = new LinkedBlockingQueue<Session>();
+    public ClientSynchronizer(int sessionSize, int retSize, long timeout) {
+        if (sessionSize <= 0 || retSize <= 0)
+            throw new IllegalArgumentException("sessionSize or retSize less than 1");
 
-		if (retSize > 0)
-			receive = new ArrayBlockingQueue<Object>(retSize);
-		else
-			receive = new LinkedBlockingQueue<Object>();
+        this.sessionSize = sessionSize;
+        this.retSize = retSize;
+        if (timeout > 0)
+            this.timeout = timeout;
+        else
+            this.timeout = 1000;
 
-		if (timeout > 0)
-			this.timeout = timeout;
-		else
-			this.timeout = 0;
-	}
+        init();
+        log.debug("client timeout {}", timeout);
+    }
 
-	public Session getSession() {
-		Session ret = null;
-		try {
-			if (timeout > 0) {
-				log.debug("get session timeout {}", timeout);
-				ret = sessionQueue.poll(timeout, TimeUnit.MILLISECONDS);
-			} else {
-				ret = sessionQueue.take();
-			}
-		} catch (InterruptedException e) {
-			log.error("get session error", e);
-		}
-		return ret;
-	}
+    public Session getSession(int sessionId) {
+        log.debug("get session {}", sessionId);
+        return sessionArray[sessionId & (sessionSize - 1)].get(timeout);
+    }
 
-	public Session getSession(long timeout) {
-		Session ret = null;
-		try {
-			ret = sessionQueue.poll(timeout, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-			log.error("get session error", e);
-		}
-		return ret;
-	}
+    public void putSession(Session session) {
+        log.debug("put session {}", session.getSessionId());
+        sessionArray[session.getSessionId() & (sessionSize - 1)].put(session);
+    }
 
-	public void putSession(Session session) {
-		try {
-			if (timeout > 0) {
-				log.debug("put session timeout {}", timeout);
-				sessionQueue.offer(session, timeout, TimeUnit.MILLISECONDS);
-			} else {
-				sessionQueue.put(session);
-			}
-		} catch (InterruptedException e) {
-			log.error("put session error", e);
-		}
-	}
+    public void putReceive(int revId, T t) {
+        log.debug("put rev {}", revId);
+        receiveArray[revId & (retSize - 1)].put(t);
+    }
 
-	public void putSession(Session session, long timeout) {
-		try {
-			sessionQueue.offer(session, timeout, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-			log.error("put session error", e);
-		}
-	}
+    public T getReceive(int revId) {
+        log.debug("get rev {}", revId);
+        return receiveArray[revId & (retSize - 1)].get(timeout);
+    }
 
-	public Object getReceive() {
-		Object ret = null;
-		try {
-			if (timeout > 0) {
-				log.debug("get receive timeout {}", timeout);
-				ret = receive.poll(timeout, TimeUnit.MILLISECONDS);
-			} else {
-				ret = receive.take();
-			}
-		} catch (InterruptedException e) {
-			log.error("get session error", e);
-		}
-		return ret;
-	}
+    public void init() {
+        sessionArray = new SynchronousObject[sessionSize];
+        receiveArray = new SynchronousObject[retSize];
 
-	public Object getReceive(long timeout) {
-		Object ret = null;
-		try {
-			ret = receive.poll(timeout, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-			log.error("get session error", e);
-		}
-		return ret;
-	}
+        for (int i = 0; i < sessionArray.length; i++) {
+            sessionArray[i] = new SynchronousObject<Session>();
+        }
 
-	public void putReceive(Object object) {
-		try {
-			if (timeout > 0) {
-				log.debug("put receive timeout {}", timeout);
-				receive.offer(object, timeout, TimeUnit.MILLISECONDS);
-			} else {
-				receive.put(object);
-			}
-		} catch (InterruptedException e) {
-			log.error("put session error", e);
-		}
-	}
-
-	public void putReceive(Object object, long timeout) {
-		try {
-			receive.offer(object, timeout, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-			log.error("put session error", e);
-		}
-	}
+        for (int i = 0; i < receiveArray.length; i++) {
+            receiveArray[i] = new SynchronousObject<T>();
+        }
+    }
 
 }

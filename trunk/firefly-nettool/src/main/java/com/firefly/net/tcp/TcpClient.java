@@ -27,7 +27,6 @@ public class TcpClient implements Client {
         config.setEncoder(encoder);
         config.setHandler(handler);
         config.setHandleThreads(-1);
-        config.setWorkerThreads(1);
     }
 
     private synchronized Client init() {
@@ -51,15 +50,17 @@ public class TcpClient implements Client {
     }
 
     @Override
-    public void connect(String host, int port) {
+    public int connect(String host, int port) {
         init();
+        int id = sessionId.getAndIncrement();
         try {
             SocketChannel socketChannel = SocketChannel.open();
             socketChannel.socket().connect(new InetSocketAddress(host, port), config.getTimeout());
-            accept(socketChannel, sessionId.getAndIncrement());
+            accept(socketChannel, id);
         } catch (IOException e) {
             log.error("connect error", e);
         }
+        return id;
     }
 
     private void accept(SocketChannel socketChannel, int sessionId) {

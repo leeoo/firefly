@@ -15,7 +15,7 @@ import com.firefly.net.tcp.TcpClient;
 public class StringLinePerformance {
 	private static Logger log = LoggerFactory
 			.getLogger(StringLinePerformance.class);
-	public static final int LOOP = 2000;
+	public static final int LOOP = 10;
 	public static final int THREAD = 10;
 
 	public static class ClientTask implements Runnable {
@@ -24,23 +24,26 @@ public class StringLinePerformance {
 		private final Client client;
 		private final CyclicBarrier barrier;
 
-		public ClientTask(CyclicBarrier barrier) {
-			handler = new StringLineClientHandler();
-			client = new TcpClient(new StringLineDecoder(),
-					new StringLineEncoder(), handler);
+		public ClientTask(CyclicBarrier barrier, StringLineClientHandler handler, Client client) {
+			this.handler = handler;
+            this.client = client;
 			this.barrier = barrier;
 		}
 
 		@Override
 		public void run() {
-			client.connect("localhost", 9900);
-			Session session = handler.getSession();
+			int sessionId = client.connect("localhost", 9900);
+			Session session = handler.getSession(sessionId);
 			for (int i = 0; i < LOOP; i++) {
-				session.encode("hello world!");
-				String ret = (String) handler.getReceive();
-				log.debug("receive ret: {}", ret);
+                String message = "hello world! " + session.getSessionId();
+                int revId = handler.getRevId(session.getSessionId(), message);
+                log.info("put revid {}", revId);
+		        session.encode(message);
+				String ret = handler.getReceive(revId);
+				log.debug("rev: {}", ret);
 			}
 			session.close(false);
+            log.info("session {} complete", sessionId);
 //			client.shutdown();
 			try {
 				barrier.await();
@@ -77,9 +80,13 @@ public class StringLinePerformance {
 
 	public static void main(String[] args) {
 		ExecutorService executorService = Executors.newFixedThreadPool(THREAD);
-		CyclicBarrier barrier = new CyclicBarrier(THREAD, new StatTask());
+        final StringLineClientHandler handler = new StringLineClientHandler(THREAD, 1024 * 4);
+        final Client client = new TcpClient(new StringLineDecoder(),
+					new StringLineEncoder(), handler);
+		final CyclicBarrier barrier = new CyclicBarrier(THREAD, new StatTask());
+
 		for(int i = 0; i < THREAD; i++) {
-			executorService.submit(new ClientTask(barrier));
+			executorService.submit(new ClientTask(barrier, handler, client));
 		}
 	}
 }

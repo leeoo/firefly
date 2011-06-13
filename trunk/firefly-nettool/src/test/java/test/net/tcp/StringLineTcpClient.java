@@ -6,28 +6,42 @@ import com.firefly.net.tcp.TcpClient;
 
 public class StringLineTcpClient {
 	public static void main(String[] args) {
-		StringLineClientHandler handler = new StringLineClientHandler();
+		StringLineClientHandler handler = new StringLineClientHandler(2, 1024 * 4);
 		Client client = new TcpClient(new StringLineDecoder(),
 				new StringLineEncoder(), handler);
-		client.connect("localhost", 9900);
+		int sessionId = client.connect("localhost", 9900);
+        Session session = handler.getSession(sessionId);
 
-		Session session = handler.getSession();
-		session.encode("hello client");
-		String ret = (String) handler.getReceive();
+        String message = "hello client";
+        int revId = handler.getRevId(session.getSessionId(), message);
+        System.out.println(revId);
+		session.encode(message);
+		String ret = handler.getReceive(revId);
 		System.out.println("receive[" + ret + "]");
 
-		session.encode("test2");
-		ret = (String) handler.getReceive();
+        message = "test2";
+        revId = handler.getRevId(session.getSessionId(), message);
+        System.out.println(revId);
+		session.encode(message);
+		ret = handler.getReceive(revId);
 		System.out.println("receive[" + ret + "]");
 
-		session.encode("quit");
-		ret = (String) handler.getReceive();
+		message = "quit";
+        revId = handler.getRevId(session.getSessionId(), message);
+        System.out.println(revId);
+		session.encode(message);
+		ret = handler.getReceive(revId);
 		System.out.println("receive[" + ret + "]");
 
-        client.connect("localhost", 9900);
-        session = handler.getSession();
-        session.encode("getfile");
-        ret = (String) handler.getReceive();
+
+        sessionId = client.connect("localhost", 9900);
+        session = handler.getSession(sessionId);
+
+        message = "getfile";
+        revId = handler.getRevId(session.getSessionId(), message);
+        System.out.println(revId);
+		session.encode(message);
+        ret = handler.getReceive(revId);
 		System.out.println("receive[" + ret + "]");
 
         session.close(false);
