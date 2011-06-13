@@ -43,7 +43,7 @@ public class StringLineClientHandler implements Handler {
     public void messageRecieved(Session session, Object message) {
         String str = (String) message;
         int id = getRevId(session.getSessionId(), str);
-        log.info("rev message id: {}", id);
+        log.debug("rev message id: {}", id);
         clientSynchronizer.putReceive(id, str);
     }
 

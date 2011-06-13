@@ -50,7 +50,8 @@ public class SendFileHandler implements Handler {
 			}
 			FileRegion fileRegion = null;
 			try {
-				fileRegion = new FileRegion(raf.getChannel(), 0, raf.length());
+                assert raf != null;
+                fileRegion = new FileRegion(raf.getChannel(), 0, raf.length());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -63,7 +64,7 @@ public class SendFileHandler implements Handler {
 
 	@Override
 	public void exceptionCaught(Session session, Throwable t) {
-		log.error(t.getMessage() + "|" + session.getSessionId());
+		log.error(t.getMessage() + "|" + session.getSessionId(), t);
 	}
 
 }
