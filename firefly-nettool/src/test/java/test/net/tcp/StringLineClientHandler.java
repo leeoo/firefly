@@ -10,28 +10,20 @@ public class StringLineClientHandler implements Handler {
 
     private static Logger log = LoggerFactory
             .getLogger(StringLineClientHandler.class);
-    private ClientSynchronizer<String> clientSynchronizer;
-    private int retSize;
+    private ClientSynchronizer<Session> clientSynchronizer;
 
-    public StringLineClientHandler(int sessionSize, int retSize) {
-        clientSynchronizer = new ClientSynchronizer<String>(sessionSize,
-                retSize, 1000);
-        this.retSize = retSize;
+    public StringLineClientHandler(int sessionSize) {
+        clientSynchronizer = new ClientSynchronizer<Session>(sessionSize, 1000);
     }
 
     public Session getSession(int sessionId) {
-        return clientSynchronizer.getSession(sessionId);
-    }
-
-    public String getReceive(int revId) {
-        log.debug("get rev >>>>>>> {}", revId);
-        return clientSynchronizer.getReceive(revId);
+        return clientSynchronizer.get(sessionId);
     }
 
     @Override
     public void sessionOpened(Session session) {
         log.debug("session: {} open", session.getSessionId());
-        clientSynchronizer.putSession(session);
+        clientSynchronizer.put(session, session.getSessionId());
     }
 
     @Override
@@ -41,30 +33,13 @@ public class StringLineClientHandler implements Handler {
 
     @Override
     public void messageRecieved(Session session, Object message) {
-        String str = (String) message;
-        int id = getRevId(session.getSessionId(), str);
-        log.debug("rev message id: {}", id);
-        clientSynchronizer.putReceive(id, str);
+        log.debug("message: {}", message);
+        session.setResult(message, 1000);
     }
 
     @Override
     public void exceptionCaught(Session session, Throwable t) {
         log.error("session error", t);
-    }
-
-    public int getRevId(int sessionId, String message) {
-        int result = sessionId;
-        int messageCode = 0;
-        if (message != null) {
-            if (message.equals("quit"))
-                messageCode = "bye!".hashCode();
-            else if (message.equals("getfile"))
-                messageCode = "zero copy file transfers".hashCode();
-            else
-                messageCode = message.hashCode();
-        }
-        result = 31 * result + messageCode;
-        return Math.abs(result) % retSize;
     }
 
 }

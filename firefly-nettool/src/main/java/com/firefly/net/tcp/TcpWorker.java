@@ -163,7 +163,7 @@ public class TcpWorker implements Worker {
     private boolean scheduleWriteIfNecessary(final TcpSession session) {
         log.debug("worker thread {} | current thread {}", thread.toString(), Thread.currentThread().toString());
         if (Thread.currentThread() != thread) {
-        	log.debug("schedule write >>>>");
+            log.debug("schedule write >>>>");
             if (session.getWriteTaskInTaskQueue().compareAndSet(false, true)) {
                 boolean offered = writeTaskQueue.offer(session.getWriteTask());
                 assert offered;
@@ -187,9 +187,9 @@ public class TcpWorker implements Worker {
     }
 
     private void write0(TcpSession session) {
-    	if(!session.isOpen())
-    		return;
-    	
+        if (!session.isOpen())
+            return;
+
         boolean open = true;
         boolean addOpWrite = false;
         boolean removeOpWrite = false;
@@ -205,8 +205,8 @@ public class TcpWorker implements Worker {
                 Object obj = session.getCurrentWrite();
                 SendBuffer buf = null;
                 if (obj == null) {
-                	obj = writeBuffer.poll();
-                	session.setCurrentWrite(obj);
+                    obj = writeBuffer.poll();
+                    session.setCurrentWrite(obj);
                     if (session.getCurrentWrite() == null) {
                         removeOpWrite = true;
                         session.setWriteSuspended(false);
@@ -215,22 +215,22 @@ public class TcpWorker implements Worker {
                     if (obj == Session.CLOSE_FLAG) {
                         open = false;
                     } else {
-	                    buf = sendBufferPool.acquire(obj);
-	                    session.setCurrentWriteBuffer(buf);
+                        buf = sendBufferPool.acquire(obj);
+                        session.setCurrentWriteBuffer(buf);
                     }
                 } else {
                     if (obj == Session.CLOSE_FLAG)
                         open = false;
                     else
-                    	buf = session.getCurrentWriteBuffer();
+                        buf = session.getCurrentWriteBuffer();
                 }
 
                 try {
-                	log.debug("0> session is open: {}", open);
-                	if(!open) {
-                		log.debug("receive close flag");
-                		assert buf == null;
-                		
+                    log.debug("0> session is open: {}", open);
+                    if (!open) {
+                        log.debug("receive close flag");
+                        assert buf == null;
+
                         session.setCurrentWrite(null);
                         session.setCurrentWriteBuffer(null);
                         buf = null;
@@ -238,8 +238,8 @@ public class TcpWorker implements Worker {
                         clearOpWrite(session);
                         close(session.getSelectionKey());
                         break;
-                	}
-                	
+                    }
+
                     long localWrittenBytes;
                     for (int i = writeSpinCount; i > 0; i--) {
                         localWrittenBytes = buf.transferTo(ch);
@@ -276,7 +276,7 @@ public class TcpWorker implements Worker {
                     obj = null;
                     eventManager.executeExceptionTask(session, t);
                     if (t instanceof IOException) {
-                    	log.debug("IOException session close");
+                        log.debug("IOException session close");
                         open = false;
                         close(session.getSelectionKey());
                     }
@@ -580,12 +580,12 @@ public class TcpWorker implements Worker {
         }
     }
 
-	@Override
-	public void shutdown() {
-		if(eventManager instanceof ThreadPoolEventManager) {
-			((ThreadPoolEventManager)eventManager).shutdown();
-		}
-		thread.interrupt();
-		log.debug("thread {} is shutdown: {}", thread.getName(), thread.isInterrupted());
-	}
+    @Override
+    public void shutdown() {
+        if (eventManager instanceof ThreadPoolEventManager) {
+            ((ThreadPoolEventManager) eventManager).shutdown();
+        }
+        thread.interrupt();
+        log.debug("thread {} is shutdown: {}", thread.getName(), thread.isInterrupted());
+    }
 }

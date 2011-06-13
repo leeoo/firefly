@@ -32,7 +32,7 @@ public class TestTcpClientAndServer {
 
         final int LOOP = 50;
         ExecutorService executorService = Executors.newFixedThreadPool(LOOP);
-        final StringLineClientHandler handler = new StringLineClientHandler(LOOP, 1024 * 4);
+        final StringLineClientHandler handler = new StringLineClientHandler(LOOP * 2);
         final Client client = new TcpClient(new StringLineDecoder(),
                 new StringLineEncoder(), handler);
 
@@ -44,33 +44,26 @@ public class TestTcpClientAndServer {
                     final int sessionId = client.connect("localhost", 9900);
                     final Session session = handler.getSession(sessionId);
 
-                    String message = "hello client";
-                    int revId = handler.getRevId(session.getSessionId(), message);
-                    session.encode(message);
+		            session.encode("hello client");
                     log.debug("main thread {}", Thread.currentThread().toString());
-                    String ret = handler.getReceive(revId);
+                    String ret = (String)session.getResult(1000);
                     log.debug("receive[" + ret + "]");
                     Assert.assertThat(ret, is("hello client"));
 
-                    message = "hello multithread test";
-                    revId = handler.getRevId(session.getSessionId(), message);
-                    session.encode(message);
-                    ret = handler.getReceive(revId);
+		            session.encode("hello multithread test");
+                    ret = (String)session.getResult(1000);
                     Assert.assertThat(ret, is("hello multithread test"));
 
-                    message = "getfile";
-                    revId = handler.getRevId(session.getSessionId(), message);
-                    session.encode(message);
-                    ret = handler.getReceive(revId);
+		            session.encode("getfile");
+                    ret = (String)session.getResult(1000);
                     log.debug("receive[" + ret + "]");
                     Assert.assertThat(ret, is("zero copy file transfers"));
 
-                    message = "quit";
-                    revId = handler.getRevId(session.getSessionId(), message);
-                    session.encode(message);
-                    ret = handler.getReceive(revId);
+		            session.encode("quit");
+                    ret = (String)session.getResult(1000);
                     log.debug("receive[" + ret + "]");
                     Assert.assertThat(ret, is("bye!"));
+                    log.debug("complete session {}", sessionId);
                 }
             });
 
@@ -79,20 +72,17 @@ public class TestTcpClientAndServer {
         final int sessionId = client.connect("localhost", 9900);
         final Session session = handler.getSession(sessionId);
 
-        String message = "hello client 2";
-        int revId = handler.getRevId(session.getSessionId(), message);
-        session.encode(message);
+		session.encode("hello client 2");
         log.debug("main thread {}", Thread.currentThread().toString());
-        String ret = handler.getReceive(revId);
+        String ret = (String)session.getResult(1000);
         log.debug("receive[" + ret + "]");
         Assert.assertThat(ret, is("hello client 2"));
 
-        message = "quit";
-        revId = handler.getRevId(session.getSessionId(), message);
-        session.encode(message);
-        ret = handler.getReceive(revId);
+		session.encode("quit");
+        ret = (String)session.getResult(1000);
         log.debug("receive[" + ret + "]");
         Assert.assertThat(ret, is("bye!"));
+        log.debug("complete session {}", sessionId);
 
 //        server.shutdown();
 //        client.shutdown();
