@@ -1,15 +1,5 @@
 package com.firefly.net.tcp;
 
-import com.firefly.net.Config;
-import com.firefly.net.ReceiveBufferSizePredictor;
-import com.firefly.net.Session;
-import com.firefly.net.ThreadLocalBoolean;
-import com.firefly.net.buffer.AdaptiveReceiveBufferSizePredictor;
-import com.firefly.net.buffer.FixedReceiveBufferSizePredictor;
-import com.firefly.net.buffer.SocketSendBufferPool.SendBuffer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -17,9 +7,23 @@ import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.firefly.net.Config;
+import com.firefly.net.ReceiveBufferSizePredictor;
+import com.firefly.net.Session;
+import com.firefly.net.ThreadLocalBoolean;
+import com.firefly.net.buffer.AdaptiveReceiveBufferSizePredictor;
+import com.firefly.net.buffer.FixedReceiveBufferSizePredictor;
+import com.firefly.net.buffer.SocketSendBufferPool.SendBuffer;
 
 public class TcpSession implements Session {
     private static Logger log = LoggerFactory.getLogger(TcpSession.class);
@@ -45,6 +49,7 @@ public class TcpSession implements Session {
     private SendBuffer currentWriteBuffer;
     private volatile int state;
     private ReceiveBufferSizePredictor receiveBufferSizePredictor;
+    private BlockingQueue<Object> result = new LinkedBlockingQueue<Object>();
 
     public TcpSession(int sessionId, TcpWorker worker, Config config,
                       long openTime, SelectionKey selectionKey) {
@@ -90,6 +95,26 @@ public class TcpSession implements Session {
             }
         }
         return remoteAddress;
+    }
+
+    @Override
+    public void setResult(Object result, long timeout) {
+        try {
+            this.result.offer(result, timeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            log.error("set result error", e);
+        }
+    }
+
+    @Override
+    public Object getResult(long timeout) {
+        Object ret = null;
+        try {
+            ret = this.result.poll(timeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            log.error("get result error", e);
+        }
+        return ret;
     }
 
     ReceiveBufferSizePredictor getReceiveBufferSizePredictor() {

@@ -6,17 +6,16 @@ import org.slf4j.LoggerFactory;
 public class ClientSynchronizer<T> {
     private static Logger log = LoggerFactory
             .getLogger(ClientSynchronizer.class);
-    private SynchronousObject<Session>[] sessionArray;
-    private SynchronousObject<T>[] receiveArray;
+    private SynchronousObject<T>[] objs;
     private final long timeout;
-    private int sessionSize, retSize;
+    private int size;
 
-    public ClientSynchronizer(int sessionSize, int retSize, long timeout) {
-        if (sessionSize <= 0 || retSize <= 0)
+    public ClientSynchronizer(int size, long timeout) {
+        if (size <= 0)
             throw new IllegalArgumentException("sessionSize or retSize less than 1");
 
-        this.sessionSize = sessionSize;
-        this.retSize = retSize;
+        this.size = size;
+
         if (timeout > 0)
             this.timeout = timeout;
         else
@@ -26,37 +25,23 @@ public class ClientSynchronizer<T> {
         log.debug("client timeout {}", timeout);
     }
 
-    public Session getSession(int sessionId) {
-        log.debug("get session {}", sessionId);
-        return sessionArray[sessionId & (sessionSize - 1)].get(timeout);
+    public T get(int index) {
+        log.debug("get index {}", index);
+        return objs[index & (size - 1)].get(timeout);
     }
 
-    public void putSession(Session session) {
-        log.debug("put session {}", session.getSessionId());
-        sessionArray[session.getSessionId() & (sessionSize - 1)].put(session);
-    }
-
-    public void putReceive(int revId, T t) {
-        log.debug("put rev {}", revId);
-        receiveArray[revId & (retSize - 1)].put(t);
-    }
-
-    public T getReceive(int revId) {
-        log.debug("get rev {}", revId);
-        return receiveArray[revId & (retSize - 1)].get(timeout);
+    public void put(T t, int index) {
+        log.debug("put index {}", index);
+        objs[index & (size - 1)].put(t);
     }
 
     public void init() {
-        sessionArray = new SynchronousObject[sessionSize];
-        receiveArray = new SynchronousObject[retSize];
+        objs = new SynchronousObject[size];
 
-        for (int i = 0; i < sessionArray.length; i++) {
-            sessionArray[i] = new SynchronousObject<Session>();
+        for (int i = 0; i < objs.length; i++) {
+            objs[i] = new SynchronousObject<T>();
         }
 
-        for (int i = 0; i < receiveArray.length; i++) {
-            receiveArray[i] = new SynchronousObject<T>();
-        }
     }
 
 }

@@ -36,4 +36,8 @@ public interface Session {
 	InetSocketAddress getLocalAddress();
 
 	InetSocketAddress getRemoteAddress();
+
+    void setResult(Object result, long timeout);
+
+    Object getResult(long timeout);
 }

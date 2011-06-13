@@ -6,42 +6,30 @@ import com.firefly.net.tcp.TcpClient;
 
 public class StringLineTcpClient {
 	public static void main(String[] args) {
-		StringLineClientHandler handler = new StringLineClientHandler(2, 1024 * 4);
+		StringLineClientHandler handler = new StringLineClientHandler(2);
 		Client client = new TcpClient(new StringLineDecoder(),
 				new StringLineEncoder(), handler);
 		int sessionId = client.connect("localhost", 9900);
         Session session = handler.getSession(sessionId);
 
-        String message = "hello client";
-        int revId = handler.getRevId(session.getSessionId(), message);
-        System.out.println(revId);
-		session.encode(message);
-		String ret = handler.getReceive(revId);
+		session.encode("hello client");
+		String ret = (String)session.getResult(1000);
 		System.out.println("receive[" + ret + "]");
 
-        message = "test2";
-        revId = handler.getRevId(session.getSessionId(), message);
-        System.out.println(revId);
-		session.encode(message);
-		ret = handler.getReceive(revId);
+		session.encode("test2");
+		ret = (String)session.getResult(1000);
 		System.out.println("receive[" + ret + "]");
 
-		message = "quit";
-        revId = handler.getRevId(session.getSessionId(), message);
-        System.out.println(revId);
-		session.encode(message);
-		ret = handler.getReceive(revId);
+		session.encode("quit");
+		ret = (String)session.getResult(1000);
 		System.out.println("receive[" + ret + "]");
 
 
         sessionId = client.connect("localhost", 9900);
         session = handler.getSession(sessionId);
 
-        message = "getfile";
-        revId = handler.getRevId(session.getSessionId(), message);
-        System.out.println(revId);
-		session.encode(message);
-        ret = handler.getReceive(revId);
+		session.encode("getfile");
+        ret = (String)session.getResult(1000);
 		System.out.println("receive[" + ret + "]");
 
         session.close(false);

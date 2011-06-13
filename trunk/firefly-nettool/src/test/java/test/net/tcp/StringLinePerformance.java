@@ -1,7 +1,11 @@
 package test.net.tcp;
 
 import java.util.Queue;
-import java.util.concurrent.*;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,31 +22,43 @@ public class StringLinePerformance {
 
 	public static class ClientTask implements Runnable {
 
-		private final StringLineClientHandler handler;
-		private final Client client;
+		// private final StringLineClientHandler handler;
+		// private final Client client;
 		private final CyclicBarrier barrier;
+		private final Queue<Session> sessionPool;
 
-		public ClientTask(CyclicBarrier barrier, StringLineClientHandler handler, Client client) {
-			this.handler = handler;
-            this.client = client;
-			this.barrier = barrier;
+		public Session getSession() {
+			Session session = sessionPool.poll();
+			if (session == null || !session.isOpen()) {
+				final StringLineClientHandler handler = new StringLineClientHandler(
+						1);
+				final Client client = new TcpClient(new StringLineDecoder(),
+						new StringLineEncoder(), handler);
+				int sessionId = client.connect("localhost", 9900);
+				session = handler.getSession(sessionId);
+				log.info("new session {}", sessionId);
+			}
+			return session;
+		}
+
+		public void release(Session session) {
+			if (session != null && session.isOpen())
+				sessionPool.offer(session);
 		}
 
 		@Override
 		public void run() {
-			int sessionId = client.connect("localhost", 9900);
-			Session session = handler.getSession(sessionId);
+			Session session = getSession();
 			for (int i = 0; i < LOOP; i++) {
-                String message = "hello world! " + session.getSessionId();
-                int revId = handler.getRevId(session.getSessionId(), message);
-                log.debug("put revid {}", revId);
-		        session.encode(message);
-				String ret = handler.getReceive(revId);
+				String message = "hello world! " + session.getSessionId();
+				session.encode(message);
+				String ret = (String) session.getResult(1000);
 				log.debug("rev: {}", ret);
 			}
-//			session.close(false);
-            log.debug("session {} complete", sessionId);
-//			client.shutdown();
+
+			log.debug("session {} complete", session.getSessionId());
+			release(session);
+			
 			try {
 				barrier.await();
 			} catch (InterruptedException e) {
@@ -53,14 +69,22 @@ public class StringLinePerformance {
 
 		}
 
+		public ClientTask(CyclicBarrier barrier, Queue<Session> sessionPool) {
+			super();
+			this.barrier = barrier;
+			this.sessionPool = sessionPool;
+		}
+
 	}
-	
+
 	public static class StatTask implements Runnable {
-		
+
 		private long start;
-		
-		public StatTask() {
+		private final Queue<Session> sessionPool;
+
+		public StatTask(Queue<Session> sessionPool) {
 			this.start = System.currentTimeMillis();
+			this.sessionPool = sessionPool;
 		}
 
 		@Override
@@ -69,22 +93,35 @@ public class StringLinePerformance {
 			log.debug("start time: {}", start);
 			log.debug("total time: {}", time);
 			int reqs = LOOP * THREAD;
-			
-			double throughput = (reqs / (double)time) * 1000;
+
+			double throughput = (reqs / (double) time) * 1000;
 			log.info("throughput: {}", throughput);
+			Session session = null;
+			while((session = sessionPool.poll()) != null) {
+				session.close(false);
+			}
 		}
-		
+
 	}
 
 	public static void main(String[] args) {
 		ExecutorService executorService = Executors.newFixedThreadPool(THREAD);
-        final StringLineClientHandler handler = new StringLineClientHandler(THREAD, 1024 * 4);
-        final Client client = new TcpClient(new StringLineDecoder(),
+		
+		Queue<Session> sessionPool = new ConcurrentLinkedQueue<Session>();
+		for (int i = 0; i < THREAD; i++) {
+			final StringLineClientHandler handler = new StringLineClientHandler(
+					THREAD * 2);
+			final Client client = new TcpClient(new StringLineDecoder(),
 					new StringLineEncoder(), handler);
-		final CyclicBarrier barrier = new CyclicBarrier(THREAD, new StatTask());
+			int sessionId = client.connect("localhost", 9900);
+			Session session = handler.getSession(sessionId);
+			sessionPool.offer(session);
+		}
+		
+		final CyclicBarrier barrier = new CyclicBarrier(THREAD, new StatTask(sessionPool));
 
-		for(int i = 0; i < THREAD; i++) {
-			executorService.submit(new ClientTask(barrier, handler, client));
+		for (int i = 0; i < THREAD; i++) {
+			executorService.submit(new ClientTask(barrier, sessionPool));
 		}
 	}
 }
