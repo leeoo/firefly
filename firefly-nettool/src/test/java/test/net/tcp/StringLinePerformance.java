@@ -1,9 +1,7 @@
 package test.net.tcp;
 
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.Queue;
+import java.util.concurrent.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +13,7 @@ import com.firefly.net.tcp.TcpClient;
 public class StringLinePerformance {
 	private static Logger log = LoggerFactory
 			.getLogger(StringLinePerformance.class);
-	public static final int LOOP = 10;
+	public static final int LOOP = 2000;
 	public static final int THREAD = 10;
 
 	public static class ClientTask implements Runnable {
@@ -37,13 +35,13 @@ public class StringLinePerformance {
 			for (int i = 0; i < LOOP; i++) {
                 String message = "hello world! " + session.getSessionId();
                 int revId = handler.getRevId(session.getSessionId(), message);
-                log.info("put revid {}", revId);
+                log.debug("put revid {}", revId);
 		        session.encode(message);
 				String ret = handler.getReceive(revId);
 				log.debug("rev: {}", ret);
 			}
-			session.close(false);
-            log.info("session {} complete", sessionId);
+//			session.close(false);
+            log.debug("session {} complete", sessionId);
 //			client.shutdown();
 			try {
 				barrier.await();
