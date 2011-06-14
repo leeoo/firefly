@@ -27,12 +27,12 @@ public class ClientSynchronizer<T> {
 
     public T get(int index) {
         log.debug("get index {}", index);
-        return objs[index & (size - 1)].get(timeout);
+        return objs[index].get(timeout);
     }
 
     public void put(T t, int index) {
         log.debug("put index {}", index);
-        objs[index & (size - 1)].put(t);
+        objs[index].put(t);
     }
 
     public void init() {
