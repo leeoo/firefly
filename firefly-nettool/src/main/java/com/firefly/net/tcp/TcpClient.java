@@ -51,7 +51,9 @@ public class TcpClient implements Client {
 
     @Override
     public int connect(String host, int port) {
-        init();
+        if (!started)
+            init();
+
         int id = sessionId.getAndIncrement();
         try {
             SocketChannel socketChannel = SocketChannel.open();
