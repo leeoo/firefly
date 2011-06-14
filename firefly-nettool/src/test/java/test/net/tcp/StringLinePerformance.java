@@ -5,8 +5,6 @@ import com.firefly.net.Session;
 import com.firefly.net.tcp.TcpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Queue;
 import java.util.concurrent.*;
 
 public class StringLinePerformance {
