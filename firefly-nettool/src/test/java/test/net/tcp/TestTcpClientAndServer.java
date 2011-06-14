@@ -11,8 +11,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -20,7 +18,6 @@ import static org.hamcrest.Matchers.is;
 
 public class TestTcpClientAndServer {
     private static Logger log = LoggerFactory.getLogger(TestTcpClientAndServer.class);
-    private final Queue<Session> sessionPool = new ConcurrentLinkedQueue<Session>();
 
     @Test
     public void testHello() {
@@ -38,18 +35,14 @@ public class TestTcpClientAndServer {
         final StringLineClientHandler handler = new StringLineClientHandler(LOOP * 2);
         final Client client = new TcpClient(new StringLineDecoder(),
                 new StringLineEncoder(), handler);
-        for (int i = 0; i < LOOP; i++) {
-            final int sessionId = client.connect("localhost", 9900);
-            final Session session = handler.getSession(sessionId);
-            sessionPool.offer(session);
-        }
 
 
         for (int i = 0; i < LOOP; i++) {
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    Session session = sessionPool.poll();
+                    final int sessionId = client.connect("localhost", 9900);
+                    final Session session = handler.getSession(sessionId);
                     session.encode("hello client");
                     log.debug("main thread {}", Thread.currentThread().toString());
                     String ret = (String) session.getResult(1000);
