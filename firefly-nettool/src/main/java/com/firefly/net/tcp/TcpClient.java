@@ -36,6 +36,7 @@ public class TcpClient implements Client {
         if (config == null)
             throw new IllegalArgumentException("init error config is null");
 
+        log.info("client init");
         workers = new Worker[config.getWorkerThreads()];
         for (int i = 0; i < config.getWorkerThreads(); i++) {
             workers[i] = new TcpWorker(config, i);
