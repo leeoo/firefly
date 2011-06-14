@@ -1,5 +1,15 @@
 package com.firefly.net.tcp;
 
+import com.firefly.net.Config;
+import com.firefly.net.ReceiveBufferSizePredictor;
+import com.firefly.net.Session;
+import com.firefly.net.ThreadLocalBoolean;
+import com.firefly.net.buffer.AdaptiveReceiveBufferSizePredictor;
+import com.firefly.net.buffer.FixedReceiveBufferSizePredictor;
+import com.firefly.net.buffer.SocketSendBufferPool.SendBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -13,17 +23,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.firefly.net.Config;
-import com.firefly.net.ReceiveBufferSizePredictor;
-import com.firefly.net.Session;
-import com.firefly.net.ThreadLocalBoolean;
-import com.firefly.net.buffer.AdaptiveReceiveBufferSizePredictor;
-import com.firefly.net.buffer.FixedReceiveBufferSizePredictor;
-import com.firefly.net.buffer.SocketSendBufferPool.SendBuffer;
 
 public class TcpSession implements Session {
     private static Logger log = LoggerFactory.getLogger(TcpSession.class);
@@ -247,10 +246,12 @@ public class TcpSession implements Session {
 
     @Override
     public void close(boolean immediately) {
-        if (immediately)
-            worker.close(selectionKey);
-        else
-            write(CLOSE_FLAG);
+        if (isOpen()) {
+            if (immediately)
+                worker.close(selectionKey);
+            else
+                write(CLOSE_FLAG);
+        }
     }
 
     private final class WriteTask implements Runnable {
