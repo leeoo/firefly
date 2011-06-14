@@ -35,7 +35,8 @@ public class ClientSynchronizer<T> {
         objs[index].put(t);
     }
 
-    public void init() {
+    @SuppressWarnings("unchecked")
+	public void init() {
         objs = new SynchronousObject[size];
 
         for (int i = 0; i < objs.length; i++) {
