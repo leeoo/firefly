@@ -11,7 +11,7 @@ public class StringLinePerformance {
     private static Logger log = LoggerFactory
             .getLogger(StringLinePerformance.class);
     public static final int LOOP = 2000;
-    public static final int THREAD = 10;
+    public static final int THREAD = 500;
 
     public static class ClientTask implements Runnable {
 
