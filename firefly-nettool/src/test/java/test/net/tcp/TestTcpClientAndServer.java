@@ -43,6 +43,8 @@ public class TestTcpClientAndServer {
                 public void run() {
                     final int sessionId = client.connect("localhost", 9900);
                     final Session session = handler.getSession(sessionId);
+                    Assert.assertThat(session.isOpen(), is(true));
+
                     session.encode("hello client");
                     log.debug("main thread {}", Thread.currentThread().toString());
                     String ret = (String) session.getResult(1000);

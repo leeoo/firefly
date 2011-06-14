@@ -39,7 +39,7 @@ public class StringLineClientHandler implements Handler {
 
     @Override
     public void exceptionCaught(Session session, Throwable t) {
-        log.error("session error", t);
+        log.error("client session error", t);
     }
 
 }
