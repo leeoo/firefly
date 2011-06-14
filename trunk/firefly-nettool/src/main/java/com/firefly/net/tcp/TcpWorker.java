@@ -414,7 +414,7 @@ public class TcpWorker implements Worker {
             try {
                 socketChannel.configureBlocking(false);
                 socketChannel.socket().setReuseAddress(true);
-                socketChannel.socket().setTcpNoDelay(true);
+                socketChannel.socket().setTcpNoDelay(false);
                 socketChannel.socket().setKeepAlive(true);
                 if (config.getReceiveBufferSize() > 0)
                     socketChannel.socket().setReceiveBufferSize(
