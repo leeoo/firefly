@@ -5,7 +5,7 @@ import java.net.InetSocketAddress;
 public interface Session {
 	int CLOSE = 0;
 	int OPEN = 1;
-	String CLOSE_FLAG = "firefly-session-close";
+	String CLOSE_FLAG = "#firefly-session-close";
 
 	void setAttribute(String key, Object value);
 
