@@ -17,28 +17,13 @@ public class StringLinePerformance {
 
     public static class ClientTask implements Runnable {
 
-        // private final StringLineClientHandler handler;
-        // private final Client client;
+        private final StringLineClientHandler handler;
+        private final Client client;
         private final CyclicBarrier barrier;
-        private final Queue<Session> sessionPool;
 
         public Session getSession() {
-            Session session = sessionPool.poll();
-            if (session == null || !session.isOpen()) {
-                final StringLineClientHandler handler = new StringLineClientHandler(
-                        1);
-                final Client client = new TcpClient(new StringLineDecoder(),
-                        new StringLineEncoder(), handler);
-                int sessionId = client.connect("localhost", 9900);
-                session = handler.getSession(sessionId);
-                log.info("new session {}", sessionId);
-            }
-            return session;
-        }
-
-        public void release(Session session) {
-            if (session != null && session.isOpen())
-                sessionPool.offer(session);
+            int sessionId = client.connect("localhost", 9900);
+            return handler.getSession(sessionId);
         }
 
         @Override
@@ -50,9 +35,8 @@ public class StringLinePerformance {
                 String ret = (String) session.getResult(1000);
                 log.debug("rev: {}", ret);
             }
-
+            session.close(false);
             log.debug("session {} complete", session.getSessionId());
-            release(session);
 
             try {
                 barrier.await();
@@ -64,22 +48,19 @@ public class StringLinePerformance {
 
         }
 
-        public ClientTask(CyclicBarrier barrier, Queue<Session> sessionPool) {
-            super();
+        public ClientTask(StringLineClientHandler handler, Client client, CyclicBarrier barrier) {
+            this.handler = handler;
+            this.client = client;
             this.barrier = barrier;
-            this.sessionPool = sessionPool;
         }
-
     }
 
     public static class StatTask implements Runnable {
 
         private long start;
-        private final Queue<Session> sessionPool;
 
-        public StatTask(Queue<Session> sessionPool) {
+        public StatTask() {
             this.start = System.currentTimeMillis();
-            this.sessionPool = sessionPool;
         }
 
         @Override
@@ -91,38 +72,21 @@ public class StringLinePerformance {
 
             double throughput = (reqs / (double) time) * 1000;
             log.info("throughput: {}", throughput);
-            Session session;
-            while ((session = sessionPool.poll()) != null) {
-                session.close(false);
-            }
         }
 
     }
 
     public static void main(String[] args) {
         ExecutorService executorService = Executors.newFixedThreadPool(THREAD);
-
-        Queue<Session> sessionPool = new ConcurrentLinkedQueue<Session>();
         final StringLineClientHandler handler = new StringLineClientHandler(
                 THREAD * 2);
         final Client client = new TcpClient(new StringLineDecoder(),
                 new StringLineEncoder(), handler);
-        for (int i = 0; i < THREAD; i++) {
-//            final StringLineClientHandler handler = new StringLineClientHandler(
-//                    THREAD * 2);
-//            final Client client = new TcpClient(new StringLineDecoder(),
-//                    new StringLineEncoder(), handler);
 
-            int sessionId = client.connect("localhost", 9900);
-            Session session = handler.getSession(sessionId);
-            sessionPool.offer(session);
-        }
-        log.info(sessionPool.toString());
-
-        final CyclicBarrier barrier = new CyclicBarrier(THREAD, new StatTask(sessionPool));
+        final CyclicBarrier barrier = new CyclicBarrier(THREAD, new StatTask());
 
         for (int i = 0; i < THREAD; i++) {
-            executorService.submit(new ClientTask(barrier, sessionPool));
+            executorService.submit(new ClientTask(handler, client, barrier));
         }
     }
 }

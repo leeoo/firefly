@@ -133,7 +133,7 @@ public class TcpWorker implements Worker {
                     writeFromSelectorLoop(k);
                 }
             } catch (CancelledKeyException e) {
-                log.warn("processSelectedKeys error close session", e);
+                log.debug("processSelectedKeys error close session", e);
                 close(k);
             }
 
@@ -277,7 +277,7 @@ public class TcpWorker implements Worker {
                     obj = null;
                     eventManager.executeExceptionTask(session, t);
                     if (t instanceof IOException) {
-                        log.warn("write0 IOException session close");
+                        log.debug("write0 IOException session close");
                         open = false;
                         close(session.getSelectionKey());
                     }
@@ -379,7 +379,7 @@ public class TcpWorker implements Worker {
         }
 
         if (ret < 0 || failure) {
-            log.warn("read failure session close");
+            log.debug("read failure session close");
             close(k);
             return false;
         }
@@ -489,7 +489,7 @@ public class TcpWorker implements Worker {
             return;
         }
         if (!key.isValid()) {
-            log.warn("setOpWrite failure session close");
+            log.debug("setOpWrite failure session close");
             close(key);
             return;
         }
@@ -512,7 +512,7 @@ public class TcpWorker implements Worker {
             return;
         }
         if (!key.isValid()) {
-            log.warn("clearOpWrite key valid false");
+            log.debug("clearOpWrite key valid false");
             close(key);
             return;
         }
