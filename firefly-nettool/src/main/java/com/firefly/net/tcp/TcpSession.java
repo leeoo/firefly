@@ -246,12 +246,10 @@ public class TcpSession implements Session {
 
     @Override
     public void close(boolean immediately) {
-        if (isOpen()) {
-            if (immediately)
-                worker.close(selectionKey);
-            else
-                write(CLOSE_FLAG);
-        }
+        if (immediately)
+            worker.close(selectionKey);
+        else
+            write(CLOSE_FLAG);
     }
 
     private final class WriteTask implements Runnable {
