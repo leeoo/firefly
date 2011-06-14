@@ -17,10 +17,7 @@ import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -48,7 +45,7 @@ public class TcpSession implements Session {
     private SendBuffer currentWriteBuffer;
     private volatile int state;
     private ReceiveBufferSizePredictor receiveBufferSizePredictor;
-    private BlockingQueue<Object> result = new LinkedBlockingQueue<Object>();
+    private BlockingQueue<Object> result = new ArrayBlockingQueue<Object>(16);
 
     public TcpSession(int sessionId, TcpWorker worker, Config config,
                       long openTime, SelectionKey selectionKey) {
