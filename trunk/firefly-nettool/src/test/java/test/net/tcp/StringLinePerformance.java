@@ -12,8 +12,8 @@ import java.util.concurrent.*;
 public class StringLinePerformance {
     private static Logger log = LoggerFactory
             .getLogger(StringLinePerformance.class);
-    public static final int LOOP = 10;
-    public static final int THREAD = 50;
+    public static final int LOOP = 2000;
+    public static final int THREAD = 10;
 
     public static class ClientTask implements Runnable {
 
@@ -91,7 +91,7 @@ public class StringLinePerformance {
 
             double throughput = (reqs / (double) time) * 1000;
             log.info("throughput: {}", throughput);
-            Session session = null;
+            Session session;
             while ((session = sessionPool.poll()) != null) {
                 session.close(false);
             }
@@ -108,10 +108,16 @@ public class StringLinePerformance {
         final Client client = new TcpClient(new StringLineDecoder(),
                 new StringLineEncoder(), handler);
         for (int i = 0; i < THREAD; i++) {
+//            final StringLineClientHandler handler = new StringLineClientHandler(
+//                    THREAD * 2);
+//            final Client client = new TcpClient(new StringLineDecoder(),
+//                    new StringLineEncoder(), handler);
+
             int sessionId = client.connect("localhost", 9900);
             Session session = handler.getSession(sessionId);
             sessionPool.offer(session);
         }
+        log.info(sessionPool.toString());
 
         final CyclicBarrier barrier = new CyclicBarrier(THREAD, new StatTask(sessionPool));
 

@@ -382,4 +382,12 @@ public class TcpSession implements Session {
         return sessionId != other.sessionId;
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("TcpSession");
+        sb.append("{sessionId=").append(sessionId);
+        sb.append('}');
+        return sb.toString();
+    }
 }
