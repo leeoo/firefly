@@ -129,7 +129,7 @@ public class TcpServer implements Server {
                 int workerIndex = Math.abs(sessionId) % workers.length;
                 log.debug("accept sessionId [{}] and worker index [{}]",
                         sessionId, workerIndex);
-                workers[workerIndex].registerSocketChannel(socketChannel,
+                workers[workerIndex].registerSelectableChannel(socketChannel,
                         sessionId);
             } catch (Exception e) {
                 log.error("Failed to initialize an accepted socket.", e);
