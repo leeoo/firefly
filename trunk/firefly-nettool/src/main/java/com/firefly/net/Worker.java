@@ -5,7 +5,7 @@ import java.nio.channels.SelectionKey;
 
 public interface Worker extends Runnable {
 
-	void registerSocketChannel(SelectableChannel selectableChannel, int sessionId);
+	void registerSelectableChannel(SelectableChannel selectableChannel, int sessionId);
 
 	void close(SelectionKey key);
 
