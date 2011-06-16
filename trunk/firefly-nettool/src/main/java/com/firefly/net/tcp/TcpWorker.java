@@ -69,7 +69,8 @@ public class TcpWorker implements Worker {
     }
 
     @Override
-    public void registerSocketChannel(SocketChannel socketChannel, int sessionId) {
+    public void registerSocketChannel(SelectableChannel selectableChannel, int sessionId) {
+    	SocketChannel socketChannel = (SocketChannel)selectableChannel;
         registerTaskQueue.offer(new RegisterTask(socketChannel, sessionId));
         if (wakenUp.compareAndSet(false, true))
             selector.wakeup();
