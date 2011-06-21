@@ -1,14 +1,13 @@
 package com.firefly.utils.json;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.io.Writer;
 
 public abstract class Json {
 	public static String toJson(Object obj) {
 		String ret = null;
 		try {
-			ret = new JsonSerializer(new StringWriter()).toJson(obj).toString();
+			ret = new JsonSerializer(new SerializeWriter()).toJson(obj).toString();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
