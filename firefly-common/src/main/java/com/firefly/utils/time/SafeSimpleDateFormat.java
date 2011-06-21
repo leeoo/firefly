@@ -6,19 +6,37 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import com.firefly.utils.VerifyUtils;
+
 /**
  * @author alvinqiu 线程安全的时间日期格式化工具
  */
 public class SafeSimpleDateFormat {
 
-	public String datePattern = "yyyy-MM-dd HH:mm:ss";
+	private ThreadLocal<SimpleDateFormat> threadLocal;
 
 	public SafeSimpleDateFormat() {
+		this("");
+	}
 
+	public SafeSimpleDateFormat(final SimpleDateFormat sdf) {
+		if(sdf == null)
+			throw new IllegalArgumentException("SimpleDateFormat argument is null");
+		this.threadLocal = new ThreadLocal<SimpleDateFormat>() {
+			protected SimpleDateFormat initialValue() {
+				return sdf;
+			}
+		};
 	}
 
 	public SafeSimpleDateFormat(String datePattern) {
-		this.datePattern = datePattern;
+		final String p = VerifyUtils.isEmpty(datePattern) ? "yyyy-MM-dd HH:mm:ss"
+				: datePattern;
+		this.threadLocal = new ThreadLocal<SimpleDateFormat>() {
+			protected SimpleDateFormat initialValue() {
+				return new SimpleDateFormat(p);
+			}
+		};
 	}
 
 	/**
@@ -40,18 +58,6 @@ public class SafeSimpleDateFormat {
 		return getFormat().format(date);
 	}
 
-	/**
-	 * 借助ThreadLocal完成对每个线程第一次调用时初始化SimpleDateFormat对象
-	 */
-	private ThreadLocal<SimpleDateFormat> threadLocal = new ThreadLocal<SimpleDateFormat>() {
-		protected SimpleDateFormat initialValue() {
-			return new SimpleDateFormat(datePattern);
-		}
-	};
-
-	/**
-	 * 获取当前线程中的安全SimpleDateFormat对象
-	 */
 	private DateFormat getFormat() {
 		return (DateFormat) threadLocal.get();
 	}
