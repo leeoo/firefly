@@ -8,6 +8,9 @@ import static com.firefly.utils.json.JsonStringSymbol.OBJ_SEPARATOR;
 import static com.firefly.utils.json.JsonStringSymbol.OBJ_SUF;
 import static com.firefly.utils.json.JsonStringSymbol.QUOTE;
 import static com.firefly.utils.json.JsonStringSymbol.SEPARATOR;
+
+import java.io.IOException;
+import java.io.Writer;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -22,31 +25,33 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-import com.firefly.utils.json.support.JsonObjMetaInfo;
+
 import com.firefly.utils.json.support.JsonClassCache;
+import com.firefly.utils.json.support.JsonObjMetaInfo;
 import com.firefly.utils.json.support.TypeVerify;
 import com.firefly.utils.time.SafeSimpleDateFormat;
 
 class JsonSerializer {
-	private StringBuilder sb;
+	private Writer writer;
 	private Set<Object> existence; // 防止循环引用
 	private ClassCache classCache;
 	private static final SafeSimpleDateFormat sdf = new SafeSimpleDateFormat();
+	private static final JsonObjMetaInfo[] JOM = new JsonObjMetaInfo[0];
 
-	public JsonSerializer() {
-		sb = new StringBuilder();
+	public JsonSerializer(Writer writer) {
+		this.writer = writer;
 		existence = new HashSet<Object>();
 		classCache = JsonClassCache.getInstance();
 	}
 
-	JsonSerializer toJson(Object obj) {
+	JsonSerializer toJson(Object obj) throws IOException {
 		if (obj == null) {
-			sb.append(NULL);
+			writer.append(NULL);
 			return this;
 		}
 		Class<?> clazz = obj.getClass();
 		if (TypeVerify.isNumberOrBool(clazz)) { // 数字，布尔类型
-			sb.append(obj);
+			writer.append(obj.toString());
 		} else if (clazz.isEnum()) { // 枚举类型
 			string2Json(((Enum<?>) obj).name());
 		} else if (TypeVerify.isString(clazz)) { // 字符串或字符类型
@@ -54,7 +59,7 @@ class JsonSerializer {
 		} else if (TypeVerify.isDateLike(clazz)) {
 			string2Json(sdf.safeFormatDate((Date) obj));
 		} else if (existence.contains(obj)) { // 防止循环引用，此处会影响一些性能
-			sb.append(NULL);
+			writer.append(NULL);
 		} else {
 			existence.add(obj);
 			if (obj instanceof Map<?, ?>) {
@@ -71,11 +76,11 @@ class JsonSerializer {
 		return this;
 	}
 
-	private void pojo2Json(Object obj) {
+	private void pojo2Json(Object obj) throws IOException {
 		if (obj == null)
 			return;
 		Class<?> clazz = obj.getClass();
-		sb.append(OBJ_PRE);
+		writer.append(OBJ_PRE);
 		JsonObjMetaInfo[] jsonObjMetaInfo = classCache.get(clazz);
 		if (jsonObjMetaInfo == null) {
 			List<JsonObjMetaInfo> fieldList = new ArrayList<JsonObjMetaInfo>();
@@ -121,14 +126,7 @@ class JsonSerializer {
 						fieldSerializer.setPropertyName(propertyName);
 						fieldSerializer.setMethod(method);
 						fieldList.add(fieldSerializer);
-
-						appendPair(propertyName, method.invoke(obj));
-						sb.append(SEPARATOR);
 					} catch (IllegalArgumentException e) {
-						e.printStackTrace();
-					} catch (IllegalAccessException e) {
-						e.printStackTrace();
-					} catch (InvocationTargetException e) {
 						e.printStackTrace();
 					}
 				} else if (methodName.startsWith("is")) { // 取is方法的返回值
@@ -159,26 +157,22 @@ class JsonSerializer {
 						fieldSerializer.setPropertyName(propertyName);
 						fieldSerializer.setMethod(method);
 						fieldList.add(fieldSerializer);
-
-						appendPair(propertyName, method.invoke(obj));
-						sb.append(SEPARATOR);
 					} catch (IllegalArgumentException e) {
-						e.printStackTrace();
-					} catch (IllegalAccessException e) {
-						e.printStackTrace();
-					} catch (InvocationTargetException e) {
 						e.printStackTrace();
 					}
 				}
 			}
 
-			classCache.put(clazz, fieldList.toArray(new JsonObjMetaInfo[0]));
-		} else {
+			classCache.put(clazz, fieldList.toArray(JOM));
+		}
+
+		if ((jsonObjMetaInfo = classCache.get(clazz)) != null) {
 			for (int i = 0; i < jsonObjMetaInfo.length; i++) {
 				try {
 					appendPair(jsonObjMetaInfo[i].getPropertyName(),
 							jsonObjMetaInfo[i].getMethod().invoke(obj));
-					sb.append(SEPARATOR);
+					if (i < jsonObjMetaInfo.length - 1)
+						writer.append(SEPARATOR);
 				} catch (IllegalArgumentException e) {
 					e.printStackTrace();
 				} catch (IllegalAccessException e) {
@@ -188,17 +182,14 @@ class JsonSerializer {
 				}
 			}
 		}
-		int lastIndex = sb.length() - 1;
-		if (sb.charAt(lastIndex) == SEPARATOR)
-			sb.deleteCharAt(lastIndex);
-		sb.append(OBJ_SUF);
+		writer.append(OBJ_SUF);
 	}
 
 	@SuppressWarnings("unchecked")
-	private void map2Json(Map map) {
+	private void map2Json(Map map) throws IOException {
 		if (map == null)
 			return;
-		sb.append(OBJ_PRE);
+		writer.append(OBJ_PRE);
 		Set<Entry<?, ?>> entrySet = map.entrySet();
 		for (Iterator<Entry<?, ?>> it = entrySet.iterator(); it.hasNext();) {
 			Entry<?, ?> entry = it.next();
@@ -207,80 +198,80 @@ class JsonSerializer {
 			Object val = entry.getValue();
 			appendPair(name, val);
 			if (it.hasNext())
-				sb.append(SEPARATOR);
+				writer.append(SEPARATOR);
 		}
-		sb.append(OBJ_SUF);
+		writer.append(OBJ_SUF);
 	}
 
-	private void string2Json(String s) {
+	private void string2Json(String s) throws IOException {
 		if (s == null)
-			sb.append(NULL);
+			writer.append(NULL);
 		else {
 			char[] cs = s.toCharArray();
-			sb.append(QUOTE);
+			writer.append(QUOTE);
 			for (char ch : cs) {
 				switch (ch) {
 				case '"':
-					sb.append("\\\"");
+					writer.append("\\\"");
 					break;
 				case '\b':
-					sb.append("\\b");
+					writer.append("\\b");
 					break;
 				case '\n':
-					sb.append("\\n");
+					writer.append("\\n");
 					break;
 				case '\t':
-					sb.append("\\t");
+					writer.append("\\t");
 					break;
 				case '\f':
-					sb.append("\\f");
+					writer.append("\\f");
 					break;
 				case '\r':
-					sb.append("\\r");
+					writer.append("\\r");
 					break;
 				case '\\':
-					sb.append("\\\\");
+					writer.append("\\\\");
 					break;
 				default:
-					sb.append(ch);
+					writer.append(ch);
 				}
 			}
-			sb.append(QUOTE);
+			writer.append(QUOTE);
 		}
 	}
 
-	private void collection2Json(Collection<?> obj) {
-		sb.append(ARRAY_PRE);
+	private void collection2Json(Collection<?> obj) throws IOException {
+		writer.append(ARRAY_PRE);
 		for (Iterator<?> it = obj.iterator(); it.hasNext();) {
 			toJson(it.next());
 			if (it.hasNext())
-				sb.append(SEPARATOR);
+				writer.append(SEPARATOR);
 		}
-		sb.append(ARRAY_SUF);
+		writer.append(ARRAY_SUF);
 	}
 
-	private void array2Json(Object obj) {
-		sb.append(ARRAY_PRE);
+	private void array2Json(Object obj) throws IOException {
+		writer.append(ARRAY_PRE);
 		int len = Array.getLength(obj) - 1;
 		if (len > -1) {
 			int i;
 			for (i = 0; i < len; i++) {
 				toJson(Array.get(obj, i));
-				sb.append(SEPARATOR);
+				writer.append(SEPARATOR);
 			}
 			toJson(Array.get(obj, i));
 		}
-		sb.append(ARRAY_SUF);
+		writer.append(ARRAY_SUF);
 	}
 
-	private void appendPair(String name, Object val) {
+	private void appendPair(String name, Object val) throws IOException {
 		string2Json(name);
-		sb.append(OBJ_SEPARATOR);
+		writer.append(OBJ_SEPARATOR);
 		toJson(val);
 	}
 
 	@Override
 	public String toString() {
-		return sb.toString();
+		return writer.toString();
 	}
 }

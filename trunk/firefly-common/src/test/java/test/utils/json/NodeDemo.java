@@ -1,5 +1,6 @@
 package test.utils.json;
 
+import java.io.StringWriter;
 import java.util.Date;
 
 import com.firefly.utils.json.Json;
@@ -19,6 +20,9 @@ public class NodeDemo {
 		int[] rig = new int[]{1,2,3};
 		node.setRig(rig);
 		System.out.println(Json.toJson(node));
+		StringWriter writer = new StringWriter();
+		Json.toJson(node, writer);
+		System.out.println(writer.toString());
 
 	}
 
