@@ -1,7 +1,7 @@
 package com.firefly.utils.log;
 
 public class LogItem {
-	private String name, content, data;
+	private String name, content, date;
 
 	public String getName() {
 		return name;
@@ -19,12 +19,12 @@ public class LogItem {
 		this.content = content;
 	}
 
-	public String getData() {
-		return data;
+	public String getDate() {
+		return date;
 	}
 
-	public void setData(String data) {
-		this.data = data;
+	public void setDate(String date) {
+		this.date = date;
 	}
 
 }
