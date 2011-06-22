@@ -2,19 +2,21 @@ package com.test.sample.controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import com.firefly.annotation.Component;
 import com.firefly.annotation.Inject;
 import com.firefly.annotation.RequestMapping;
 import com.firefly.mvc.web.View;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 import com.test.sample.service.AddService;
 
 @Component("test2Hello")
 public class Hello2Controller {
-	private static Logger log = LoggerFactory.getLogger(Hello2Controller.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-hello");
 	@Inject
 	private AddService addService;
 

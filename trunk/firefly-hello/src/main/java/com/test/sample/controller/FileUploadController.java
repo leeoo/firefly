@@ -1,20 +1,18 @@
 package com.test.sample.controller;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import javax.servlet.http.HttpServletRequest;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.firefly.annotation.Controller;
 import com.firefly.annotation.RequestMapping;
 import com.firefly.mvc.web.HttpMethod;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 @Controller
 public class FileUploadController {
-	private static Logger log = LoggerFactory.getLogger(FileUploadController.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-hello");
 
 	@RequestMapping(value = "/fileUpload")
 	public String index(HttpServletRequest request) {
