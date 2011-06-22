@@ -3,13 +3,12 @@ package com.firefly.net.buffer;
 import java.lang.ref.SoftReference;
 import java.nio.ByteBuffer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.firefly.net.ReceiveBufferPool;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 public class SocketReceiveBufferPool implements ReceiveBufferPool {
-	private static Logger log = LoggerFactory.getLogger(SocketReceiveBufferPool.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 
 	private static final int POOL_SIZE = 8;
 

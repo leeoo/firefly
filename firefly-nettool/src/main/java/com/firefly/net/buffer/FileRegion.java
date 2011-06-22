@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 public class FileRegion {
-	private static Logger log = LoggerFactory.getLogger(FileRegion.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	private final FileChannel file;
 	private final long position;
 	private final long count;

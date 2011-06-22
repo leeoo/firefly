@@ -3,13 +3,12 @@ package test.net.tcp;
 import com.firefly.net.Client;
 import com.firefly.net.Session;
 import com.firefly.net.tcp.TcpClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 import java.util.concurrent.*;
 
 public class StringLinePerformance {
-    private static Logger log = LoggerFactory
-            .getLogger(StringLinePerformance.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
     public static final int LOOP = 2000;
     public static final int THREAD = 500;
 

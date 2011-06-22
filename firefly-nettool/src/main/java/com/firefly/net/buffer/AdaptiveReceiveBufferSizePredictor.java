@@ -4,15 +4,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.firefly.net.ReceiveBufferSizePredictor;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 
 public class AdaptiveReceiveBufferSizePredictor implements
 		ReceiveBufferSizePredictor {
-	private static Logger log = LoggerFactory.getLogger(AdaptiveReceiveBufferSizePredictor.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 
 	static final int DEFAULT_MINIMUM = 64;
 	static final int DEFAULT_INITIAL = 1024;

@@ -3,13 +3,12 @@ package test.net.tcp;
 import com.firefly.net.ClientSynchronizer;
 import com.firefly.net.Handler;
 import com.firefly.net.Session;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 public class StringLineClientHandler implements Handler {
 
-    private static Logger log = LoggerFactory
-            .getLogger(StringLineClientHandler.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
     private ClientSynchronizer<Session> clientSynchronizer;
 
     public StringLineClientHandler(int sessionSize) {

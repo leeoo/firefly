@@ -1,9 +1,8 @@
 package com.firefly.net.tcp;
 
 import com.firefly.net.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -12,7 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TcpClient implements Client {
 
-    private static Logger log = LoggerFactory.getLogger(TcpClient.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
     private Config config;
     private Worker[] workers;
     private AtomicInteger sessionId = new AtomicInteger(0);
