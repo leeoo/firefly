@@ -385,6 +385,7 @@ public class StringUtils {
 			cursor = start + 2;
 			index++;
 		}
+		ret.append(s.substring(cursor, s.length()));
 		return ret.toString();
 	}
 }
