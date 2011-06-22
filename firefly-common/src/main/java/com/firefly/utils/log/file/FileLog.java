@@ -31,8 +31,8 @@ public class FileLog implements Log {
 	}
 
 	private BufferedWriter getBufferedWriter() throws IOException {
-		File file = new File(path, name + "-"
-				+ LogFactory.dayDateFormat.format(new Date()));
+		File file = new File(path, name + "."
+				+ LogFactory.dayDateFormat.format(new Date()) + ".txt");
 		if (!file.exists())
 			file.createNewFile();
 		return new BufferedWriter(new FileWriter(file, true));
