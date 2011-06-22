@@ -3,6 +3,7 @@ package test.net.tcp;
 import com.firefly.net.Client;
 import com.firefly.net.Session;
 import com.firefly.net.tcp.TcpClient;
+import com.firefly.utils.log.LogFactory;
 
 public class StringLineTcpClient {
 	public static void main(String[] args) {
@@ -34,5 +35,6 @@ public class StringLineTcpClient {
 
         session.close(false);
         client.shutdown();
+        LogFactory.getInstance().shutdown();
 	}
 }

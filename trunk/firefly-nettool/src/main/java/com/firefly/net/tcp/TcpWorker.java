@@ -36,6 +36,7 @@ public class TcpWorker implements Worker {
     private Thread thread;
     private final int workerId;
     private EventManager eventManager;
+    private boolean start;
 
     static {
         timeProvider.start();
@@ -53,6 +54,7 @@ public class TcpWorker implements Worker {
                 log.debug("new CurrentThreadEventManager");
                 eventManager = new CurrentThreadEventManager(config);
             }
+            start = true;
             new Thread(this, "Tcp-worker: " + workerId).start();
         } catch (IOException e) {
             log.error("worker init error", e);
@@ -80,7 +82,7 @@ public class TcpWorker implements Worker {
     public void run() {
         thread = Thread.currentThread();
 
-        while (true) {
+        while (start) {
             wakenUp.set(false);
             try {
                 select(selector);
@@ -590,7 +592,8 @@ public class TcpWorker implements Worker {
         if (eventManager instanceof ThreadPoolEventManager) {
             ((ThreadPoolEventManager) eventManager).shutdown();
         }
-        thread.interrupt();
+        start = false;
+        timeProvider.stop();
         log.debug("thread {} is shutdown: {}", thread.getName(), thread.isInterrupted());
     }
 }

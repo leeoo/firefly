@@ -15,6 +15,7 @@ public class TcpServer implements Server {
     private Config config;
     private Worker[] workers;
     private Thread bossThread;
+    private boolean start;
 
     public TcpServer() {
 
@@ -78,6 +79,7 @@ public class TcpServer implements Server {
             log.error("Boss create error", e);
         }
         bossThread = new Thread(boss, config.getServerName());
+        start = true;
         bossThread.start();
     }
 
@@ -96,7 +98,7 @@ public class TcpServer implements Server {
 
             int sessionId = 0;
             try {
-                while (true) {
+                while (start) {
                     try {
                         if (selector.select(1000) > 0)
                             selector.selectedKeys().clear();
@@ -149,7 +151,7 @@ public class TcpServer implements Server {
 		for(Worker worker : workers) {
 			worker.shutdown();
 		}
-		bossThread.interrupt();
+		start = false;
 		log.debug("thread {} is shutdown: {}", bossThread.getName(), bossThread.isInterrupted());
 	}
 
