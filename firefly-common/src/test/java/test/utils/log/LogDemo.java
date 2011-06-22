@@ -3,7 +3,7 @@ package test.utils.log;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
 
-public class LogUtils {
+public class LogDemo {
 
 	private static final Log log = LogFactory.getInstance().getLog(
 			"firefly-common");
