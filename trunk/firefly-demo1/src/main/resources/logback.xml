@@ -21,7 +21,7 @@
 			http://logback.qos.ch/manual/appenders.html#TimeBasedRollingPolicy
 		-->
 		<!--for further documentation-->
-		<File>${log.path}</File>
+		<File>${log.path}bonecp.log</File>
 		<encoder>
 			<pattern>${LOG_PATTERN}</pattern>
 		</encoder>
@@ -29,7 +29,7 @@
 			<level>${log.level}</level>
 		</filter>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${log.path}.%d{yyyy-MM-dd}</fileNamePattern>
+			<fileNamePattern>${log.path}bonecp.log.%d{yyyy-MM-dd}</fileNamePattern>
 		</rollingPolicy>
 	</appender>
 	<root level="${log.level}">
