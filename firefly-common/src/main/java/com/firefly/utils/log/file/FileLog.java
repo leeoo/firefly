@@ -6,10 +6,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 
+import com.firefly.utils.StringUtils;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogException;
 import com.firefly.utils.log.LogFactory;
 import com.firefly.utils.log.LogItem;
+import com.firefly.utils.time.SafeSimpleDateFormat;
 
 public class FileLog implements Log {
 	private int level;
@@ -17,23 +19,34 @@ public class FileLog implements Log {
 	private String name;
 	private BufferedWriter bufferedWriter;
 
-	void write(LogItem logItem) {
-		// TODO 
+	public void close() {
+		try {
+			bufferedWriter.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		bufferedWriter = null;
 	}
 
-	BufferedWriter getBufferedWriter() {
+	void write(LogItem logItem) {
+		String str = logItem.getLevel() + " " + logItem.getDate() + " -| "
+				+ logItem.getContent();
+		System.out.println(str);
+		try {
+			getBufferedWriter().append(str + CL).flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private BufferedWriter getBufferedWriter() {
 		File file = new File(path, name + "-"
 				+ LogFactory.dayDateFormat.format(new Date()));
 		if (bufferedWriter != null) {
 			if (file.exists())
 				return bufferedWriter;
 			else {
-				try {
-					bufferedWriter.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				bufferedWriter = null;
+				close();
 			}
 		}
 
@@ -74,64 +87,91 @@ public class FileLog implements Log {
 		this.name = name;
 	}
 
-	@Override
-	public void trace(String str, Object... obj) {
-		// TODO Auto-generated method stub
-
+	private void add(String str, String level, Throwable throwable,
+			Object... objs) {
+		LogItem item = new LogItem();
+		item.setLevel(level);
+		item.setName(name);
+		item.setDate(SafeSimpleDateFormat.defaultDateFormat.format(new Date()));
+		String content = StringUtils.replace(str, objs);
+		if (throwable != null) {
+			content += CL;
+			for (StackTraceElement ele : throwable.getStackTrace()) {
+				content += ele + CL;
+			}
+		}
+		item.setContent(content);
+		LogFactory.getInstance().getLogTask().add(item);
 	}
 
 	@Override
-	public void trace(String str, Throwable throwable, Object... obj) {
-		// TODO Auto-generated method stub
-
+	public void debug(String str, Object... objs) {
+		if (level > Log.DEBUG)
+			return;
+		add(str, "DEBUG", null, objs);
 	}
 
 	@Override
-	public void debug(String str, String... obj) {
-		// TODO Auto-generated method stub
-
+	public void debug(String str, Throwable throwable, Object... objs) {
+		if (level > Log.DEBUG)
+			return;
+		add(str, "DEBUG", throwable, objs);
 	}
 
 	@Override
-	public void debug(String str, Throwable throwable, Object... obj) {
-		// TODO Auto-generated method stub
-
+	public void error(String str, Object... objs) {
+		if (level > Log.ERROR)
+			return;
+		add(str, "ERROR", null, objs);
 	}
 
 	@Override
-	public void info(String str, String... obj) {
-		// TODO Auto-generated method stub
-
+	public void error(String str, Throwable throwable, Object... objs) {
+		if (level > Log.ERROR)
+			return;
+		add(str, "ERROR", throwable, objs);
 	}
 
 	@Override
-	public void info(String str, Throwable throwable, Object... obj) {
-		// TODO Auto-generated method stub
-
+	public void info(String str, Object... objs) {
+		if (level > Log.INFO)
+			return;
+		add(str, "INFO", null, objs);
 	}
 
 	@Override
-	public void warn(String str, String... obj) {
-		// TODO Auto-generated method stub
-
+	public void info(String str, Throwable throwable, Object... objs) {
+		if (level > Log.INFO)
+			return;
+		add(str, "INFO", throwable, objs);
 	}
 
 	@Override
-	public void warn(String str, Throwable throwable, Object... obj) {
-		// TODO Auto-generated method stub
-
+	public void trace(String str, Object... objs) {
+		if (level > Log.TRACE)
+			return;
+		add(str, "TRACE", null, objs);
 	}
 
 	@Override
-	public void error(String str, String... obj) {
-		// TODO Auto-generated method stub
-
+	public void trace(String str, Throwable throwable, Object... objs) {
+		if (level > Log.TRACE)
+			return;
+		add(str, "TRACE", null, objs);
 	}
 
 	@Override
-	public void error(String str, Throwable throwable, Object... obj) {
-		// TODO Auto-generated method stub
+	public void warn(String str, Object... objs) {
+		if (level > Log.WARN)
+			return;
+		add(str, "WARN", null, objs);
+	}
 
+	@Override
+	public void warn(String str, Throwable throwable, Object... objs) {
+		if (level > Log.WARN)
+			return;
+		add(str, "WARN", throwable, objs);
 	}
 
 }
