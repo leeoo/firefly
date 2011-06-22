@@ -69,13 +69,13 @@ public class TimeWheel {
 			public void run() {
 				TimerSlot timerSlot = list.get(currentSlot.getAndIncrement());
 				currentSlotNum = timerSlot.getSlotNum();
-//				log.debug("fire: {}", currentSlotNum);
+				// log.debug("fire: {}", currentSlotNum);
 
 				Iterator<TimerNode> iterator = timerSlot.getQueue().iterator();
 				while (iterator.hasNext()) {
 					TimerNode node = iterator.next();
 					if (node.getRound() == 0) {
-						if(hasWorkers && workerThreadPool != null)
+						if (hasWorkers && workerThreadPool != null)
 							workerThreadPool.submit(node.getRun());
 						else
 							node.getRun().run();
@@ -92,7 +92,10 @@ public class TimeWheel {
 	}
 
 	public void stop() {
+		if (workerThreadPool != null)
+			workerThreadPool.shutdown();
 		fireHandle.cancel(true);
+		scheduler.shutdown();
 	}
 
 }
