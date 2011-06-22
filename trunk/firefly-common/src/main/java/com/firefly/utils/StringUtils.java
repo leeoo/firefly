@@ -370,6 +370,8 @@ public class StringUtils {
 	public static String replace(String s, Object...objs) {
 		if(objs == null || objs.length == 0)
 			return s;
+		if(s.indexOf("{}") == -1)
+			return s;
 
 		StringBuilder ret = new StringBuilder((int)(s.length() * 1.5));
 		int cursor = 0;
