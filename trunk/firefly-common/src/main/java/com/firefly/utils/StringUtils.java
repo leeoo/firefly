@@ -319,11 +319,11 @@ public class StringUtils {
 		}
 		return list.toArray(EMPTY_STRING_ARRAY);
 	}
-	
+
 	public static boolean hasText(String str) {
 		return hasText((CharSequence) str);
 	}
-	
+
 	public static boolean hasText(CharSequence str) {
 		if (!hasLength(str)) {
 			return false;
@@ -336,7 +336,7 @@ public class StringUtils {
 		}
 		return false;
 	}
-	
+
 	public static boolean hasLength(CharSequence str) {
 		return (str != null && str.length() > 0);
 	}
@@ -344,9 +344,7 @@ public class StringUtils {
 	public static boolean hasLength(String str) {
 		return hasLength((CharSequence) str);
 	}
-	
-	private static final String START_FLAG = "${";
-	private static final String END_FLAG = "}";
+
 	/**
 	 * 将字符串中特定模式的字符转换成map中对应的值
 	 *
@@ -357,15 +355,34 @@ public class StringUtils {
 	 * @return 转换后的字符串
 	 */
 	public static String replace(String s, Map<String, String> map) {
-		StringBuilder ret = new StringBuilder(s.length());
+		StringBuilder ret = new StringBuilder((int)(s.length() * 1.5));
 		int cursor = 0;
-		for (int start, end; (start = s.indexOf(START_FLAG, cursor)) != -1
-				&& (end = s.indexOf(END_FLAG, start)) != -1;) {
+		for (int start, end; (start = s.indexOf("${", cursor)) != -1
+				&& (end = s.indexOf("}", start)) != -1;) {
 			ret.append(s.substring(cursor, start)).append(
-					map.get(s.substring(start + START_FLAG.length(), end)));
-			cursor = end + END_FLAG.length();
+					map.get(s.substring(start + 2, end)));
+			cursor = end + 1;
 		}
 		ret.append(s.substring(cursor, s.length()));
+		return ret.toString();
+	}
+
+	public static String replace(String s, String...strings) {
+		if(strings == null || strings.length == 0)
+			return s;
+
+		StringBuilder ret = new StringBuilder((int)(s.length() * 1.5));
+		int cursor = 0;
+		int index = 0;
+		for(int start; (start = s.indexOf("{}", cursor)) != -1 ;) {
+			ret.append(s.substring(cursor, start));
+			if(index < strings.length)
+				ret.append(strings[index]);
+			else
+				ret.append("{}");
+			cursor = start + 2;
+			index++;
+		}
 		return ret.toString();
 	}
 }
