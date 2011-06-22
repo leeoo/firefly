@@ -8,7 +8,6 @@ import java.util.Date;
 
 import com.firefly.utils.StringUtils;
 import com.firefly.utils.log.Log;
-import com.firefly.utils.log.LogException;
 import com.firefly.utils.log.LogFactory;
 import com.firefly.utils.log.LogItem;
 import com.firefly.utils.time.SafeSimpleDateFormat;
@@ -17,50 +16,34 @@ public class FileLog implements Log {
 	private int level;
 	private String path;
 	private String name;
-	private BufferedWriter bufferedWriter;
-
-	public void close() {
-		try {
-			bufferedWriter.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		bufferedWriter = null;
-	}
+	private boolean console;
 
 	void write(LogItem logItem) {
 		String str = logItem.getLevel() + " " + logItem.getDate() + " -| "
 				+ logItem.getContent();
-		System.out.println(str);
+		if(console)
+			System.out.println(str);
 		try {
-			getBufferedWriter().append(str + CL).flush();
+			getBufferedWriter().append(str + CL).close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private BufferedWriter getBufferedWriter() {
+	private BufferedWriter getBufferedWriter() throws IOException {
 		File file = new File(path, name + "-"
 				+ LogFactory.dayDateFormat.format(new Date()));
-		if (bufferedWriter != null) {
-			if (file.exists())
-				return bufferedWriter;
-			else {
-				close();
-			}
-		}
+		if (!file.exists())
+			file.createNewFile();
+		return new BufferedWriter(new FileWriter(file, true));
+	}
 
-		if (bufferedWriter == null) {
-			try {
-				if (!file.exists())
-					file.createNewFile();
+	public boolean isConsole() {
+		return console;
+	}
 
-				bufferedWriter = new BufferedWriter(new FileWriter(file));
-			} catch (IOException e) {
-				throw new LogException("get bufferedWriter failure");
-			}
-		}
-		return bufferedWriter;
+	public void setConsole(boolean console) {
+		this.console = console;
 	}
 
 	public int getLevel() {

@@ -67,6 +67,11 @@ public class LogFactory {
 			fileLog.setName(name);
 			fileLog.setLevel(level);
 			fileLog.setPath(path);
+			if (strs.length > 2) {
+				if ("console".equalsIgnoreCase(strs[2]))
+					fileLog.setConsole(true);
+			}
+
 			logMap.put(name, fileLog);
 		}
 		logTask.start();
@@ -82,10 +87,6 @@ public class LogFactory {
 
 	public void shutdown() {
 		logTask.shutdown();
-		for (Entry<String, Log> entry : logMap.entrySet()) {
-			if (entry.getValue() instanceof FileLog)
-				((FileLog) entry.getValue()).close();
-		}
 	}
 
 }
