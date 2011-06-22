@@ -157,4 +157,38 @@ public class FileLog implements Log {
 		add(str, "WARN", throwable, objs);
 	}
 
+	@Override
+	public void trace(String str) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void debug(String str) {
+		if (level > Log.DEBUG)
+			return;
+		add(str, "DEBUG", null, new Object[0]);
+	}
+
+	@Override
+	public void info(String str) {
+		if (level > Log.INFO)
+			return;
+		add(str, "INFO", null, new Object[0]);
+	}
+
+	@Override
+	public void warn(String str) {
+		if (level > Log.WARN)
+			return;
+		add(str, "WARN", null, new Object[0]);
+	}
+
+	@Override
+	public void error(String str) {
+		if (level > Log.ERROR)
+			return;
+		add(str, "ERROR", null, new Object[0]);
+	}
+
 }

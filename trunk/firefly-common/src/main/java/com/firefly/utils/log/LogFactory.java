@@ -89,4 +89,8 @@ public class LogFactory {
 		logTask.shutdown();
 	}
 
+	public void start() {
+		logTask.start();
+	}
+
 }
