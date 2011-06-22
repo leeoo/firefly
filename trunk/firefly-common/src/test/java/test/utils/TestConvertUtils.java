@@ -1,12 +1,14 @@
 package test.utils;
 
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import static org.hamcrest.Matchers.*;
 import org.junit.Assert;
 import org.junit.Test;
 import com.firefly.utils.ConvertUtils;
+import com.firefly.utils.log.LogFactory;
 
 public class TestConvertUtils {
 
@@ -35,4 +37,7 @@ public class TestConvertUtils {
 		return arr.length;
 	}
 
+	public static void main(String[] args) throws URISyntaxException {
+		System.out.println(LogFactory.class.getClassLoader().getResource("firefly-log.properties").toURI());
+	}
 }

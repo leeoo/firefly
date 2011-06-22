@@ -2,6 +2,7 @@ package com.firefly.utils.log;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -27,13 +28,39 @@ public class LogFactory {
 		return Holder.instance;
 	}
 
-	public LogFactory() {
+	private LogFactory() {
 		levelMap.put("TRACE", Log.TRACE);
 		levelMap.put("DEBUG", Log.DEBUG);
 		levelMap.put("INFO", Log.INFO);
 		levelMap.put("WARN", Log.WARN);
 		levelMap.put("ERROR", Log.ERROR);
+		defaultLog();
+		
+		File configFile = null;
+		try {
+			configFile = new File(LogFactory.class.getClassLoader()
+					.getResource("firefly-log.properties").toURI());
+		} catch (URISyntaxException e1) {
+			e1.printStackTrace();
+		}
+		if (configFile != null && configFile.exists()) {
+			loadProperties();
+		}
+		logTask.start();
+	}
 
+	private void defaultLog() {
+		String name = "firefly-system";
+		FileLog fileLog = new FileLog();
+		fileLog.setName(name);
+		fileLog.setLevel(2);
+		fileLog.setFileOutput(false);
+		fileLog.setConsoleOutput(true);
+		System.out.println(name + "|console");
+		logMap.put(name, fileLog);
+	}
+
+	private void loadProperties() {
 		Properties properties = new Properties();
 		try {
 			properties.load(LogFactory.class.getClassLoader()
@@ -50,31 +77,37 @@ public class LogFactory {
 			if (strs.length < 2)
 				throw new LogException("config format error");
 
-			String path = strs[1];
-			File file = new File(path);
-			if (!file.exists()) {
-				boolean mkdirRet = file.mkdir();
-				if (!mkdirRet)
-					throw new LogException("create dir " + path + " failure");
-			}
-
-			if (!file.isDirectory())
-				throw new LogException(path + " is not directory");
-
 			int level = levelMap.get(strs[0]);
-
+			String path = strs[1];
 			FileLog fileLog = new FileLog();
 			fileLog.setName(name);
 			fileLog.setLevel(level);
-			fileLog.setPath(path);
-			if (strs.length > 2) {
-				if ("console".equalsIgnoreCase(strs[2]))
-					fileLog.setConsole(true);
+
+			if ("console".equalsIgnoreCase(path)) {
+				fileLog.setFileOutput(false);
+				fileLog.setConsoleOutput(true);
+			} else {
+				File file = new File(path);
+				if (!file.exists()) {
+					boolean mkdirRet = file.mkdir();
+					if (!mkdirRet)
+						throw new LogException("create dir " + path
+								+ " failure");
+				}
+
+				if (!file.isDirectory())
+					throw new LogException(path + " is not directory");
+
+				fileLog.setPath(path);
+				fileLog.setFileOutput(true);
+				if (strs.length > 2) {
+					if ("console".equalsIgnoreCase(strs[2]))
+						fileLog.setConsoleOutput(true);
+				}
 			}
 
 			logMap.put(name, fileLog);
 		}
-		logTask.start();
 	}
 
 	public Log getLog(String name) {

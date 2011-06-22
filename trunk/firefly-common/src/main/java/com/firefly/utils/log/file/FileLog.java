@@ -16,17 +16,21 @@ public class FileLog implements Log {
 	private int level;
 	private String path;
 	private String name;
-	private boolean console;
+	private boolean consoleOutput;
+	private boolean fileOutput;
 
 	void write(LogItem logItem) {
 		String str = logItem.getLevel() + " " + logItem.getDate() + "\t"
 				+ logItem.getContent();
-		if(console)
+		if (consoleOutput) {
 			System.out.println(str);
-		try {
-			getBufferedWriter().append(str + CL).close();
-		} catch (IOException e) {
-			e.printStackTrace();
+		}
+		if (fileOutput) {
+			try {
+				getBufferedWriter().append(str + CL).close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -38,12 +42,12 @@ public class FileLog implements Log {
 		return new BufferedWriter(new FileWriter(file, true));
 	}
 
-	public boolean isConsole() {
-		return console;
+	public void setConsoleOutput(boolean consoleOutput) {
+		this.consoleOutput = consoleOutput;
 	}
 
-	public void setConsole(boolean console) {
-		this.console = console;
+	public void setFileOutput(boolean fileOutput) {
+		this.fileOutput = fileOutput;
 	}
 
 	public int getLevel() {
@@ -160,7 +164,7 @@ public class FileLog implements Log {
 	@Override
 	public void trace(String str) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
