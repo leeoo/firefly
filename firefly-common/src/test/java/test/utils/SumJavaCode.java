@@ -13,7 +13,7 @@ public class SumJavaCode {
 
 	public static void main(String[] args) {
 		SumJavaCode sjc = new SumJavaCode();
-		File f = new File("/Users/qiupengtao/Documents/workspace/firefly"); // 目录
+		File f = new File("/Users/qiupengtao/Documents/workspace/firefly-common"); // 目录
 		System.out.println(f.getName());
 		sjc.treeFile(f);
 		System.out.println("空行：" + whiteLines);
