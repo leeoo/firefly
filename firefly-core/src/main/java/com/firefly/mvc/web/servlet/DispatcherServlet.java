@@ -1,16 +1,13 @@
 package com.firefly.mvc.web.servlet;
 
 import java.io.IOException;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.firefly.mvc.web.DispatcherController;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 /**
  * mvc前端控制器Servlet
@@ -21,8 +18,7 @@ import com.firefly.mvc.web.DispatcherController;
 public class DispatcherServlet extends HttpServlet {
 
 	private static final long serialVersionUID = -3638120056786910984L;
-	private static Logger log = LoggerFactory
-			.getLogger(DispatcherServlet.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	private static final String INIT_PARAM = "contextConfigLocation";
 	private DispatcherController dispatcherController;
 

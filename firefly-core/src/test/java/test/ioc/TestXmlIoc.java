@@ -9,17 +9,17 @@ import java.util.Set;
 import java.util.Map.Entry;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import test.component3.CollectionService;
 import test.component3.MapService;
 import test.component3.Person;
 import test.component3.PersonService;
 import com.firefly.core.ApplicationContext;
 import com.firefly.core.XmlApplicationContext;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 public class TestXmlIoc {
-	private static Logger log = LoggerFactory.getLogger(TestXmlIoc.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	public static ApplicationContext xmlApplicationContext = new XmlApplicationContext();
 
 	@Test

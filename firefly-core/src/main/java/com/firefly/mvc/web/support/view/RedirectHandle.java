@@ -5,16 +5,14 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.firefly.mvc.web.View;
 import com.firefly.mvc.web.support.ViewHandle;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 public class RedirectHandle implements ViewHandle {
 
-	private static Logger log = LoggerFactory.getLogger(RedirectHandle.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 
 	private RedirectHandle() {
 

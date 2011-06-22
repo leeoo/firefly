@@ -11,20 +11,17 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
-
 import javax.servlet.RequestDispatcher;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 public class MockServletContext extends MockServletObject implements
 		ServletContext {
 
-	private static Logger log = LoggerFactory
-			.getLogger(MockServletContext.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 
 	public int getMajorVersion() {
 		throw new NoImplException();

@@ -7,12 +7,12 @@ import java.util.Collection;
 import static org.hamcrest.Matchers.*;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.firefly.utils.ConvertUtils;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 public class TestConvertUtils {
-	private static Logger log = LoggerFactory.getLogger(TestConvertUtils.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test

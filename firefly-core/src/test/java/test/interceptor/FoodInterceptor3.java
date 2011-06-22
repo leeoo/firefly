@@ -2,13 +2,13 @@ package test.interceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.firefly.annotation.Interceptor;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 @Interceptor(uri = "/*/view*", order = 2)
 public class FoodInterceptor3 {
-	private static Logger log = LoggerFactory.getLogger(FoodInterceptor3.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 
 	public void before(HttpServletRequest request, HttpServletResponse response) {
 		request.setAttribute("into", "2");

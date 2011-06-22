@@ -2,19 +2,17 @@ package test.controller;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.firefly.annotation.Controller;
 import com.firefly.annotation.HttpParam;
 import com.firefly.annotation.RequestMapping;
 import com.firefly.mvc.web.HttpMethod;
 import com.firefly.mvc.web.View;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 @Controller
 public class HelloController {
-	private static Logger log = LoggerFactory.getLogger(HelloController.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 
 	@RequestMapping(value = "/hello")
 	public String index(HttpServletRequest request) {

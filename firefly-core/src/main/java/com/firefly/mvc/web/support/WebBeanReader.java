@@ -4,8 +4,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.firefly.annotation.Component;
 import com.firefly.annotation.Controller;
 import com.firefly.annotation.Interceptor;
@@ -13,10 +11,12 @@ import com.firefly.annotation.RequestMapping;
 import com.firefly.core.support.BeanDefinition;
 import com.firefly.core.support.annotation.AnnotationBeanReader;
 import com.firefly.utils.ReflectUtils;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 public class WebBeanReader extends AnnotationBeanReader {
 
-	private static Logger log = LoggerFactory.getLogger(WebBeanReader.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 
 	public WebBeanReader() {
 		this(null);
