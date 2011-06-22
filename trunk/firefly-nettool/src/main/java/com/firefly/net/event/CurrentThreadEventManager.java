@@ -1,14 +1,13 @@
 package com.firefly.net.event;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.firefly.net.Config;
 import com.firefly.net.EventManager;
 import com.firefly.net.Session;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 public class CurrentThreadEventManager implements EventManager {
-	private static Logger log = LoggerFactory.getLogger(CurrentThreadEventManager.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	private Config config;
 
 	public CurrentThreadEventManager(Config config) {

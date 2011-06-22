@@ -1,13 +1,12 @@
 package test.net.tcp;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.firefly.net.Handler;
 import com.firefly.net.Session;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 public class StringLineHandler implements Handler {
-	private static Logger log = LoggerFactory.getLogger(StringLineHandler.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	
 	@Override
 	public void sessionOpened(Session session) {

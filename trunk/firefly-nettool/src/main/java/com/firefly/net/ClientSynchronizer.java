@@ -1,11 +1,10 @@
 package com.firefly.net;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 public class ClientSynchronizer<T> {
-    private static Logger log = LoggerFactory
-            .getLogger(ClientSynchronizer.class);
+    private static Log log = LogFactory.getInstance().getLog("firefly-system");
     private SynchronousObject<T>[] objs;
     private final long timeout;
     private int size;

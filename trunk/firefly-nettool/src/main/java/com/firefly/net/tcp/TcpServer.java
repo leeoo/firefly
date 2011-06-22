@@ -2,8 +2,8 @@ package com.firefly.net.tcp;
 
 import com.firefly.net.*;
 import com.firefly.net.exception.NetException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -11,7 +11,7 @@ import java.nio.channels.*;
 
 public class TcpServer implements Server {
 
-    private static Logger log = LoggerFactory.getLogger(TcpServer.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
     private Config config;
     private Worker[] workers;
     private Thread bossThread;

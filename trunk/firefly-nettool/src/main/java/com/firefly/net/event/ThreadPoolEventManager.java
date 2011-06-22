@@ -3,15 +3,14 @@ package com.firefly.net.event;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.firefly.net.Config;
 import com.firefly.net.EventManager;
 import com.firefly.net.Session;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 public class ThreadPoolEventManager implements EventManager {
-	private static Logger log = LoggerFactory.getLogger(ThreadPoolEventManager.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	private ExecutorService executorService;
 	private Config config;
 

@@ -6,18 +6,17 @@ import com.firefly.net.Server;
 import com.firefly.net.Session;
 import com.firefly.net.tcp.TcpClient;
 import com.firefly.net.tcp.TcpServer;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.hamcrest.Matchers.is;
 
 public class TestTcpClientAndServer {
-    private static Logger log = LoggerFactory.getLogger(TestTcpClientAndServer.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 
     @Test
     public void testHello() {

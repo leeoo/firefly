@@ -7,8 +7,8 @@ import com.firefly.net.ThreadLocalBoolean;
 import com.firefly.net.buffer.AdaptiveReceiveBufferSizePredictor;
 import com.firefly.net.buffer.FixedReceiveBufferSizePredictor;
 import com.firefly.net.buffer.SocketSendBufferPool.SendBuffer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TcpSession implements Session {
-    private static Logger log = LoggerFactory.getLogger(TcpSession.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
     private final int sessionId;
     private final SelectionKey selectionKey;
     private long openTime;

@@ -76,15 +76,10 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>${logback.version}</version>
-		</dependency>
+			<groupId>com.firefly</groupId>
+			<artifactId>firefly-common</artifactId>
+			<version>1.0-SNAPSHOT</version>
+        </dependency>
 		<!-- junit -->
 		<dependency>
 			<groupId>junit</groupId>
@@ -104,50 +99,46 @@
     	<project.groupId>com.firefly</project.groupId>
     	<project.artifactId>firefly-nettool</project.artifactId>
 
-        <!-- log -->
-		<slf4j.version>1.6.1</slf4j.version>
-		<logback.version>0.9.28</logback.version>
-
 		<!-- common -->
 		<jstl.version>1.1.2</jstl.version>
 
         <log.level>INFO</log.level>
-        <log.path>D:/log/app.log</log.path>
+        <log.path>D:/log/</log.path>
     </properties>
     <profiles>
     	<profile>
     		<id>localTest</id>
     		<properties>
     			<log.level>ERROR</log.level>
-    			<log.path>D:/log/app.log</log.path>
+    			<log.path>D:/log/</log.path>
     		</properties>
     	</profile>
     	<profile>
     		<id>linux</id>
     		<properties>
     			<log.level>INFO</log.level>
-    			<log.path>/home/qiupt/webapp/log/app.log</log.path>
+    			<log.path>/home/qiupt/webapp/log/</log.path>
     		</properties>
     	</profile>
     	<profile>
     		<id>mac</id>
     		<properties>
     			<log.level>INFO</log.level>
-    			<log.path>/Users/qiupengtao/develop/logs/app.log</log.path>
+    			<log.path>/Users/qiupengtao/develop/logs/</log.path>
     		</properties>
     	</profile>
     	<profile>
     		<id>macdebug</id>
     		<properties>
     			<log.level>DEBUG</log.level>
-    			<log.path>/Users/qiupengtao/develop/logs/app.log</log.path>
+    			<log.path>/Users/qiupengtao/develop/logs/</log.path>
     		</properties>
     	</profile>
     	<profile>
     		<id>windebug</id>
     		<properties>
     			<log.level>DEBUG</log.level>
-    			<log.path>D:/log/app.log</log.path>
+    			<log.path>D:/log/</log.path>
     		</properties>
     	</profile>
     </profiles>

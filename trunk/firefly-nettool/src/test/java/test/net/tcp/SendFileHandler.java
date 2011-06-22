@@ -6,15 +6,14 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.URISyntaxException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.firefly.net.Handler;
 import com.firefly.net.Session;
 import com.firefly.net.buffer.FileRegion;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 public class SendFileHandler implements Handler {
-	private static Logger log = LoggerFactory.getLogger(SendFileHandler.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 
 	@Override
 	public void sessionOpened(Session session) {

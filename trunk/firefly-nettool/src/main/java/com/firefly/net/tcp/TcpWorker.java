@@ -7,9 +7,9 @@ import com.firefly.net.buffer.SocketSendBufferPool.SendBuffer;
 import com.firefly.net.event.CurrentThreadEventManager;
 import com.firefly.net.event.ThreadPoolEventManager;
 import com.firefly.net.exception.NetException;
-import com.firefly.utils.timer.TimeProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
+import com.firefly.utils.time.TimeProvider;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TcpWorker implements Worker {
 
-    private static Logger log = LoggerFactory.getLogger(TcpWorker.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
     private Config config;
     private final Queue<Runnable> registerTaskQueue = new ConcurrentLinkedQueue<Runnable>();
     private final Queue<Runnable> writeTaskQueue = new ConcurrentLinkedQueue<Runnable>();
