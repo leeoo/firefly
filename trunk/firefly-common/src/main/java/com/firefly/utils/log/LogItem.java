@@ -1,7 +1,7 @@
 package com.firefly.utils.log;
 
 public class LogItem {
-	private String name, content, date;
+	private String name, content, date, level;
 
 	public String getName() {
 		return name;
@@ -25,6 +25,14 @@ public class LogItem {
 
 	public void setDate(String date) {
 		this.date = date;
+	}
+
+	public String getLevel() {
+		return level;
+	}
+
+	public void setLevel(String level) {
+		this.level = level;
 	}
 
 }

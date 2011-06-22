@@ -354,7 +354,7 @@ public class StringUtils {
 	 *            转换所需的键值对集合
 	 * @return 转换后的字符串
 	 */
-	public static String replace(String s, Map<String, String> map) {
+	public static String replace(String s, Map<String, Object> map) {
 		StringBuilder ret = new StringBuilder((int)(s.length() * 1.5));
 		int cursor = 0;
 		for (int start, end; (start = s.indexOf("${", cursor)) != -1
@@ -367,8 +367,8 @@ public class StringUtils {
 		return ret.toString();
 	}
 
-	public static String replace(String s, String...strings) {
-		if(strings == null || strings.length == 0)
+	public static String replace(String s, Object...objs) {
+		if(objs == null || objs.length == 0)
 			return s;
 
 		StringBuilder ret = new StringBuilder((int)(s.length() * 1.5));
@@ -376,8 +376,8 @@ public class StringUtils {
 		int index = 0;
 		for(int start; (start = s.indexOf("{}", cursor)) != -1 ;) {
 			ret.append(s.substring(cursor, start));
-			if(index < strings.length)
-				ret.append(strings[index]);
+			if(index < objs.length)
+				ret.append(objs[index]);
 			else
 				ret.append("{}");
 			cursor = start + 2;

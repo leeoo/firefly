@@ -14,23 +14,29 @@ public class TestStringUtils {
 	@Test
 	public void testReplace() {
 		String str = "hello ${t1} and ${t2}";
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("t1", "foo");
 		map.put("t2", "bar");
 		String ret = StringUtils.replace(str, map);
 		Assert.assertThat(ret, is("hello foo and bar"));
 
-		map = new HashMap<String, String>();
+		map = new HashMap<String, Object>();
 		map.put("t1", "foo");
 		map.put("t2", "${dddd}");
 		ret = StringUtils.replace(str, map);
 		Assert.assertThat(ret, is("hello foo and ${dddd}"));
 
-		map = new HashMap<String, String>();
+		map = new HashMap<String, Object>();
 		map.put("t1", null);
 		map.put("t2", "${dddd}");
 		ret = StringUtils.replace(str, map);
 		Assert.assertThat(ret, is("hello null and ${dddd}"));
+
+		map = new HashMap<String, Object>();
+		map.put("t1", 33);
+		map.put("t2", 42L);
+		ret = StringUtils.replace(str, map);
+		Assert.assertThat(ret, is("hello 33 and 42"));
 	}
 
 	@Test
@@ -44,6 +50,9 @@ public class TestStringUtils {
 
 		ret2 = StringUtils.replace(str2, "foo", "bar", "foo2");
 		Assert.assertThat(ret2, is("hello {{{foo and bar"));
+
+		ret2 = StringUtils.replace(str2, 12, 23L, 33);
+		Assert.assertThat(ret2, is("hello {{{12 and 23"));
 	}
 
 	public static void main(String[] args) {
