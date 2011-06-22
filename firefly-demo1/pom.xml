@@ -182,6 +182,16 @@
 		    <artifactId>firefly</artifactId>
 		    <version>1.1-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>${logback.version}</version>
+		</dependency>
 
         <!-- junit -->
         <dependency>
@@ -245,7 +255,7 @@
 		<jstl.version>1.1.2</jstl.version>
 
         <log.level>INFO</log.level>
-        <log.path>D:/log/app-demo.log</log.path>
+        <log.path>D:/log/</log.path>
         
         <!-- database -->
         <bonecp.version>0.7.1.RELEASE</bonecp.version>
@@ -262,7 +272,7 @@
     		<id>mac</id>
     		<properties>
     			<log.level>INFO</log.level>
-    			<log.path>/Users/qiupengtao/develop/logs/app.log</log.path>
+    			<log.path>/Users/qiupengtao/develop/logs/</log.path>
     		</properties>
     	</profile>
     </profiles>
