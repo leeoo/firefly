@@ -5,15 +5,15 @@ import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.firefly.mvc.web.View;
 import com.firefly.mvc.web.support.ViewHandle;
 import com.firefly.utils.json.Json;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 public class JsonViewHandle implements ViewHandle {
 
-	private static Logger log = LoggerFactory.getLogger(JsonViewHandle.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	private String encoding;
 
 	private JsonViewHandle() {

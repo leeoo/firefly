@@ -8,10 +8,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.firefly.annotation.Inject;
 import com.firefly.core.support.BeanDefinition;
 import com.firefly.core.support.annotation.AnnotationBeanDefinition;
@@ -26,6 +22,8 @@ import com.firefly.core.support.xml.XmlBeanReader;
 import com.firefly.utils.ConvertUtils;
 import com.firefly.utils.ReflectUtils;
 import com.firefly.utils.ReflectUtils.BeanMethodFilter;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 import com.firefly.utils.VerifyUtils;
 
 /**
@@ -35,8 +33,7 @@ import com.firefly.utils.VerifyUtils;
  */
 public class XmlApplicationContext extends AbstractApplicationContext {
 
-	private static Logger log = LoggerFactory
-			.getLogger(XmlApplicationContext.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 
 	public XmlApplicationContext() {
 		this(null);

@@ -1,16 +1,15 @@
 package com.firefly.core.support.annotation;
 
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import com.firefly.utils.dom.DefaultDom;
 import com.firefly.utils.dom.Dom;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 public class ConfigReader {
-	private static Logger log = LoggerFactory.getLogger(ConfigReader.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	
 	private static final String DEFAULT_CONFIG_FILE = "firefly.xml";
 	public static final String SCAN_ELEMENT = "component-scan";

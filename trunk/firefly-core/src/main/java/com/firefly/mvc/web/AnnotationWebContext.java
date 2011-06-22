@@ -5,8 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import com.firefly.annotation.RequestMapping;
 import com.firefly.core.XmlApplicationContext;
 import com.firefly.core.support.BeanDefinition;
@@ -22,6 +21,8 @@ import com.firefly.mvc.web.support.view.RedirectHandle;
 import com.firefly.mvc.web.support.view.TextViewHandle;
 import com.firefly.utils.StringUtils;
 import com.firefly.utils.VerifyUtils;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 /**
  * Web应用上下文默认实现
@@ -31,8 +32,7 @@ import com.firefly.utils.VerifyUtils;
  */
 public class AnnotationWebContext extends XmlApplicationContext implements
 		WebContext {
-	private static Logger log = LoggerFactory
-			.getLogger(AnnotationWebContext.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 
 	public AnnotationWebContext() {
 		this(null);

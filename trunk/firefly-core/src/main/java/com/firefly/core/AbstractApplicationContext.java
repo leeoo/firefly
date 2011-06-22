@@ -5,18 +5,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.firefly.core.support.BeanDefinition;
 import com.firefly.core.support.exception.BeanDefinitionParsingException;
 import com.firefly.utils.VerifyUtils;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 abstract public class AbstractApplicationContext implements ApplicationContext {
 
-	private static Logger log = LoggerFactory
-			.getLogger(AbstractApplicationContext.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	protected Map<String, Object> map = new HashMap<String, Object>();
 	protected Set<String> errorMemo = new HashSet<String>();
 	protected List<BeanDefinition> beanDefinitions;

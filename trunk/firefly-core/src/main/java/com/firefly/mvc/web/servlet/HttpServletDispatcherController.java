@@ -8,8 +8,6 @@ import java.util.Set;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.firefly.mvc.web.AnnotationWebContext;
 import com.firefly.mvc.web.DispatcherController;
 import com.firefly.mvc.web.WebContext;
@@ -17,6 +15,8 @@ import com.firefly.mvc.web.support.MvcMetaInfo;
 import com.firefly.mvc.web.support.MethodParam;
 import com.firefly.mvc.web.support.ParamMetaInfo;
 import com.firefly.utils.VerifyUtils;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 /**
  * 前端控制器
@@ -25,8 +25,7 @@ import com.firefly.utils.VerifyUtils;
  */
 public class HttpServletDispatcherController implements DispatcherController {
 
-	private static Logger log = LoggerFactory
-			.getLogger(HttpServletDispatcherController.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 
 	private WebContext webContext;
 

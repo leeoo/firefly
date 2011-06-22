@@ -4,19 +4,17 @@ import static org.hamcrest.Matchers.is;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import test.mixed.Food;
 import test.mixed.FoodService;
 import test.mixed.FoodService2;
-
 import com.firefly.core.ApplicationContext;
 import com.firefly.core.XmlApplicationContext;
 import com.firefly.core.support.exception.BeanDefinitionParsingException;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 public class TestMixIoc {
-	private static Logger log = LoggerFactory.getLogger(TestMixIoc.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	public static ApplicationContext applicationContext = new XmlApplicationContext(
 			"mixed-config.xml");
 

@@ -1,13 +1,12 @@
 package com.firefly.core.support;
 
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.firefly.core.support.exception.BeanDefinitionParsingException;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 public class AbstractBeanReader implements BeanReader {
-	private static Logger log = LoggerFactory
-			.getLogger(AbstractBeanReader.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	protected List<BeanDefinition> beanDefinitions;
 
 	@Override

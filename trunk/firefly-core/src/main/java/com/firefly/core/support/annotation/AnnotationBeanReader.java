@@ -13,13 +13,13 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.firefly.annotation.Component;
 import com.firefly.annotation.Inject;
 import com.firefly.core.support.AbstractBeanReader;
 import com.firefly.core.support.BeanDefinition;
 import com.firefly.utils.ReflectUtils;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 /**
  * 读取Bean信息
@@ -28,8 +28,7 @@ import com.firefly.utils.ReflectUtils;
  * 
  */
 public class AnnotationBeanReader extends AbstractBeanReader {
-	private static Logger log = LoggerFactory
-			.getLogger(AnnotationBeanReader.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 
 	public AnnotationBeanReader() {
 		this(null);

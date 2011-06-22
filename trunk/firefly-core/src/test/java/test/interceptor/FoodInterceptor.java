@@ -2,19 +2,16 @@ package test.interceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import test.mixed.Food;
 import test.mixed.FoodService;
-
 import com.firefly.annotation.Inject;
 import com.firefly.annotation.Interceptor;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 @Interceptor(uri = "/food*")
 public class FoodInterceptor {
-	private static Logger log = LoggerFactory.getLogger(FoodInterceptor.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	@Inject
 	private FoodService foodService;
 
