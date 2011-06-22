@@ -19,9 +19,8 @@ public class FileLogTask implements LogTask {
 	@Override
 	public void run() {
 		while (true) {
-			write();
 			try {
-				Thread.sleep(1000L);
+				write();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -45,7 +44,11 @@ public class FileLogTask implements LogTask {
 		if (start) {
 			synchronized (this) {
 				start = false;
-				write();
+				try {
+					write();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 
@@ -65,9 +68,9 @@ public class FileLogTask implements LogTask {
 		}
 	}
 
-	private void write() {
+	private void write() throws InterruptedException {
 		LogItem logItem = null;
-		while ((logItem = queue.poll()) != null) {
+		while ((logItem = queue.poll(1000L, TimeUnit.MILLISECONDS)) != null) {
 			Log log = LogFactory.getInstance().getLog(logItem.getName());
 			if (log instanceof FileLog) {
 				FileLog fileLog = (FileLog) log;
