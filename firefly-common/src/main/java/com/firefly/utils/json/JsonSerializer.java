@@ -35,7 +35,6 @@ class JsonSerializer {
 	private Writer writer;
 	private Set<Object> existence; // 防止循环引用
 	private ClassCache classCache;
-	private static final SafeSimpleDateFormat sdf = new SafeSimpleDateFormat();
 	private static final JsonObjMetaInfo[] JOM = new JsonObjMetaInfo[0];
 
 	public JsonSerializer(Writer writer) {
@@ -57,7 +56,7 @@ class JsonSerializer {
 		} else if (TypeVerify.isString(clazz)) { // 字符串或字符类型
 			string2Json(obj.toString());
 		} else if (TypeVerify.isDateLike(clazz)) {
-			string2Json(sdf.safeFormatDate((Date) obj));
+			string2Json(SafeSimpleDateFormat.defaultDateFormat.format((Date) obj));
 		} else if (existence.contains(obj)) { // 防止循环引用，此处会影响一些性能
 			writer.append(NULL);
 		} else {

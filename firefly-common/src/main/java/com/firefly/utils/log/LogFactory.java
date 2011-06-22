@@ -11,12 +11,19 @@ import com.firefly.utils.log.file.FileLog;
 import com.firefly.utils.time.SafeSimpleDateFormat;
 
 public class LogFactory {
-	private static Map<String, Log> logMap = new HashMap<String, Log>();
-	private static Map<String, Integer> levelMap = new HashMap<String, Integer>();
+	private Map<String, Log> logMap = new HashMap<String, Log>();
+	private Map<String, Integer> levelMap = new HashMap<String, Integer>();
 	public static final SafeSimpleDateFormat dayDateFormat = new SafeSimpleDateFormat("yyyy-MM-dd");
-	public static final SafeSimpleDateFormat dateFormat = new SafeSimpleDateFormat();
 
-	static {
+	private static class Holder {
+		private static LogFactory instance = new LogFactory();
+	}
+
+	public static LogFactory getInstance() {
+		return Holder.instance;
+	}
+
+	public LogFactory() {
 		levelMap.put("TRACE", Log.TRACE);
 		levelMap.put("DEBUG", Log.DEBUG);
 		levelMap.put("INFO", Log.INFO);
@@ -45,7 +52,7 @@ public class LogFactory {
 				if(!mkdirRet)
 					throw new LogException("create dir " + path + " failure");
 			}
-			
+
 			if (!file.isDirectory())
 				throw new LogException(path + " is not directory");
 
@@ -59,7 +66,7 @@ public class LogFactory {
 		}
 	}
 
-	public static Log getLog(String name) {
+	public Log getLog(String name) {
 		return logMap.get(name);
 	}
 }
