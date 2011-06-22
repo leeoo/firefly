@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 public class TimeProvider {
 	private long interval;
 	private ScheduledFuture<?> fireHandle;
+	private ScheduledExecutorService scheduler;
 	private volatile long current = System.currentTimeMillis();
 
 	public TimeProvider() {
@@ -22,7 +23,7 @@ public class TimeProvider {
 	}
 
 	public void start() {
-		ScheduledExecutorService scheduler = Executors
+		scheduler = Executors
 				.newSingleThreadScheduledExecutor();
 		fireHandle = scheduler.scheduleAtFixedRate(new Runnable() {
 			@Override
@@ -34,18 +35,11 @@ public class TimeProvider {
 
 	public void stop() {
 		fireHandle.cancel(true);
+		scheduler.shutdown();
 	}
 
 	public long currentTimeMillis() {
 		return current;
 	}
-	
-//	public static void main(String[] args) throws InterruptedException {
-//		TimeProvider time = new TimeProvider(100);
-//		time.start();
-//		System.out.println(time.currentTimeMillis());
-//		Thread.sleep(5000);
-//		System.out.println(time.currentTimeMillis());
-//	}
 
 }
