@@ -12,7 +12,7 @@ import com.firefly.utils.log.LogTask;
 
 public class FileLogProcessor implements LogTask {
 	private volatile boolean start;
-	static BlockingQueue<LogItem> queue = new ArrayBlockingQueue<LogItem>(65535);
+	private BlockingQueue<LogItem> queue = new ArrayBlockingQueue<LogItem>(65535);
 	private Thread thread = new Thread(this);
 
 	@Override
