@@ -20,7 +20,7 @@ public class FileLogProcessor implements LogTask {
 		while (true) {
 			LogItem logItem = null;
 			while ((logItem = queue.poll()) != null) {
-				Log log = LogFactory.getLog(logItem.getName());
+				Log log = LogFactory.getInstance().getLog(logItem.getName());
 				if (log instanceof FileLog) {
 					FileLog fileLog = (FileLog) log;
 					fileLog.write(logItem);

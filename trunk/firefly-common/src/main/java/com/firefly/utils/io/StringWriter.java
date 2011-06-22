@@ -1,16 +1,16 @@
-package com.firefly.utils.json;
+package com.firefly.utils.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 
-public class SerializeWriter extends Writer {
+public class StringWriter extends Writer {
 
 	protected char buf[];
 	protected int count;
 	private final static ThreadLocal<char[]> bufLocal = new ThreadLocal<char[]>();
 
-	public SerializeWriter() {
+	public StringWriter() {
 		buf = bufLocal.get(); // new char[1024];
 		if (buf == null) {
 			buf = new char[1024];
@@ -19,7 +19,7 @@ public class SerializeWriter extends Writer {
 		}
 	}
 
-	public SerializeWriter(int initialSize) {
+	public StringWriter(int initialSize) {
 		if (initialSize < 0) {
 			throw new IllegalArgumentException("Negative initial size: "
 					+ initialSize);
@@ -65,20 +65,15 @@ public class SerializeWriter extends Writer {
 		count = newcount;
 	}
 
-	public void writeTo(OutputStream out, String charset) throws IOException {
-		byte[] bytes = new String(buf, 0, count).getBytes(charset);
-		out.write(bytes);
-	}
-
 	@Override
-	public SerializeWriter append(CharSequence csq) {
+	public StringWriter append(CharSequence csq) {
 		String s = (csq == null ? "null" : csq.toString());
 		write(s, 0, s.length());
 		return this;
 	}
 
 	@Override
-	public SerializeWriter append(CharSequence csq, int start, int end) {
+	public StringWriter append(CharSequence csq, int start, int end) {
 		String s = (csq == null ? "null" : csq).subSequence(start, end)
 				.toString();
 		write(s, 0, s.length());
@@ -86,9 +81,32 @@ public class SerializeWriter extends Writer {
 	}
 
 	@Override
-	public SerializeWriter append(char c) {
+	public StringWriter append(char c) {
 		write(c);
 		return this;
+	}
+
+	@Override
+	public String toString() {
+		return new String(buf, 0, count);
+	}
+
+	@Override
+	public void flush() {
+	}
+
+	@Override
+	public void close() {
+		bufLocal.set(buf);
+	}
+
+	public void writeTo(Writer out) throws IOException {
+		out.write(buf, 0, count);
+	}
+
+	public void writeTo(OutputStream out, String charset) throws IOException {
+		byte[] bytes = new String(buf, 0, count).getBytes(charset);
+		out.write(bytes);
 	}
 
 	public void reset() {
@@ -105,20 +123,6 @@ public class SerializeWriter extends Writer {
 		return count;
 	}
 
-	@Override
-	public String toString() {
-		return new String(buf, 0, count);
-	}
-
-	@Override
-	public void flush() {
-	}
-
-	@Override
-	public void close() {
-		bufLocal.set(buf);
-	}
-	
 	private void expandCapacity(int minimumCapacity) {
 		int newCapacity = (buf.length + 1) * 2;
 		if (newCapacity < minimumCapacity) {
@@ -128,5 +132,6 @@ public class SerializeWriter extends Writer {
 		System.arraycopy(buf, 0, newValue, 0, count);
 		buf = newValue;
 	}
+
 
 }

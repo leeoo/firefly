@@ -23,7 +23,7 @@ public class FileLog implements Log {
 
 	BufferedWriter getBufferedWriter() {
 		File file = new File(path, name + "-"
-				+ LogFactory.dayDateFormat.safeFormatDate(new Date()));
+				+ LogFactory.dayDateFormat.format(new Date()));
 		if (bufferedWriter != null) {
 			if (file.exists())
 				return bufferedWriter;

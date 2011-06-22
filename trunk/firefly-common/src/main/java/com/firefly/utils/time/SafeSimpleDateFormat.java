@@ -8,11 +8,9 @@ import java.util.Date;
 
 import com.firefly.utils.VerifyUtils;
 
-/**
- * @author alvinqiu 线程安全的时间日期格式化工具
- */
 public class SafeSimpleDateFormat {
 
+	public static final SafeSimpleDateFormat defaultDateFormat = new SafeSimpleDateFormat();
 	private ThreadLocal<SimpleDateFormat> threadLocal;
 
 	public SafeSimpleDateFormat() {
@@ -39,10 +37,7 @@ public class SafeSimpleDateFormat {
 		};
 	}
 
-	/**
-	 * 线程安全转换 String -> Date
-	 */
-	public Date safeParseDate(String dateStr) {
+	public Date parse(String dateStr) {
 		try {
 			return getFormat().parse(dateStr);
 		} catch (ParseException e) {
@@ -51,10 +46,7 @@ public class SafeSimpleDateFormat {
 		return null;
 	}
 
-	/**
-	 * 线程安全格式化 Date -> String
-	 */
-	public String safeFormatDate(Date date) {
+	public String format(Date date) {
 		return getFormat().format(date);
 	}
 
@@ -65,7 +57,7 @@ public class SafeSimpleDateFormat {
 	public static void main(String[] args) {
 		SafeSimpleDateFormat sdf = new SafeSimpleDateFormat();
 		Calendar last = Calendar.getInstance();
-		last.setTime(sdf.safeParseDate("2010-12-08 17:26:22"));
+		last.setTime(sdf.parse("2010-12-08 17:26:22"));
 		Calendar now = Calendar.getInstance();
 		System.out.println("last:\t" + last.get(Calendar.YEAR) + "\t"
 				+ last.get(Calendar.MONTH));
