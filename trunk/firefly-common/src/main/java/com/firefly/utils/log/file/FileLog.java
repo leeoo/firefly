@@ -19,7 +19,7 @@ public class FileLog implements Log {
 	private boolean console;
 
 	void write(LogItem logItem) {
-		String str = logItem.getLevel() + " " + logItem.getDate() + " -| "
+		String str = logItem.getLevel() + " " + logItem.getDate() + "\t"
 				+ logItem.getContent();
 		if(console)
 			System.out.println(str);
