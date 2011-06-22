@@ -3,15 +3,14 @@ package com.test.sample.controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.firefly.annotation.Controller;
 import com.firefly.annotation.HttpParam;
 import com.firefly.annotation.Inject;
 import com.firefly.annotation.RequestMapping;
 import com.firefly.mvc.web.HttpMethod;
 import com.firefly.mvc.web.View;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 import com.test.sample.model.Book;
 import com.test.sample.model.Book2;
 import com.test.sample.model.HelloJson;
@@ -19,7 +18,7 @@ import com.test.sample.service.AddService;
 
 @Controller
 public class HelloController {
-	private static Logger log = LoggerFactory.getLogger(HelloController.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-hello");
 	private AddService addService;
 
 	@Inject

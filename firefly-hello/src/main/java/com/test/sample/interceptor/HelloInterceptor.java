@@ -3,15 +3,14 @@ package com.test.sample.interceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.firefly.annotation.Interceptor;
 import com.firefly.mvc.web.View;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 @Interceptor(uri = "/itest*", view = View.REDIRECT)
 public class HelloInterceptor {
-	private static Logger log = LoggerFactory.getLogger(HelloInterceptor.class);
+	private static Log log = LogFactory.getInstance().getLog("firefly-hello");
 
 	public void before(HttpServletRequest request, HttpServletResponse response) {
 		log.info("before 0 [{}]", request.getRequestURI());
