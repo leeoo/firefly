@@ -13,13 +13,12 @@ public class LogDemo {
 			"test-DEBUG");
 	private static final Log log4 = LogFactory.getInstance().getLog(
 			"test-ERROR");
-	private static final Log log5 = LogFactory.getInstance().getLog(
-	"test-WARN");
+	private static final Log log5 = LogFactory.getInstance()
+			.getLog("test-WARN");
 	private static final Log logConsole = LogFactory.getInstance().getLog(
-	"test-console");
+			"test-console");
 	private static final Log defaultLog = LogFactory.getInstance().getLog(
-	"test-console");
-	
+			"test-console");
 
 	/**
 	 * @param args
@@ -44,7 +43,7 @@ public class LogDemo {
 			log5.warn("log5 {} {}", "warn");
 			log5.error("log5 {}", "error");
 			log5.trace("ccsc");
-			
+
 			logConsole.info("test {} console", "hello");
 			logConsole.debug("ccc");
 			logConsole.warn("dsfsf {} cccc", 33);
