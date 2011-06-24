@@ -11,6 +11,15 @@ import static org.hamcrest.Matchers.*;
 
 public class TestStringUtils {
 
+    @Test
+    public void testHasText() {
+        String str = "\r\n\t\t";
+        Assert.assertThat(StringUtils.hasLength(str), is(true));
+        Assert.assertThat(StringUtils.hasText(str), is(false));
+        str = null;
+        Assert.assertThat(StringUtils.hasText(str), is(false));
+    }
+
 	@Test
 	public void testReplace() {
 		String str = "hello ${t1} and ${t2} s";

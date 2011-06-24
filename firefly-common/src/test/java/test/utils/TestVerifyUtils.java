@@ -7,6 +7,14 @@ import static org.hamcrest.Matchers.*;
 
 public class TestVerifyUtils {
 
+    @Test
+    public void testIsEmpty() {
+        String str = "\r\n\t\t";
+        Assert.assertThat(VerifyUtils.isEmpty(str), is(true));
+        str = null;
+        Assert.assertThat(VerifyUtils.isEmpty(str), is(true));
+    }
+
 	@Test
 	public void testIsNumeric() {
 		Assert.assertThat(VerifyUtils.isNumeric("13422224343"), is(true));
