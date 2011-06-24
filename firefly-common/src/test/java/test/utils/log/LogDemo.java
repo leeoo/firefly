@@ -31,6 +31,7 @@ public class LogDemo {
 			log.debug("cccc");
 			log.warn("warn hello");
 
+			log2.trace("test trace");
 			log2.trace("log2 {} dfdfdf", 3, 5);
 			log2.debug("cccc");
 

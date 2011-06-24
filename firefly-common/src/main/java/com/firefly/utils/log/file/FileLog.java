@@ -90,47 +90,12 @@ public class FileLog implements Log {
 		item.setContent(content);
 		LogFactory.getInstance().getLogTask().add(item);
 	}
-
+	
 	@Override
-	public void debug(String str, Object... objs) {
-		if (level > Log.DEBUG)
+	public void trace(String str) {
+		if (level > Log.TRACE)
 			return;
-		add(str, "DEBUG", null, objs);
-	}
-
-	@Override
-	public void debug(String str, Throwable throwable, Object... objs) {
-		if (level > Log.DEBUG)
-			return;
-		add(str, "DEBUG", throwable, objs);
-	}
-
-	@Override
-	public void error(String str, Object... objs) {
-		if (level > Log.ERROR)
-			return;
-		add(str, "ERROR", null, objs);
-	}
-
-	@Override
-	public void error(String str, Throwable throwable, Object... objs) {
-		if (level > Log.ERROR)
-			return;
-		add(str, "ERROR", throwable, objs);
-	}
-
-	@Override
-	public void info(String str, Object... objs) {
-		if (level > Log.INFO)
-			return;
-		add(str, "INFO", null, objs);
-	}
-
-	@Override
-	public void info(String str, Throwable throwable, Object... objs) {
-		if (level > Log.INFO)
-			return;
-		add(str, "INFO", throwable, objs);
+		add(str, "TRACE", null, new Object[0]);
 	}
 
 	@Override
@@ -146,7 +111,56 @@ public class FileLog implements Log {
 			return;
 		add(str, "TRACE", null, objs);
 	}
+	
+	@Override
+	public void debug(String str) {
+		if (level > Log.DEBUG)
+			return;
+		add(str, "DEBUG", null, new Object[0]);
+	}
 
+	@Override
+	public void debug(String str, Object... objs) {
+		if (level > Log.DEBUG)
+			return;
+		add(str, "DEBUG", null, objs);
+	}
+
+	@Override
+	public void debug(String str, Throwable throwable, Object... objs) {
+		if (level > Log.DEBUG)
+			return;
+		add(str, "DEBUG", throwable, objs);
+	}
+	
+	@Override
+	public void info(String str) {
+		if (level > Log.INFO)
+			return;
+		add(str, "INFO", null, new Object[0]);
+	}
+	
+	@Override
+	public void info(String str, Object... objs) {
+		if (level > Log.INFO)
+			return;
+		add(str, "INFO", null, objs);
+	}
+
+	@Override
+	public void info(String str, Throwable throwable, Object... objs) {
+		if (level > Log.INFO)
+			return;
+		add(str, "INFO", throwable, objs);
+	}
+	
+	@Override
+	public void warn(String str) {
+		if (level > Log.WARN)
+			return;
+		add(str, "WARN", null, new Object[0]);
+	}
+	
 	@Override
 	public void warn(String str, Object... objs) {
 		if (level > Log.WARN)
@@ -162,30 +176,17 @@ public class FileLog implements Log {
 	}
 
 	@Override
-	public void trace(String str) {
-		// TODO Auto-generated method stub
-
+	public void error(String str, Object... objs) {
+		if (level > Log.ERROR)
+			return;
+		add(str, "ERROR", null, objs);
 	}
 
 	@Override
-	public void debug(String str) {
-		if (level > Log.DEBUG)
+	public void error(String str, Throwable throwable, Object... objs) {
+		if (level > Log.ERROR)
 			return;
-		add(str, "DEBUG", null, new Object[0]);
-	}
-
-	@Override
-	public void info(String str) {
-		if (level > Log.INFO)
-			return;
-		add(str, "INFO", null, new Object[0]);
-	}
-
-	@Override
-	public void warn(String str) {
-		if (level > Log.WARN)
-			return;
-		add(str, "WARN", null, new Object[0]);
+		add(str, "ERROR", throwable, objs);
 	}
 
 	@Override
