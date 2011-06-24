@@ -235,10 +235,9 @@ public class TcpWorker implements Worker {
                         log.debug("receive close flag");
                         assert buf == null;
 
-                        session.setCurrentWrite(null);
-                        session.setCurrentWriteBuffer(null);
-                        buf = null;
-                        obj = null;
+                        session.resetCurrentWriteAndWriteBuffer();
+//                        buf = null;
+//                        obj = null;
                         clearOpWrite(session);
                         close(session.getSelectionKey());
                         break;
@@ -259,10 +258,9 @@ public class TcpWorker implements Worker {
                     if (buf.finished()) {
                         // Successful write - proceed to the next message.
                         buf.release();
-                        session.setCurrentWrite(null);
-                        session.setCurrentWriteBuffer(null);
-                        obj = null;
-                        buf = null;
+                        session.resetCurrentWriteAndWriteBuffer();
+//                        obj = null;
+//                        buf = null;
                     } else {
                         // Not written fully - perhaps the kernel buffer is
                         // full.
@@ -274,10 +272,9 @@ public class TcpWorker implements Worker {
                     // Doesn't need a user attention - ignore.
                 } catch (Throwable t) {
                     buf.release();
-                    session.setCurrentWrite(null);
-                    session.setCurrentWriteBuffer(null);
-                    buf = null;
-                    obj = null;
+                    session.resetCurrentWriteAndWriteBuffer();
+//                    buf = null;
+//                    obj = null;
                     eventManager.executeExceptionTask(session, t);
                     if (t instanceof IOException) {
                         log.debug("write0 IOException session close");
@@ -312,9 +309,7 @@ public class TcpWorker implements Worker {
             if (obj != null) {
                 cause = new NetException("cleanUpWriteBuffer error");
                 session.getCurrentWriteBuffer().release();
-                session.setCurrentWriteBuffer(null);
-                session.setCurrentWrite(null);
-                obj = null;
+                session.resetCurrentWriteAndWriteBuffer();
                 fireExceptionCaught = true;
             }
 

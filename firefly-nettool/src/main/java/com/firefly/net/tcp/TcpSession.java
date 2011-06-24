@@ -146,6 +146,11 @@ public class TcpSession implements Session {
         this.currentWrite = currentWrite;
     }
 
+    void resetCurrentWriteAndWriteBuffer() {
+        this.currentWrite = null;
+        this.currentWriteBuffer = null;
+    }
+
     Object getCurrentWrite() {
         return currentWrite;
     }
