@@ -78,26 +78,26 @@ abstract public class VerifyUtils {
 	}
 
 	public static boolean isNotEmpty(Long o) {
-		return o != null && o.toString().length() > 0;
+		return o != null && StringUtils.hasText(o.toString());
 	}
 
 	public static boolean isNotEmpty(Integer o) {
-		return o != null && o.toString().length() > 0;
+		return o != null && StringUtils.hasText(o.toString());
 	}
 
 	public static boolean isNotEmpty(String o) {
-		return o != null && o.toString().trim().length() > 0;
+		return StringUtils.hasText(o);
 	}
 
 	public static boolean isEmpty(Long o) {
-		return o == null || o.toString().length() == 0;
+		return !isNotEmpty(o);
 	}
 
 	public static boolean isEmpty(Integer o) {
-		return o == null || o.toString().length() == 0;
+		return !isNotEmpty(o);
 	}
 
 	public static boolean isEmpty(String o) {
-		return o == null || o.toString().trim().length() == 0;
+		return !isNotEmpty(o);
 	}
 }
