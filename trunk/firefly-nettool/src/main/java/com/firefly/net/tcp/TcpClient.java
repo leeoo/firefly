@@ -21,6 +21,7 @@ public class TcpClient implements Client {
     }
 
     public TcpClient(Decoder decoder, Encoder encoder, Handler handler) {
+        this();
         config = new Config();
         config.setDecoder(decoder);
         config.setEncoder(encoder);
