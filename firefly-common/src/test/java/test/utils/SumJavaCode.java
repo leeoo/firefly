@@ -2,23 +2,42 @@ package test.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
 public class SumJavaCode {
-	static long normalLines = 0; // 空行
-	static long commentLines = 0; // 注释行
-	static long whiteLines = 0; // 代码行
+	private long normalLines = 0; // 空行
+	private long commentLines = 0; // 注释行
+	private long whiteLines = 0; // 代码行
 
 	public static void main(String[] args) {
+		System.out.println(args[0]);
 		SumJavaCode sjc = new SumJavaCode();
-		File f = new File("/Users/qiupengtao/Documents/workspace/firefly-common"); // 目录
+		File f = new File(args[0] + "/firefly-project/firefly-common");
 		System.out.println(f.getName());
 		sjc.treeFile(f);
-		System.out.println("空行：" + whiteLines);
-		System.out.println("注释行：" + commentLines);
-		System.out.println("代码行：" + normalLines);
+		System.out.println("空行：" + sjc.getWhiteLines());
+		System.out.println("注释行：" + sjc.getCommentLines());
+		System.out.println("代码行：" + sjc.getNormalLines());
+		
+		sjc = new SumJavaCode();
+		f = new File(args[0] + "/firefly-project/firefly");
+		System.out.println(f.getName());
+		sjc.treeFile(f);
+		System.out.println("空行：" + sjc.getWhiteLines());
+		System.out.println("注释行：" + sjc.getCommentLines());
+		System.out.println("代码行：" + sjc.getNormalLines());
+		
+		sjc = new SumJavaCode();
+		f = new File(args[0] + "/firefly-project/firefly-nettool");
+		System.out.println(f.getName());
+		sjc.treeFile(f);
+		System.out.println("空行：" + sjc.getWhiteLines());
+		System.out.println("注释行：" + sjc.getCommentLines());
+		System.out.println("代码行：" + sjc.getNormalLines());
+
 	}
 
 	/**
@@ -28,22 +47,19 @@ public class SumJavaCode {
 	 *            要查找的目录
 	 */
 	private void treeFile(File f) {
-		File[] childs = f.listFiles();
-		// int count = 0;
-		// int sum = 0;
-		for (int i = 0; i < childs.length; i++) {
-			// System.out.println(preStr + childs[i].getName());
-			if (!childs[i].isDirectory()) {
-				if (childs[i].getName().matches(".*\\.java$")) {
-//					System.out.println(childs[i].getName());
-					// count ++;
-					sumCode(childs[i]);
+		f.listFiles(new FileFilter() {
+			@Override
+			public boolean accept(File file) {
+				if (!file.isDirectory()) {
+					if (file.getName().matches(".*\\.java$")) {
+						sumCode(file);
+					}
+				} else {
+					treeFile(file);
 				}
-			} else {
-				treeFile(childs[i]);
-				// sum += count;
+				return false;
 			}
-		}
+		});
 	}
 
 	/**
@@ -95,4 +111,18 @@ public class SumJavaCode {
 		}
 
 	}
+
+	public long getNormalLines() {
+		return normalLines;
+	}
+
+	public long getCommentLines() {
+		return commentLines;
+	}
+
+	public long getWhiteLines() {
+		return whiteLines;
+	}
+	
+	
 }
