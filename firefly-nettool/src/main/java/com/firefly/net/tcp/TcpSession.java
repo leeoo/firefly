@@ -21,7 +21,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class TcpSession implements Session {
+public final class TcpSession implements Session {
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
     private final int sessionId;
     private final SelectionKey selectionKey;

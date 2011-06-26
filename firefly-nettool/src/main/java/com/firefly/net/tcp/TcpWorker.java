@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class TcpWorker implements Worker {
+public final class TcpWorker implements Worker {
 
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
     private Config config;
