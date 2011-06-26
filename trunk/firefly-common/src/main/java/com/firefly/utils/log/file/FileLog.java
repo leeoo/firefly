@@ -37,9 +37,16 @@ public class FileLog implements Log {
 	private BufferedWriter getBufferedWriter() throws IOException {
 		File file = new File(path, name + "."
 				+ LogFactory.dayDateFormat.format(new Date()) + ".txt");
-		if (!file.exists())
-			file.createNewFile();
-		return new BufferedWriter(new FileWriter(file, true));
+		boolean ret = false;
+		if (!file.exists()) {
+			ret = file.createNewFile();
+		} else {
+			ret = true;
+		}
+		if (ret)
+			return new BufferedWriter(new FileWriter(file, true));
+		else
+			return null;
 	}
 
 	public void setConsoleOutput(boolean consoleOutput) {
@@ -82,15 +89,17 @@ public class FileLog implements Log {
 		item.setDate(SafeSimpleDateFormat.defaultDateFormat.format(new Date()));
 		String content = StringUtils.replace(str, objs);
 		if (throwable != null) {
-			content += CL;
+			StringBuilder strBuilder = new StringBuilder();
+			strBuilder.append(CL);
 			for (StackTraceElement ele : throwable.getStackTrace()) {
-				content += ele + CL;
+				strBuilder.append(ele).append(CL);
 			}
+			content += strBuilder.toString();
 		}
 		item.setContent(content);
 		LogFactory.getInstance().getLogTask().add(item);
 	}
-	
+
 	@Override
 	public void trace(String str) {
 		if (level > Log.TRACE)
@@ -111,7 +120,7 @@ public class FileLog implements Log {
 			return;
 		add(str, "TRACE", null, objs);
 	}
-	
+
 	@Override
 	public void debug(String str) {
 		if (level > Log.DEBUG)
@@ -132,14 +141,14 @@ public class FileLog implements Log {
 			return;
 		add(str, "DEBUG", throwable, objs);
 	}
-	
+
 	@Override
 	public void info(String str) {
 		if (level > Log.INFO)
 			return;
 		add(str, "INFO", null, new Object[0]);
 	}
-	
+
 	@Override
 	public void info(String str, Object... objs) {
 		if (level > Log.INFO)
@@ -153,14 +162,14 @@ public class FileLog implements Log {
 			return;
 		add(str, "INFO", throwable, objs);
 	}
-	
+
 	@Override
 	public void warn(String str) {
 		if (level > Log.WARN)
 			return;
 		add(str, "WARN", null, new Object[0]);
 	}
-	
+
 	@Override
 	public void warn(String str, Object... objs) {
 		if (level > Log.WARN)
