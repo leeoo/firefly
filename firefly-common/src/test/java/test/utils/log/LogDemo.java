@@ -18,7 +18,7 @@ public class LogDemo {
 	private static final Log logConsole = LogFactory.getInstance().getLog(
 			"test-console");
 	private static final Log defaultLog = LogFactory.getInstance().getLog(
-			"test-console");
+			"firefly-system");
 
 	/**
 	 * @param args
