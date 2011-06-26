@@ -8,12 +8,10 @@ public class FileTransferTcpServer {
 
     public static void main(String[] args) throws URISyntaxException {
 //		System.out.println(SendFileHandler.class.getResource("/testFile.txt").toURI());
-
         Server server = new TcpServer(new StringLineDecoder(),
                 new StringLineEncoder(), new SendFileHandler());
         server.start("localhost", 9900);
 //        server.shutdown();
-//        ((LoggerContext)LoggerFactory.getILoggerFactory()).stop();
     }
 
 }
