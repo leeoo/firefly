@@ -45,7 +45,7 @@ public final class TcpSession implements Session {
     private SendBuffer currentWriteBuffer;
     private volatile int state;
     private ReceiveBufferSizePredictor receiveBufferSizePredictor;
-    private BlockingQueue<Object> result = new ArrayBlockingQueue<Object>(16);
+    private BlockingQueue<Object> result = new ArrayBlockingQueue<Object>(4);
 
     public TcpSession(int sessionId, TcpWorker worker, Config config,
                       long openTime, SelectionKey selectionKey) {
