@@ -15,7 +15,7 @@ public class TcpClient implements Client {
     private Config config;
     private Worker[] workers;
     private AtomicInteger sessionId = new AtomicInteger(0);
-    private boolean started = false;
+    private volatile boolean started = false;
 
     public TcpClient() {
     }
