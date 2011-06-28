@@ -26,10 +26,19 @@ public class FileLog implements Log {
 			System.out.println(str);
 		}
 		if (fileOutput) {
+			BufferedWriter bufferedWriter = null;
 			try {
-				getBufferedWriter().append(str + CL).close();
+				bufferedWriter = getBufferedWriter();
+				bufferedWriter.append(str + CL);
 			} catch (IOException e) {
 				e.printStackTrace();
+			} finally {
+				if(bufferedWriter != null)
+					try {
+						bufferedWriter.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 			}
 		}
 	}
