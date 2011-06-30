@@ -8,10 +8,13 @@ import com.firefly.utils.io.StringWriter;
 public abstract class Json {
 	public static String toJson(Object obj) {
 		String ret = null;
+		StringWriter stringWriter = new StringWriter();
 		try {
-			ret = new JsonSerializer(new StringWriter()).toJson(obj).toString();
+			ret = new JsonSerializer(stringWriter).toJson(obj).toString();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			stringWriter.close();
 		}
 		return ret;
 	}
