@@ -33,14 +33,6 @@
 		</testResources>
 		<plugins>
 			<plugin>
-				<artifactId>maven-eclipse-plugin</artifactId>
-				<version>2.8</version>
-				<configuration>
-					<downloadSources>true</downloadSources>
-					<wtpversion>2.0</wtpversion>
-				</configuration>
-			</plugin>
-			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.3.2</version>
 				<configuration>
@@ -56,20 +48,6 @@
 				<configuration>
 					<encoding>UTF-8</encoding>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.zeroturnaround</groupId>
-				<artifactId>javarebel-maven-plugin</artifactId>
-				<version>1.0.5</version>
-				<executions>
-					<execution>
-						<id>generate-rebel-xml</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>
@@ -94,7 +72,7 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-	    <properties>
+	<properties>
     	<!-- project -->
     	<project.groupId>com.firefly</project.groupId>
     	<project.artifactId>firefly-nettool</project.artifactId>
@@ -106,20 +84,6 @@
         <log.path>D:/log/</log.path>
     </properties>
     <profiles>
-    	<profile>
-    		<id>localTest</id>
-    		<properties>
-    			<log.level>ERROR</log.level>
-    			<log.path>D:/log/</log.path>
-    		</properties>
-    	</profile>
-    	<profile>
-    		<id>linux</id>
-    		<properties>
-    			<log.level>INFO</log.level>
-    			<log.path>/home/qiupt/webapp/log/</log.path>
-    		</properties>
-    	</profile>
     	<profile>
     		<id>mac</id>
     		<properties>
@@ -142,20 +106,6 @@
     		</properties>
     	</profile>
     </profiles>
-    <repositories>
-		<!-- <repository>
-        	<id>3rdRepo</id>
-        	<snapshots><enabled>true</enabled></snapshots>
-        	<url>http://snapshots.repository.codehaus.org/</url>
-        </repository>
-        <repository>
-        	<id>aliRepo</id>
-        	<url>http://119.38.217.15/svn/fastjson/repository/</url>
-        </repository> -->
-    </repositories>
-    <pluginRepositories>
-
-    </pluginRepositories>
     <distributionManagement>
     	<repository>
     		<id>3rdRepo</id>
