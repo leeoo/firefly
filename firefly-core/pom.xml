@@ -30,14 +30,6 @@
             </testResource>
         </testResources>
         <plugins>
-        	<plugin>
-				<artifactId>maven-eclipse-plugin</artifactId>
-				<version>2.8</version>
-				<configuration>
-					<downloadSources>true</downloadSources>
-					<wtpversion>2.0</wtpversion>
-				</configuration>
-			</plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
@@ -55,20 +47,6 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
-            <plugin>
-			  	<groupId>org.zeroturnaround</groupId>
-			 	<artifactId>javarebel-maven-plugin</artifactId>
-			 	<version>1.0.5</version>
-			  	<executions>
-			    	<execution>
-			      	<id>generate-rebel-xml</id>
-			      	<phase>process-resources</phase>
-			      	<goals>
-			        	<goal>generate</goal>
-			      	</goals>
-			    	</execution>
-			  	</executions>
-			</plugin>
         </plugins>
     </build>
 
@@ -131,24 +109,24 @@
     </properties>
     <profiles>
     	<profile>
-    		<id>localTest</id>
-    		<properties>
-    			<log.level>ERROR</log.level>
-    			<log.path>D:/log/</log.path>
-    		</properties>
-    	</profile>
-    	<profile>
-    		<id>linux</id>
-    		<properties>
-    			<log.level>INFO</log.level>
-    			<log.path>/home/qiupt/webapp/log/</log.path>
-    		</properties>
-    	</profile>
-    	<profile>
     		<id>mac</id>
     		<properties>
     			<log.level>INFO</log.level>
     			<log.path>/Users/qiupengtao/develop/logs/</log.path>
+    		</properties>
+    	</profile>
+    	<profile>
+    		<id>macdebug</id>
+    		<properties>
+    			<log.level>DEBUG</log.level>
+    			<log.path>/Users/qiupengtao/develop/logs/</log.path>
+    		</properties>
+    	</profile>
+    	<profile>
+    		<id>windebug</id>
+    		<properties>
+    			<log.level>DEBUG</log.level>
+    			<log.path>D:/log/</log.path>
     		</properties>
     	</profile>
     </profiles>
