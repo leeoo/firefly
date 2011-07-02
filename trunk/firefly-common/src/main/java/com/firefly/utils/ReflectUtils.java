@@ -60,4 +60,47 @@ public abstract class ReflectUtils {
 		}
 		return names.toArray(new String[0]);
 	}
+
+	public static Method getGetterMethod(Class<?> clazz, String p) {
+		Method ret = null;
+		Method[] methods = clazz.getMethods();
+		for (int i = 0; i < methods.length; i++) {
+			Method method = methods[i];
+			method.setAccessible(true);
+			String methodName = method.getName();
+
+			if (Modifier.isStatic(method.getModifiers())
+					|| method.getReturnType().equals(Void.TYPE)
+					|| method.getParameterTypes().length != 0) {
+				continue;
+			}
+
+			if (methodName.startsWith("get")) { // 取get方法的返回值
+				if (methodName.length() < 4 || methodName.equals("getClass")
+						|| !Character.isUpperCase(methodName.charAt(3))) {
+					continue;
+				}
+
+				String propertyName = Character.toLowerCase(methodName
+						.charAt(3)) + methodName.substring(4);
+
+				if (propertyName.equals(p))
+					return method;
+
+			} else if (methodName.startsWith("is")) { // 取is方法的返回值
+				if (methodName.length() < 3
+						|| !Character.isUpperCase(methodName.charAt(2))) {
+					continue;
+				}
+
+				String propertyName = Character.toLowerCase(methodName
+						.charAt(2)) + methodName.substring(3);
+
+				if (propertyName.equals(p))
+					return method;
+			}
+		}
+
+		return ret;
+	}
 }
