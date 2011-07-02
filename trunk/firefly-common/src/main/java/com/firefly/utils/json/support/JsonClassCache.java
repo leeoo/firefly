@@ -1,16 +1,15 @@
 package com.firefly.utils.json.support;
 
-import java.util.HashMap;
 import java.util.Map;
-
+import java.util.concurrent.ConcurrentHashMap;
 import com.firefly.utils.json.ClassCache;
 
 public class JsonClassCache implements ClassCache {
 	public final Map<Class<?>, JsonObjMetaInfo[]> map;
 
 	private JsonClassCache() {
-//		map = new ConcurrentHashMap<Class<?>, JsonObjMetaInfo[]>();
-		map = new HashMap<Class<?>, JsonObjMetaInfo[]>();
+		map = new ConcurrentHashMap<Class<?>, JsonObjMetaInfo[]>();
+//		map = new HashMap<Class<?>, JsonObjMetaInfo[]>();
 	}
 
 	private static class Holder {
