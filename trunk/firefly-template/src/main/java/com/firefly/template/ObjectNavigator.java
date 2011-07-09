@@ -26,22 +26,23 @@ public class ObjectNavigator {
 		return Holder.instance;
 	}
 
-	public Object find(Map<String, Object> map, String el) {
+	public Object find(Model model, String el) {
 		Object current = null;
 		String[] elements = StringUtils.split(el, '.');
 		if ((elements != null) && (elements.length > 0)) {
-			current = getObject(map, elements[0], true);
+			current = getObject(model, elements[0]);
 			if (current == null)
 				return null;
 
 			for (int i = 1; i < elements.length; i++) {
-				current = getObject(current, elements[i], false);
+				current = getObject(current, elements[i]);
 			}
 		}
 		return current;
 	}
 
-	private Object getObject(Object current, String el, boolean root) {
+	private Object getObject(Object current, String el) {
+		boolean root = current instanceof Model;
 		String element = el.trim();
 		int listOrMapPrefixIndex = element.indexOf('[');
 		if (listOrMapPrefixIndex > 0) { // map or list or array
@@ -54,7 +55,7 @@ public class ObjectNavigator {
 			String keyEl = element.substring(listOrMapPrefixIndex + 1,
 					listOrMapSuffixIndex);
 			String p = element.substring(0, listOrMapPrefixIndex);
-			Object obj = root ? ((Map<?, ?>) current).get(p)
+			Object obj = root ? ((Model) current).get(p)
 					: getObjectProperty(current, p);
 
 			if (isMapKey(keyEl)) { // map
@@ -69,7 +70,7 @@ public class ObjectNavigator {
 					return Array.get(obj, index);
 			}
 		} else if (listOrMapPrefixIndex < 0) { // object
-			return root ? ((Map<?, ?>) current).get(element)
+			return root ? ((Model) current).get(element)
 					: getObjectProperty(current, element);
 		} else {
 			throw new ExpressionError("expression error: " + element);
