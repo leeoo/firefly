@@ -1,22 +1,23 @@
 package com.firefly.template.view;
 
 import java.io.Writer;
-import java.util.Map;
+
 import com.firefly.template.Config;
+import com.firefly.template.Model;
 import com.firefly.template.View;
 
 public abstract class AbstractView implements View {
 
 	@Override
-	public void render(Map<String, Object> map, Writer writer) {
+	public void render(Model model, Writer writer) {
 		try {
-			main(map, writer);
+			main(model, writer);
 		} catch (Throwable e) {
 			Config.LOG.error("view render error", e);
 		}
 	}
 
-	abstract protected void main(Map<String, Object> map, Writer writer)
+	abstract protected void main(Model model, Writer writer)
 			throws Throwable;
 
 }
