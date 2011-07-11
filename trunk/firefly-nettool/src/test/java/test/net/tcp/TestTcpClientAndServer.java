@@ -31,17 +31,15 @@ public class TestTcpClientAndServer {
 
         final int LOOP = 50;
         ExecutorService executorService = Executors.newFixedThreadPool(LOOP);
-        final StringLineClientHandler handler = new StringLineClientHandler(LOOP * 2);
         final Client client = new TcpClient(new StringLineDecoder(),
-                new StringLineEncoder(), handler);
+                new StringLineEncoder(), new StringLineClientHandler());
 
 
         for (int i = 0; i < LOOP; i++) {
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    final int sessionId = client.connect("localhost", 9900);
-                    final Session session = handler.getSession(sessionId);
+                    final Session session = client.connect("localhost", 9900);
                     Assert.assertThat(session.isOpen(), is(true));
 
                     session.encode("hello client");
@@ -69,8 +67,7 @@ public class TestTcpClientAndServer {
 
         }
 
-        final int sessionId = client.connect("localhost", 9900);
-        final Session session = handler.getSession(sessionId);
+        final Session session = client.connect("localhost", 9900);
 
         session.encode("hello client 2");
         log.debug("main thread {}", Thread.currentThread().toString());
@@ -82,7 +79,7 @@ public class TestTcpClientAndServer {
         ret = (String) session.getResult(1000);
         log.debug("receive[" + ret + "]");
         Assert.assertThat(ret, is("bye!"));
-        log.debug("complete session {}", sessionId);
+        log.debug("complete session {}", session.getSessionId());
 
 //        server.shutdown();
 //        client.shutdown();

@@ -14,13 +14,11 @@ public class StringLinePerformance {
 
     public static class ClientTask implements Runnable {
 
-        private final StringLineClientHandler handler;
         private final Client client;
         private final CyclicBarrier barrier;
 
         public Session getSession() {
-            int sessionId = client.connect("localhost", 9900);
-            return handler.getSession(sessionId);
+            return client.connect("localhost", 9900);
         }
 
         @Override
@@ -45,8 +43,7 @@ public class StringLinePerformance {
 
         }
 
-        public ClientTask(StringLineClientHandler handler, Client client, CyclicBarrier barrier) {
-            this.handler = handler;
+        public ClientTask(Client client, CyclicBarrier barrier) {
             this.client = client;
             this.barrier = barrier;
         }
@@ -75,15 +72,14 @@ public class StringLinePerformance {
 
     public static void main(String[] args) {
         ExecutorService executorService = Executors.newFixedThreadPool(THREAD);
-        final StringLineClientHandler handler = new StringLineClientHandler(
-                THREAD * 2);
+        final StringLineClientHandler handler = new StringLineClientHandler();
         final Client client = new TcpClient(new StringLineDecoder(),
                 new StringLineEncoder(), handler);
 
         final CyclicBarrier barrier = new CyclicBarrier(THREAD, new StatTask());
 
         for (int i = 0; i < THREAD; i++) {
-            executorService.submit(new ClientTask(handler, client, barrier));
+            executorService.submit(new ClientTask(client, barrier));
         }
     }
 }

@@ -7,11 +7,10 @@ import com.firefly.utils.log.LogFactory;
 
 public class StringLineTcpClient {
 	public static void main(String[] args) {
-		StringLineClientHandler handler = new StringLineClientHandler(2);
+		StringLineClientHandler handler = new StringLineClientHandler();
 		Client client = new TcpClient(new StringLineDecoder(),
 				new StringLineEncoder(), handler);
-		int sessionId = client.connect("localhost", 9900);
-        Session session = handler.getSession(sessionId);
+        Session session = client.connect("localhost", 9900);
 
 		session.encode("hello client");
 		String ret = (String)session.getResult(1000);
@@ -25,9 +24,7 @@ public class StringLineTcpClient {
 		ret = (String)session.getResult(1000);
 		System.out.println("receive[" + ret + "]");
 
-
-        sessionId = client.connect("localhost", 9900);
-        session = handler.getSession(sessionId);
+        session = client.connect("localhost", 9900);
 
 		session.encode("getfile");
         ret = (String)session.getResult(1000);

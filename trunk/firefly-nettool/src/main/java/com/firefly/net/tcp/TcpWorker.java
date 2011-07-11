@@ -37,15 +37,18 @@ public final class TcpWorker implements Worker {
     private final int workerId;
     private EventManager eventManager;
     private boolean start;
+    private ClientSynchronizer<Session> clientSynchronizer;
+    
 
     static {
         timeProvider.start();
     }
 
-    public TcpWorker(Config config, int workerId) {
+    public TcpWorker(Config config, int workerId, ClientSynchronizer<Session> clientSynchronizer) {
         try {
             this.workerId = workerId;
             this.config = config;
+            this.clientSynchronizer = clientSynchronizer;
             selector = Selector.open();
             if (config.getHandleThreads() >= 0) {
                 log.debug("new ThreadPoolEventManager");
@@ -68,6 +71,10 @@ public final class TcpWorker implements Worker {
 
     public int getWorkerId() {
         return workerId;
+    }
+    
+    Session getSession(int sessionId) {
+    	return clientSynchronizer.get(sessionId);
     }
 
     @Override
@@ -432,6 +439,8 @@ public final class TcpWorker implements Worker {
                     TcpWorker.this.close(key);
                 }
 
+                if(clientSynchronizer != null)
+                	clientSynchronizer.put(session, sessionId);
                 eventManager.executeOpenTask(session);
             } catch (IOException e) {
                 log.error("socketChannel register error", e);
