@@ -1,0 +1,17 @@
+#extends /common.html
+
+#section top
+<div>
+firefly模版引擎 &nbsp; &gt; &nbsp; 首页
+</div>
+#end
+
+#section body
+<div>
+	#if ${user.isLogin && user.age > 18}
+		Welcome ${user.name}
+	#else
+		not login
+	#end
+</div>
+#end
