@@ -69,7 +69,7 @@ public class TcpServer implements Server {
     private void listen(ServerSocketChannel serverSocketChannel) {
         workers = new Worker[config.getWorkerThreads()];
         for (int i = 0; i < config.getWorkerThreads(); i++) {
-            workers[i] = new TcpWorker(config, i);
+            workers[i] = new TcpWorker(config, i, null);
         }
 
         Boss boss = null;

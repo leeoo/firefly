@@ -8,17 +8,26 @@ public class ClientSynchronizer<T> {
     private SynchronousObject<T>[] objs;
     private final long timeout;
     private int size;
+    
+    public ClientSynchronizer() {
+    	this(0, 0);
+    }
 
     public ClientSynchronizer(int size, long timeout) {
         if (size <= 0)
-            throw new IllegalArgumentException("sessionSize or retSize less than 1");
+            size = 1024 * 8;
+        
+        int i = 2;
+        while(i < size)
+        	i <<= 1;
 
-        this.size = size;
+        this.size = i;
+        log.info("synchronizer size: {}", this.size);
 
         if (timeout > 0)
             this.timeout = timeout;
         else
-            this.timeout = 1000;
+            this.timeout = 5000;
 
         init();
         log.debug("client timeout {}", timeout);
@@ -26,12 +35,16 @@ public class ClientSynchronizer<T> {
 
     public T get(int index) {
         log.debug("get index {}", index);
-        return objs[index].get(timeout);
+        return objs[index & (size - 1)].get(timeout);
     }
 
     public void put(T t, int index) {
         log.debug("put index {}", index);
-        objs[index].put(t);
+        objs[index & (size - 1)].put(t);
+    }
+    
+    public void reset(int index) {
+    	objs[index & (size - 1)].reset();
     }
 
     @SuppressWarnings("unchecked")

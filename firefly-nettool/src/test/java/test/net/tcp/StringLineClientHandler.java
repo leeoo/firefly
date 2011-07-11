@@ -1,6 +1,5 @@
 package test.net.tcp;
 
-import com.firefly.net.ClientSynchronizer;
 import com.firefly.net.Handler;
 import com.firefly.net.Session;
 import com.firefly.utils.log.Log;
@@ -9,20 +8,10 @@ import com.firefly.utils.log.LogFactory;
 public class StringLineClientHandler implements Handler {
 
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
-    private ClientSynchronizer<Session> clientSynchronizer;
-
-    public StringLineClientHandler(int sessionSize) {
-        clientSynchronizer = new ClientSynchronizer<Session>(sessionSize, 1000);
-    }
-
-    public Session getSession(int sessionId) {
-        return clientSynchronizer.get(sessionId);
-    }
 
     @Override
     public void sessionOpened(Session session) {
         log.debug("session: {} open", session.getSessionId());
-        clientSynchronizer.put(session, session.getSessionId());
     }
 
     @Override
