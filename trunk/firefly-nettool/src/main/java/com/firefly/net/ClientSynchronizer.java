@@ -15,7 +15,7 @@ public class ClientSynchronizer<T> {
 
     public ClientSynchronizer(int size, long timeout) {
         if (size <= 0)
-            size = 1024 * 8;
+            size = 1024 * 16;
         
         int i = 2;
         while(i < size)
