@@ -1,17 +1,23 @@
-#extends /common.html
+<f:extends file="/common.html" />
 
-#section top
+<f:section id="top">
 <div>
 firefly模版引擎 &nbsp; &gt; &nbsp; 首页
 </div>
-#end
+</f:section>
 
-#section body
+<f:section id="body">
 <div>
-	#if ${user.isLogin && user.age > 18}
-		Welcome ${user.name}
-	#else
-		not login
-	#end
+	<f:choose>
+		<f:when test="${user.isLogin && user.age > 18}">
+			Welcome ${user.name}
+		</f:when>
+		<f:otherwise>
+			您无法访问
+		</f:otherwise>
+	</f:choose>
+	<f:if test="${user.name == 'Pengtao Qiu'}">
+		城主来了
+	</f:if>
 </div>
-#end
+</f:section>
