@@ -56,7 +56,8 @@ class JsonSerializer {
 		} else if (TypeVerify.isString(clazz)) { // 字符串或字符类型
 			string2Json(obj.toString());
 		} else if (TypeVerify.isDateLike(clazz)) {
-			string2Json(SafeSimpleDateFormat.defaultDateFormat.format((Date) obj));
+			string2Json(SafeSimpleDateFormat.defaultDateFormat
+					.format((Date) obj));
 		} else if (existence.contains(obj)) { // 防止循环引用，此处会影响一些性能
 			writer.append(NULL);
 		} else {
@@ -103,8 +104,7 @@ class JsonSerializer {
 					}
 
 					String propertyName = Character.toLowerCase(methodName
-							.charAt(3))
-							+ methodName.substring(4);
+							.charAt(3)) + methodName.substring(4);
 
 					Field field = null;
 					try {
@@ -135,8 +135,7 @@ class JsonSerializer {
 					}
 
 					String propertyName = Character.toLowerCase(methodName
-							.charAt(2))
-							+ methodName.substring(3);
+							.charAt(2)) + methodName.substring(3);
 
 					Field field = null;
 					try {
@@ -162,25 +161,25 @@ class JsonSerializer {
 				}
 			}
 
-			classCache.put(clazz, fieldList.toArray(JOM));
+			jsonObjMetaInfo = fieldList.toArray(JOM);
+			classCache.put(clazz, jsonObjMetaInfo);
 		}
 
-		if ((jsonObjMetaInfo = classCache.get(clazz)) != null) {
-			for (int i = 0; i < jsonObjMetaInfo.length; i++) {
-				try {
-					appendPair(jsonObjMetaInfo[i].getPropertyName(),
-							jsonObjMetaInfo[i].getMethod().invoke(obj));
-					if (i < jsonObjMetaInfo.length - 1)
-						writer.append(SEPARATOR);
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
-					e.printStackTrace();
-				}
+		for (int i = 0; i < jsonObjMetaInfo.length; i++) {
+			try {
+				appendPair(jsonObjMetaInfo[i].getPropertyName(),
+						jsonObjMetaInfo[i].getMethod().invoke(obj));
+				if (i < jsonObjMetaInfo.length - 1)
+					writer.append(SEPARATOR);
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
 			}
 		}
+
 		writer.append(OBJ_SUF);
 	}
 
