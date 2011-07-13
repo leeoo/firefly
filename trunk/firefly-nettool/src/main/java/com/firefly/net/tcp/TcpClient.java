@@ -16,7 +16,7 @@ public class TcpClient implements Client {
     private Worker[] workers;
     private AtomicInteger sessionId = new AtomicInteger(0);
     private volatile boolean started = false;
-    private ClientSynchronizer<Session> clientSynchronizer = new ClientSynchronizer<Session>();
+    private Synchronizer<Session> synchronizer = new Synchronizer<Session>();
 
     public TcpClient() {
     }
@@ -41,7 +41,7 @@ public class TcpClient implements Client {
         log.info("client init");
         workers = new Worker[config.getWorkerThreads()];
         for (int i = 0; i < config.getWorkerThreads(); i++) {
-            workers[i] = new TcpWorker(config, i, clientSynchronizer);
+            workers[i] = new TcpWorker(config, i, synchronizer);
         }
         started = true;
         return this;
@@ -58,7 +58,7 @@ public class TcpClient implements Client {
             init();
 
         int id = sessionId.getAndIncrement();
-        clientSynchronizer.reset(id);
+        synchronizer.reset(id);
         try {
             SocketChannel socketChannel = SocketChannel.open();
             socketChannel.socket().connect(new InetSocketAddress(host, port), config.getTimeout());
@@ -66,7 +66,7 @@ public class TcpClient implements Client {
         } catch (IOException e) {
             log.error("connect error", e);
         }
-        return clientSynchronizer.get(id);
+        return synchronizer.get(id);
     }
 
     private void accept(SocketChannel socketChannel, int sessionId) {

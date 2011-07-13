@@ -3,17 +3,17 @@ package com.firefly.net;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
 
-public class ClientSynchronizer<T> {
+public class Synchronizer<T> {
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	private SynchronousObject<T>[] objs;
 	private final long timeout;
 	private int size;
 
-	public ClientSynchronizer() {
+	public Synchronizer() {
 		this(0, 0);
 	}
 
-	public ClientSynchronizer(int size, long timeout) {
+	public Synchronizer(int size, long timeout) {
 		if (size <= 0) {
 			this.size = 1024 * 16;
 		} else {
