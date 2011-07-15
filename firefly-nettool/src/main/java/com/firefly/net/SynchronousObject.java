@@ -1,28 +1,27 @@
 package com.firefly.net;
 
 public class SynchronousObject<T> {
-    private T obj;
+	private volatile T obj;
 
-    public void put(T obj) {
-        synchronized (this) {
-            this.obj = obj;
-            notifyAll();
-        }
-    }
+	public synchronized void put(T obj) {
+		this.obj = obj;
+		notifyAll();
+	}
 
-    public T get(long timeout) {
-        if (obj != null) return obj;
-        synchronized (this) {
-            if (obj != null) return obj;
-            try {
-                wait(timeout);
-            } catch (InterruptedException ie) {
-            }
-        }
-        return obj;
-    }
+	public T get(long timeout) {
+		if (obj == null) {
+			synchronized (this) {
+				if (obj == null)
+					try {
+						wait(timeout);
+					} catch (InterruptedException ie) {
+					}
+			}
+		}
+		return obj;
+	}
 
-    public void reset() {
-        obj = null;
-    }
+	public void reset() {
+		obj = null;
+	}
 }
