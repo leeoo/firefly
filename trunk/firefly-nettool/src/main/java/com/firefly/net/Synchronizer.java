@@ -15,7 +15,7 @@ public class Synchronizer<T> {
 
 	public Synchronizer(int size, long timeout) {
 		if (size <= 0) {
-			this.size = 1024 * 16;
+			this.size = 1024 * 4;
 		} else {
 			int i = 2;
 			while (i < size)
