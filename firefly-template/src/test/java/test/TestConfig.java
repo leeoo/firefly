@@ -1,11 +1,12 @@
 package test;
 
+import static org.hamcrest.Matchers.is;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.firefly.template.Config;
-
-import static org.hamcrest.Matchers.*;
+import com.firefly.template.parser.ViewFileReader;
 
 public class TestConfig {
 
@@ -17,5 +18,13 @@ public class TestConfig {
 		
 		config.setViewPath("/page2/");
 		Assert.assertThat(config.getCompiledPath(), is("/page2/_compiled_view"));
+	}
+	
+	public static void main(String[] args) {
+		Config config = new Config();
+		config.setViewPath("/Users/qiupengtao/Documents/workspace/firefly-project/firefly-template/src/test/page");
+		ViewFileReader reader = new ViewFileReader();
+		reader.setConfig(config);
+		reader.getRoot();
 	}
 }

@@ -7,8 +7,9 @@ public class Config {
 	public static Log LOG = LogFactory.getInstance().getLog("firefly-system");
 	private String viewPath;
 	private String compiledPath;
-	private String suffix;
-	private boolean compress;
+	private String suffix = "html";
+	private boolean compress = true;
+	private String namespace = "f";
 	public static final String COMPILED_FOLDER_NAME = "_compiled_view";
 
 	public String getViewPath() {
@@ -42,7 +43,13 @@ public class Config {
 	public void setCompress(boolean compress) {
 		this.compress = compress;
 	}
-	
-	
+
+	public String getNamespace() {
+		return namespace;
+	}
+
+	public void setNamespace(String namespace) {
+		this.namespace = namespace;
+	}
 
 }
