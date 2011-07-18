@@ -13,13 +13,11 @@ import com.firefly.template.Config;
 
 public class ViewFileReader {
 	private Config config;
-	private Node root = new Node() {};
 	private boolean init = false;
 
-	public Node getRoot() {
+	public void readAndBuild() {
 		if (!init)
 			read0(new File(config.getViewPath()));
-		return root;
 	}
 
 	public Config getConfig() {
