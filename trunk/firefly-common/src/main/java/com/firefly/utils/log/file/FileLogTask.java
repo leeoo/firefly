@@ -1,8 +1,7 @@
 package com.firefly.utils.log.file;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.firefly.utils.VerifyUtils;
 import com.firefly.utils.log.Log;
@@ -12,20 +11,23 @@ import com.firefly.utils.log.LogTask;
 
 public class FileLogTask implements LogTask {
 	private volatile boolean start;
-	private BlockingQueue<LogItem> queue = new ArrayBlockingQueue<LogItem>(
-			65535);
+	private Queue<LogItem> queue = new ConcurrentLinkedQueue<LogItem>();
 	private Thread thread = new Thread(this);
 
 	@Override
 	public void run() {
 		while (true) {
+			write();
+
+			if (!start && queue.isEmpty())
+				break;
+
 			try {
-				write();
+				Thread.sleep(1000L);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			if (!start && queue.isEmpty())
-				break;
+
 		}
 	}
 
@@ -34,8 +36,8 @@ public class FileLogTask implements LogTask {
 		if (!start) {
 			synchronized (this) {
 				if (!start) {
-					start = true;
 					thread.start();
+					start = true;
 				}
 			}
 		}
@@ -43,19 +45,7 @@ public class FileLogTask implements LogTask {
 
 	@Override
 	public void shutdown() {
-		if (start) {
-			synchronized (this) {
-				if (start) {
-					start = false;
-					try {
-						write();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-
+		start = false;
 	}
 
 	@Override
@@ -66,20 +56,18 @@ public class FileLogTask implements LogTask {
 		if (VerifyUtils.isEmpty(logItem.getName()))
 			throw new IllegalArgumentException("log name is empty");
 
-		try {
-			queue.offer(logItem, 500L, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-		}
+		queue.offer(logItem);
 	}
 
-	private void write() throws InterruptedException {
-		for (LogItem logItem = null; (logItem = queue.poll(1000L,
-				TimeUnit.MILLISECONDS)) != null;) {
+	private void write() {
+		for (LogItem logItem = null; (logItem = queue.poll()) != null;) {
 			Log log = LogFactory.getInstance().getLog(logItem.getName());
 			if (log instanceof FileLog) {
 				FileLog fileLog = (FileLog) log;
 				fileLog.write(logItem);
 			}
 		}
+//		System.out.println(">>> flush");
+		LogFactory.getInstance().flush();
 	}
 }

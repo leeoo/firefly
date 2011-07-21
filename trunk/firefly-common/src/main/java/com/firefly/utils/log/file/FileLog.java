@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import com.firefly.utils.StringUtils;
 import com.firefly.utils.log.Log;
@@ -18,26 +20,35 @@ public class FileLog implements Log {
 	private String name;
 	private boolean consoleOutput;
 	private boolean fileOutput;
+	private Queue<LogItem> buffer = new LinkedList<LogItem>();
+	private static final int BATCH_SIZE = 1024;
 
-	void write(LogItem logItem) {
-		if (consoleOutput) {
+	public void write(LogItem logItem) {
+		if (consoleOutput)
 			System.out.println(logItem.toString());
-		}
-		if (fileOutput) {
-			BufferedWriter bufferedWriter = null;
-			try {
-				bufferedWriter = getBufferedWriter();
-				bufferedWriter.append(logItem.toString() + CL);
-			} catch (IOException e) {
-				e.printStackTrace();
-			} finally {
-				if(bufferedWriter != null)
-					try {
-						bufferedWriter.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+		if (fileOutput)
+			buffer.offer(logItem);
+		if (buffer.size() >= BATCH_SIZE)
+			flush();
+	}
+
+	public void flush() {
+		BufferedWriter bufferedWriter = null;
+		try {
+			bufferedWriter = getBufferedWriter();
+			for (LogItem logItem = null; (logItem = buffer.poll()) != null;) {
+				if (fileOutput)
+					bufferedWriter.append(logItem.toString() + CL);
 			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (bufferedWriter != null)
+				try {
+					bufferedWriter.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 		}
 	}
 
