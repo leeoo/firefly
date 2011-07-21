@@ -18,7 +18,6 @@ public class FileLogTask implements LogTask {
 	public void run() {
 		while (true) {
 			write();
-
 			if (!start && queue.isEmpty())
 				break;
 

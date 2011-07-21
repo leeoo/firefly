@@ -100,10 +100,8 @@ public class LogFactory {
 
 				fileLog.setPath(path);
 				fileLog.setFileOutput(true);
-				if (strs.length > 2) {
-					if ("console".equalsIgnoreCase(strs[2]))
-						fileLog.setConsoleOutput(true);
-				}
+				if (strs.length > 2)
+					fileLog.setConsoleOutput("console".equalsIgnoreCase(strs[2]));
 			}
 
 			logMap.put(name, fileLog);
