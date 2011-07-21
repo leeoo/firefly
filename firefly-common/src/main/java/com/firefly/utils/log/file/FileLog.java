@@ -20,16 +20,14 @@ public class FileLog implements Log {
 	private boolean fileOutput;
 
 	void write(LogItem logItem) {
-		String str = logItem.getLevel() + " " + logItem.getDate() + "\t"
-				+ logItem.getContent();
 		if (consoleOutput) {
-			System.out.println(str);
+			System.out.println(logItem.toString());
 		}
 		if (fileOutput) {
 			BufferedWriter bufferedWriter = null;
 			try {
 				bufferedWriter = getBufferedWriter();
-				bufferedWriter.append(str + CL);
+				bufferedWriter.append(logItem.toString() + CL);
 			} catch (IOException e) {
 				e.printStackTrace();
 			} finally {

@@ -35,4 +35,9 @@ public class LogItem {
 		this.level = level;
 	}
 
+	@Override
+	public String toString() {
+		return level + " " + date + "\t" + content;
+	}
+
 }
