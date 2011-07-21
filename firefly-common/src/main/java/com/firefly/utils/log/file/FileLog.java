@@ -24,8 +24,6 @@ public class FileLog implements Log {
 	private static final int BATCH_SIZE = 1024;
 
 	public void write(LogItem logItem) {
-		if (consoleOutput)
-			System.out.println(logItem.toString());
 		if (fileOutput)
 			buffer.offer(logItem);
 		if (fileOutput && buffer.size() >= BATCH_SIZE)
@@ -116,7 +114,10 @@ public class FileLog implements Log {
 			content += strBuilder.toString();
 		}
 		item.setContent(content);
-		LogFactory.getInstance().getLogTask().add(item);
+		if (consoleOutput)
+			System.out.println(item.toString());
+		if (fileOutput)
+			LogFactory.getInstance().getLogTask().add(item);
 	}
 
 	@Override
