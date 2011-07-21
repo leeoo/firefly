@@ -35,7 +35,7 @@ public class LogFactory {
 		levelMap.put("WARN", Log.WARN);
 		levelMap.put("ERROR", Log.ERROR);
 		defaultLog();
-		
+
 		File configFile = null;
 		try {
 			configFile = new File(LogFactory.class.getClassLoader()
@@ -107,6 +107,18 @@ public class LogFactory {
 			}
 
 			logMap.put(name, fileLog);
+		}
+	}
+
+	public void flush() {
+		for (Entry<String, Log> entry : logMap.entrySet()) {
+			Log log = entry.getValue();
+			if (log instanceof FileLog) {
+				
+				FileLog fileLog = (FileLog) log;
+				fileLog.flush();
+//				System.out.println(">>> flush all " + fileLog.getName());
+			}
 		}
 	}
 
