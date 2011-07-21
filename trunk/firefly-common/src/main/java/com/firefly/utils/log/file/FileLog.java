@@ -28,27 +28,28 @@ public class FileLog implements Log {
 			System.out.println(logItem.toString());
 		if (fileOutput)
 			buffer.offer(logItem);
-		if (buffer.size() >= BATCH_SIZE)
+		if (fileOutput && buffer.size() >= BATCH_SIZE)
 			flush();
 	}
 
 	public void flush() {
-		BufferedWriter bufferedWriter = null;
-		try {
-			bufferedWriter = getBufferedWriter();
-			for (LogItem logItem = null; (logItem = buffer.poll()) != null;) {
-				if (fileOutput)
+		if (fileOutput) {
+			BufferedWriter bufferedWriter = null;
+			try {
+				bufferedWriter = getBufferedWriter();
+				for (LogItem logItem = null; (logItem = buffer.poll()) != null;) {
 					bufferedWriter.append(logItem.toString() + CL);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			if (bufferedWriter != null)
-				try {
-					bufferedWriter.close();
-				} catch (IOException e) {
-					e.printStackTrace();
 				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				if (bufferedWriter != null)
+					try {
+						bufferedWriter.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+			}
 		}
 	}
 
