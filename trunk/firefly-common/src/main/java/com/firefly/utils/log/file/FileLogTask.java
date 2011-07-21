@@ -33,8 +33,10 @@ public class FileLogTask implements LogTask {
 	public void start() {
 		if (!start) {
 			synchronized (this) {
-				start = true;
-				thread.start();
+				if (!start) {
+					start = true;
+					thread.start();
+				}
 			}
 		}
 	}
@@ -43,11 +45,13 @@ public class FileLogTask implements LogTask {
 	public void shutdown() {
 		if (start) {
 			synchronized (this) {
-				start = false;
-				try {
-					write();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				if (start) {
+					start = false;
+					try {
+						write();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}
