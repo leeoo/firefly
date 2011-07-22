@@ -225,4 +225,29 @@ public class FileLog implements Log {
 		add(str, "ERROR", null, new Object[0]);
 	}
 
+	@Override
+	public boolean isTraceEnable() {
+		return level > Log.TRACE;
+	}
+
+	@Override
+	public boolean isDebugEnable() {
+		return level > Log.DEBUG;
+	}
+
+	@Override
+	public boolean isInfoEnable() {
+		return level > Log.INFO;
+	}
+
+	@Override
+	public boolean isWarnEnable() {
+		return level > Log.WARN;
+	}
+
+	@Override
+	public boolean isErrorEnable() {
+		return level > Log.ERROR;
+	}
+
 }
