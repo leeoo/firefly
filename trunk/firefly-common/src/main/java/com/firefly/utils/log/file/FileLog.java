@@ -31,7 +31,7 @@ public class FileLog implements Log {
 	}
 
 	public void flush() {
-		if (fileOutput) {
+		if (fileOutput && buffer.size() > 0) {
 			BufferedWriter bufferedWriter = null;
 			try {
 				bufferedWriter = getBufferedWriter();
