@@ -35,8 +35,8 @@ public class FileLogTask implements LogTask {
 		if (!start) {
 			synchronized (this) {
 				if (!start) {
-					thread.start();
 					start = true;
+					thread.start();
 				}
 			}
 		}
