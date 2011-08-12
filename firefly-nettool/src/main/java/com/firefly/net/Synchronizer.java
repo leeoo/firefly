@@ -36,12 +36,12 @@ public class Synchronizer<T> {
 
 	public void put(T t, int index) {
 		log.debug("put index {}", index);
-		objs[index & (size - 1)].put(t);
+		objs[index & (size - 1)].put(t, timeout);
 	}
 
-	public void reset(int index) {
-		objs[index & (size - 1)].reset();
-	}
+//	public void reset(int index) {
+//		objs[index & (size - 1)].reset();
+//	}
 
 	@SuppressWarnings("unchecked")
 	public void init() {

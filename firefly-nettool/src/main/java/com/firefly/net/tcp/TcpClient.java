@@ -59,7 +59,7 @@ public class TcpClient implements Client {
             init();
 
         int id = sessionId.getAndIncrement();
-        synchronizer.reset(id);
+//        synchronizer.reset(id);
         try {
             SocketChannel socketChannel = SocketChannel.open();
             socketChannel.socket().connect(new InetSocketAddress(host, port), config.getTimeout());
