@@ -39,10 +39,6 @@ public class Synchronizer<T> {
 		objs[index & (size - 1)].put(t, timeout);
 	}
 
-//	public void reset(int index) {
-//		objs[index & (size - 1)].reset();
-//	}
-
 	@SuppressWarnings("unchecked")
 	public void init() {
 		objs = new SynchronousObject[size];
