@@ -291,17 +291,23 @@ public final class TcpWorker implements Worker {
                 }
             }
             session.setInWriteNowLoop(false);
+
+            // Initially, the following block was executed after releasing
+            // the writeLock, but there was a race condition, and it has to be
+            // executed before releasing the writeLock:
+            //
+            //     https://issues.jboss.org/browse/NETTY-410
+            //
+            if (open) {
+                if (addOpWrite) {
+                    setOpWrite(session);
+                } else if (removeOpWrite) {
+                    clearOpWrite(session);
+                }
+            }
         }
 
         log.debug("write complete size: {}", writtenBytes);
-
-        if (open) {
-            if (addOpWrite) {
-                setOpWrite(session);
-            } else if (removeOpWrite) {
-                clearOpWrite(session);
-            }
-        }
         log.debug("1> session is open: {}", open);
         log.debug("is in write loop: {}", session.isInWriteNowLoop());
     }
@@ -385,6 +391,7 @@ public final class TcpWorker implements Worker {
 
         if (ret < 0 || failure) {
             log.debug("read failure session close");
+            k.cancel();
             close(k);
             return false;
         }
