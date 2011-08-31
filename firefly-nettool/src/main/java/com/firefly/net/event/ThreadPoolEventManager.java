@@ -46,6 +46,11 @@ public class ThreadPoolEventManager implements EventManager {
 	public void executeExceptionTask(Session session, Throwable t) {
 		executorService.submit(new ExceptionTask(session,t));
 	}
+	
+	@Override
+	public void executeWriteComplete(Session session) {
+		executorService.submit(new WriteCompleteTask(session));
+	}
 
 	private class OpenTask implements Runnable {
 		private Session session;
@@ -120,4 +125,22 @@ public class ThreadPoolEventManager implements EventManager {
 			}
 		}
 	}
+	
+	private class WriteCompleteTask implements Runnable {
+		private Session session;
+		
+		public WriteCompleteTask(Session session) {
+			this.session = session;
+		}
+		
+		@Override
+		public void run() {
+			try {
+				config.getHandler().writeComplete(session);
+			} catch (Throwable t) {
+				log.error("handler exception", t);
+			}
+		}
+	}
+
 }
