@@ -52,4 +52,13 @@ public class CurrentThreadEventManager implements EventManager {
 		}
 	}
 
+	@Override
+	public void executeWriteComplete(Session session) {
+		try {
+			config.getHandler().writeComplete(session);
+		} catch (Throwable t) {
+			executeExceptionTask(session, t);
+		}
+	}
+
 }

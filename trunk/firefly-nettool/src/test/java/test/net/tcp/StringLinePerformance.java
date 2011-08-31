@@ -10,7 +10,7 @@ import java.util.concurrent.*;
 public class StringLinePerformance {
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
     public static final int LOOP = 2000;
-    public static final int THREAD = 500;
+    public static final int THREAD = 100;
 
     public static class ClientTask implements Runnable {
 
