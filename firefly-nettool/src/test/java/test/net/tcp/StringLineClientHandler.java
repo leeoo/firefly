@@ -30,10 +30,4 @@ public class StringLineClientHandler implements Handler {
         log.error("client session error", t);
     }
 
-	@Override
-	public void writeComplete(Session session) {
-		log.debug("written size: {}", session.getWrittenBytes());
-		log.debug("written time: {}", session.getLastWrittenTime());
-	}
-
 }
