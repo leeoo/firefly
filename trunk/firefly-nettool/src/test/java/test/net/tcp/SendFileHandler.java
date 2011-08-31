@@ -66,10 +66,4 @@ public class SendFileHandler implements Handler {
 		log.error(t.getMessage() + "|" + session.getSessionId(), t);
 	}
 
-	@Override
-	public void writeComplete(Session session) {
-		log.debug("written size: {}", session.getWrittenBytes());
-		log.debug("written time: {}", session.getLastWrittenTime());
-	}
-
 }

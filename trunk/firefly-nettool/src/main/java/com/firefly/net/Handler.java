@@ -5,5 +5,4 @@ public interface Handler {
 	void sessionClosed(Session session);
 	void messageRecieved(Session session, Object message);
 	void exceptionCaught(Session session, Throwable t);
-	void writeComplete(Session session);
 }

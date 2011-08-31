@@ -310,7 +310,6 @@ public final class TcpWorker implements Worker {
         log.debug("write complete size: {}", writtenBytes);
         session.setWrittenBytes(writtenBytes);
         session.setLastWrittenTime(timeProvider.currentTimeMillis());
-        eventManager.executeWriteComplete(session);
         
         log.debug("1> session is open: {}", open);
         log.debug("is in write loop: {}", session.isInWriteNowLoop());
