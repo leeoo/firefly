@@ -22,7 +22,7 @@ public class SafeSimpleDateFormat {
 			throw new IllegalArgumentException("SimpleDateFormat argument is null");
 		this.threadLocal = new ThreadLocal<SimpleDateFormat>() {
 			protected SimpleDateFormat initialValue() {
-				return sdf;
+				return (SimpleDateFormat)sdf.clone();
 			}
 		};
 	}
