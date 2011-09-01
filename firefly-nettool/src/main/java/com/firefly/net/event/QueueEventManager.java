@@ -10,6 +10,11 @@ import com.firefly.net.Session;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
 
+/**
+ * 队列事件管理，用于实现服务端pipeline，保证按照请求的顺序发出响应
+ * @author qiupengtao
+ *
+ */
 public class QueueEventManager implements EventManager {
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	private Config config;
