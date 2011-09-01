@@ -59,6 +59,7 @@ public class SendFileHandler implements Handler {
 			log.debug("recive: " + str);
 			session.encode(message);
 		}
+		log.debug("r {}  {} | w {} {}", session.getReadBytes(), str, session.getWrittenBytes(), message);
 	}
 
 	@Override
