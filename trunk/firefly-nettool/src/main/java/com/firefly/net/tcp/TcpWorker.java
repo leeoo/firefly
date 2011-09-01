@@ -308,6 +308,7 @@ public final class TcpWorker implements Worker {
         }
 
         session.setLastWrittenTime(timeProvider.currentTimeMillis());
+        session.setWrittenBytes(writtenBytes);
         log.debug("write complete size: {}", writtenBytes);
         log.debug("1> session is open: {}", open);
         log.debug("is in write loop: {}", session.isInWriteNowLoop());
@@ -378,12 +379,11 @@ public final class TcpWorker implements Worker {
 
         if (readBytes > 0) {
             bb.flip();
-
             receiveBufferPool.release(bb);
-
+            
             // Update the predictor.
             predictor.previousReceiveBufferSize(readBytes);
-
+            session.setReadBytes(readBytes);
             // Decode
             config.getDecoder().decode(bb, session);
         } else {

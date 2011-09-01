@@ -28,7 +28,7 @@ public class TcpClient implements Client {
         config.setEncoder(encoder);
         config.setHandler(handler);
         config.setHandleThreads(-1);
-        config.setWorkerThreads(Runtime.getRuntime().availableProcessors() / 2);
+        config.setWorkerThreads(Runtime.getRuntime().availableProcessors());
     }
 
     private synchronized Client init() {
