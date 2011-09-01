@@ -26,7 +26,7 @@ public final class TcpSession implements Session {
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	private final int sessionId;
 	private final SelectionKey selectionKey;
-	private long openTime, writtenBytes, lastWrittenTime;
+	private long openTime, lastReadTime, lastWrittenTime;
 	private final TcpWorker worker;
 	private final Config config;
 	private final Map<String, Object> map = new HashMap<String, Object>();
@@ -382,14 +382,7 @@ public final class TcpSession implements Session {
 		return sb.toString();
 	}
 
-	public long getWrittenBytes() {
-		return writtenBytes;
-	}
-
-	void setWrittenBytes(long writtenBytes) {
-		this.writtenBytes = writtenBytes;
-	}
-
+	@Override
 	public long getLastWrittenTime() {
 		return lastWrittenTime;
 	}
@@ -397,8 +390,19 @@ public final class TcpSession implements Session {
 	void setLastWrittenTime(long lastWrittenTime) {
 		this.lastWrittenTime = lastWrittenTime;
 	}
-	
-	
-	
-	
+
+	@Override
+	public long getLastReadTime() {
+		return lastReadTime;
+	}
+
+	void setLastReadTime(long lastReadTime) {
+		this.lastReadTime = lastReadTime;
+	}
+
+	@Override
+	public long getLastActiveTime() {
+		return Math.max(lastReadTime, lastWrittenTime);
+	}
+
 }

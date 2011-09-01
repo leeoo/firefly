@@ -27,9 +27,11 @@ public interface Session {
 
 	long getOpenTime();
 	
-	long getWrittenBytes();
+	long getLastReadTime();
 	
 	long getLastWrittenTime();
+	
+	long getLastActiveTime();
 
 	void close(boolean immediately);
 
