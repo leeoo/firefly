@@ -131,8 +131,7 @@ public class BufferedRandomAccessFile extends RandomAccessFile {
 
 	public boolean write(byte bw, long pos) throws IOException {
 
-		if ((pos >= bufstartpos) && (pos <= bufendpos)) { // write pos
-															// in buf
+		if ((pos >= bufstartpos) && (pos <= bufendpos)) {
 			buf[(int) (pos - bufstartpos)] = bw;
 			bufdirty = true;
 
@@ -143,13 +142,8 @@ public class BufferedRandomAccessFile extends RandomAccessFile {
 		} else { // write pos not in buf
 			seek(pos);
 
-			if ((pos >= 0) && (pos <= fileendpos) && (fileendpos != 0)) { // write
-																			// pos
-																			// is
-																			// modify
-																			// file
+			if ((pos >= 0) && (pos <= fileendpos) && (fileendpos != 0)) {
 				buf[(int) (pos - bufstartpos)] = bw;
-
 			} else if (((pos == 0) && (fileendpos == 0))
 					|| (pos == fileendpos + 1)) { // write pos is append pos
 				buf[0] = bw;
@@ -171,10 +165,7 @@ public class BufferedRandomAccessFile extends RandomAccessFile {
 		if (writeendpos <= bufendpos) { // b[] in cur buf
 			System.arraycopy(b, off, buf, (int) (curpos - bufstartpos), len);
 			bufdirty = true;
-			bufusedsize = (int) (writeendpos - bufstartpos + 1);// (int)(this.curpos
-																// -
-																// this.bufstartpos
-																// + len - 1);
+			bufusedsize = (int) (writeendpos - bufstartpos + 1);
 		} else { // b[] not in cur buf
 			super.seek(curpos);
 			super.write(b, off, len);
@@ -190,11 +181,9 @@ public class BufferedRandomAccessFile extends RandomAccessFile {
 
 		long readendpos = curpos + len - 1;
 
-		if (readendpos <= bufendpos && readendpos <= fileendpos) { // read in
-																	// buf
+		if (readendpos <= bufendpos && readendpos <= fileendpos) {
 			System.arraycopy(buf, (int) (curpos - bufstartpos), b, off, len);
 		} else { // read b[] size > buf[]
-
 			if (readendpos > fileendpos) { // read b[] part in file
 				len = (int) (this.length() - curpos + 1);
 			}
@@ -219,15 +208,7 @@ public class BufferedRandomAccessFile extends RandomAccessFile {
 
 		if ((pos < bufstartpos) || (pos > bufendpos)) { // seek pos not in buf
 			this.flushbuf();
-
-			if ((pos >= 0) && (pos <= fileendpos) && (fileendpos != 0)) { // seek
-																			// pos
-																			// in
-																			// file
-																			// (file
-																			// length
-																			// >
-																			// 0)
+			if ((pos >= 0) && (pos <= fileendpos) && (fileendpos != 0)) {
 				bufstartpos = pos & bufmask;
 				bufusedsize = fillbuf();
 
