@@ -6,6 +6,11 @@ import com.firefly.net.Session;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
 
+/**
+ * 使用worker线程执行事件，用于客户端操作
+ * @author qiupengtao
+ *
+ */
 public class CurrentThreadEventManager implements EventManager {
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	private Config config;

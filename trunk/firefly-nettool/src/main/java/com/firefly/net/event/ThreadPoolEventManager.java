@@ -9,6 +9,11 @@ import com.firefly.net.Session;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
 
+/**
+ * 线程池事件管理，无法保证响应的顺序，多用于服务端短连接
+ * @author qiupengtao
+ *
+ */
 public class ThreadPoolEventManager implements EventManager {
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	private ExecutorService executorService;
