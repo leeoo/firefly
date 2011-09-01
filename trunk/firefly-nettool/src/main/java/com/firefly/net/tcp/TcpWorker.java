@@ -307,10 +307,8 @@ public final class TcpWorker implements Worker {
             }
         }
 
-        log.debug("write complete size: {}", writtenBytes);
-        session.setWrittenBytes(writtenBytes);
         session.setLastWrittenTime(timeProvider.currentTimeMillis());
-        
+        log.debug("write complete size: {}", writtenBytes);
         log.debug("1> session is open: {}", open);
         log.debug("is in write loop: {}", session.isInWriteNowLoop());
     }
@@ -392,6 +390,7 @@ public final class TcpWorker implements Worker {
             receiveBufferPool.release(bb);
         }
 
+        session.setLastReadTime(timeProvider.currentTimeMillis());
         if (ret < 0 || failure) {
             log.debug("read failure session close");
             k.cancel();
