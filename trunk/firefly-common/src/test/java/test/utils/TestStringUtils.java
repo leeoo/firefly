@@ -1,5 +1,6 @@
 package test.utils;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,6 +11,73 @@ import com.firefly.utils.StringUtils;
 import static org.hamcrest.Matchers.*;
 
 public class TestStringUtils {
+	
+	@Test
+	public void testSplit() {
+		String byteRangeSet = "500-";
+		String[] byteRangeSets = StringUtils.split(byteRangeSet, ',');
+		System.out.println(Arrays.toString(byteRangeSets));
+		Assert.assertThat(byteRangeSets.length, is(1));
+		
+		byteRangeSet = "500-,";
+		byteRangeSets = StringUtils.split(byteRangeSet, ',');
+		System.out.println(Arrays.toString(byteRangeSets));
+		Assert.assertThat(byteRangeSets.length, is(1));
+		
+		byteRangeSet = ",500-,";
+		byteRangeSets = StringUtils.split(byteRangeSet, ',');
+		System.out.println(Arrays.toString(byteRangeSets));
+		Assert.assertThat(byteRangeSets.length, is(1));
+		
+		byteRangeSet = ",500-,";
+		byteRangeSets = StringUtils.split(byteRangeSet, ",");
+		System.out.println(Arrays.toString(byteRangeSets));
+		Assert.assertThat(byteRangeSets.length, is(1));
+		
+		byteRangeSet = ",500-";
+		byteRangeSets = StringUtils.split(byteRangeSet, ',');
+		System.out.println(Arrays.toString(byteRangeSets));
+		Assert.assertThat(byteRangeSets.length, is(1));
+		
+		byteRangeSet = "500-700,601-999,";
+		byteRangeSets = StringUtils.split(byteRangeSet, ',');
+		Assert.assertThat(byteRangeSets.length, is(2));
+		
+		byteRangeSet = "500-700,,601-999,";
+		byteRangeSets = StringUtils.split(byteRangeSet, ',');
+		Assert.assertThat(byteRangeSets.length, is(2));
+		
+		String tmp = "hello#$world#%test#$eee";
+		String[] tmps = StringUtils.splitByWholeSeparator(tmp, "#$");
+		System.out.println(Arrays.toString(tmps));
+		Assert.assertThat(tmps.length, is(3));
+		
+		tmp = "hello#$";
+		tmps = StringUtils.splitByWholeSeparator(tmp, "#$");
+		System.out.println(Arrays.toString(tmps));
+		Assert.assertThat(tmps.length, is(1));
+		
+		tmp = "#$hello#$";
+		tmps = StringUtils.splitByWholeSeparator(tmp, "#$");
+		System.out.println(Arrays.toString(tmps));
+		Assert.assertThat(tmps.length, is(1));
+		
+		tmp = "#$hello";
+		tmps = StringUtils.splitByWholeSeparator(tmp, "#$");
+		System.out.println(Arrays.toString(tmps));
+		Assert.assertThat(tmps.length, is(1));
+		
+		tmp = "#$hello#$world#$";
+		tmps = StringUtils.splitByWholeSeparator(tmp, "#$");
+		System.out.println(Arrays.toString(tmps));
+		Assert.assertThat(tmps.length, is(2));
+		
+		tmp = "#$hello#$#$world#$";
+		tmps = StringUtils.splitByWholeSeparator(tmp, "#$");
+		System.out.println(Arrays.toString(tmps));
+		Assert.assertThat(tmps.length, is(2));
+		
+	}
 
     @Test
     public void testHasText() {
