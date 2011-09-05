@@ -6,6 +6,7 @@ import java.util.Map;
 
 public class StringUtils {
 
+	public static final String EMPTY = "";
 	public static final String[] EMPTY_STRING_ARRAY = new String[0];
 
 	// Splitting
@@ -266,7 +267,7 @@ public class StringUtils {
 		if (match || (preserveAllTokens && lastMatch)) {
 			list.add(str.substring(start, i));
 		}
-		return (String[]) list.toArray(new String[list.size()]);
+		return (String[]) list.toArray(EMPTY_STRING_ARRAY);
 	}
 
 	/**
@@ -319,6 +320,149 @@ public class StringUtils {
 		}
 		return list.toArray(EMPTY_STRING_ARRAY);
 	}
+	
+	 /**
+     * <p>Splits the provided text into an array, separator string specified.</p>
+     *
+     * <p>The separator(s) will not be included in the returned String array.
+     * Adjacent separators are treated as one separator.</p>
+     *
+     * <p>A <code>null</code> input String returns <code>null</code>.
+     * A <code>null</code> separator splits on whitespace.</p>
+     *
+     * <pre>
+     * StringUtils.splitByWholeSeparator(null, *)               = null
+     * StringUtils.splitByWholeSeparator("", *)                 = []
+     * StringUtils.splitByWholeSeparator("ab de fg", null)      = ["ab", "de", "fg"]
+     * StringUtils.splitByWholeSeparator("ab   de fg", null)    = ["ab", "de", "fg"]
+     * StringUtils.splitByWholeSeparator("ab:cd:ef", ":")       = ["ab", "cd", "ef"]
+     * StringUtils.splitByWholeSeparator("ab-!-cd-!-ef", "-!-") = ["ab", "cd", "ef"]
+     * </pre>
+     *
+     * @param str  the String to parse, may be null
+     * @param separator  String containing the String to be used as a delimiter,
+     *  <code>null</code> splits on whitespace
+     * @return an array of parsed Strings, <code>null</code> if null String was input
+     */
+    public static String[] splitByWholeSeparator(String str, String separator) {
+        return splitByWholeSeparatorWorker( str, separator, -1, false ) ;
+    }
+    
+    /**
+     * <p>Splits the provided text into an array, separator string specified.
+     * Returns a maximum of <code>max</code> substrings.</p>
+     *
+     * <p>The separator(s) will not be included in the returned String array.
+     * Adjacent separators are treated as one separator.</p>
+     *
+     * <p>A <code>null</code> input String returns <code>null</code>.
+     * A <code>null</code> separator splits on whitespace.</p>
+     *
+     * <pre>
+     * StringUtils.splitByWholeSeparator(null, *, *)               = null
+     * StringUtils.splitByWholeSeparator("", *, *)                 = []
+     * StringUtils.splitByWholeSeparator("ab de fg", null, 0)      = ["ab", "de", "fg"]
+     * StringUtils.splitByWholeSeparator("ab   de fg", null, 0)    = ["ab", "de", "fg"]
+     * StringUtils.splitByWholeSeparator("ab:cd:ef", ":", 2)       = ["ab", "cd:ef"]
+     * StringUtils.splitByWholeSeparator("ab-!-cd-!-ef", "-!-", 5) = ["ab", "cd", "ef"]
+     * StringUtils.splitByWholeSeparator("ab-!-cd-!-ef", "-!-", 2) = ["ab", "cd-!-ef"]
+     * </pre>
+     *
+     * @param str  the String to parse, may be null
+     * @param separator  String containing the String to be used as a delimiter,
+     *  <code>null</code> splits on whitespace
+     * @param max  the maximum number of elements to include in the returned
+     *  array. A zero or negative value implies no limit.
+     * @return an array of parsed Strings, <code>null</code> if null String was input
+     */
+    public static String[] splitByWholeSeparator( String str, String separator, int max ) {
+        return splitByWholeSeparatorWorker(str, separator, max, false);
+    }
+    
+    /**
+     * Performs the logic for the <code>splitByWholeSeparatorPreserveAllTokens</code> methods.
+     *
+     * @param str  the String to parse, may be <code>null</code>
+     * @param separator  String containing the String to be used as a delimiter,
+     *  <code>null</code> splits on whitespace
+     * @param max  the maximum number of elements to include in the returned
+     *  array. A zero or negative value implies no limit.
+     * @param preserveAllTokens if <code>true</code>, adjacent separators are
+     * treated as empty token separators; if <code>false</code>, adjacent
+     * separators are treated as one separator.
+     * @return an array of parsed Strings, <code>null</code> if null String input
+     * @since 2.4
+     */
+    private static String[] splitByWholeSeparatorWorker(String str, String separator, int max,
+                                                        boolean preserveAllTokens)
+    {
+        if (str == null) {
+            return null;
+        }
+
+        int len = str.length();
+
+        if (len == 0) {
+            return EMPTY_STRING_ARRAY;
+        }
+
+        if ((separator == null) || (EMPTY.equals(separator))) {
+            // Split on whitespace.
+            return splitWorker(str, null, max, preserveAllTokens);
+        }
+
+        int separatorLength = separator.length();
+
+        ArrayList<String> substrings = new ArrayList<String>();
+        int numberOfSubstrings = 0;
+        int beg = 0;
+        int end = 0;
+        while (end < len) {
+            end = str.indexOf(separator, beg);
+
+            if (end > -1) {
+                if (end > beg) {
+                    numberOfSubstrings += 1;
+
+                    if (numberOfSubstrings == max) {
+                        end = len;
+                        substrings.add(str.substring(beg));
+                    } else {
+                        // The following is OK, because String.substring( beg, end ) excludes
+                        // the character at the position 'end'.
+//                    	System.out.println("sub " + beg + "|" + end +"|" + str.substring(beg, end));
+                        substrings.add(str.substring(beg, end));
+
+                        // Set the starting point for the next search.
+                        // The following is equivalent to beg = end + (separatorLength - 1) + 1,
+                        // which is the right calculation:
+                        beg = end + separatorLength;
+                    }
+                } else {
+                    // We found a consecutive occurrence of the separator, so skip it.
+                    if (preserveAllTokens) {
+                        numberOfSubstrings += 1;
+                        if (numberOfSubstrings == max) {
+                            end = len;
+                            substrings.add(str.substring(beg));
+                        } else {
+                            substrings.add(EMPTY);
+                        }
+                    }
+                    beg = end + separatorLength;
+                }
+            } else {
+                // String.substring( beg ) goes from 'beg' to the end of the String.
+//            	System.out.println("sub~~ " + beg + "|" + end +"|" + str.substring(beg));
+            	String t = str.substring(beg);
+            	if(!t.equals(EMPTY))
+            		substrings.add(str.substring(beg));
+                end = len;
+            }
+        }
+
+        return substrings.toArray(EMPTY_STRING_ARRAY);
+    }
 
 	public static boolean hasText(String str) {
 		return hasText((CharSequence) str);
