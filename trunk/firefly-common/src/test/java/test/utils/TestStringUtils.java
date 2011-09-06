@@ -161,5 +161,8 @@ public class TestStringUtils {
 
 		ret2 = StringUtils.replace(str2, "foo", "bar", "foo2");
 		System.out.println(ret2);
+		
+		String r = "-500";
+		System.out.println(StringUtils.split(r, '-')[0] + "|" + StringUtils.split(r, '-').length);
 	}
 }
