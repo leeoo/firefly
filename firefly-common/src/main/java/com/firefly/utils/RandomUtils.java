@@ -23,7 +23,12 @@ abstract public class RandomUtils {
 		return -1;
 	}
 
-	public static String getRandomString(int length) { // length表示生成字符串的长度
+	/**
+	 * 生成随机字符串
+	 * @param length 生成字符串的长度
+	 * @return 指定长度的随机字符串
+	 */
+	public static String getRandomString(int length) {
 		String base = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < length; i++) {
