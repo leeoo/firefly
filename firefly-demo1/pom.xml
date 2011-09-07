@@ -240,11 +240,11 @@
 			<artifactId>h2</artifactId>
 			<version>${h2.version}</version>
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 			<artifactId>je</artifactId>
 			<groupId>com.sleepycat</groupId>
 			<version>4.1.10</version>
-		</dependency>
+		</dependency> -->
     </dependencies>
 
     <properties>
@@ -295,12 +295,12 @@
         	<name>Snapshots</name>
 	    	<url>http://localhost:7777/nexus-webapp/content/groups/public</url>
         </repository>
-        <repository>
+        <!-- <repository>
 			<id>oracleReleases</id>
 			<name>Oracle Released Java Packages</name>
 			<url>http://download.oracle.com/maven</url>
 			<layout>default</layout>
-	    </repository>
+	    </repository> -->
     </repositories>
     <pluginRepositories>
 
