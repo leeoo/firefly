@@ -6,7 +6,6 @@ public interface JsonStringSymbol {
 	char ARRAY_SUF = ']';
 	char OBJ_PRE = '{';
 	char OBJ_SUF = '}';
-	String NULL = "null";
 	char SEPARATOR = ',';
 	char OBJ_SEPARATOR = ':';
 }

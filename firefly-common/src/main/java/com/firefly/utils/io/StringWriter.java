@@ -3,20 +3,30 @@ package com.firefly.utils.io;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.lang.ref.SoftReference;
 
 public class StringWriter extends Writer {
 
 	protected char buf[];
 	protected int count;
-	private final static ThreadLocal<char[]> bufLocal = new ThreadLocal<char[]>();
+	protected final static ThreadLocal<SoftReference<char[]>> bufLocal = new ThreadLocal<SoftReference<char[]>>();
+	public static final char[] NULL = "null".toCharArray();
+	public static final char[] MIN_INT_VALUE = "-2147483648".toCharArray();
+	public static final char[] MIN_LONG_VALUE = "-9223372036854775808"
+			.toCharArray();
+	public static final char[] TRUE_VALUE = "true".toCharArray();
+	public static final char[] FALSE_VALUE = "false".toCharArray();
 
 	public StringWriter() {
-		buf = bufLocal.get(); // new char[1024];
-		if (buf == null) {
-			buf = new char[1024];
-		} else {
+		SoftReference<char[]> ref = bufLocal.get();
+
+		if (ref != null) {
+			buf = ref.get();
 			bufLocal.set(null);
 		}
+
+		if (buf == null)
+			buf = new char[1024];
 	}
 
 	public StringWriter(int initialSize) {
@@ -38,7 +48,12 @@ public class StringWriter extends Writer {
 	}
 
 	@Override
-	public void write(char c[], int off, int len) {
+	public void write(char[] c) {
+		write(c, 0, c.length);
+	}
+
+	@Override
+	public void write(char[] c, int off, int len) {
 		if (off < 0 || off > c.length || len < 0 || off + len > c.length
 				|| off + len < 0) {
 			throw new IndexOutOfBoundsException();
@@ -52,7 +67,11 @@ public class StringWriter extends Writer {
 		}
 		System.arraycopy(c, off, buf, count, len);
 		count = newcount;
+	}
 
+	@Override
+	public void write(String str) {
+		write(str, 0, str.length());
 	}
 
 	@Override
@@ -67,16 +86,15 @@ public class StringWriter extends Writer {
 
 	@Override
 	public StringWriter append(CharSequence csq) {
-		String s = (csq == null ? "null" : csq.toString());
-		write(s, 0, s.length());
+		String str = csq.toString();
+		write(str, 0, str.length());
 		return this;
 	}
 
 	@Override
 	public StringWriter append(CharSequence csq, int start, int end) {
-		String s = (csq == null ? "null" : csq).subSequence(start, end)
-				.toString();
-		write(s, 0, s.length());
+		String str = csq.subSequence(start, end).toString();
+		write(str, 0, str.length());
 		return this;
 	}
 
@@ -97,7 +115,68 @@ public class StringWriter extends Writer {
 
 	@Override
 	public void close() {
-		bufLocal.set(buf);
+		bufLocal.set(new SoftReference<char[]>(buf));
+	}
+
+	public void writeNull() {
+		write(NULL);
+	}
+
+	public void writeBoolean(boolean b) {
+		if (b)
+			write(TRUE_VALUE);
+		else
+			write(FALSE_VALUE);
+	}
+
+	public void write(char c) {
+		int newcount = count + 1;
+		if (newcount > buf.length) {
+			expandCapacity(newcount);
+		}
+		buf[count] = c;
+		count = newcount;
+	}
+
+	public void writeInt(int i) {
+		if (i == Integer.MIN_VALUE) {
+			write(MIN_INT_VALUE);
+			return;
+		}
+		int size = (i < 0) ? IOUtils.stringSize(-i) + 1 : IOUtils.stringSize(i);
+		int newcount = count + size;
+
+		if (newcount > buf.length) {
+			expandCapacity(newcount);
+		}
+
+		IOUtils.getChars(i, newcount, buf);
+		count = newcount;
+	}
+
+	public void writeShort(short i) {
+		writeInt((int) i);
+	}
+
+	public void writeByte(byte i) {
+		writeInt((int) i);
+	}
+
+	public void writeLong(long i) {
+		if (i == Long.MIN_VALUE) {
+			write(MIN_LONG_VALUE);
+			return;
+		}
+
+		int size = (i < 0) ? IOUtils.stringSize(-i) + 1 : IOUtils.stringSize(i);
+
+		int newcount = count + size;
+		if (newcount > buf.length) {
+			expandCapacity(newcount);
+		}
+
+		IOUtils.getChars(i, newcount, buf);
+		count = newcount;
 	}
 
 	public void writeTo(Writer out) throws IOException {
@@ -124,7 +203,8 @@ public class StringWriter extends Writer {
 	}
 
 	private void expandCapacity(int minimumCapacity) {
-		int newCapacity = (buf.length + 1) * 2;
+		int newCapacity = (buf.length * 3) / 2 + 1;
+
 		if (newCapacity < minimumCapacity) {
 			newCapacity = minimumCapacity;
 		}
@@ -132,6 +212,5 @@ public class StringWriter extends Writer {
 		System.arraycopy(buf, 0, newValue, 0, count);
 		buf = newValue;
 	}
-
 
 }

@@ -1,67 +1,109 @@
-package com.firefly.utils.json;
+package com.firefly.utils.json.serializer;
 
 import static com.firefly.utils.json.JsonStringSymbol.ARRAY_PRE;
 import static com.firefly.utils.json.JsonStringSymbol.ARRAY_SUF;
-import static com.firefly.utils.json.JsonStringSymbol.NULL;
 import static com.firefly.utils.json.JsonStringSymbol.OBJ_PRE;
 import static com.firefly.utils.json.JsonStringSymbol.OBJ_SEPARATOR;
 import static com.firefly.utils.json.JsonStringSymbol.OBJ_SUF;
-import static com.firefly.utils.json.JsonStringSymbol.QUOTE;
 import static com.firefly.utils.json.JsonStringSymbol.SEPARATOR;
+import static com.firefly.utils.json.JsonStringSymbol.QUOTE;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.IdentityHashMap;
 
+import com.firefly.utils.StringUtils;
+import com.firefly.utils.io.StringWriter;
+import com.firefly.utils.json.ClassCache;
+import com.firefly.utils.json.Serializer;
 import com.firefly.utils.json.support.JsonClassCache;
 import com.firefly.utils.json.support.JsonObjMetaInfo;
-import com.firefly.utils.json.support.TypeVerify;
-import com.firefly.utils.time.SafeSimpleDateFormat;
 
-class JsonSerializer {
-	private Writer writer;
-	private Set<Object> existence; // 防止循环引用
-	private ClassCache classCache;
+public class StateMachine {
+	private StringWriter writer;
+	private IdentityHashMap<Object, Object> existence; // 防止循环引用
+	private static final ClassCache classCache = JsonClassCache.getInstance();
 	private static final JsonObjMetaInfo[] JOM = new JsonObjMetaInfo[0];
+	private static final IdentityHashMap<Class<?>, Serializer> map = new IdentityHashMap<Class<?>, Serializer>();
 
-	public JsonSerializer(Writer writer) {
-		this.writer = writer;
-		existence = new HashSet<Object>();
-		classCache = JsonClassCache.getInstance();
+	static {
+		map.put(long.class, new LongSerializer());
+		map.put(int.class, new IntSerializer());
+		map.put(char.class, new CharacterSerializer());
+		map.put(short.class, new ShortSerializer());
+		map.put(byte.class, new ByteSerializer());
+		map.put(boolean.class, new BoolSerializer());
+		map.put(String.class, new StringSerializer());
+		map.put(Date.class, new DateSerializer());
+		map.put(double.class, new StringValueSerializer());
+
+		map.put(Long.class, map.get(long.class));
+		map.put(Integer.class, map.get(int.class));
+		map.put(Character.class, map.get(char.class));
+		map.put(Short.class, map.get(short.class));
+		map.put(Byte.class, map.get(byte.class));
+		map.put(Boolean.class, map.get(boolean.class));
+
+		map.put(StringBuilder.class, map.get(String.class));
+		map.put(StringBuffer.class, map.get(String.class));
+
+		map.put(java.sql.Date.class, map.get(Date.class));
+		map.put(java.sql.Time.class, map.get(Date.class));
+		map.put(java.sql.Timestamp.class, map.get(Date.class));
+
+		map.put(float.class, map.get(double.class));
+		map.put(AtomicInteger.class, map.get(double.class));
+		map.put(AtomicLong.class, map.get(double.class));
+		map.put(BigDecimal.class, map.get(double.class));
+		map.put(BigInteger.class, map.get(double.class));
+		map.put(AtomicBoolean.class, map.get(double.class));
+		map.put(Enum.class, map.get(double.class));
+
 	}
 
-	JsonSerializer toJson(Object obj) throws IOException {
+	public StateMachine(StringWriter writer) {
+		this.writer = writer;
+		existence = new IdentityHashMap<Object, Object>();
+	}
+
+	public static Serializer getSerializer(Class<?> clazz) {
+		return map.get(clazz);
+	}
+
+	public StateMachine toJson(Object obj) throws IOException {
 		if (obj == null) {
-			writer.append(NULL);
+			writer.writeNull();
 			return this;
 		}
 		Class<?> clazz = obj.getClass();
-		if (TypeVerify.isNumberOrBool(clazz)) { // 数字，布尔类型
-			writer.append(obj.toString());
-		} else if (clazz.isEnum()) { // 枚举类型
-			string2Json(((Enum<?>) obj).name());
-		} else if (TypeVerify.isString(clazz)) { // 字符串或字符类型
-			string2Json(obj.toString());
-		} else if (TypeVerify.isDateLike(clazz)) {
-			string2Json(SafeSimpleDateFormat.defaultDateFormat
-					.format((Date) obj));
-		} else if (existence.contains(obj)) { // 防止循环引用，此处会影响一些性能
-			writer.append(NULL);
-		} else {
-			existence.add(obj);
+		Serializer serializer = getSerializer(clazz);
+		if (serializer != null) {
+			serializer.convertTo(writer, obj);
+		} 
+		
+		else if (existence.get(obj) != null) { // 防止循环引用，此处会影响一些性能
+			writer.writeNull();
+		} 
+		
+		else {
+			existence.put(obj, StringUtils.EMPTY);
 			if (obj instanceof Map<?, ?>) {
 				map2Json((Map<?, ?>) obj);
 			} else if (obj instanceof Collection<?>) {
@@ -73,6 +115,7 @@ class JsonSerializer {
 			}
 			existence.remove(obj);
 		}
+
 		return this;
 	}
 
@@ -183,7 +226,7 @@ class JsonSerializer {
 		writer.append(OBJ_SUF);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	private void map2Json(Map map) throws IOException {
 		if (map == null)
 			return;
@@ -191,7 +234,7 @@ class JsonSerializer {
 		Set<Entry<?, ?>> entrySet = map.entrySet();
 		for (Iterator<Entry<?, ?>> it = entrySet.iterator(); it.hasNext();) {
 			Entry<?, ?> entry = it.next();
-			String name = entry.getKey() == null ? NULL : entry.getKey()
+			String name = entry.getKey() == null ? "null" : entry.getKey()
 					.toString();
 			Object val = entry.getValue();
 			appendPair(name, val);
@@ -199,43 +242,6 @@ class JsonSerializer {
 				writer.append(SEPARATOR);
 		}
 		writer.append(OBJ_SUF);
-	}
-
-	private void string2Json(String s) throws IOException {
-		if (s == null)
-			writer.append(NULL);
-		else {
-			char[] cs = s.toCharArray();
-			writer.append(QUOTE);
-			for (char ch : cs) {
-				switch (ch) {
-				case '"':
-					writer.append("\\\"");
-					break;
-				case '\b':
-					writer.append("\\b");
-					break;
-				case '\n':
-					writer.append("\\n");
-					break;
-				case '\t':
-					writer.append("\\t");
-					break;
-				case '\f':
-					writer.append("\\f");
-					break;
-				case '\r':
-					writer.append("\\r");
-					break;
-				case '\\':
-					writer.append("\\\\");
-					break;
-				default:
-					writer.append(ch);
-				}
-			}
-			writer.append(QUOTE);
-		}
 	}
 
 	private void collection2Json(Collection<?> obj) throws IOException {
@@ -263,8 +269,7 @@ class JsonSerializer {
 	}
 
 	private void appendPair(String name, Object val) throws IOException {
-		string2Json(name);
-		writer.append(OBJ_SEPARATOR);
+		writer.append(QUOTE).append(name).append(QUOTE).append(OBJ_SEPARATOR);
 		toJson(val);
 	}
 
