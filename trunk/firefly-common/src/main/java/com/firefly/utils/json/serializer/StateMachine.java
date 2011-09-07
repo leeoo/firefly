@@ -68,7 +68,9 @@ public class StateMachine {
 		map.put(java.sql.Time.class, map.get(Date.class));
 		map.put(java.sql.Timestamp.class, map.get(Date.class));
 
+		map.put(Double.class, map.get(double.class));
 		map.put(float.class, map.get(double.class));
+		map.put(Float.class, map.get(double.class));
 		map.put(AtomicInteger.class, map.get(double.class));
 		map.put(AtomicLong.class, map.get(double.class));
 		map.put(BigDecimal.class, map.get(double.class));
