@@ -2,8 +2,8 @@ package com.firefly.utils.json;
 
 import java.io.IOException;
 
-import com.firefly.utils.io.StringWriter;
+import com.firefly.utils.json.support.JsonStringWriter;
 
 public interface Serializer {
-	void convertTo(StringWriter writer, Object obj) throws IOException;
+	void convertTo(JsonStringWriter writer, Object obj) throws IOException;
 }
