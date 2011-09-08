@@ -9,7 +9,6 @@ public class JsonClassCache implements ClassCache {
 
 	private JsonClassCache() {
 		map = new ConcurrentHashMap<Class<?>, JsonObjMetaInfo[]>();
-//		map = new HashMap<Class<?>, JsonObjMetaInfo[]>();
 	}
 
 	private static class Holder {
@@ -20,8 +19,8 @@ public class JsonClassCache implements ClassCache {
 		return Holder.instance;
 	}
 
-	public void put(Class<?> clazz, JsonObjMetaInfo[] jsonObjMetaInfo) {
-		map.put(clazz, jsonObjMetaInfo);
+	public void put(Class<?> clazz, JsonObjMetaInfo[] list) {
+		map.put(clazz, list);
 	}
 
 	public JsonObjMetaInfo[] get(Class<?> clazz) {

@@ -115,6 +115,7 @@ public class StringWriter extends Writer {
 
 	@Override
 	public void close() {
+		reset();
 		bufLocal.set(new SoftReference<char[]>(buf));
 	}
 
