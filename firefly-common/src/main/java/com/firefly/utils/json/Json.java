@@ -2,20 +2,21 @@ package com.firefly.utils.json;
 
 import java.io.IOException;
 
-import com.firefly.utils.io.StringWriter;
 import com.firefly.utils.json.serializer.StateMachine;
+import com.firefly.utils.json.support.JsonStringWriter;
 
 
 public abstract class Json {
 	public static String toJson(Object obj) {
 		String ret = null;
-		StringWriter stringWriter = new StringWriter();
+		JsonStringWriter writer = new JsonStringWriter();
 		try {
-			ret = new StateMachine(stringWriter).toJson(obj).toString();
+			StateMachine.toJson(obj, writer);
+			ret = writer.toString();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			stringWriter.close();
+			writer.close();
 		}
 		return ret;
 	}

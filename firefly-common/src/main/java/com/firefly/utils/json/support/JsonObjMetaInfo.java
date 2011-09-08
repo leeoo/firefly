@@ -3,6 +3,9 @@ package com.firefly.utils.json.support;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import static com.firefly.utils.json.JsonStringSymbol.QUOTE;
+import static com.firefly.utils.json.JsonStringSymbol.OBJ_SEPARATOR;
+
 public class JsonObjMetaInfo {
 	private char[] propertyName;
 	private Method method;
@@ -12,7 +15,7 @@ public class JsonObjMetaInfo {
 	}
 
 	public void setPropertyName(String propertyName) {
-		this.propertyName = propertyName.toCharArray();
+		this.propertyName = (QUOTE + propertyName + QUOTE + OBJ_SEPARATOR).toCharArray();
 	}
 
 	public Method getMethod() {
@@ -22,7 +25,7 @@ public class JsonObjMetaInfo {
 	public void setMethod(Method method) {
 		this.method = method;
 	}
-	
+
 	public Object invoke(Object obj) {
 		Object ret = null;
 		try {
