@@ -20,6 +20,7 @@ abstract public class StateMachine {
 	private static final Serializer MAP = new MapSerializer();
 	private static final Serializer COLLECTION = new CollectionSerializer();
 	private static final Serializer ARRAY = new ArraySerializer();
+	private static final Serializer ENUM = new EnumSerializer();
 
 	static {
 		map.put(long.class, new LongSerializer());
@@ -54,7 +55,6 @@ abstract public class StateMachine {
 		map.put(BigDecimal.class, map.get(double.class));
 		map.put(BigInteger.class, map.get(double.class));
 		map.put(AtomicBoolean.class, map.get(double.class));
-		map.put(Enum.class, map.get(double.class));
 	}
 
 	public static Serializer getSimpleSerializer(Class<?> clazz) {
@@ -68,6 +68,8 @@ abstract public class StateMachine {
 			return COLLECTION;
 		} else if (clazz.isArray()) {
 			return ARRAY;
+		} else if (clazz.isEnum()){
+			return ENUM;
 		} else {
 			return OBJECT;
 		}

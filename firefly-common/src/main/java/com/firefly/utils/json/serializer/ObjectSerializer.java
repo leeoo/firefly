@@ -66,6 +66,7 @@ public class ObjectSerializer implements Serializer {
 				}
 				
 				Field field = null;
+//				System.out.println(clazz.getName() + "|" + propertyName);
 				try {
 					field = clazz.getDeclaredField(propertyName);
 				} catch (SecurityException e) {
