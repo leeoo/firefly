@@ -73,15 +73,6 @@ abstract public class StateMachine {
 		}
 	}
 
-	// public static Serializer getSerializer(Object obj, Class<?> clazz) {
-	// Serializer serializer = getSimpleSerializer(clazz);
-	// if (serializer != null) {
-	// return serializer;
-	// } else {
-	// return getObjectSerializer(obj, clazz);
-	// }
-	// }
-
 	public static void toJson(Object obj, JsonStringWriter writer)
 			throws IOException {
 		if (obj == null) {
@@ -98,9 +89,9 @@ abstract public class StateMachine {
 				writer.writeNull();
 				return;
 			}
-			writer.addRef(obj);
+			writer.pushRef(obj);
 			getObjectSerializer(obj, clazz).convertTo(writer, obj);
-			writer.removeRef(obj);
+			writer.popRef();
 		}
 	}
 

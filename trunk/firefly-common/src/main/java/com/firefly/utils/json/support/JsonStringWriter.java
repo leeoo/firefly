@@ -1,22 +1,21 @@
 package com.firefly.utils.json.support;
 
-import java.util.IdentityHashMap;
-
-import com.firefly.utils.StringUtils;
+import java.util.Deque;
+import java.util.LinkedList;
 import com.firefly.utils.io.StringWriter;
 
 public class JsonStringWriter extends StringWriter {
-	private IdentityHashMap<Object, Object> existence = new IdentityHashMap<Object, Object>(); // 防止循环引用
+	private Deque<Object> deque = new LinkedList<Object>();
 	
-	public void addRef(Object obj) {
-		existence.put(obj, StringUtils.EMPTY);
+	public void pushRef(Object obj) {
+		deque.addFirst(obj);
 	}
 	
 	public boolean existRef(Object obj) {
-		return existence.containsKey(obj);
+		return deque.contains(obj);
 	}
 	
-	public void removeRef(Object obj) {
-		existence.remove(obj);
+	public void popRef() {
+		deque.removeFirst();
 	}
 }
