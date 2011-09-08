@@ -18,25 +18,25 @@ public class StringSerializer implements Serializer {
 			for (char ch : cs) {
 				switch (ch) {
 				case '"':
-					writer.append("\\\"");
+					writer.append('\\').append('"');
 					break;
 				case '\b':
-					writer.append("\\b");
+					writer.append('\\').append('b');
 					break;
 				case '\n':
-					writer.append("\\n");
+					writer.append('\\').append('n');
 					break;
 				case '\t':
-					writer.append("\\t");
+					writer.append('\\').append('t');
 					break;
 				case '\f':
-					writer.append("\\f");
+					writer.append('\\').append('f');
 					break;
 				case '\r':
-					writer.append("\\r");
+					writer.append('\\').append('r');
 					break;
 				case '\\':
-					writer.append("\\\\");
+					writer.append('\\').append('\\');
 					break;
 				default:
 					writer.append(ch);

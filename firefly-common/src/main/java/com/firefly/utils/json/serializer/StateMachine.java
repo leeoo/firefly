@@ -5,13 +5,12 @@ import static com.firefly.utils.json.JsonStringSymbol.ARRAY_SUF;
 import static com.firefly.utils.json.JsonStringSymbol.OBJ_PRE;
 import static com.firefly.utils.json.JsonStringSymbol.OBJ_SEPARATOR;
 import static com.firefly.utils.json.JsonStringSymbol.OBJ_SUF;
-import static com.firefly.utils.json.JsonStringSymbol.SEPARATOR;
 import static com.firefly.utils.json.JsonStringSymbol.QUOTE;
+import static com.firefly.utils.json.JsonStringSymbol.SEPARATOR;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
@@ -19,6 +18,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.IdentityHashMap;
 
 import com.firefly.utils.StringUtils;
 import com.firefly.utils.io.StringWriter;
@@ -39,10 +38,10 @@ import com.firefly.utils.json.support.JsonObjMetaInfo;
 public class StateMachine {
 	private StringWriter writer;
 	private IdentityHashMap<Object, Object> existence; // 防止循环引用
-	private static final ClassCache classCache = JsonClassCache.getInstance();
-	private static final JsonObjMetaInfo[] JOM = new JsonObjMetaInfo[0];
 	private static final IdentityHashMap<Class<?>, Serializer> map = new IdentityHashMap<Class<?>, Serializer>();
-
+	private static final ClassCache classCache = JsonClassCache.getInstance();
+	private static final JsonObjMetaInfo[] EMPTY_ARRAY = new JsonObjMetaInfo[0];
+	
 	static {
 		map.put(long.class, new LongSerializer());
 		map.put(int.class, new IntSerializer());
@@ -98,13 +97,11 @@ public class StateMachine {
 		Serializer serializer = getSerializer(clazz);
 		if (serializer != null) {
 			serializer.convertTo(writer, obj);
-		} 
-		
-		else if (existence.get(obj) != null) { // 防止循环引用，此处会影响一些性能
-			writer.writeNull();
-		} 
-		
-		else {
+		} else {
+			if (existence.get(obj) != null) { // 防止循环引用，此处会影响一些性能
+				writer.writeNull();
+				return this;
+			}
 			existence.put(obj, StringUtils.EMPTY);
 			if (obj instanceof Map<?, ?>) {
 				map2Json((Map<?, ?>) obj);
@@ -120,115 +117,82 @@ public class StateMachine {
 
 		return this;
 	}
-
+	
 	private void pojo2Json(Object obj) throws IOException {
 		if (obj == null)
 			return;
+
 		Class<?> clazz = obj.getClass();
 		writer.append(OBJ_PRE);
-		JsonObjMetaInfo[] jsonObjMetaInfo = classCache.get(clazz);
-		if (jsonObjMetaInfo == null) {
+		JsonObjMetaInfo[] list = classCache.get(clazz);
+		if (list == null) {
 			List<JsonObjMetaInfo> fieldList = new ArrayList<JsonObjMetaInfo>();
 			Method[] methods = clazz.getMethods();
 			for (int i = 0; i < methods.length; i++) {
 				Method method = methods[i];
 				method.setAccessible(true);
 				String methodName = method.getName();
+				
+				if (method.getName().length() < 3) continue;
+	            if (Modifier.isStatic(method.getModifiers())) continue;
+	            if (Modifier.isAbstract(method.getModifiers())) continue;
+	            if (method.getName().equals("getClass")) continue;
+	            if (!method.getName().startsWith("is") && !method.getName().startsWith("get")) continue;
+	            if (method.getParameterTypes().length != 0) continue;
+	            if (method.getReturnType() == void.class) continue;
 
-				if (Modifier.isStatic(method.getModifiers())
-						|| method.getReturnType().equals(Void.TYPE)
-						|| method.getParameterTypes().length != 0) {
-					continue;
-				}
-
-				if (methodName.startsWith("get")) { // 取get方法的返回值
+	            String propertyName = null;
+				if (methodName.charAt(0) == 'g') {
 					if (methodName.length() < 4
-							|| methodName.equals("getClass")
 							|| !Character.isUpperCase(methodName.charAt(3))) {
 						continue;
 					}
 
-					String propertyName = Character.toLowerCase(methodName
+					propertyName = Character.toLowerCase(methodName
 							.charAt(3)) + methodName.substring(4);
-
-					Field field = null;
-					try {
-						field = clazz.getDeclaredField(propertyName);
-					} catch (SecurityException e) {
-						e.printStackTrace();
-					} catch (NoSuchFieldException e) {
-						e.printStackTrace();
-					}
-
-					if (field != null
-							&& Modifier.isTransient(field.getModifiers())) {
-						continue;
-					}
-
-					try {
-						JsonObjMetaInfo fieldSerializer = new JsonObjMetaInfo();
-						fieldSerializer.setPropertyName(propertyName);
-						fieldSerializer.setMethod(method);
-						fieldList.add(fieldSerializer);
-					} catch (IllegalArgumentException e) {
-						e.printStackTrace();
-					}
-				} else if (methodName.startsWith("is")) { // 取is方法的返回值
+				} else {
 					if (methodName.length() < 3
 							|| !Character.isUpperCase(methodName.charAt(2))) {
 						continue;
 					}
 
-					String propertyName = Character.toLowerCase(methodName
+					propertyName = Character.toLowerCase(methodName
 							.charAt(2)) + methodName.substring(3);
-
-					Field field = null;
-					try {
-						field = clazz.getDeclaredField(propertyName);
-					} catch (SecurityException e) {
-						e.printStackTrace();
-					} catch (NoSuchFieldException e) {
-						e.printStackTrace();
-					}
-					if (field != null
-							&& Modifier.isTransient(field.getModifiers())) {
-						continue;
-					}
-
-					try {
-						JsonObjMetaInfo fieldSerializer = new JsonObjMetaInfo();
-						fieldSerializer.setPropertyName(propertyName);
-						fieldSerializer.setMethod(method);
-						fieldList.add(fieldSerializer);
-					} catch (IllegalArgumentException e) {
-						e.printStackTrace();
-					}
 				}
+				
+				Field field = null;
+				try {
+					field = clazz.getDeclaredField(propertyName);
+				} catch (SecurityException e) {
+					e.printStackTrace();
+				} catch (NoSuchFieldException e) {
+					e.printStackTrace();
+				}
+
+				if (field != null
+						&& Modifier.isTransient(field.getModifiers())) {
+					continue;
+				}
+
+				JsonObjMetaInfo fieldSerializer = new JsonObjMetaInfo();
+				fieldSerializer.setPropertyName(propertyName);
+				fieldSerializer.setMethod(method);
+				fieldList.add(fieldSerializer);
 			}
-
-			jsonObjMetaInfo = fieldList.toArray(JOM);
-			classCache.put(clazz, jsonObjMetaInfo);
+			list = fieldList.toArray(EMPTY_ARRAY);
+			classCache.put(clazz, list);
 		}
-
-		for (int i = 0; i < jsonObjMetaInfo.length; i++) {
-			try {
-				appendPair(jsonObjMetaInfo[i].getPropertyName(),
-						jsonObjMetaInfo[i].getMethod().invoke(obj));
-				if (i < jsonObjMetaInfo.length - 1)
-					writer.append(SEPARATOR);
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-			}
+		
+		boolean first = true;
+		for(JsonObjMetaInfo metaInfo : list){
+			if(!first) writer.append(SEPARATOR);
+			appendPair(metaInfo.getPropertyName(), metaInfo.invoke(obj));
+			if(first) first = false;
 		}
-
 		writer.append(OBJ_SUF);
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void map2Json(Map map) throws IOException {
 		if (map == null)
 			return;
@@ -236,8 +200,8 @@ public class StateMachine {
 		Set<Entry<?, ?>> entrySet = map.entrySet();
 		for (Iterator<Entry<?, ?>> it = entrySet.iterator(); it.hasNext();) {
 			Entry<?, ?> entry = it.next();
-			String name = entry.getKey() == null ? "null" : entry.getKey()
-					.toString();
+			char[] name = entry.getKey() == null ? StringWriter.NULL : entry
+					.getKey().toString().toCharArray();
 			Object val = entry.getValue();
 			appendPair(name, val);
 			if (it.hasNext())
@@ -270,8 +234,9 @@ public class StateMachine {
 		writer.append(ARRAY_SUF);
 	}
 
-	private void appendPair(String name, Object val) throws IOException {
-		writer.append(QUOTE).append(name).append(QUOTE).append(OBJ_SEPARATOR);
+	void appendPair(char[] name, Object val) throws IOException {
+		writer.append(QUOTE).write(name);
+		writer.append(QUOTE).append(OBJ_SEPARATOR);
 		toJson(val);
 	}
 
