@@ -1,7 +1,5 @@
 package com.firefly.utils.json.serializer;
 
-import static com.firefly.utils.json.JsonStringSymbol.QUOTE;
-
 import com.firefly.utils.json.Serializer;
 import com.firefly.utils.json.support.JsonStringWriter;
 
@@ -13,36 +11,7 @@ public class StringSerializer implements Serializer {
 		if (s == null)
 			writer.writeNull();
 		else {
-			char[] cs = s.toCharArray();
-			writer.append(QUOTE);
-			for (char ch : cs) {
-				switch (ch) {
-				case '"':
-					writer.append('\\').append('"');
-					break;
-				case '\b':
-					writer.append('\\').append('b');
-					break;
-				case '\n':
-					writer.append('\\').append('n');
-					break;
-				case '\t':
-					writer.append('\\').append('t');
-					break;
-				case '\f':
-					writer.append('\\').append('f');
-					break;
-				case '\r':
-					writer.append('\\').append('r');
-					break;
-				case '\\':
-					writer.append('\\').append('\\');
-					break;
-				default:
-					writer.append(ch);
-				}
-			}
-			writer.append(QUOTE);
+			writer.writeJsonString(s);
 		}
 
 	}

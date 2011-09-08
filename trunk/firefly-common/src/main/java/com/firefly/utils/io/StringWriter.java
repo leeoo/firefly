@@ -138,6 +138,10 @@ public class StringWriter extends Writer {
 		buf[count] = c;
 		count = newcount;
 	}
+	
+	public void writeChars(char... chs) {
+		write(chs, 0, chs.length);
+	}
 
 	public void writeInt(int i) {
 		if (i == Integer.MIN_VALUE) {
@@ -203,7 +207,7 @@ public class StringWriter extends Writer {
 		return count;
 	}
 
-	private void expandCapacity(int minimumCapacity) {
+	protected void expandCapacity(int minimumCapacity) {
 		int newCapacity = (buf.length * 3) / 2 + 1;
 
 		if (newCapacity < minimumCapacity) {
