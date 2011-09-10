@@ -6,17 +6,14 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.firefly.utils.json.ClassCache;
 import com.firefly.utils.json.serializer.StateMachine;
-import com.firefly.utils.json.support.JsonClassCache;
 import com.firefly.utils.json.support.JsonObjMetaInfo;
 
 public class EncodeCompiler {
 	
-	private static final ClassCache classCache = JsonClassCache.getInstance();
 	private static final JsonObjMetaInfo[] EMPTY_ARRAY = new JsonObjMetaInfo[0];
 	
-	public static JsonObjMetaInfo[] compile(Object obj, Class<?> clazz) {
+	public static JsonObjMetaInfo[] compile(Class<?> clazz) {
 		JsonObjMetaInfo[] jsonObjMetaInfos = null;
 		List<JsonObjMetaInfo> fieldList = new ArrayList<JsonObjMetaInfo>();
 		
@@ -78,7 +75,6 @@ public class EncodeCompiler {
 		}
 		
 		jsonObjMetaInfos = fieldList.toArray(EMPTY_ARRAY);
-		classCache.put(clazz, jsonObjMetaInfos);
 		return jsonObjMetaInfos;
 	}
 
