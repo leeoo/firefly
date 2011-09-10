@@ -1,6 +1,7 @@
 package test.utils.json;
 
 import java.util.Date;
+import java.util.Map;
 
 public class Node {
 	private int id;
@@ -10,6 +11,15 @@ public class Node {
 	private Date timestamp;
 	private char sex;
 	private int[] rig;
+	private Map<String, Object> map;
+
+	public Map<String, Object> getMap() {
+		return map;
+	}
+
+	public void setMap(Map<String, Object> map) {
+		this.map = map;
+	}
 
 	public int[] getRig() {
 		return rig;

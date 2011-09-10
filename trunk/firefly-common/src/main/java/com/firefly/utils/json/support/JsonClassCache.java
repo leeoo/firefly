@@ -19,8 +19,8 @@ public class JsonClassCache implements ClassCache {
 		return Holder.instance;
 	}
 
-	public void put(Class<?> clazz, JsonObjMetaInfo[] list) {
-		map.put(clazz, list);
+	public void put(Class<?> clazz, JsonObjMetaInfo[] obj) {
+		map.put(clazz, obj);
 	}
 
 	public JsonObjMetaInfo[] get(Class<?> clazz) {

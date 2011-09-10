@@ -16,11 +16,12 @@ import com.firefly.utils.json.support.JsonStringWriter;
 
 abstract public class StateMachine {
 	private static final IdentityHashMap<Class<?>, Serializer> map = new IdentityHashMap<Class<?>, Serializer>();
-	private static final Serializer OBJECT = new ObjectSerializer();
+	
 	private static final Serializer MAP = new MapSerializer();
 	private static final Serializer COLLECTION = new CollectionSerializer();
 	private static final Serializer ARRAY = new ArraySerializer();
 	private static final Serializer ENUM = new EnumSerializer();
+	private static final Serializer OBJECT = new ObjectSerializer();
 
 	static {
 		map.put(long.class, new LongSerializer());
@@ -32,6 +33,11 @@ abstract public class StateMachine {
 		map.put(String.class, new StringSerializer());
 		map.put(Date.class, new DateSerializer());
 		map.put(double.class, new StringValueSerializer());
+		map.put(long[].class, new LongArraySerializer());
+		map.put(int[].class, new IntegerArraySerializer());
+		map.put(short[].class, new ShortArraySerializer());
+		map.put(boolean[].class, new BooleanArraySerializer());
+		map.put(String[].class, new StringArraySerializer());
 
 		map.put(Long.class, map.get(long.class));
 		map.put(Integer.class, map.get(int.class));
@@ -39,6 +45,10 @@ abstract public class StateMachine {
 		map.put(Short.class, map.get(short.class));
 		map.put(Byte.class, map.get(byte.class));
 		map.put(Boolean.class, map.get(boolean.class));
+		map.put(Long[].class, map.get(long[].class));
+		map.put(Integer[].class, map.get(int[].class));
+		map.put(Short[].class, map.get(short[].class));
+		map.put(Boolean[].class, map.get(Boolean[].class));
 
 		map.put(StringBuilder.class, map.get(String.class));
 		map.put(StringBuffer.class, map.get(String.class));
@@ -57,22 +67,35 @@ abstract public class StateMachine {
 		map.put(AtomicBoolean.class, map.get(double.class));
 	}
 
-	public static Serializer getSimpleSerializer(Class<?> clazz) {
-		return map.get(clazz);
-	}
-
-	public static Serializer getObjectSerializer(Object obj, Class<?> clazz) {
-		if (obj instanceof Map<?, ?>) {
-			return MAP;
-		} else if (obj instanceof Collection<?>) {
-			return COLLECTION;
-		} else if (clazz.isArray()) {
-			return ARRAY;
-		} else if (clazz.isEnum()){
+//	public static Serializer getSimpleSerializer(Class<?> clazz) {
+//		return map.get(clazz);
+//	}
+//
+//	public static Serializer getObjectSerializer(Class<?> clazz) {
+//		if(clazz.isEnum())
+//			return ENUM;
+//		if (Map.class.isAssignableFrom(clazz)) 
+//			return MAP;
+//		if (Collection.class.isAssignableFrom(clazz))
+//			return COLLECTION;
+//		if (clazz.isArray())
+//			return ARRAY;
+//		return OBJECT;
+//	}
+	
+	public static Serializer getSerializer(Class<?> clazz) {
+		Serializer ret = map.get(clazz);
+		if(ret != null)
+			return ret;
+		if(clazz.isEnum())
 			return ENUM;
-		} else {
-			return OBJECT;
-		}
+		if (Map.class.isAssignableFrom(clazz)) 
+			return MAP;
+		if (Collection.class.isAssignableFrom(clazz))
+			return COLLECTION;
+		if (clazz.isArray())
+			return ARRAY;
+		return OBJECT;
 	}
 
 	public static void toJson(Object obj, JsonStringWriter writer)
@@ -83,23 +106,7 @@ abstract public class StateMachine {
 		}
 
 		Class<?> clazz = obj.getClass();
-		Serializer serializer = getSimpleSerializer(clazz);
-		if (serializer != null) {
-			serializer.convertTo(writer, obj);
-		} else {
-			if (writer.existRef(obj)) { // 防止循环引用，此处会影响一些性能
-				writer.writeNull();
-				return;
-			}
-			writer.pushRef(obj);
-			getObjectSerializer(obj, clazz).convertTo(writer, obj);
-			writer.popRef();
-		}
-	}
-
-	static void appendPair(char[] name, Object val, JsonStringWriter writer)
-			throws IOException {
-		writer.write(name);
-		toJson(val, writer);
+		Serializer serializer = getSerializer(clazz);
+		serializer.convertTo(writer, obj);
 	}
 }
