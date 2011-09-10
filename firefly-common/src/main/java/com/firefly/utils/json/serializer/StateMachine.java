@@ -5,13 +5,13 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Date;
-import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.firefly.utils.json.Serializer;
+import com.firefly.utils.json.support.IdentityHashMap;
 import com.firefly.utils.json.support.JsonStringWriter;
 
 abstract public class StateMachine {
@@ -21,7 +21,6 @@ abstract public class StateMachine {
 	private static final Serializer COLLECTION = new CollectionSerializer();
 	private static final Serializer ARRAY = new ArraySerializer();
 	private static final Serializer ENUM = new EnumSerializer();
-	private static final Serializer OBJECT = new ObjectSerializer();
 
 	static {
 		map.put(long.class, new LongSerializer());
@@ -66,36 +65,23 @@ abstract public class StateMachine {
 		map.put(BigInteger.class, map.get(double.class));
 		map.put(AtomicBoolean.class, map.get(double.class));
 	}
-
-//	public static Serializer getSimpleSerializer(Class<?> clazz) {
-//		return map.get(clazz);
-//	}
-//
-//	public static Serializer getObjectSerializer(Class<?> clazz) {
-//		if(clazz.isEnum())
-//			return ENUM;
-//		if (Map.class.isAssignableFrom(clazz)) 
-//			return MAP;
-//		if (Collection.class.isAssignableFrom(clazz))
-//			return COLLECTION;
-//		if (clazz.isArray())
-//			return ARRAY;
-//		return OBJECT;
-//	}
 	
 	public static Serializer getSerializer(Class<?> clazz) {
 		Serializer ret = map.get(clazz);
-		if(ret != null)
-			return ret;
-		if(clazz.isEnum())
-			return ENUM;
-		if (Map.class.isAssignableFrom(clazz)) 
-			return MAP;
-		if (Collection.class.isAssignableFrom(clazz))
-			return COLLECTION;
-		if (clazz.isArray())
-			return ARRAY;
-		return OBJECT;
+		if(ret == null) {
+			if(clazz.isEnum())
+				ret = ENUM;
+			else if (Map.class.isAssignableFrom(clazz)) 
+				ret = MAP;
+			else if (Collection.class.isAssignableFrom(clazz))
+				ret = COLLECTION;
+			else if (clazz.isArray())
+				ret = ARRAY;
+			else
+				ret = new ObjectSerializer(clazz);
+			map.put(clazz, ret);
+		}
+		return ret;
 	}
 
 	public static void toJson(Object obj, JsonStringWriter writer)

@@ -49,8 +49,8 @@ public class MediaContent {
     }
 
     public static void main(String[] args) throws Throwable {
-//        MediaContent record = createRecord();
-//        System.out.println(Json.toJson(record));
+        MediaContent record = createRecord();
+        System.out.println(Json.toJson(record));
         
         Image image1 = new Image();
         image1.setUri("http://javaone.com/keynote_large.jpg");
