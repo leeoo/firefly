@@ -7,13 +7,7 @@ public class StringSerializer implements Serializer {
 
 	@Override
 	public void convertTo(JsonStringWriter writer, Object obj) {
-		String s = obj.toString();
-		if (s == null)
-			writer.writeNull();
-		else {
-			writer.writeJsonString(s);
-		}
-
+		writer.writeJsonString(obj.toString());
 	}
 
 }

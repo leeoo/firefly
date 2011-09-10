@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.firefly.utils.io.StringWriter;
 import com.firefly.utils.json.Serializer;
 import com.firefly.utils.json.support.JsonStringWriter;
 
@@ -27,10 +26,15 @@ public class MapSerializer implements Serializer {
 		Set<Entry<?, ?>> entrySet = map.entrySet();
 		for (Iterator<Entry<?, ?>> it = entrySet.iterator(); it.hasNext();) {
 			Entry<?, ?> entry = it.next();
-			char[] name = entry.getKey() == null ? StringWriter.NULL : entry
-					.getKey().toString().toCharArray();
+			Object key = entry.getKey();
+			if(key == null) {
+				writer.writeNull();
+			} else {
+				writer.write("\"" + key + "\":");
+			}
+			
 			Object val = entry.getValue();
-			StateMachine.appendPair(name, val, writer);
+			StateMachine.toJson(val, writer);
 			if (it.hasNext())
 				writer.append(SEPARATOR);
 		}

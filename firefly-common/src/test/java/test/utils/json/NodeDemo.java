@@ -1,6 +1,9 @@
 package test.utils.json;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.firefly.utils.json.Json;
 
 public class NodeDemo {
@@ -9,6 +12,7 @@ public class NodeDemo {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		Map<String, Object> map = new HashMap<String, Object>();
 		Node node = new Node();
 		Node node2 = new Node();
 		
@@ -19,6 +23,10 @@ public class NodeDemo {
 		node.setText("dfs\t");
 		int[] rig = new int[]{1,2,3};
 		node.setRig(rig);
+		
+		map.put("hello", "world");
+		map.put("node2", node2);
+		node.setMap(map);
 		
 		node2.setNode(node);
 		node2.setId(13);

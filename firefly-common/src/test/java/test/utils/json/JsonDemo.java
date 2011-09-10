@@ -23,7 +23,7 @@ public class JsonDemo {
 		group.getUsers().add(guestUser);
 		group.getUsers().add(rootUser);
 
-		String jsonString = null;
+		String jsonString = Json.toJson(group);
 		long start = System.currentTimeMillis();
 		for (int i = 0; i < 100000; i++) {
 			jsonString = Json.toJson(group);
