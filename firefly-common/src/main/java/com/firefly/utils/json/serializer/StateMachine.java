@@ -10,8 +10,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.firefly.utils.collection.IdentityHashMap;
 import com.firefly.utils.json.Serializer;
-import com.firefly.utils.json.support.IdentityHashMap;
 import com.firefly.utils.json.support.JsonStringWriter;
 
 abstract public class StateMachine {
