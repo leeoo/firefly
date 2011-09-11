@@ -1,4 +1,4 @@
-package com.firefly.utils.json.support;
+package com.firefly.utils.collection;
 
 @SuppressWarnings("unchecked")
 public class IdentityHashMap<K, V> {
