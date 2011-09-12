@@ -17,9 +17,8 @@ public class EncodeCompiler {
 		JsonObjMetaInfo[] jsonObjMetaInfos = null;
 		List<JsonObjMetaInfo> fieldList = new ArrayList<JsonObjMetaInfo>();
 		
-		Method[] methods = clazz.getMethods();
-		for (int i = 0; i < methods.length; i++) {
-			Method method = methods[i];
+		boolean first = true;
+		for (Method method : clazz.getMethods()) {
 			method.setAccessible(true);
 			String methodName = method.getName();
 			
@@ -33,8 +32,7 @@ public class EncodeCompiler {
 
             String propertyName = null;
 			if (methodName.charAt(0) == 'g') {
-				if (methodName.length() < 4
-						|| !Character.isUpperCase(methodName.charAt(3))) {
+				if (methodName.length() < 4 || !Character.isUpperCase(methodName.charAt(3))) {
 					continue;
 				}
 
@@ -51,7 +49,6 @@ public class EncodeCompiler {
 			}
 			
 			Field field = null;
-//			System.out.println(clazz.getName() + "|" + propertyName);
 			try {
 				field = clazz.getDeclaredField(propertyName);
 			} catch (SecurityException e) {
@@ -67,11 +64,12 @@ public class EncodeCompiler {
 
 			Class<?> fieldClazz = method.getReturnType();
 			JsonObjMetaInfo fieldJsonObjMetaInfo = new JsonObjMetaInfo();
-			fieldJsonObjMetaInfo.setPropertyName(propertyName);
+			fieldJsonObjMetaInfo.setPropertyName(propertyName, first);
 			fieldJsonObjMetaInfo.setMethod(method);
 			fieldJsonObjMetaInfo.setSerializer(StateMachine.getSerializer(fieldClazz));
 
 			fieldList.add(fieldJsonObjMetaInfo);
+			first = false;
 		}
 		
 		jsonObjMetaInfos = fieldList.toArray(EMPTY_ARRAY);

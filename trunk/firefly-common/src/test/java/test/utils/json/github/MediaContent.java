@@ -4,9 +4,10 @@
  */
 package test.utils.json.github;
 
-import com.firefly.utils.json.Json;
 import java.util.Arrays;
 import java.util.List;
+
+import com.firefly.utils.json.Json;
 
 public class MediaContent {
 
@@ -49,16 +50,19 @@ public class MediaContent {
     }
 
     public static void main(String[] args) throws Throwable {
+//    	System.out.println(list.getClass().getGenericInterfaces());
+    	
+    	
         MediaContent record = createRecord();
         System.out.println(Json.toJson(record));
-        
-        Image image1 = new Image();
-        image1.setUri("http://javaone.com/keynote_large.jpg");
-        image1.setTitle("Javaone Keynote");
-        image1.setWidth(1024);
-        image1.setHeight(768);
-        image1.setSize(Size.LARGE);
-        System.out.println(Json.toJson(image1));
+//        
+//        Image image1 = new Image();
+//        image1.setUri("http://javaone.com/keynote_large.jpg");
+//        image1.setTitle("Javaone Keynote");
+//        image1.setWidth(1024);
+//        image1.setHeight(768);
+//        image1.setSize(Size.LARGE);
+//        System.out.println(Json.toJson(image1));
 //        Performance.run(20000, record);
     }
 

@@ -18,8 +18,8 @@ public class JsonObjMetaInfo {
 		return propertyName;
 	}
 
-	public void setPropertyName(String propertyName) {
-		this.propertyName = (QUOTE + propertyName + QUOTE + OBJ_SEPARATOR).toCharArray();
+	public void setPropertyName(String propertyName, boolean first) {
+		this.propertyName = ((first ? "" : ",") + QUOTE + propertyName + QUOTE + OBJ_SEPARATOR).toCharArray();
 	}
 
 	public void setSerializer(Serializer serializer) {
@@ -36,7 +36,6 @@ public class JsonObjMetaInfo {
 
 	public void toJson(Object obj, JsonStringWriter writer)
 			throws IOException {
-
 		try {
 			Object ret = method.invoke(obj);
 			if(ret != null)

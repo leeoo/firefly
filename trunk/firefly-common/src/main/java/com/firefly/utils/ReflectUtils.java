@@ -69,15 +69,16 @@ public abstract class ReflectUtils {
 			method.setAccessible(true);
 			String methodName = method.getName();
 
-			if (Modifier.isStatic(method.getModifiers())
-					|| method.getReturnType().equals(Void.TYPE)
-					|| method.getParameterTypes().length != 0) {
-				continue;
-			}
+			if (method.getName().length() < 3) continue;
+            if (Modifier.isStatic(method.getModifiers())) continue;
+            if (Modifier.isAbstract(method.getModifiers())) continue;
+            if (method.getName().equals("getClass")) continue;
+            if (!method.getName().startsWith("is") && !method.getName().startsWith("get")) continue;
+            if (method.getParameterTypes().length != 0) continue;
+            if (method.getReturnType() == void.class) continue;
 
-			if (methodName.startsWith("get")) { // 取get方法的返回值
-				if (methodName.length() < 4 || methodName.equals("getClass")
-						|| !Character.isUpperCase(methodName.charAt(3))) {
+			if (methodName.charAt(0) == 'g') { // 取get方法的返回值
+				if (methodName.length() < 4 || !Character.isUpperCase(methodName.charAt(3))) {
 					continue;
 				}
 
@@ -87,9 +88,8 @@ public abstract class ReflectUtils {
 				if (propertyName.equals(p))
 					return method;
 
-			} else if (methodName.startsWith("is")) { // 取is方法的返回值
-				if (methodName.length() < 3
-						|| !Character.isUpperCase(methodName.charAt(2))) {
+			} else { // 取is方法的返回值
+				if (methodName.length() < 3 || !Character.isUpperCase(methodName.charAt(2))) {
 					continue;
 				}
 
