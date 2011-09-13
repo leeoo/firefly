@@ -11,6 +11,16 @@ import static com.firefly.utils.json.JsonStringSymbol.ARRAY_SUF;
 import static com.firefly.utils.json.JsonStringSymbol.SEPARATOR;
 
 public class JsonStringWriter extends StringWriter {
+//	public final static char[] replaceChars = new char[((int) '\\' + 1)];
+//	static {
+//        replaceChars['\"'] = '"';
+//        replaceChars['\r'] = 'r';
+//        replaceChars['\n'] = 'n';
+//        replaceChars['\t'] = 't';
+//        replaceChars['\\'] = '\\';
+//        replaceChars['\f'] = 'f';
+//        replaceChars['\b'] = 'b';
+//	}
 	private Deque<Object> deque = new LinkedList<Object>();
 
 	public void pushRef(Object obj) {
@@ -24,8 +34,29 @@ public class JsonStringWriter extends StringWriter {
 	public void popRef() {
 		deque.removeFirst();
 	}
+	
+//	private void writeJsonString0(String value) {
+//	buf[count++] = QUOTE;
+//	for (char ch : value.toCharArray()) {
+//		if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\\' || ch == '"' || ch == '\t') {
+//			buf[count++] = '\\';
+//			buf[count++] = replaceChars[(int) ch];
+//		} else {
+//			buf[count++] = ch;
+//		}
+//	}
+//	buf[count++] = QUOTE;
+//}
+//
+//public void writeJsonString(String value) {
+//	int newcount = count + (value.length() * 2 + 2);
+//	if (newcount > buf.length) {
+//		expandCapacity(newcount);
+//	}
+//	writeJsonString0(value);
+//}
 
-	public void write(final boolean quote, final String value) {
+	public void writeStringWithQuote(final boolean quote, final String value) {
 		int len = value.length();
 		int newcount = count + len + (quote ? 2 : 0);
 		if (newcount > buf.length) {
@@ -34,56 +65,10 @@ public class JsonStringWriter extends StringWriter {
 		if (quote)
 			buf[count++] = QUOTE;
 		value.getChars(0, len, buf, count);
+		count += len;
 		if (quote)
 			buf[count++] = QUOTE;
-		count += len;
-	}
-	
-	private void writeJsonString0(String value) {
-		buf[count++] = QUOTE;
-		for (char ch : value.toCharArray()) {
-			switch (ch) {
-			case '"':
-				buf[count++] = '\\';
-				buf[count++] = '"';
-				break;
-			case '\b':
-				buf[count++] = '\\';
-				buf[count++] = 'b';
-				break;
-			case '\n':
-				buf[count++] = '\\';
-				buf[count++] = 'n';
-				break;
-			case '\t':
-				buf[count++] = '\\';
-				buf[count++] = 't';
-				break;
-			case '\f':
-				buf[count++] = '\\';
-				buf[count++] = 'f';
-				break;
-			case '\r':
-				buf[count++] = '\\';
-				buf[count++] = 'r';
-				break;
-			case '\\':
-				buf[count++] = '\\';
-				buf[count++] = '\\';
-				break;
-			default:
-				buf[count++] = ch;
-			}
-		}
-		buf[count++] = QUOTE;
-	}
-
-	public void writeJsonString(String value) {
-		int newcount = count + (value.length() * 2 + 2);
-		if (newcount > buf.length) {
-			expandCapacity(newcount);
-		}
-		writeJsonString0(value);
+		
 	}
 	
 	public void writeStringArray(String[] array) {
@@ -107,7 +92,7 @@ public class JsonStringWriter extends StringWriter {
             if (i != 0) {
                 buf[count++] = SEPARATOR;
             }
-            writeJsonString0(array[i]);
+            writeStringWithQuote(true, array[i]);
         }
         buf[count++] = ARRAY_SUF;
 	}
