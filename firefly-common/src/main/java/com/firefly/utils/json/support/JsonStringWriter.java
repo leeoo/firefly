@@ -11,16 +11,16 @@ import static com.firefly.utils.json.JsonStringSymbol.ARRAY_SUF;
 import static com.firefly.utils.json.JsonStringSymbol.SEPARATOR;
 
 public class JsonStringWriter extends StringWriter {
-//	public final static char[] replaceChars = new char[((int) '\\' + 1)];
-//	static {
-//        replaceChars['\"'] = '"';
-//        replaceChars['\r'] = 'r';
-//        replaceChars['\n'] = 'n';
-//        replaceChars['\t'] = 't';
-//        replaceChars['\\'] = '\\';
-//        replaceChars['\f'] = 'f';
-//        replaceChars['\b'] = 'b';
-//	}
+	public final static char[] replaceChars = new char[((int) '\\' + 1)];
+	static {
+        replaceChars['\"'] = '"';
+        replaceChars['\r'] = 'r';
+        replaceChars['\n'] = 'n';
+        replaceChars['\t'] = 't';
+        replaceChars['\\'] = '\\';
+        replaceChars['\f'] = 'f';
+        replaceChars['\b'] = 'b';
+	}
 	private Deque<Object> deque = new LinkedList<Object>();
 
 	public void pushRef(Object obj) {
@@ -35,26 +35,27 @@ public class JsonStringWriter extends StringWriter {
 		deque.removeFirst();
 	}
 	
-//	private void writeJsonString0(String value) {
-//	buf[count++] = QUOTE;
-//	for (char ch : value.toCharArray()) {
-//		if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\\' || ch == '"' || ch == '\t') {
-//			buf[count++] = '\\';
-//			buf[count++] = replaceChars[(int) ch];
-//		} else {
-//			buf[count++] = ch;
-//		}
-//	}
-//	buf[count++] = QUOTE;
-//}
-//
-//public void writeJsonString(String value) {
-//	int newcount = count + (value.length() * 2 + 2);
-//	if (newcount > buf.length) {
-//		expandCapacity(newcount);
-//	}
-//	writeJsonString0(value);
-//}
+	private void writeJsonString0(String value) {
+		buf[count++] = QUOTE;
+		for (char ch : value.toCharArray()) {
+			if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f'
+					|| ch == '\\' || ch == '"' || ch == '\t') {
+				buf[count++] = '\\';
+				buf[count++] = replaceChars[(int) ch];
+			} else {
+				buf[count++] = ch;
+			}
+		}
+		buf[count++] = QUOTE;
+	}
+
+	public void writeJsonString(String value) {
+		int newcount = count + (value.length() * 2 + 2);
+		if (newcount > buf.length) {
+			expandCapacity(newcount);
+		}
+		writeJsonString0(value);
+	}
 
 	public void writeStringWithQuote(final boolean quote, final String value) {
 		int len = value.length();
