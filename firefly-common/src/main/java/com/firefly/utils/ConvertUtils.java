@@ -138,7 +138,7 @@ abstract public class ConvertUtils {
 	 * @param clazz
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public static Collection getCollectionObj(Class<?> clazz) {
 		if (clazz.isInterface()) {
 			if (clazz.isAssignableFrom(List.class))
@@ -166,7 +166,7 @@ abstract public class ConvertUtils {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public static Map getMapObj(Class<?> clazz) {
 		if (clazz.isInterface()) {
 			if (clazz.isAssignableFrom(Map.class))
