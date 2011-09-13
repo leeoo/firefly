@@ -35,7 +35,7 @@ public class NodeDemo {
 		node2.setText("\n\"\b");
 		
 		System.out.println(Json.toJson(node));
-		System.out.println(Json.toJson(node2));
+//		System.out.println(Json.toJson(node2));
 //		StringWriter writer = new StringWriter();
 //		Json.toJson(node, writer);
 //		System.out.println(writer.toString());
