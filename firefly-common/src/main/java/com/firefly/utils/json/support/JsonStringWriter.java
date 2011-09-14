@@ -37,7 +37,8 @@ public class JsonStringWriter extends StringWriter {
 	
 	private void writeJsonString0(String value) {
 		buf[count++] = QUOTE;
-		for (char ch : value.toCharArray()) {
+		for(int i = 0; i < value.length(); i++) {
+			char ch = value.charAt(i);
 			if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f'
 					|| ch == '\\' || ch == '"' || ch == '\t') {
 				buf[count++] = '\\';
@@ -46,6 +47,15 @@ public class JsonStringWriter extends StringWriter {
 				buf[count++] = ch;
 			}
 		}
+//		for (char ch : value.toCharArray()) {
+//			if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f'
+//					|| ch == '\\' || ch == '"' || ch == '\t') {
+//				buf[count++] = '\\';
+//				buf[count++] = replaceChars[(int) ch];
+//			} else {
+//				buf[count++] = ch;
+//			}
+//		}
 		buf[count++] = QUOTE;
 	}
 
