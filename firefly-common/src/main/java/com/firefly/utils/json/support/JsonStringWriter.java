@@ -68,27 +68,12 @@ public class JsonStringWriter extends StringWriter {
 		buf[count++] = QUOTE;
 	}
 
-	public void writeJsonString(String value) {
+	public void writeStringWithQuote(String value) {
 		int newcount = count + (value.length() * 2 + 2);
 		if (newcount > buf.length) {
 			expandCapacity(newcount);
 		}
 		writeJsonString0(value);
-	}
-
-	public void writeStringWithQuote(final boolean quote, final String value) {
-		int len = value.length();
-		int newcount = count + len + (quote ? 2 : 0);
-		if (newcount > buf.length) {
-			expandCapacity(newcount);
-		}
-		if (quote)
-			buf[count++] = QUOTE;
-		value.getChars(0, len, buf, count);
-		count += len;
-		if (quote)
-			buf[count++] = QUOTE;
-
 	}
 
 	public void writeStringArray(String[] array) {
@@ -112,7 +97,7 @@ public class JsonStringWriter extends StringWriter {
 			if (i != 0) {
 				buf[count++] = SEPARATOR;
 			}
-			writeStringWithQuote(true, array[i]);
+			writeJsonString0(array[i]);
 		}
 		buf[count++] = ARRAY_SUF;
 	}
