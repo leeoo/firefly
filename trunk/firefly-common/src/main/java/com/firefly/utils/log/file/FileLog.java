@@ -8,11 +8,9 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import com.firefly.utils.StringUtils;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
 import com.firefly.utils.log.LogItem;
-import com.firefly.utils.time.SafeSimpleDateFormat;
 
 public class FileLog implements Log {
 	private int level;
@@ -103,17 +101,9 @@ public class FileLog implements Log {
 		LogItem item = new LogItem();
 		item.setLevel(level);
 		item.setName(name);
-		item.setDate(SafeSimpleDateFormat.defaultDateFormat.format(new Date()));
-		String content = StringUtils.replace(str, objs);
-		if (throwable != null) {
-			StringBuilder strBuilder = new StringBuilder();
-			strBuilder.append(CL);
-			for (StackTraceElement ele : throwable.getStackTrace()) {
-				strBuilder.append(ele).append(CL);
-			}
-			content += strBuilder.toString();
-		}
-		item.setContent(content);
+		item.setContent(str);
+		item.setObjs(objs);
+		item.setThrowable(throwable);
 		if (consoleOutput)
 			System.out.println(item.toString());
 		if (fileOutput)
