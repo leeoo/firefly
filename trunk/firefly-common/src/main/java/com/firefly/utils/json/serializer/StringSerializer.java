@@ -7,8 +7,7 @@ public class StringSerializer implements Serializer {
 
 	@Override
 	public void convertTo(JsonStringWriter writer, Object obj) {
-		writer.writeJsonString(obj.toString());
-//		writer.writeStringWithQuote(true, obj.toString());
+		writer.writeStringWithQuote(obj.toString());
 	}
 
 }
