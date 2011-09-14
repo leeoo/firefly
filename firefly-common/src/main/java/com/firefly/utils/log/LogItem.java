@@ -1,7 +1,23 @@
 package com.firefly.utils.log;
 
+import java.util.Date;
+
+import com.firefly.utils.StringUtils;
+import com.firefly.utils.time.SafeSimpleDateFormat;
+
 public class LogItem {
 	private String name, content, date, level;
+	private Object[] objs;
+	private Throwable throwable;
+	private String logStr;
+
+	public void setThrowable(Throwable throwable) {
+		this.throwable = throwable;
+	}
+
+	public void setObjs(Object[] objs) {
+		this.objs = objs;
+	}
 
 	public String getName() {
 		return name;
@@ -11,20 +27,8 @@ public class LogItem {
 		this.name = name;
 	}
 
-	public String getContent() {
-		return content;
-	}
-
 	public void setContent(String content) {
 		this.content = content;
-	}
-
-	public String getDate() {
-		return date;
-	}
-
-	public void setDate(String date) {
-		this.date = date;
 	}
 
 	public String getLevel() {
@@ -37,7 +41,21 @@ public class LogItem {
 
 	@Override
 	public String toString() {
-		return level + " " + date + "\t" + content;
+		if (logStr == null) {
+			date = SafeSimpleDateFormat.defaultDateFormat.format(new Date());
+			content = StringUtils.replace(content, objs);
+			if (throwable != null) {
+				StringBuilder strBuilder = new StringBuilder();
+				strBuilder.append(Log.CL);
+				for (StackTraceElement ele : throwable.getStackTrace()) {
+					strBuilder.append(ele).append(Log.CL);
+				}
+				content += strBuilder.toString();
+			}
+
+			logStr = level + " " + date + "\t" + content;
+		}
+		return logStr;
 	}
 
 }
