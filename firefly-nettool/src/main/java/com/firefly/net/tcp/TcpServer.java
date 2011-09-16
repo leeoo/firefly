@@ -1,6 +1,8 @@
 package com.firefly.net.tcp;
 
 import com.firefly.net.*;
+import com.firefly.net.event.CurrentThreadEventManager;
+import com.firefly.net.event.ThreadPoolEventManager;
 import com.firefly.net.exception.NetException;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
@@ -67,9 +69,18 @@ public class TcpServer implements Server {
     }
 
     private void listen(ServerSocketChannel serverSocketChannel) {
+    	EventManager eventManager = null;
+        if (config.getHandleThreads() >= 0) {
+			log.info("new ThreadPoolEventManager");
+			eventManager = new ThreadPoolEventManager(config);
+		} else {
+			log.info("new CurrentThreadEventManager");
+			eventManager = new CurrentThreadEventManager(config);
+		}
+    	
         workers = new Worker[config.getWorkerThreads()];
         for (int i = 0; i < config.getWorkerThreads(); i++) {
-            workers[i] = new TcpWorker(config, i, null);
+            workers[i] = new TcpWorker(config, i, eventManager, null);
         }
 
         Boss boss = null;
