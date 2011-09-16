@@ -68,6 +68,18 @@ public class JsonStringWriter extends StringWriter {
 		buf[count++] = QUOTE;
 	}
 
+	public void writeStringWithQuoteNoFilter(String value) {
+		int len = value.length();
+		int newcount = count + len + 2;
+		if (newcount > buf.length) {
+			expandCapacity(newcount);
+		}
+		buf[count++] = QUOTE;
+		value.getChars(0, len, buf, count);
+		count += len;
+		buf[count++] = QUOTE;
+	}
+
 	public void writeStringWithQuote(String value) {
 		int newcount = count + value.length() * 2 + 2;
 		if (newcount > buf.length) {
@@ -110,7 +122,7 @@ public class JsonStringWriter extends StringWriter {
 			return;
 		}
 		int iMax = arrayLen - 1;
-//		System.out.println("current count: " + count);
+		// System.out.println("current count: " + count);
 		int elementMaxLen = MIN_INT_VALUE.length;
 		int newcount = count + (elementMaxLen + 1) * arrayLen + 2 - 1;
 		if (newcount > buf.length) {
@@ -118,19 +130,20 @@ public class JsonStringWriter extends StringWriter {
 		}
 
 		buf[count++] = ARRAY_PRE;
-		for (int i = 0; ; i++) {
+		for (int i = 0;; i++) {
 			int val = array[i];
 			if (val == Integer.MIN_VALUE) {
-				System.arraycopy(MIN_INT_VALUE, 0, buf, count,elementMaxLen);
+				System.arraycopy(MIN_INT_VALUE, 0, buf, count, elementMaxLen);
 				count += elementMaxLen;
 			} else {
-				count += (val < 0) ? IOUtils.stringSize(-val) + 1 : IOUtils.stringSize(val);
+				count += (val < 0) ? IOUtils.stringSize(-val) + 1 : IOUtils
+						.stringSize(val);
 				IOUtils.getChars(val, count, buf);
 			}
-			
+
 			if (i == iMax) {
 				buf[count++] = ARRAY_SUF;
-//				System.out.println("current count: " + count);
+				// System.out.println("current count: " + count);
 				return;
 			}
 			buf[count++] = SEPARATOR;
@@ -145,7 +158,7 @@ public class JsonStringWriter extends StringWriter {
 			return;
 		}
 		int iMax = arrayLen - 1;
-//		System.out.println("current count: " + count);
+		// System.out.println("current count: " + count);
 		int elementMaxLen = MIN_INT_VALUE.length;
 		int newcount = count + (elementMaxLen + 1) * arrayLen + 2 - 1;
 		if (newcount > buf.length) {
@@ -153,19 +166,20 @@ public class JsonStringWriter extends StringWriter {
 		}
 
 		buf[count++] = ARRAY_PRE;
-		for (int i = 0; ; i++) {
+		for (int i = 0;; i++) {
 			int val = array[i];
 			if (val == Integer.MIN_VALUE) {
-				System.arraycopy(MIN_INT_VALUE, 0, buf, count,elementMaxLen);
+				System.arraycopy(MIN_INT_VALUE, 0, buf, count, elementMaxLen);
 				count += elementMaxLen;
 			} else {
-				count += (val < 0) ? IOUtils.stringSize(-val) + 1 : IOUtils.stringSize(val);
+				count += (val < 0) ? IOUtils.stringSize(-val) + 1 : IOUtils
+						.stringSize(val);
 				IOUtils.getChars(val, count, buf);
 			}
-			
+
 			if (i == iMax) {
 				buf[count++] = ARRAY_SUF;
-//				System.out.println("current count: " + count);
+				// System.out.println("current count: " + count);
 				return;
 			}
 			buf[count++] = SEPARATOR;
@@ -180,7 +194,7 @@ public class JsonStringWriter extends StringWriter {
 			return;
 		}
 		int iMax = arrayLen - 1;
-//		System.out.println("current count: " + count);
+		// System.out.println("current count: " + count);
 		int elementMaxLen = MIN_INT_VALUE.length;
 		int newcount = count + (elementMaxLen + 1) * arrayLen + 2 - 1;
 		if (newcount > buf.length) {
@@ -188,19 +202,20 @@ public class JsonStringWriter extends StringWriter {
 		}
 
 		buf[count++] = ARRAY_PRE;
-		for (int i = 0; ; i++) {
+		for (int i = 0;; i++) {
 			int val = array[i];
 			if (val == Integer.MIN_VALUE) {
-				System.arraycopy(MIN_INT_VALUE, 0, buf, count,elementMaxLen);
+				System.arraycopy(MIN_INT_VALUE, 0, buf, count, elementMaxLen);
 				count += elementMaxLen;
 			} else {
-				count += (val < 0) ? IOUtils.stringSize(-val) + 1 : IOUtils.stringSize(val);
+				count += (val < 0) ? IOUtils.stringSize(-val) + 1 : IOUtils
+						.stringSize(val);
 				IOUtils.getChars(val, count, buf);
 			}
-			
+
 			if (i == iMax) {
 				buf[count++] = ARRAY_SUF;
-//				System.out.println("current count: " + count);
+				// System.out.println("current count: " + count);
 				return;
 			}
 			buf[count++] = SEPARATOR;
@@ -215,7 +230,7 @@ public class JsonStringWriter extends StringWriter {
 			return;
 		}
 		int iMax = arrayLen - 1;
-//		System.out.println("current count: " + count);
+		// System.out.println("current count: " + count);
 		int elementMaxLen = MIN_INT_VALUE.length;
 		int newcount = count + (elementMaxLen + 1) * arrayLen + 2 - 1;
 		if (newcount > buf.length) {
@@ -223,19 +238,20 @@ public class JsonStringWriter extends StringWriter {
 		}
 
 		buf[count++] = ARRAY_PRE;
-		for (int i = 0; ; i++) {
+		for (int i = 0;; i++) {
 			int val = array[i];
 			if (val == Integer.MIN_VALUE) {
-				System.arraycopy(MIN_INT_VALUE, 0, buf, count,elementMaxLen);
+				System.arraycopy(MIN_INT_VALUE, 0, buf, count, elementMaxLen);
 				count += elementMaxLen;
 			} else {
-				count += (val < 0) ? IOUtils.stringSize(-val) + 1 : IOUtils.stringSize(val);
+				count += (val < 0) ? IOUtils.stringSize(-val) + 1 : IOUtils
+						.stringSize(val);
 				IOUtils.getChars(val, count, buf);
 			}
-			
+
 			if (i == iMax) {
 				buf[count++] = ARRAY_SUF;
-//				System.out.println("current count: " + count);
+				// System.out.println("current count: " + count);
 				return;
 			}
 			buf[count++] = SEPARATOR;
@@ -250,7 +266,7 @@ public class JsonStringWriter extends StringWriter {
 			return;
 		}
 		int iMax = arrayLen - 1;
-//		System.out.println("current count: " + count);
+		// System.out.println("current count: " + count);
 		int elementMaxLen = MIN_LONG_VALUE.length;
 		int newcount = count + (elementMaxLen + 1) * arrayLen + 2 - 1;
 		if (newcount > buf.length) {
@@ -258,19 +274,20 @@ public class JsonStringWriter extends StringWriter {
 		}
 
 		buf[count++] = ARRAY_PRE;
-		for (int i = 0; ; i++) {
+		for (int i = 0;; i++) {
 			long val = array[i];
 			if (val == Long.MIN_VALUE) {
-				System.arraycopy(MIN_LONG_VALUE, 0, buf, count,elementMaxLen);
+				System.arraycopy(MIN_LONG_VALUE, 0, buf, count, elementMaxLen);
 				count += elementMaxLen;
 			} else {
-				count += (val < 0) ? IOUtils.stringSize(-val) + 1 : IOUtils.stringSize(val);
+				count += (val < 0) ? IOUtils.stringSize(-val) + 1 : IOUtils
+						.stringSize(val);
 				IOUtils.getChars(val, count, buf);
 			}
-			
+
 			if (i == iMax) {
 				buf[count++] = ARRAY_SUF;
-//				System.out.println("current count: " + count);
+				// System.out.println("current count: " + count);
 				return;
 			}
 			buf[count++] = SEPARATOR;
@@ -285,7 +302,7 @@ public class JsonStringWriter extends StringWriter {
 			return;
 		}
 		int iMax = arrayLen - 1;
-//		System.out.println("current count: " + count);
+		// System.out.println("current count: " + count);
 		int elementMaxLen = MIN_LONG_VALUE.length;
 		int newcount = count + (elementMaxLen + 1) * arrayLen + 2 - 1;
 		if (newcount > buf.length) {
@@ -293,19 +310,20 @@ public class JsonStringWriter extends StringWriter {
 		}
 
 		buf[count++] = ARRAY_PRE;
-		for (int i = 0; ; i++) {
+		for (int i = 0;; i++) {
 			long val = array[i];
 			if (val == Long.MIN_VALUE) {
-				System.arraycopy(MIN_LONG_VALUE, 0, buf, count,elementMaxLen);
+				System.arraycopy(MIN_LONG_VALUE, 0, buf, count, elementMaxLen);
 				count += elementMaxLen;
 			} else {
-				count += (val < 0) ? IOUtils.stringSize(-val) + 1 : IOUtils.stringSize(val);
+				count += (val < 0) ? IOUtils.stringSize(-val) + 1 : IOUtils
+						.stringSize(val);
 				IOUtils.getChars(val, count, buf);
 			}
-			
+
 			if (i == iMax) {
 				buf[count++] = ARRAY_SUF;
-//				System.out.println("current count: " + count);
+				// System.out.println("current count: " + count);
 				return;
 			}
 			buf[count++] = SEPARATOR;
@@ -325,9 +343,9 @@ public class JsonStringWriter extends StringWriter {
 			expandCapacity(newcount);
 		}
 
-//		System.out.println("current count: " + count);
+		// System.out.println("current count: " + count);
 		buf[count++] = ARRAY_PRE;
-		for (int i = 0; ; i++) {
+		for (int i = 0;; i++) {
 			if (array[i]) {
 				buf[count++] = 't';
 				buf[count++] = 'r';
@@ -342,7 +360,7 @@ public class JsonStringWriter extends StringWriter {
 			}
 			if (i == iMax) {
 				buf[count++] = ARRAY_SUF;
-//				System.out.println("current count: " + count);
+				// System.out.println("current count: " + count);
 				return;
 			}
 			buf[count++] = SEPARATOR;
@@ -362,9 +380,9 @@ public class JsonStringWriter extends StringWriter {
 			expandCapacity(newcount);
 		}
 
-//		System.out.println("current count: " + count);
+		// System.out.println("current count: " + count);
 		buf[count++] = ARRAY_PRE;
-		for (int i = 0; ; i++) {
+		for (int i = 0;; i++) {
 			if (array[i]) {
 				buf[count++] = 't';
 				buf[count++] = 'r';
@@ -379,7 +397,7 @@ public class JsonStringWriter extends StringWriter {
 			}
 			if (i == iMax) {
 				buf[count++] = ARRAY_SUF;
-//				System.out.println("current count: " + count);
+				// System.out.println("current count: " + count);
 				return;
 			}
 			buf[count++] = SEPARATOR;
