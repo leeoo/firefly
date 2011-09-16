@@ -67,6 +67,14 @@ public class JsonStringWriter extends StringWriter {
 		}
 		buf[count++] = QUOTE;
 	}
+	
+	private void writeJsonString0NoFilter(String value) {
+		int len = value.length();
+		buf[count++] = QUOTE;
+		value.getChars(0, len, buf, count);
+		count += len;
+		buf[count++] = QUOTE;
+	}
 
 	public void writeStringWithQuoteNoFilter(String value) {
 		int len = value.length();
@@ -74,12 +82,44 @@ public class JsonStringWriter extends StringWriter {
 		if (newcount > buf.length) {
 			expandCapacity(newcount);
 		}
-		buf[count++] = QUOTE;
-		value.getChars(0, len, buf, count);
-		count += len;
-		buf[count++] = QUOTE;
+		writeJsonString0NoFilter(value);
 	}
+	
+	public void writeStringArrayNoFilter(String[] array) {
+		int arrayLen = array.length;
+		if (arrayLen == 0) {
+			buf[count++] = ARRAY_PRE;
+			buf[count++] = ARRAY_SUF;
+			return;
+		}
+		
+		int iMax = arrayLen - 1;
+		int totalSize = 2;
+		for (int i = 0; ; i++) {
+			int size = array[i].length() * 2 + 2 + 1;
+			totalSize += size;
+			if (i == iMax) {
+				break;
+			}
+			totalSize++;
+		}
 
+		int newcount = count + totalSize;
+		if (newcount > buf.length) {
+			expandCapacity(newcount);
+		}
+
+		buf[count++] = ARRAY_PRE;
+		for (int i = 0; ; ++i) {
+			writeJsonString0NoFilter(array[i]);
+			if (i == iMax) {
+				buf[count++] = ARRAY_SUF;
+				return;
+			}
+			buf[count++] = SEPARATOR;
+		}
+	}
+	
 	public void writeStringWithQuote(String value) {
 		int newcount = count + value.length() * 2 + 2;
 		if (newcount > buf.length) {
@@ -89,14 +129,22 @@ public class JsonStringWriter extends StringWriter {
 	}
 
 	public void writeStringArray(String[] array) {
+		int arrayLen = array.length;
+		if (arrayLen == 0) {
+			buf[count++] = ARRAY_PRE;
+			buf[count++] = ARRAY_SUF;
+			return;
+		}
+		
+		int iMax = arrayLen - 1;
 		int totalSize = 2;
-		for (int i = 0; i < array.length; i++) {
-			if (i != 0) {
-				totalSize++;
-			}
-			int size = array[i].length() * 2 + 2;
-
+		for (int i = 0; ; i++) {
+			int size = array[i].length() * 2 + 2 + 1;
 			totalSize += size;
+			if (i == iMax) {
+				break;
+			}
+			totalSize++;
 		}
 
 		int newcount = count + totalSize;
@@ -105,13 +153,14 @@ public class JsonStringWriter extends StringWriter {
 		}
 
 		buf[count++] = ARRAY_PRE;
-		for (int i = 0; i < array.length; ++i) {
-			if (i != 0) {
-				buf[count++] = SEPARATOR;
-			}
+		for (int i = 0; ; ++i) {
 			writeJsonString0(array[i]);
+			if (i == iMax) {
+				buf[count++] = ARRAY_SUF;
+				return;
+			}
+			buf[count++] = SEPARATOR;
 		}
-		buf[count++] = ARRAY_SUF;
 	}
 
 	public void writeIntArray(int[] array) {

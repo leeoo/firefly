@@ -3,8 +3,10 @@ package test.utils.json;
 import java.util.Date;
 import java.util.Map;
 
+import com.firefly.utils.json.annotation.CircularReferenceCheck;
 import com.firefly.utils.json.annotation.SpecialCharacterFilter;
 
+@CircularReferenceCheck
 public class Node {
 	private int id;
 	private String text;

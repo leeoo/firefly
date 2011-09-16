@@ -12,11 +12,12 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.firefly.utils.collection.IdentityHashMap;
 import com.firefly.utils.json.Serializer;
+import com.firefly.utils.json.annotation.CircularReferenceCheck;
 import com.firefly.utils.json.support.JsonStringWriter;
 
 abstract public class StateMachine {
 	private static final IdentityHashMap<Class<?>, Serializer> map = new IdentityHashMap<Class<?>, Serializer>();
-	
+
 	private static final Serializer MAP = new MapSerializer();
 	private static final Serializer COLLECTION = new CollectionSerializer();
 	private static final Serializer ARRAY = new ArraySerializer();
@@ -65,20 +66,21 @@ abstract public class StateMachine {
 		map.put(BigInteger.class, map.get(double.class));
 		map.put(AtomicBoolean.class, map.get(double.class));
 	}
-	
+
 	public static Serializer getSerializer(Class<?> clazz) {
 		Serializer ret = map.get(clazz);
-		if(ret == null) {
-			if(clazz.isEnum())
+		if (ret == null) {
+			if (clazz.isEnum())
 				ret = ENUM;
-			else if (Map.class.isAssignableFrom(clazz)) 
+			else if (Map.class.isAssignableFrom(clazz))
 				ret = MAP;
 			else if (Collection.class.isAssignableFrom(clazz))
 				ret = COLLECTION;
 			else if (clazz.isArray())
 				ret = ARRAY;
 			else
-				ret = new ObjectSerializer(clazz);
+				ret = clazz.isAnnotationPresent(CircularReferenceCheck.class) ? new ObjectSerializer(
+						clazz) : new ObjectNoCheckSerializer(clazz);
 			map.put(clazz, ret);
 		}
 		return ret;
