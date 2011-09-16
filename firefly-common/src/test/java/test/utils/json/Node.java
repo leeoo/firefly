@@ -3,6 +3,8 @@ package test.utils.json;
 import java.util.Date;
 import java.util.Map;
 
+import com.firefly.utils.json.annotation.SpecialCharacterFilter;
+
 public class Node {
 	private int id;
 	private String text;
@@ -71,6 +73,7 @@ public class Node {
 		this.id = id;
 	}
 
+	@SpecialCharacterFilter
 	public String getText() {
 		return text;
 	}
