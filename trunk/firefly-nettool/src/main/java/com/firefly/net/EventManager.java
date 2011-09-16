@@ -6,4 +6,5 @@ public interface EventManager {
 	void executeReceiveTask(Session session, Object message);
 	void executeCloseTask(Session session);
 	void executeExceptionTask(Session session, Throwable t);
+	void shutdown();
 }

@@ -27,9 +27,6 @@ import com.firefly.net.Worker;
 import com.firefly.net.buffer.SocketReceiveBufferPool;
 import com.firefly.net.buffer.SocketSendBufferPool;
 import com.firefly.net.buffer.SocketSendBufferPool.SendBuffer;
-import com.firefly.net.event.CurrentThreadEventManager;
-import com.firefly.net.event.QueueEventManager;
-import com.firefly.net.event.ThreadPoolEventManager;
 import com.firefly.net.exception.NetException;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
@@ -57,26 +54,15 @@ public final class TcpWorker implements Worker {
 		timeProvider.start();
 	}
 
-	public TcpWorker(Config config, int workerId,
+	public TcpWorker(Config config, int workerId, EventManager eventManager,
 			Synchronizer<Session> clientSynchronizer) {
 		try {
 			this.workerId = workerId;
 			this.config = config;
 			this.synchronizer = clientSynchronizer;
+			this.eventManager = eventManager;
+			
 			selector = Selector.open();
-			if (config.getHandleThreads() >= 0) {
-				log.debug("new ThreadPoolEventManager");
-				eventManager = new ThreadPoolEventManager(config);
-			} else {
-				if (config.getHandleThreads() == -701) {
-					eventManager = new QueueEventManager(config);
-					((QueueEventManager) eventManager).start();
-					log.debug("new QueueEventManager");
-				} else {
-					log.debug("new CurrentThreadEventManager");
-					eventManager = new CurrentThreadEventManager(config);
-				}
-			}
 			start = true;
 			new Thread(this, "Tcp-worker: " + workerId).start();
 		} catch (IOException e) {
@@ -625,11 +611,7 @@ public final class TcpWorker implements Worker {
 
 	@Override
 	public void shutdown() {
-		if (eventManager instanceof ThreadPoolEventManager) {
-			((ThreadPoolEventManager) eventManager).shutdown();
-		} else if (eventManager instanceof QueueEventManager) {
-			((QueueEventManager) eventManager).shutdown();
-		}
+		eventManager.shutdown();
 		start = false;
 		timeProvider.stop();
 		log.debug("thread {} is shutdown: {}", thread.getName(),

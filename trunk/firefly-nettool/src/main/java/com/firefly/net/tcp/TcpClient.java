@@ -1,6 +1,8 @@
 package com.firefly.net.tcp;
 
 import com.firefly.net.*;
+import com.firefly.net.event.CurrentThreadEventManager;
+import com.firefly.net.event.ThreadPoolEventManager;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
 
@@ -28,7 +30,12 @@ public class TcpClient implements Client {
         config.setEncoder(encoder);
         config.setHandler(handler);
         config.setHandleThreads(-1);
-        config.setWorkerThreads(Runtime.getRuntime().availableProcessors() / 2);
+        int workers = Runtime.getRuntime().availableProcessors();
+        if(workers > 4)
+        	workers *= 2;
+        else
+        	workers += 1;
+        config.setWorkerThreads(workers);
     }
 
     private synchronized Client init() {
@@ -37,12 +44,22 @@ public class TcpClient implements Client {
 
         if (config == null)
             throw new IllegalArgumentException("init error config is null");
+        
+        EventManager eventManager = null;
+        if (config.getHandleThreads() >= 0) {
+			log.info("new ThreadPoolEventManager");
+			eventManager = new ThreadPoolEventManager(config);
+		} else {
+			log.info("new CurrentThreadEventManager");
+			eventManager = new CurrentThreadEventManager(config);
+		}
+        
 
         int workerNum = config.getWorkerThreads();
         log.info("client init worker num: {}", workerNum);
         workers = new Worker[workerNum];
         for (int i = 0; i < workerNum; i++) {
-            workers[i] = new TcpWorker(config, i, synchronizer);
+            workers[i] = new TcpWorker(config, i, eventManager, synchronizer);
         }
         started = true;
         return this;

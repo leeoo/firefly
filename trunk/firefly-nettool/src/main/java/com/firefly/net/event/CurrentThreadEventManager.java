@@ -57,4 +57,10 @@ public class CurrentThreadEventManager implements EventManager {
 		}
 	}
 
+	@Override
+	public void shutdown() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
