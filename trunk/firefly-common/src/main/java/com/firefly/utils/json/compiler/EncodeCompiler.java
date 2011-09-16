@@ -9,13 +9,17 @@ import java.util.List;
 import com.firefly.utils.json.Serializer;
 import com.firefly.utils.json.annotation.SpecialCharacterFilter;
 import com.firefly.utils.json.serializer.StateMachine;
+import com.firefly.utils.json.serializer.StringArrayNoFilterSerializer;
+import com.firefly.utils.json.serializer.StringArraySerializer;
 import com.firefly.utils.json.serializer.StringNoFilterSerializer;
+import com.firefly.utils.json.serializer.StringSerializer;
 import com.firefly.utils.json.support.JsonObjMetaInfo;
 
 public class EncodeCompiler {
 	
 	private static final JsonObjMetaInfo[] EMPTY_ARRAY = new JsonObjMetaInfo[0];
 	private static final Serializer STRING_NO_FILTER = new StringNoFilterSerializer();
+	private static final Serializer STRING_ARRAY_NO_FILTER = new StringArrayNoFilterSerializer();
 	
 	public static JsonObjMetaInfo[] compile(Class<?> clazz) {
 		JsonObjMetaInfo[] jsonObjMetaInfos = null;
@@ -71,13 +75,16 @@ public class EncodeCompiler {
 			fieldJsonObjMetaInfo.setPropertyName(propertyName, first);
 			fieldJsonObjMetaInfo.setMethod(method);
 			
-			
-			if(!method.isAnnotationPresent(SpecialCharacterFilter.class) && (fieldClazz == String.class || fieldClazz == String[].class || fieldClazz == StringBuilder.class || fieldClazz == StringBuffer.class)) {
-				fieldJsonObjMetaInfo.setSerializer(STRING_NO_FILTER);
-			} else {
-				fieldJsonObjMetaInfo.setSerializer(StateMachine.getSerializer(fieldClazz));
+			Serializer serializer = StateMachine.getSerializer(fieldClazz);
+			if(!method.isAnnotationPresent(SpecialCharacterFilter.class)) {
+				if(serializer instanceof StringSerializer)
+					serializer = STRING_NO_FILTER;
+				
+				if(serializer instanceof StringArraySerializer)
+					serializer = STRING_ARRAY_NO_FILTER;
 			}
 
+			fieldJsonObjMetaInfo.setSerializer(serializer);
 			fieldList.add(fieldJsonObjMetaInfo);
 			first = false;
 		}
