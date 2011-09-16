@@ -23,6 +23,8 @@ public class NodeDemo {
 		node.setText("dfs\t");
 		int[] rig = new int[]{1,2,3};
 		node.setRig(rig);
+		node.setRbool(new boolean[]{true, true, false});
+		node.setRlong(new Long[]{});
 		
 		map.put("hello", "world");
 		map.put("node2", node2);
@@ -33,6 +35,7 @@ public class NodeDemo {
 		node2.setSex('f');
 		node2.setFlag(true);
 		node2.setText("\n\"\b");
+		node2.setRlong(new Long[]{33L, 44L, 55L});
 		
 		System.out.println(Json.toJson(node));
 //		System.out.println(Json.toJson(node2));

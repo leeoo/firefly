@@ -38,10 +38,11 @@ public class JsonObjMetaInfo {
 			throws IOException {
 		try {
 			Object ret = method.invoke(obj);
-			if(ret != null)
-				serializer.convertTo(writer, ret) ;
-			else
+			if(ret == null) {
 				writer.writeNull();
+				return;
+			}
+			serializer.convertTo(writer, ret) ;
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {

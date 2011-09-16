@@ -8,4 +8,5 @@ public interface JsonStringSymbol {
 	char OBJ_SUF = '}';
 	char SEPARATOR = ',';
 	char OBJ_SEPARATOR = ':';
+	char[] EMPTY_ARRAY = "[]".toCharArray();
 }

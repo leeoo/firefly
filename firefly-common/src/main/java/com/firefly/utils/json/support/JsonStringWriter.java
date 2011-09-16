@@ -69,7 +69,7 @@ public class JsonStringWriter extends StringWriter {
 	}
 
 	public void writeStringWithQuote(String value) {
-		int newcount = count + (value.length() * 2 + 2);
+		int newcount = count + value.length() * 2 + 2;
 		if (newcount > buf.length) {
 			expandCapacity(newcount);
 		}
@@ -103,346 +103,286 @@ public class JsonStringWriter extends StringWriter {
 	}
 
 	public void writeIntArray(int[] array) {
-		int[] sizeArray = new int[array.length];
-		int totalSize = 2;
-		for (int i = 0; i < array.length; ++i) {
-			if (i != 0) {
-				totalSize++;
-			}
-			int val = array[i];
-			int size;
-			if (val == Integer.MIN_VALUE) {
-				size = MIN_INT_VALUE.length;
-			} else {
-				size = (val < 0) ? IOUtils.stringSize(-val) + 1 : IOUtils
-						.stringSize(val);
-			}
-			sizeArray[i] = size;
-			totalSize += size;
+		int arrayLen = array.length;
+		if (arrayLen == 0) {
+			buf[count++] = ARRAY_PRE;
+			buf[count++] = ARRAY_SUF;
+			return;
 		}
-
-		int newcount = count + totalSize;
+		int iMax = arrayLen - 1;
+//		System.out.println("current count: " + count);
+		int elementMaxLen = MIN_INT_VALUE.length;
+		int newcount = count + (elementMaxLen + 1) * arrayLen + 2 - 1;
 		if (newcount > buf.length) {
 			expandCapacity(newcount);
 		}
 
-		buf[count] = ARRAY_PRE;
-
-		int currentSize = count + 1;
-		for (int i = 0; i < array.length; ++i) {
-			if (i != 0) {
-				buf[currentSize++] = SEPARATOR;
-			}
-
+		buf[count++] = ARRAY_PRE;
+		for (int i = 0; ; i++) {
 			int val = array[i];
 			if (val == Integer.MIN_VALUE) {
-				System.arraycopy(MIN_INT_VALUE, 0, buf, currentSize,
-						sizeArray[i]);
-				currentSize += sizeArray[i];
+				System.arraycopy(MIN_INT_VALUE, 0, buf, count,elementMaxLen);
+				count += elementMaxLen;
 			} else {
-				currentSize += sizeArray[i];
-				IOUtils.getChars(val, currentSize, buf);
+				count += (val < 0) ? IOUtils.stringSize(-val) + 1 : IOUtils.stringSize(val);
+				IOUtils.getChars(val, count, buf);
 			}
+			
+			if (i == iMax) {
+				buf[count++] = ARRAY_SUF;
+//				System.out.println("current count: " + count);
+				return;
+			}
+			buf[count++] = SEPARATOR;
 		}
-		buf[currentSize] = ARRAY_SUF;
-
-		count = newcount;
 	}
 
 	public void writeIntArray(Integer[] array) {
-		int[] sizeArray = new int[array.length];
-		int totalSize = 2;
-		for (int i = 0; i < array.length; ++i) {
-			if (i != 0) {
-				totalSize++;
-			}
-			int val = array[i];
-			int size;
-			if (val == Integer.MIN_VALUE) {
-				size = MIN_INT_VALUE.length;
-			} else {
-				size = (val < 0) ? IOUtils.stringSize(-val) + 1 : IOUtils
-						.stringSize(val);
-			}
-			sizeArray[i] = size;
-			totalSize += size;
+		int arrayLen = array.length;
+		if (arrayLen == 0) {
+			buf[count++] = ARRAY_PRE;
+			buf[count++] = ARRAY_SUF;
+			return;
 		}
-
-		int newcount = count + totalSize;
+		int iMax = arrayLen - 1;
+//		System.out.println("current count: " + count);
+		int elementMaxLen = MIN_INT_VALUE.length;
+		int newcount = count + (elementMaxLen + 1) * arrayLen + 2 - 1;
 		if (newcount > buf.length) {
 			expandCapacity(newcount);
 		}
 
-		buf[count] = ARRAY_PRE;
-
-		int currentSize = count + 1;
-		for (int i = 0; i < array.length; ++i) {
-			if (i != 0) {
-				buf[currentSize++] = SEPARATOR;
-			}
-
+		buf[count++] = ARRAY_PRE;
+		for (int i = 0; ; i++) {
 			int val = array[i];
 			if (val == Integer.MIN_VALUE) {
-				System.arraycopy(MIN_INT_VALUE, 0, buf, currentSize,
-						sizeArray[i]);
-				currentSize += sizeArray[i];
+				System.arraycopy(MIN_INT_VALUE, 0, buf, count,elementMaxLen);
+				count += elementMaxLen;
 			} else {
-				currentSize += sizeArray[i];
-				IOUtils.getChars(val, currentSize, buf);
+				count += (val < 0) ? IOUtils.stringSize(-val) + 1 : IOUtils.stringSize(val);
+				IOUtils.getChars(val, count, buf);
 			}
+			
+			if (i == iMax) {
+				buf[count++] = ARRAY_SUF;
+//				System.out.println("current count: " + count);
+				return;
+			}
+			buf[count++] = SEPARATOR;
 		}
-		buf[currentSize] = ARRAY_SUF;
-
-		count = newcount;
 	}
 
 	public void writeShortArray(short[] array) {
-		int[] sizeArray = new int[array.length];
-		int totalSize = 2;
-		for (int i = 0; i < array.length; ++i) {
-			if (i != 0) {
-				totalSize++;
-			}
-			short val = array[i];
-			int size = IOUtils.stringSize(val);
-			sizeArray[i] = size;
-			totalSize += size;
+		int arrayLen = array.length;
+		if (arrayLen == 0) {
+			buf[count++] = ARRAY_PRE;
+			buf[count++] = ARRAY_SUF;
+			return;
 		}
-
-		int newcount = count + totalSize;
+		int iMax = arrayLen - 1;
+//		System.out.println("current count: " + count);
+		int elementMaxLen = MIN_INT_VALUE.length;
+		int newcount = count + (elementMaxLen + 1) * arrayLen + 2 - 1;
 		if (newcount > buf.length) {
 			expandCapacity(newcount);
 		}
 
-		buf[count] = ARRAY_PRE;
-
-		int currentSize = count + 1;
-		for (int i = 0; i < array.length; ++i) {
-			if (i != 0) {
-				buf[currentSize++] = SEPARATOR;
+		buf[count++] = ARRAY_PRE;
+		for (int i = 0; ; i++) {
+			int val = array[i];
+			if (val == Integer.MIN_VALUE) {
+				System.arraycopy(MIN_INT_VALUE, 0, buf, count,elementMaxLen);
+				count += elementMaxLen;
+			} else {
+				count += (val < 0) ? IOUtils.stringSize(-val) + 1 : IOUtils.stringSize(val);
+				IOUtils.getChars(val, count, buf);
 			}
-
-			short val = array[i];
-			currentSize += sizeArray[i];
-			IOUtils.getChars(val, currentSize, buf);
+			
+			if (i == iMax) {
+				buf[count++] = ARRAY_SUF;
+//				System.out.println("current count: " + count);
+				return;
+			}
+			buf[count++] = SEPARATOR;
 		}
-		buf[currentSize] = ARRAY_SUF;
-
-		count = newcount;
 	}
 
 	public void writeShortArray(Short[] array) {
-		int[] sizeArray = new int[array.length];
-		int totalSize = 2;
-		for (int i = 0; i < array.length; ++i) {
-			if (i != 0) {
-				totalSize++;
-			}
-			short val = array[i];
-			int size = IOUtils.stringSize(val);
-			sizeArray[i] = size;
-			totalSize += size;
+		int arrayLen = array.length;
+		if (arrayLen == 0) {
+			buf[count++] = ARRAY_PRE;
+			buf[count++] = ARRAY_SUF;
+			return;
 		}
-
-		int newcount = count + totalSize;
+		int iMax = arrayLen - 1;
+//		System.out.println("current count: " + count);
+		int elementMaxLen = MIN_INT_VALUE.length;
+		int newcount = count + (elementMaxLen + 1) * arrayLen + 2 - 1;
 		if (newcount > buf.length) {
 			expandCapacity(newcount);
 		}
 
-		buf[count] = ARRAY_PRE;
-
-		int currentSize = count + 1;
-		for (int i = 0; i < array.length; ++i) {
-			if (i != 0) {
-				buf[currentSize++] = SEPARATOR;
+		buf[count++] = ARRAY_PRE;
+		for (int i = 0; ; i++) {
+			int val = array[i];
+			if (val == Integer.MIN_VALUE) {
+				System.arraycopy(MIN_INT_VALUE, 0, buf, count,elementMaxLen);
+				count += elementMaxLen;
+			} else {
+				count += (val < 0) ? IOUtils.stringSize(-val) + 1 : IOUtils.stringSize(val);
+				IOUtils.getChars(val, count, buf);
 			}
-
-			short val = array[i];
-			currentSize += sizeArray[i];
-			IOUtils.getChars(val, currentSize, buf);
+			
+			if (i == iMax) {
+				buf[count++] = ARRAY_SUF;
+//				System.out.println("current count: " + count);
+				return;
+			}
+			buf[count++] = SEPARATOR;
 		}
-		buf[currentSize] = ARRAY_SUF;
-
-		count = newcount;
 	}
 
 	public void writeLongArray(long[] array) {
-		int[] sizeArray = new int[array.length];
-		int totalSize = 2;
-		for (int i = 0; i < array.length; ++i) {
-			if (i != 0) {
-				totalSize++;
-			}
-			long val = array[i];
-			int size;
-			if (val == Long.MIN_VALUE) {
-				size = MIN_LONG_VALUE.length;
-			} else {
-				size = (val < 0) ? IOUtils.stringSize(-val) + 1 : IOUtils
-						.stringSize(val);
-			}
-			sizeArray[i] = size;
-			totalSize += size;
+		int arrayLen = array.length;
+		if (arrayLen == 0) {
+			buf[count++] = ARRAY_PRE;
+			buf[count++] = ARRAY_SUF;
+			return;
 		}
-
-		int newcount = count + totalSize;
+		int iMax = arrayLen - 1;
+//		System.out.println("current count: " + count);
+		int elementMaxLen = MIN_LONG_VALUE.length;
+		int newcount = count + (elementMaxLen + 1) * arrayLen + 2 - 1;
 		if (newcount > buf.length) {
 			expandCapacity(newcount);
 		}
 
-		buf[count] = ARRAY_PRE;
-
-		int currentSize = count + 1;
-		for (int i = 0; i < array.length; ++i) {
-			if (i != 0) {
-				buf[currentSize++] = SEPARATOR;
-			}
-
+		buf[count++] = ARRAY_PRE;
+		for (int i = 0; ; i++) {
 			long val = array[i];
 			if (val == Long.MIN_VALUE) {
-				System.arraycopy(MIN_LONG_VALUE, 0, buf, currentSize,
-						sizeArray[i]);
-				currentSize += sizeArray[i];
+				System.arraycopy(MIN_LONG_VALUE, 0, buf, count,elementMaxLen);
+				count += elementMaxLen;
 			} else {
-				currentSize += sizeArray[i];
-				IOUtils.getChars(val, currentSize, buf);
+				count += (val < 0) ? IOUtils.stringSize(-val) + 1 : IOUtils.stringSize(val);
+				IOUtils.getChars(val, count, buf);
 			}
+			
+			if (i == iMax) {
+				buf[count++] = ARRAY_SUF;
+//				System.out.println("current count: " + count);
+				return;
+			}
+			buf[count++] = SEPARATOR;
 		}
-		buf[currentSize] = ARRAY_SUF;
-
-		count = newcount;
 	}
 
 	public void writeLongArray(Long[] array) {
-		int[] sizeArray = new int[array.length];
-		int totalSize = 2;
-		for (int i = 0; i < array.length; ++i) {
-			if (i != 0) {
-				totalSize++;
-			}
-			long val = array[i];
-			int size;
-			if (val == Long.MIN_VALUE) {
-				size = MIN_LONG_VALUE.length;
-			} else {
-				size = (val < 0) ? IOUtils.stringSize(-val) + 1 : IOUtils
-						.stringSize(val);
-			}
-			sizeArray[i] = size;
-			totalSize += size;
+		int arrayLen = array.length;
+		if (arrayLen == 0) {
+			buf[count++] = ARRAY_PRE;
+			buf[count++] = ARRAY_SUF;
+			return;
 		}
-
-		int newcount = count + totalSize;
+		int iMax = arrayLen - 1;
+//		System.out.println("current count: " + count);
+		int elementMaxLen = MIN_LONG_VALUE.length;
+		int newcount = count + (elementMaxLen + 1) * arrayLen + 2 - 1;
 		if (newcount > buf.length) {
 			expandCapacity(newcount);
 		}
 
-		buf[count] = ARRAY_PRE;
-
-		int currentSize = count + 1;
-		for (int i = 0; i < array.length; ++i) {
-			if (i != 0) {
-				buf[currentSize++] = SEPARATOR;
-			}
-
+		buf[count++] = ARRAY_PRE;
+		for (int i = 0; ; i++) {
 			long val = array[i];
 			if (val == Long.MIN_VALUE) {
-				System.arraycopy(MIN_LONG_VALUE, 0, buf, currentSize,
-						sizeArray[i]);
-				currentSize += sizeArray[i];
+				System.arraycopy(MIN_LONG_VALUE, 0, buf, count,elementMaxLen);
+				count += elementMaxLen;
 			} else {
-				currentSize += sizeArray[i];
-				IOUtils.getChars(val, currentSize, buf);
+				count += (val < 0) ? IOUtils.stringSize(-val) + 1 : IOUtils.stringSize(val);
+				IOUtils.getChars(val, count, buf);
 			}
+			
+			if (i == iMax) {
+				buf[count++] = ARRAY_SUF;
+//				System.out.println("current count: " + count);
+				return;
+			}
+			buf[count++] = SEPARATOR;
 		}
-		buf[currentSize] = ARRAY_SUF;
-
-		count = newcount;
 	}
 
 	public void writeBooleanArray(boolean[] array) {
-		int totalSize = 2;
-		for (int i = 0; i < array.length; ++i) {
-			if (i != 0) {
-				totalSize++;
-			}
-			boolean val = array[i];
-			totalSize += val ? 4 : 5;
-			;
+		int arrayLen = array.length;
+		if (arrayLen == 0) {
+			buf[count++] = ARRAY_PRE;
+			buf[count++] = ARRAY_SUF;
+			return;
 		}
-
-		int newcount = count + totalSize;
+		int iMax = arrayLen - 1;
+		int newcount = count + (5 + 1) * arrayLen + 2 - 1;
 		if (newcount > buf.length) {
 			expandCapacity(newcount);
 		}
 
-		buf[count] = ARRAY_PRE;
-
-		int currentSize = count + 1;
-		for (int i = 0; i < array.length; ++i) {
-			if (i != 0) {
-				buf[currentSize++] = SEPARATOR;
-			}
-
-			boolean val = array[i];
-			if (val) {
-				buf[currentSize++] = 't';
-				buf[currentSize++] = 'r';
-				buf[currentSize++] = 'u';
-				buf[currentSize++] = 'e';
+//		System.out.println("current count: " + count);
+		buf[count++] = ARRAY_PRE;
+		for (int i = 0; ; i++) {
+			if (array[i]) {
+				buf[count++] = 't';
+				buf[count++] = 'r';
+				buf[count++] = 'u';
+				buf[count++] = 'e';
 			} else {
-				buf[currentSize++] = 'f';
-				buf[currentSize++] = 'a';
-				buf[currentSize++] = 'l';
-				buf[currentSize++] = 's';
-				buf[currentSize++] = 'e';
+				buf[count++] = 'f';
+				buf[count++] = 'a';
+				buf[count++] = 'l';
+				buf[count++] = 's';
+				buf[count++] = 'e';
 			}
+			if (i == iMax) {
+				buf[count++] = ARRAY_SUF;
+//				System.out.println("current count: " + count);
+				return;
+			}
+			buf[count++] = SEPARATOR;
 		}
-		buf[currentSize] = ARRAY_SUF;
-
-		count = newcount;
 	}
 
 	public void writeBooleanArray(Boolean[] array) {
-		int totalSize = 2;
-		for (int i = 0; i < array.length; ++i) {
-			if (i != 0) {
-				totalSize++;
-			}
-			boolean val = array[i];
-			totalSize += val ? 4 : 5;
-			;
+		int arrayLen = array.length;
+		if (arrayLen == 0) {
+			buf[count++] = ARRAY_PRE;
+			buf[count++] = ARRAY_SUF;
+			return;
 		}
-
-		int newcount = count + totalSize;
+		int iMax = arrayLen - 1;
+		int newcount = count + (5 + 1) * arrayLen + 2 - 1;
 		if (newcount > buf.length) {
 			expandCapacity(newcount);
 		}
 
-		buf[count] = ARRAY_PRE;
-
-		int currentSize = count + 1;
-		for (int i = 0; i < array.length; ++i) {
-			if (i != 0) {
-				buf[currentSize++] = SEPARATOR;
-			}
-
-			boolean val = array[i];
-			if (val) {
-				buf[currentSize++] = 't';
-				buf[currentSize++] = 'r';
-				buf[currentSize++] = 'u';
-				buf[currentSize++] = 'e';
+//		System.out.println("current count: " + count);
+		buf[count++] = ARRAY_PRE;
+		for (int i = 0; ; i++) {
+			if (array[i]) {
+				buf[count++] = 't';
+				buf[count++] = 'r';
+				buf[count++] = 'u';
+				buf[count++] = 'e';
 			} else {
-				buf[currentSize++] = 'f';
-				buf[currentSize++] = 'a';
-				buf[currentSize++] = 'l';
-				buf[currentSize++] = 's';
-				buf[currentSize++] = 'e';
+				buf[count++] = 'f';
+				buf[count++] = 'a';
+				buf[count++] = 'l';
+				buf[count++] = 's';
+				buf[count++] = 'e';
 			}
+			if (i == iMax) {
+				buf[count++] = ARRAY_SUF;
+//				System.out.println("current count: " + count);
+				return;
+			}
+			buf[count++] = SEPARATOR;
 		}
-		buf[currentSize] = ARRAY_SUF;
-
-		count = newcount;
 	}
 }
