@@ -25,7 +25,7 @@ public class JsonDemo {
 
 		String jsonString = Json.toJson(group);
 		long start = System.currentTimeMillis();
-		for (int i = 0; i < 100000; i++) {
+		for (int i = 0; i < 1000 * 1000; i++) {
 			jsonString = Json.toJson(group);
 		}
 		long end = System.currentTimeMillis();

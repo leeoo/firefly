@@ -11,7 +11,25 @@ public class Node {
 	private Date timestamp;
 	private char sex;
 	private int[] rig;
+	private boolean[] rbool;
+	private Long[] rlong;
 	private Map<String, Object> map;
+
+	public Long[] getRlong() {
+		return rlong;
+	}
+
+	public void setRlong(Long[] rlong) {
+		this.rlong = rlong;
+	}
+
+	public boolean[] getRbool() {
+		return rbool;
+	}
+
+	public void setRbool(boolean[] rbool) {
+		this.rbool = rbool;
+	}
 
 	public Map<String, Object> getMap() {
 		return map;

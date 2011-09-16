@@ -20,12 +20,7 @@ public class ObjectSerializer implements Serializer {
 	}
 
 	@Override
-	public void convertTo(JsonStringWriter writer, Object obj) throws IOException {
-		if (obj == null) {
-			writer.writeNull();
-			return;
-		}
-		
+	public void convertTo(JsonStringWriter writer, Object obj) throws IOException {		
 		if (writer.existRef(obj)) { // 防止循环引用，此处会影响一些性能
 			writer.writeNull();
 			return;
