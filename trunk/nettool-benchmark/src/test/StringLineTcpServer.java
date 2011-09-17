@@ -1,5 +1,7 @@
 package test;
 
+import com.firefly.net.support.StringLineDecoder;
+import com.firefly.net.support.StringLineEncoder;
 import com.firefly.net.tcp.TcpServer;
 
 public class StringLineTcpServer {

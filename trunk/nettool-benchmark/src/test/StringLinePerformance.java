@@ -1,8 +1,11 @@
 package test;
 
-import com.firefly.net.Client;
 import com.firefly.net.Session;
-import com.firefly.net.tcp.TcpClient;
+import com.firefly.net.support.StringLineDecoder;
+import com.firefly.net.support.StringLineEncoder;
+import com.firefly.net.support.TcpConnection;
+import com.firefly.net.support.MessageReceiveCallBack;
+import com.firefly.net.support.SimpleTcpClient;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
 import java.util.concurrent.*;
@@ -12,26 +15,21 @@ public class StringLinePerformance {
     public static final int LOOP = 2000;
     public static final int THREAD = 500;
 
-    public static class ClientTask implements Runnable {
+    public static class ClientSynchronizeTask implements Runnable {
 
-        private final Client client;
+        private final SimpleTcpClient client;
         private final CyclicBarrier barrier;
-
-        public Session getSession() {
-            return client.connect("10.147.22.162", 9900);
-        }
 
         @Override
         public void run() {
-            Session session = getSession();
+        	TcpConnection c = client.connect();
             for (int i = 0; i < LOOP; i++) {
-                String message = "hello world! " + session.getSessionId();
-                session.encode(message);
-                String ret = (String) session.getResult(1000);
+                String message = "hello world! " + c.getId();
+                String ret = (String) c.send(message);
                 log.debug("rev: {}", ret);
             }
-            session.close(false);
-            log.debug("session {} complete", session.getSessionId());
+            c.close(false);
+            log.debug("session {} complete", c.getId());
 
             try {
                 barrier.await();
@@ -43,7 +41,48 @@ public class StringLinePerformance {
 
         }
 
-        public ClientTask(Client client, CyclicBarrier barrier) {
+        public ClientSynchronizeTask(SimpleTcpClient client, CyclicBarrier barrier) {
+            this.client = client;
+            this.barrier = barrier;
+        }
+    }
+    
+    public static class ClientAsynchronousTask implements Runnable {
+
+        private final SimpleTcpClient client;
+        private final CyclicBarrier barrier;
+
+        @Override
+        public void run() {
+        	TcpConnection c = client.connect();
+            for (int i = 0; i < LOOP; i++) {
+                String message = "hello world! " + c.getId();
+                c.send(message, new MessageReceiveCallBack(){
+
+					@Override
+					public void messageRecieved(Session session, Object obj) {
+						log.debug("rev: {}", obj);
+					}});
+                
+            }
+            c.send("quit", new MessageReceiveCallBack(){
+
+				@Override
+				public void messageRecieved(Session session, Object obj) {
+					log.debug("rev: {}", obj);
+					log.debug("session {} complete", session.getSessionId());
+				}});
+            try {
+                barrier.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (BrokenBarrierException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        public ClientAsynchronousTask(SimpleTcpClient client, CyclicBarrier barrier) {
             this.client = client;
             this.barrier = barrier;
         }
@@ -72,14 +111,15 @@ public class StringLinePerformance {
 
     public static void main(String[] args) {
         ExecutorService executorService = Executors.newFixedThreadPool(THREAD);
-        final StringLineClientHandler handler = new StringLineClientHandler();
-        final Client client = new TcpClient(new StringLineDecoder(),
-                new StringLineEncoder(), handler);
-
+        final SimpleTcpClient client = new SimpleTcpClient("localhost", 9900, new StringLineDecoder(), new StringLineEncoder());
         final CyclicBarrier barrier = new CyclicBarrier(THREAD, new StatTask());
 
+//        for (int i = 0; i < THREAD; i++) {
+//            executorService.submit(new ClientSynchronizeTask(client, barrier));
+//        }
+        
         for (int i = 0; i < THREAD; i++) {
-            executorService.submit(new ClientTask(client, barrier));
+            executorService.submit(new ClientAsynchronousTask(client, barrier));
         }
     }
 }

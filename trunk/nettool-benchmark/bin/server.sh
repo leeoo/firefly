@@ -1,6 +1,6 @@
 home=/usr/local/app/alvinqiu/perf
 classpath=$home/classes`find $home/lib -iname *.jar | xargs -n 1 -i echo -n :{}`
-mainclass=test.FileTransferTcpServer
+mainclass=test.StringLineTcpServer
 jdk=/usr/local/jdk/bin/java
 stderr=$home/log/stderr.log
 stdout=$home/log/stdout.log
