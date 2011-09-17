@@ -1,19 +1,18 @@
-package test.net.tcp;
+package com.firefly.net.support;
 
 import java.util.Queue;
 
 import com.firefly.net.Handler;
 import com.firefly.net.Session;
-import com.firefly.net.Synchronizer;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
 
-public class StringLineClientHandler implements Handler {
+public class SimpleTcpClientHandler implements Handler {
 
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	private Synchronizer<Session> synchronizer;
 	
-	public StringLineClientHandler(Synchronizer<Session> synchronizer) {
+	public SimpleTcpClientHandler(Synchronizer<Session> synchronizer) {
 		this.synchronizer = synchronizer;
 	}
 
@@ -32,7 +31,7 @@ public class StringLineClientHandler implements Handler {
 	@Override
     public void messageRecieved(Session session, Object message) {
         log.debug("message: {}", message);
-        Queue<MessageReceiveCallBack> queue = (Queue<MessageReceiveCallBack>)session.getAttribute("#queue");
+        Queue<MessageReceiveCallBack> queue = (Queue<MessageReceiveCallBack>)session.getAttribute(TcpConnection.QUEUE_KEY);
         queue.poll().messageRecieved(session, message);
     }
 

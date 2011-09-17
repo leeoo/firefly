@@ -2,6 +2,10 @@ package test.net.tcp;
 
 import com.firefly.net.Config;
 import com.firefly.net.Server;
+import com.firefly.net.support.StringLineDecoder;
+import com.firefly.net.support.StringLineEncoder;
+import com.firefly.net.support.TcpConnection;
+import com.firefly.net.support.SimpleTcpClient;
 import com.firefly.net.tcp.TcpServer;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
@@ -28,14 +32,14 @@ public class TestTcpClientAndServer {
 
         final int LOOP = 50;
         ExecutorService executorService = Executors.newFixedThreadPool(LOOP);
-        final StringLineTcpClient client = new StringLineTcpClient("localhost", 9900);
+        final SimpleTcpClient client = new SimpleTcpClient("localhost", 9900, new StringLineDecoder(), new StringLineEncoder());
 
 
         for (int i = 0; i < LOOP; i++) {
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    final Connection c = client.connect();
+                    final TcpConnection c = client.connect();
                     Assert.assertThat(c.isOpen(), is(true));
 
                     
@@ -60,7 +64,7 @@ public class TestTcpClientAndServer {
 
         }
 
-        final Connection c = client.connect();
+        final TcpConnection c = client.connect();
 
         
         log.debug("main thread {}", Thread.currentThread().toString());

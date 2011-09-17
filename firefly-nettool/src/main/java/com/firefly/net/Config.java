@@ -1,204 +1,139 @@
 package com.firefly.net;
 
 public class Config {
-    // tcp parameter
-    private int connectionTime = 1;
-    private int latency = 2;
-    private int bandwidth = 0;
-    private int receiveBufferSize = 0;
-    private int sendBufferSize = 0;
-    private int backlog = 1024 * 16;
+	private int timeout = 30000;
+	private int handleThreads = -1;
+	private int receiveByteBufferSize = 0;
+	private boolean pipeline = false;
+	private int workerThreads;
+	{
+		int workers = Runtime.getRuntime().availableProcessors();
+		if (workers > 4)
+			workerThreads = workers * 2;
+		else
+			workerThreads = workers + 1;
+	}
 
-    private int timeout = 30000; // client connect timeout
+	private String serverName = "firefly-server";
+	private String clientName = "firefly-client";
 
-    private int handleThreads = -1; // handle threads =0: use cachedThreadPool, >0 : use fixedThreadPool, <0: use worker thread
-    private int workerThreads = Runtime.getRuntime().availableProcessors() * 2;
-    private int cleanupInterval = 256;
-    private int writeSpinCount = 16;
-    private int writeBufferHighWaterMark = 64 * 1024;
-    private int writeBufferLowWaterMark = 32 * 1024;
-    private int receiveByteBufferSize = 0; // >0: use fixed buffer size, <=0: use adaptive buffer size
-    private String serverName = "firefly-server";
-    private String clientName = "firefly-client";
+	private Decoder decoder;
+	private Encoder encoder;
+	private Handler handler;
 
-    private Decoder decoder;
-    private Encoder encoder;
-    private Handler handler;
+	/**
+	 * @return 连接超时时间
+	 */
+	public int getTimeout() {
+		return timeout;
+	}
 
-    public int getReceiveByteBufferSize() {
-        return receiveByteBufferSize;
-    }
+	/**
+	 * 设置连接超时时间
+	 * 
+	 * @param timeout
+	 *            超时时间
+	 */
+	public void setTimeout(int timeout) {
+		this.timeout = timeout;
+	}
 
-    public void setReceiveByteBufferSize(int receiveByteBufferSize) {
-        this.receiveByteBufferSize = receiveByteBufferSize;
-    }
+	/**
+	 * @return handler执行线程数
+	 */
+	public int getHandleThreads() {
+		return handleThreads;
+	}
 
-    public int getWriteBufferHighWaterMark() {
-        return writeBufferHighWaterMark;
-    }
+	/**
+	 * 设置handler执行线程数 <br/>
+	 * 线程数>0: 使用固定线程数线程池。<br/>
+	 * 线程数=0: 使用cached线程池 。<br/>
+	 * 线程数<0: handler在worker线程执行。<br/>
+	 * 
+	 * @param handleThreads
+	 *            handler执行线程数
+	 */
+	public void setHandleThreads(int handleThreads) {
+		this.handleThreads = handleThreads;
+	}
 
-    public void setWriteBufferHighWaterMark(int writeBufferHighWaterMark) {
-        this.writeBufferHighWaterMark = writeBufferHighWaterMark;
-    }
+	/**
+	 * @return 接受数据ByteBuffer大小
+	 */
+	public int getReceiveByteBufferSize() {
+		return receiveByteBufferSize;
+	}
 
-    public int getWriteBufferLowWaterMark() {
-        return writeBufferLowWaterMark;
-    }
+	/**
+	 * 设置接受数据ByteBuffer大小，当设置为小于或等于0时，使用自适应buffer大小
+	 * @param receiveByteBufferSize 设置接受数据ByteBuffer大小
+	 */
+	public void setReceiveByteBufferSize(int receiveByteBufferSize) {
+		this.receiveByteBufferSize = receiveByteBufferSize;
+	}
 
-    public void setWriteBufferLowWaterMark(int writeBufferLowWaterMark) {
-        this.writeBufferLowWaterMark = writeBufferLowWaterMark;
-    }
+	/**
+	 * @return 是否使用管道模型
+	 */
+	public boolean isPipeline() {
+		return pipeline;
+	}
 
-    public int getWriteSpinCount() {
-        return writeSpinCount;
-    }
+	/**
+	 * 设置成管道模型，即按照接受到的数据包的顺序进行响应
+	 * @param pipeline
+	 */
+	public void setPipeline(boolean pipeline) {
+		this.pipeline = pipeline;
+	}
 
-    public void setWriteSpinCount(int writeSpinCount) {
-        this.writeSpinCount = writeSpinCount;
-    }
+	public int getWorkerThreads() {
+		return workerThreads;
+	}
 
-    public int getCleanupInterval() {
-        return cleanupInterval;
-    }
+	public void setWorkerThreads(int workerThreads) {
+		this.workerThreads = workerThreads;
+	}
 
-    public void setCleanupInterval(int cleanupInterval) {
-        this.cleanupInterval = cleanupInterval;
-    }
+	public String getServerName() {
+		return serverName;
+	}
 
-    public String getClientName() {
-        return clientName;
-    }
+	public void setServerName(String serverName) {
+		this.serverName = serverName;
+	}
 
-    public void setClientName(String clientName) {
-        this.clientName = clientName;
-    }
+	public String getClientName() {
+		return clientName;
+	}
 
-    public String getServerName() {
-        return serverName;
-    }
+	public void setClientName(String clientName) {
+		this.clientName = clientName;
+	}
 
-    public void setServerName(String serverName) {
-        this.serverName = serverName;
-    }
+	public Decoder getDecoder() {
+		return decoder;
+	}
 
-    public int getReceiveBufferSize() {
-        return receiveBufferSize;
-    }
+	public void setDecoder(Decoder decoder) {
+		this.decoder = decoder;
+	}
 
-    public void setReceiveBufferSize(int receiveBufferSize) {
-        this.receiveBufferSize = receiveBufferSize;
-    }
+	public Encoder getEncoder() {
+		return encoder;
+	}
 
-    public int getSendBufferSize() {
-        return sendBufferSize;
-    }
+	public void setEncoder(Encoder encoder) {
+		this.encoder = encoder;
+	}
 
-    public void setSendBufferSize(int sendBufferSize) {
-        this.sendBufferSize = sendBufferSize;
-    }
+	public Handler getHandler() {
+		return handler;
+	}
 
-    public Decoder getDecoder() {
-        return decoder;
-    }
+	public void setHandler(Handler handler) {
+		this.handler = handler;
+	}
 
-    public void setDecoder(Decoder decoder) {
-        this.decoder = decoder;
-    }
-
-    public Encoder getEncoder() {
-        return encoder;
-    }
-
-    public void setEncoder(Encoder encoder) {
-        this.encoder = encoder;
-    }
-
-    public Handler getHandler() {
-        return handler;
-    }
-
-    public void setHandler(Handler handler) {
-        this.handler = handler;
-    }
-
-    public int getTimeout() {
-        return timeout;
-    }
-
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
-    }
-
-    public int getBacklog() {
-        return backlog;
-    }
-
-    public void setBacklog(int backlog) {
-        this.backlog = backlog;
-    }
-
-    public int getHandleThreads() {
-        return handleThreads;
-    }
-
-    public void setHandleThreads(int handleThreads) {
-        this.handleThreads = handleThreads;
-    }
-
-    public int getWorkerThreads() {
-        return workerThreads;
-    }
-
-    public void setWorkerThreads(int workerThreads) {
-        this.workerThreads = workerThreads;
-    }
-
-    public int getConnectionTime() {
-        return connectionTime;
-    }
-
-    public void setConnectionTime(int connectionTime) {
-        this.connectionTime = connectionTime;
-    }
-
-    public int getLatency() {
-        return latency;
-    }
-
-    public void setLatency(int latency) {
-        this.latency = latency;
-    }
-
-    public int getBandwidth() {
-        return bandwidth;
-    }
-
-    public void setBandwidth(int bandwidth) {
-        this.bandwidth = bandwidth;
-    }
-
-    @Override
-    public String toString() {
-        return "Config{" +
-                "connectionTime=" + connectionTime +
-                ", latency=" + latency +
-                ", bandwidth=" + bandwidth +
-                ", receiveBufferSize=" + receiveBufferSize +
-                ", sendBufferSize=" + sendBufferSize +
-                ", backlog=" + backlog +
-                ", timeout=" + timeout +
-                ", handleThreads=" + handleThreads +
-                ", workerThreads=" + workerThreads +
-                ", cleanupInterval=" + cleanupInterval +
-                ", writeSpinCount=" + writeSpinCount +
-                ", writeBufferHighWaterMark=" + writeBufferHighWaterMark +
-                ", writeBufferLowWaterMark=" + writeBufferLowWaterMark +
-                ", receiveByteBufferSize=" + receiveByteBufferSize +
-                ", serverName='" + serverName + '\'' +
-                ", clientName='" + clientName + '\'' +
-                ", decoder=" + decoder +
-                ", encoder=" + encoder +
-                ", handler=" + handler +
-                '}';
-    }
 }

@@ -1,4 +1,4 @@
-package com.firefly.net;
+package com.firefly.net.support;
 
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;

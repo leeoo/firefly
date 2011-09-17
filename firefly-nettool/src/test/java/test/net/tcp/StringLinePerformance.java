@@ -1,6 +1,11 @@
 package test.net.tcp;
 
 import com.firefly.net.Session;
+import com.firefly.net.support.StringLineDecoder;
+import com.firefly.net.support.StringLineEncoder;
+import com.firefly.net.support.TcpConnection;
+import com.firefly.net.support.MessageReceiveCallBack;
+import com.firefly.net.support.SimpleTcpClient;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
 import java.util.concurrent.*;
@@ -12,12 +17,12 @@ public class StringLinePerformance {
 
     public static class ClientSynchronizeTask implements Runnable {
 
-        private final StringLineTcpClient client;
+        private final SimpleTcpClient client;
         private final CyclicBarrier barrier;
 
         @Override
         public void run() {
-        	Connection c = client.connect();
+        	TcpConnection c = client.connect();
             for (int i = 0; i < LOOP; i++) {
                 String message = "hello world! " + c.getId();
                 String ret = (String) c.send(message);
@@ -36,7 +41,7 @@ public class StringLinePerformance {
 
         }
 
-        public ClientSynchronizeTask(StringLineTcpClient client, CyclicBarrier barrier) {
+        public ClientSynchronizeTask(SimpleTcpClient client, CyclicBarrier barrier) {
             this.client = client;
             this.barrier = barrier;
         }
@@ -44,12 +49,12 @@ public class StringLinePerformance {
     
     public static class ClientAsynchronousTask implements Runnable {
 
-        private final StringLineTcpClient client;
+        private final SimpleTcpClient client;
         private final CyclicBarrier barrier;
 
         @Override
         public void run() {
-        	Connection c = client.connect();
+        	TcpConnection c = client.connect();
             for (int i = 0; i < LOOP; i++) {
                 String message = "hello world! " + c.getId();
                 c.send(message, new MessageReceiveCallBack(){
@@ -79,7 +84,7 @@ public class StringLinePerformance {
 
         }
 
-        public ClientAsynchronousTask(StringLineTcpClient client, CyclicBarrier barrier) {
+        public ClientAsynchronousTask(SimpleTcpClient client, CyclicBarrier barrier) {
             this.client = client;
             this.barrier = barrier;
         }
@@ -108,15 +113,15 @@ public class StringLinePerformance {
 
     public static void main(String[] args) {
         ExecutorService executorService = Executors.newFixedThreadPool(THREAD);
-        final StringLineTcpClient client = new StringLineTcpClient("localhost", 9900);
+        final SimpleTcpClient client = new SimpleTcpClient("localhost", 9900, new StringLineDecoder(), new StringLineEncoder());
         final CyclicBarrier barrier = new CyclicBarrier(THREAD, new StatTask());
 
-//        for (int i = 0; i < THREAD; i++) {
-//            executorService.submit(new ClientSynchronizeTask(client, barrier));
-//        }
-        
         for (int i = 0; i < THREAD; i++) {
-            executorService.submit(new ClientAsynchronousTask(client, barrier));
+            executorService.submit(new ClientSynchronizeTask(client, barrier));
         }
+        
+//        for (int i = 0; i < THREAD; i++) {
+//            executorService.submit(new ClientAsynchronousTask(client, barrier));
+//        }
     }
 }
