@@ -33,7 +33,7 @@ public class StringLineTcpClient {
 	public static void main(String[] args) {
 		StringLineTcpClient client = new StringLineTcpClient("localhost", 9900);
 		Connection c = client.connect();
-		c.send("hello client 1", new Callback(){
+		c.send("hello client 1", new MessageReceiveCallBack(){
 
 			@Override
 			public void messageRecieved(Session session, Object obj) {
@@ -41,7 +41,7 @@ public class StringLineTcpClient {
 				
 			}});
 		
-		c.send("test", new Callback(){
+		c.send("test", new MessageReceiveCallBack(){
 
 			@Override
 			public void messageRecieved(Session session, Object obj) {
@@ -50,7 +50,7 @@ public class StringLineTcpClient {
 			}});
 		
 		
-		c.send("test client 3", new Callback(){
+		c.send("test client 3", new MessageReceiveCallBack(){
 
 			@Override
 			public void messageRecieved(Session session, Object obj) {
@@ -58,7 +58,7 @@ public class StringLineTcpClient {
 			}});
 		
 		
-		c.send("test 4", new Callback(){
+		c.send("test 4", new MessageReceiveCallBack(){
 
 			@Override
 			public void messageRecieved(Session session, Object obj) {
