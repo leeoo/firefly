@@ -20,22 +20,16 @@ public class StringLineDecoder implements Decoder {
 					.put(buffer).flip();
 		}
 
-		int p = 0;
-		boolean finished = false;
-
-		for (int i = 0; i < now.remaining(); i++) {
-			if (now.get(i) == LINE_LIMITOR) {
-				p = i;
-				break;
+		int dataLen = now.remaining();
+		
+		for (int i = 0, p = 0; i < dataLen; i++) {
+			if (now.get(i) == LINE_LIMITOR) {	
+				byte[] data = new byte[i - p + 1];
+				now.get(data);
+				String line = new String(data).trim();
+				p = i + 1;
+				session.fireReceiveMessage(line);
 			}
-		}
-
-		String sline = null;
-		if (p != 0) {
-			finished = true;
-			byte[] data = new byte[p + 1];
-			now.get(data);
-			sline = new String(data, 0, p + 1).trim();
 		}
 
 		if (now.hasRemaining()) {
@@ -43,11 +37,6 @@ public class StringLineDecoder implements Decoder {
 					.put(now).flip();
 			session.setAttribute("buff", succ);
 		}
-
-		if (finished) {
-			session.fireReceiveMessage(sline);
-		}
-
 	}
 
 }

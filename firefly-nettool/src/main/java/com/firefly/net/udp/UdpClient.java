@@ -2,7 +2,6 @@ package com.firefly.net.udp;
 
 import com.firefly.net.Client;
 import com.firefly.net.Config;
-import com.firefly.net.Session;
 
 public class UdpClient implements Client {
 
@@ -13,13 +12,19 @@ public class UdpClient implements Client {
 	}
 
 	@Override
-	public Session connect(String host, int port) {
+	public int connect(String host, int port) {
 		// TODO Auto-generated method stub
-		return null;
+		return 0;
 	}
 
 	@Override
 	public void shutdown() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void connect(String host, int port, int id) {
 		// TODO Auto-generated method stub
 		
 	}
