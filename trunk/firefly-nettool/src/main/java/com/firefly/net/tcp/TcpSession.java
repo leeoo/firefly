@@ -14,12 +14,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.firefly.net.Config;
 import com.firefly.net.ReceiveBufferSizePredictor;
 import com.firefly.net.Session;
-import com.firefly.net.ThreadLocalBoolean;
 import com.firefly.net.buffer.AdaptiveReceiveBufferSizePredictor;
 import com.firefly.net.buffer.FixedReceiveBufferSizePredictor;
 import com.firefly.net.buffer.SocketSendBufferPool.SendBuffer;
+import com.firefly.net.support.ThreadLocalBoolean;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
+import static com.firefly.net.tcp.TcpPerformanceParameter.*;
 
 public final class TcpSession implements Session {
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
@@ -261,7 +262,7 @@ public final class TcpSession implements Session {
 
 			int messageSize = getMessageSize(object);
 			int newWriteBufferSize = writeBufferSize.addAndGet(messageSize);
-			int highWaterMark = config.getWriteBufferHighWaterMark();
+			int highWaterMark = WRITE_BUFFER_HIGH_WATER_MARK;
 
 			if (newWriteBufferSize >= highWaterMark) {
 				if (newWriteBufferSize - messageSize < highWaterMark) {
@@ -284,7 +285,7 @@ public final class TcpSession implements Session {
 				int messageSize = getMessageSize(object);
 				int newWriteBufferSize = writeBufferSize
 						.addAndGet(-messageSize);
-				int lowWaterMark = config.getWriteBufferLowWaterMark();
+				int lowWaterMark = WRITE_BUFFER_LOW_WATER_MARK;
 
 				if (newWriteBufferSize == 0
 						|| newWriteBufferSize < lowWaterMark) {
@@ -320,14 +321,14 @@ public final class TcpSession implements Session {
 		int writeBufferSize = this.writeBufferSize.get();
 		if (writeBufferSize != 0) {
 			if (highWaterMarkCounter.get() > 0) {
-				int lowWaterMark = config.getWriteBufferLowWaterMark();
+				int lowWaterMark = WRITE_BUFFER_LOW_WATER_MARK;
 				if (writeBufferSize >= lowWaterMark) {
 					interestOps |= SelectionKey.OP_WRITE;
 				} else {
 					interestOps &= ~SelectionKey.OP_WRITE;
 				}
 			} else {
-				int highWaterMark = config.getWriteBufferHighWaterMark();
+				int highWaterMark = WRITE_BUFFER_HIGH_WATER_MARK;
 				if (writeBufferSize >= highWaterMark) {
 					interestOps |= SelectionKey.OP_WRITE;
 				} else {

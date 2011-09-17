@@ -30,6 +30,7 @@ import com.firefly.net.exception.NetException;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
 import com.firefly.utils.time.TimeProvider;
+import static com.firefly.net.tcp.TcpPerformanceParameter.*;
 
 public final class TcpWorker implements Worker {
 
@@ -209,7 +210,7 @@ public final class TcpWorker implements Worker {
 		final SocketChannel ch = (SocketChannel) session.getSelectionKey()
 				.channel();
 		final Queue<Object> writeBuffer = session.getWriteBuffer();
-		final int writeSpinCount = config.getWriteSpinCount();
+		final int writeSpinCount = WRITE_SPIN_COUNT;
 		synchronized (session.getWriteLock()) {
 			session.setInWriteNowLoop(true);
 			while (true) {
@@ -431,12 +432,6 @@ public final class TcpWorker implements Worker {
 				socketChannel.socket().setReuseAddress(true);
 				socketChannel.socket().setTcpNoDelay(false);
 				socketChannel.socket().setKeepAlive(true);
-				if (config.getReceiveBufferSize() > 0)
-					socketChannel.socket().setReceiveBufferSize(
-							config.getReceiveBufferSize());
-				if (config.getSendBufferSize() > 0)
-					socketChannel.socket().setSendBufferSize(
-							config.getSendBufferSize());
 
 				key = socketChannel.register(selector, SelectionKey.OP_READ);
 				Session session = new TcpSession(sessionId, TcpWorker.this,
@@ -484,7 +479,7 @@ public final class TcpWorker implements Worker {
 	}
 
 	private boolean cleanUpCancelledKeys() throws IOException {
-		if (cancelledKeys >= config.getCleanupInterval()) {
+		if (cancelledKeys >= CLEANUP_INTERVAL) {
 			cancelledKeys = 0;
 			selector.selectNow();
 			return true;

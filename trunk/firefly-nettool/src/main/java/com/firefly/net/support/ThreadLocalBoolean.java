@@ -1,4 +1,4 @@
-package com.firefly.net;
+package com.firefly.net.support;
 
 public class ThreadLocalBoolean extends ThreadLocal<Boolean> {
 	private final boolean defaultValue;

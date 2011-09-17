@@ -2,6 +2,7 @@ package com.firefly.net.tcp;
 
 import com.firefly.net.*;
 import com.firefly.net.event.CurrentThreadEventManager;
+import com.firefly.net.event.QueueEventManager;
 import com.firefly.net.event.ThreadPoolEventManager;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
@@ -29,12 +30,6 @@ public class TcpClient implements Client {
         config.setEncoder(encoder);
         config.setHandler(handler);
         config.setHandleThreads(-1);
-        int workers = Runtime.getRuntime().availableProcessors();
-        if(workers > 4)
-        	workers *= 2;
-        else
-        	workers += 1;
-        config.setWorkerThreads(workers);
     }
 
     private synchronized Client init() {
@@ -45,19 +40,25 @@ public class TcpClient implements Client {
             throw new IllegalArgumentException("init error config is null");
         
         EventManager eventManager = null;
-        if (config.getHandleThreads() >= 0) {
-			log.info("new ThreadPoolEventManager");
-			eventManager = new ThreadPoolEventManager(config);
+        if (config.isPipeline()) {
+			log.info("Pipeline Mode");
+			QueueEventManager queueEventManager = new QueueEventManager(config);
+			queueEventManager.start();
+			eventManager = queueEventManager;
 		} else {
-			log.info("new CurrentThreadEventManager");
-			eventManager = new CurrentThreadEventManager(config);
+			if (config.getHandleThreads() >= 0) {
+				log.info("ThreadPoolEventManager thread num {}",
+						config.getHandleThreads());
+				eventManager = new ThreadPoolEventManager(config);
+			} else {
+				log.info("CurrentThreadEventManager");
+				eventManager = new CurrentThreadEventManager(config);
+			}
 		}
         
-
-        int workerNum = config.getWorkerThreads();
-        log.info("client init worker num: {}", workerNum);
-        workers = new Worker[workerNum];
-        for (int i = 0; i < workerNum; i++) {
+        log.info("client worker num: {}", config.getWorkerThreads());
+        workers = new Worker[config.getWorkerThreads()];
+        for (int i = 0; i < config.getWorkerThreads(); i++) {
             workers[i] = new TcpWorker(config, i, eventManager);
         }
         started = true;

@@ -1,4 +1,4 @@
-package test.net.tcp;
+package com.firefly.net.support;
 
 import java.nio.ByteBuffer;
 
@@ -15,15 +15,15 @@ public class StringLineDecoder implements Decoder {
 
 		if (prev != null) {
 			session.removeAttribute("buff");
-			now = (ByteBuffer) ByteBuffer.allocate(
-					prev.remaining() + buffer.remaining()).put(prev)
+			now = (ByteBuffer) ByteBuffer
+					.allocate(prev.remaining() + buffer.remaining()).put(prev)
 					.put(buffer).flip();
 		}
 
 		int dataLen = now.remaining();
-		
+
 		for (int i = 0, p = 0; i < dataLen; i++) {
-			if (now.get(i) == LINE_LIMITOR) {	
+			if (now.get(i) == LINE_LIMITOR) {
 				byte[] data = new byte[i - p + 1];
 				now.get(data);
 				String line = new String(data).trim();
