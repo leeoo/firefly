@@ -39,7 +39,7 @@ public class SimpleTcpClientExample {
 			}
 		});
 
-		c.send("test 4", new MessageReceiveCallBack() {
+		c.send("quit", new MessageReceiveCallBack() {
 
 			@Override
 			public void messageRecieved(Session session, Object obj) {

@@ -62,18 +62,16 @@ public class StringLinePerformance {
 					@Override
 					public void messageRecieved(Session session, Object obj) {
 						log.debug("rev: {}", obj);
-						
 					}});
                 
             }
-            c.send("bye", new MessageReceiveCallBack(){
+            c.send("quit", new MessageReceiveCallBack(){
 
 				@Override
 				public void messageRecieved(Session session, Object obj) {
 					log.debug("rev: {}", obj);
 					log.debug("session {} complete", session.getSessionId());
 				}});
-
             try {
                 barrier.await();
             } catch (InterruptedException e) {
@@ -116,12 +114,12 @@ public class StringLinePerformance {
         final SimpleTcpClient client = new SimpleTcpClient("localhost", 9900, new StringLineDecoder(), new StringLineEncoder());
         final CyclicBarrier barrier = new CyclicBarrier(THREAD, new StatTask());
 
-        for (int i = 0; i < THREAD; i++) {
-            executorService.submit(new ClientSynchronizeTask(client, barrier));
-        }
-        
 //        for (int i = 0; i < THREAD; i++) {
-//            executorService.submit(new ClientAsynchronousTask(client, barrier));
+//            executorService.submit(new ClientSynchronizeTask(client, barrier));
 //        }
+        
+        for (int i = 0; i < THREAD; i++) {
+            executorService.submit(new ClientAsynchronousTask(client, barrier));
+        }
     }
 }

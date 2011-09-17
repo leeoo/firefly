@@ -62,4 +62,8 @@ public class TcpConnection {
 	public Session getSession() {
 		return session;
 	}
+	
+	public int getCallBackQueueSize() {
+		return queue.size();
+	}
 }
