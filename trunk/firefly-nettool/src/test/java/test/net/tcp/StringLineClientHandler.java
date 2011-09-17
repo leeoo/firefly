@@ -32,7 +32,7 @@ public class StringLineClientHandler implements Handler {
 	@Override
     public void messageRecieved(Session session, Object message) {
         log.debug("message: {}", message);
-        Queue<Callback> queue = (Queue<Callback>)session.getAttribute("#queue");
+        Queue<MessageReceiveCallBack> queue = (Queue<MessageReceiveCallBack>)session.getAttribute("#queue");
         queue.poll().messageRecieved(session, message);
     }
 
