@@ -1,10 +1,7 @@
 package test.net.tcp;
 
-import com.firefly.net.Client;
 import com.firefly.net.Config;
 import com.firefly.net.Server;
-import com.firefly.net.Session;
-import com.firefly.net.tcp.TcpClient;
 import com.firefly.net.tcp.TcpServer;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
@@ -22,7 +19,7 @@ public class TestTcpClientAndServer {
     public void testHello() {
         Server server = new TcpServer();
         Config config = new Config();
-        config.setHandleThreads(-1);
+        config.setHandleThreads(100);
         config.setDecoder(new StringLineDecoder());
         config.setEncoder(new StringLineEncoder());
         config.setHandler(new SendFileHandler());
@@ -31,55 +28,51 @@ public class TestTcpClientAndServer {
 
         final int LOOP = 50;
         ExecutorService executorService = Executors.newFixedThreadPool(LOOP);
-        final Client client = new TcpClient(new StringLineDecoder(),
-                new StringLineEncoder(), new StringLineClientHandler());
+        final StringLineTcpClient client = new StringLineTcpClient("localhost", 9900);
 
 
         for (int i = 0; i < LOOP; i++) {
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    final Session session = client.connect("localhost", 9900);
-                    Assert.assertThat(session.isOpen(), is(true));
+                    final Connection c = client.connect();
+                    Assert.assertThat(c.isOpen(), is(true));
 
-                    session.encode("hello client");
+                    
                     log.debug("main thread {}", Thread.currentThread().toString());
-                    String ret = (String) session.getResult(1000);
+                    String ret = (String) c.send("hello client");
                     log.debug("receive[" + ret + "]");
                     Assert.assertThat(ret, is("hello client"));
-
-                    session.encode("hello multithread test");
-                    ret = (String) session.getResult(1000);
+                    
+                    ret = (String) c.send("hello multithread test");
                     Assert.assertThat(ret, is("hello multithread test"));
-
-                    session.encode("getfile");
-                    ret = (String) session.getResult(1000);
+                    
+                    ret = (String) c.send("getfile");
                     log.debug("receive[" + ret + "]");
                     Assert.assertThat(ret, is("zero copy file transfers"));
-
-                    session.encode("quit");
-                    ret = (String) session.getResult(1000);
+                    
+                    ret = (String) c.send("quit");
                     log.debug("receive[" + ret + "]");
                     Assert.assertThat(ret, is("bye!"));
-                    log.debug("complete session {}", session.getSessionId());
+                    log.debug("complete session {}", c.getId());
                 }
             });
 
         }
 
-        final Session session = client.connect("localhost", 9900);
+        final Connection c = client.connect();
 
-        session.encode("hello client 2");
+        
         log.debug("main thread {}", Thread.currentThread().toString());
-        String ret = (String) session.getResult(1000);
+        String ret = (String) c.send("hello client 2");
         log.debug("receive[" + ret + "]");
         Assert.assertThat(ret, is("hello client 2"));
 
-        session.encode("quit");
-        ret = (String) session.getResult(1000);
+        
+        ret = (String) c.send("quit");
         log.debug("receive[" + ret + "]");
         Assert.assertThat(ret, is("bye!"));
-        log.debug("complete session {}", session.getSessionId());
+        log.debug("complete session {}", c.getId());
 
 //        server.shutdown();
 //        client.shutdown();

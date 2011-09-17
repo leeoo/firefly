@@ -80,7 +80,7 @@ public class TcpServer implements Server {
     	
         workers = new Worker[config.getWorkerThreads()];
         for (int i = 0; i < config.getWorkerThreads(); i++) {
-            workers[i] = new TcpWorker(config, i, eventManager, null);
+            workers[i] = new TcpWorker(config, i, eventManager);
         }
 
         Boss boss = null;

@@ -22,7 +22,6 @@ import com.firefly.net.ReceiveBufferPool;
 import com.firefly.net.ReceiveBufferSizePredictor;
 import com.firefly.net.SendBufferPool;
 import com.firefly.net.Session;
-import com.firefly.net.Synchronizer;
 import com.firefly.net.Worker;
 import com.firefly.net.buffer.SocketReceiveBufferPool;
 import com.firefly.net.buffer.SocketSendBufferPool;
@@ -48,18 +47,15 @@ public final class TcpWorker implements Worker {
 	private final int workerId;
 	private EventManager eventManager;
 	private boolean start;
-	private Synchronizer<Session> synchronizer;
 
 	static {
 		timeProvider.start();
 	}
 
-	public TcpWorker(Config config, int workerId, EventManager eventManager,
-			Synchronizer<Session> clientSynchronizer) {
+	public TcpWorker(Config config, int workerId, EventManager eventManager) {
 		try {
 			this.workerId = workerId;
 			this.config = config;
-			this.synchronizer = clientSynchronizer;
 			this.eventManager = eventManager;
 			
 			selector = Selector.open();
@@ -77,10 +73,6 @@ public final class TcpWorker implements Worker {
 
 	public int getWorkerId() {
 		return workerId;
-	}
-
-	Session getSession(int sessionId) {
-		return synchronizer.get(sessionId);
 	}
 
 	@Override
@@ -457,8 +449,6 @@ public final class TcpWorker implements Worker {
 					TcpWorker.this.close(key);
 				}
 
-				if (synchronizer != null)
-					synchronizer.put(session, sessionId);
 				eventManager.executeOpenTask(session);
 			} catch (IOException e) {
 				log.error("socketChannel register error", e);

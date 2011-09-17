@@ -4,7 +4,9 @@ public interface Client {
 	
 	void setConfig(Config config);
 	
-	Session connect(String host, int port);
+	int connect(String host, int port);
+	
+	void connect(String host, int port, int id);
 	
 	void shutdown();
 }

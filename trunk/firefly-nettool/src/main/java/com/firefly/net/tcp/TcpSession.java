@@ -14,7 +14,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.firefly.net.Config;
 import com.firefly.net.ReceiveBufferSizePredictor;
 import com.firefly.net.Session;
-import com.firefly.net.SynchronousObject;
 import com.firefly.net.ThreadLocalBoolean;
 import com.firefly.net.buffer.AdaptiveReceiveBufferSizePredictor;
 import com.firefly.net.buffer.FixedReceiveBufferSizePredictor;
@@ -46,7 +45,6 @@ public final class TcpSession implements Session {
 	private SendBuffer currentWriteBuffer;
 	private volatile int state;
 	private ReceiveBufferSizePredictor receiveBufferSizePredictor;
-	private SynchronousObject<Object> synchronousObject = new SynchronousObject<Object>();
 
 	public TcpSession(int sessionId, TcpWorker worker, Config config,
 			long openTime, SelectionKey selectionKey) {
@@ -92,16 +90,6 @@ public final class TcpSession implements Session {
 			}
 		}
 		return remoteAddress;
-	}
-
-	@Override
-	public void setResult(Object result, long timeout) {
-		synchronousObject.put(result, timeout);
-	}
-
-	@Override
-	public Object getResult(long timeout) {
-		return synchronousObject.get(timeout);
 	}
 
 	ReceiveBufferSizePredictor getReceiveBufferSizePredictor() {
