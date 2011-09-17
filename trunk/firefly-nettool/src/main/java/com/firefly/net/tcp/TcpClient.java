@@ -40,12 +40,7 @@ public class TcpClient implements Client {
             throw new IllegalArgumentException("init error config is null");
         
         EventManager eventManager = null;
-        if (config.isPipeline()) {
-			log.info("Pipeline Mode");
-			QueueEventManager queueEventManager = new QueueEventManager(config);
-			queueEventManager.start();
-			eventManager = queueEventManager;
-		} else {
+        if (!config.isPipeline()) {
 			if (config.getHandleThreads() >= 0) {
 				log.info("ThreadPoolEventManager thread num {}",
 						config.getHandleThreads());
@@ -59,6 +54,12 @@ public class TcpClient implements Client {
         log.info("client worker num: {}", config.getWorkerThreads());
         workers = new Worker[config.getWorkerThreads()];
         for (int i = 0; i < config.getWorkerThreads(); i++) {
+        	if(config.isPipeline()) {
+				log.info("Worker {} Pipeline Mode", i);
+				QueueEventManager queueEventManager = new QueueEventManager(config);
+				queueEventManager.start();
+				eventManager = queueEventManager;
+			}
             workers[i] = new TcpWorker(config, i, eventManager);
         }
         started = true;
