@@ -85,20 +85,18 @@ public class TcpServer implements Server {
 		EventManager eventManager = null;
 		if (!config.isPipeline()) {
 			if (config.getHandleThreads() >= 0) {
-				log.info("ThreadPoolEventManager thread num {}",
-						config.getHandleThreads());
 				eventManager = new ThreadPoolEventManager(config);
 			} else {
-				log.info("CurrentThreadEventManager");
 				eventManager = new CurrentThreadEventManager(config);
 			}
+		} else {
+			log.info("Pipeline Mode");
 		}
 
 		log.info("server worker num: {}", config.getWorkerThreads());
 		workers = new Worker[config.getWorkerThreads()];
 		for (int i = 0; i < config.getWorkerThreads(); i++) {
 			if(config.isPipeline()) {
-				log.info("Worker {} Pipeline Mode", i);
 				QueueEventManager queueEventManager = new QueueEventManager(config);
 				queueEventManager.start();
 				eventManager = queueEventManager;

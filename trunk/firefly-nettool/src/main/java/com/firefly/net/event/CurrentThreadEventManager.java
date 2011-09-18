@@ -16,6 +16,7 @@ public class CurrentThreadEventManager implements EventManager {
 	private Config config;
 
 	public CurrentThreadEventManager(Config config) {
+		log.info("CurrentThreadEventManager");
 		this.config = config;
 	}
 
