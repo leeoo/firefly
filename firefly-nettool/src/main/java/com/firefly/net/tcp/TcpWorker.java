@@ -388,6 +388,7 @@ public final class TcpWorker implements Worker {
 			session.setReadBytes(readBytes);
 			// Decode
 			config.getDecoder().decode(bb, session);
+//			log.info("Worker {} decode", workerId);
 		} else {
 			receiveBufferPool.release(bb);
 		}

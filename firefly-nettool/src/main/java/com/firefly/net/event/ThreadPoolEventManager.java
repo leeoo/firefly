@@ -22,11 +22,11 @@ public class ThreadPoolEventManager implements EventManager {
 	public ThreadPoolEventManager(Config config) {
 		this.config = config;
 		if (config.getHandleThreads() > 0) {
-			log.debug("newFixedThreadPool: {}", config.getHandleThreads());
+			log.info("FixedThreadPool: {}", config.getHandleThreads());
 			executorService = Executors.newFixedThreadPool(config
 					.getHandleThreads());
 		} else if (config.getHandleThreads() == 0) {
-			log.debug("newCachedThreadPool");
+			log.info("CachedThreadPool");
 			executorService = Executors.newCachedThreadPool();
 		}
 	}
