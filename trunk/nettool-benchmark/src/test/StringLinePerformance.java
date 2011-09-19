@@ -12,114 +12,141 @@ import java.util.concurrent.*;
 
 public class StringLinePerformance {
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
-    public static final int LOOP = 2000;
-    public static final int THREAD = 500;
+	public static int LOOP;
+	public static int THREAD;
+	public static TcpConnection[] tcpConnections;
 
-    public static class ClientSynchronizeTask implements Runnable {
+	public static class ClientSynchronizeTask implements Runnable {
 
-        private final SimpleTcpClient client;
-        private final CyclicBarrier barrier;
+		private final CyclicBarrier barrier;
+		private int id;
 
-        @Override
-        public void run() {
-        	TcpConnection c = client.connect();
-            for (int i = 0; i < LOOP; i++) {
-                String message = "hello world! " + c.getId();
-                String ret = (String) c.send(message);
-                log.debug("rev: {}", ret);
-            }
-            c.close(false);
-            log.debug("session {} complete", c.getId());
+		@Override
+		public void run() {
+			TcpConnection c = tcpConnections[id];
+			for (int i = 0; i < LOOP; i++) {
+				String message = "hello world! " + c.getId();
+				String ret = (String) c.send(message);
+				log.debug("rev: {}", ret);
+			}
+			c.close(false);
+			log.debug("session {} complete", c.getId());
 
-            try {
-                barrier.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (BrokenBarrierException e) {
-                e.printStackTrace();
-            }
+			try {
+				barrier.await();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (BrokenBarrierException e) {
+				e.printStackTrace();
+			}
 
-        }
+		}
 
-        public ClientSynchronizeTask(SimpleTcpClient client, CyclicBarrier barrier) {
-            this.client = client;
-            this.barrier = barrier;
-        }
-    }
-    
-    public static class ClientAsynchronousTask implements Runnable {
+		public ClientSynchronizeTask(int id, CyclicBarrier barrier) {
+			this.id = id;
+			this.barrier = barrier;
+		}
+	}
 
-        private final SimpleTcpClient client;
-        private final CyclicBarrier barrier;
+	public static class ClientAsynchronousTask implements Runnable {
 
-        @Override
-        public void run() {
-        	TcpConnection c = client.connect();
-            for (int i = 0; i < LOOP; i++) {
-                String message = "hello world! " + c.getId();
-                c.send(message, new MessageReceiveCallBack(){
+		private final CyclicBarrier barrier;
+		private int id;
+
+		@Override
+		public void run() {
+			TcpConnection c = tcpConnections[id];
+			for (int i = 0; i < LOOP; i++) {
+				String message = "hello world! " + c.getId();
+				c.send(message, new MessageReceiveCallBack() {
 
 					@Override
 					public void messageRecieved(Session session, Object obj) {
 						log.debug("rev: {}", obj);
-					}});
-                
-            }
-            c.send("quit", new MessageReceiveCallBack(){
+					}
+				});
+
+			}
+			c.send("quit", new MessageReceiveCallBack() {
 
 				@Override
 				public void messageRecieved(Session session, Object obj) {
 					log.debug("rev: {}", obj);
 					log.debug("session {} complete", session.getSessionId());
-				}});
-            try {
-                barrier.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (BrokenBarrierException e) {
-                e.printStackTrace();
-            }
+				}
+			});
+			try {
+				barrier.await();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (BrokenBarrierException e) {
+				e.printStackTrace();
+			}
 
-        }
+		}
 
-        public ClientAsynchronousTask(SimpleTcpClient client, CyclicBarrier barrier) {
-            this.client = client;
-            this.barrier = barrier;
-        }
-    }
+		public ClientAsynchronousTask(int id, CyclicBarrier barrier) {
+			this.id = id;
+			this.barrier = barrier;
+		}
+	}
 
-    public static class StatTask implements Runnable {
+	public static class StatTask implements Runnable {
 
-        private long start;
+		private long start;
 
-        public StatTask() {
-            this.start = System.currentTimeMillis();
-        }
+		public StatTask() {
+			this.start = System.currentTimeMillis();
+		}
 
-        @Override
-        public void run() {
-            long time = System.currentTimeMillis() - start;
-            log.debug("start time: {}", start);
-            log.debug("total time: {}", time);
-            int reqs = LOOP * THREAD;
+		@Override
+		public void run() {
+			long time = System.currentTimeMillis() - start;
+			log.debug("start time: {}", start);
+			log.debug("total time: {}", time);
+			int reqs = LOOP * THREAD;
 
-            double throughput = (reqs / (double) time) * 1000;
-            log.info("throughput: {}", throughput);
-        }
+			double throughput = (reqs / (double) time) * 1000;
+			log.info("throughput: {}", throughput);
+		}
 
-    }
+	}
 
-    public static void main(String[] args) {
-        ExecutorService executorService = Executors.newFixedThreadPool(THREAD);
-        final SimpleTcpClient client = new SimpleTcpClient("localhost", 9900, new StringLineDecoder(), new StringLineEncoder());
-        final CyclicBarrier barrier = new CyclicBarrier(THREAD, new StatTask());
+	public static void main(String[] args) {
+//		System.setProperty("bind_host", "localhost");
+//		System.setProperty("bind_port", "9900");
+//		System.setProperty("loop", "2000");
+//		System.setProperty("thread_num", "500");
+//		System.setProperty("asyn", "1");
+		
+		String host = System.getProperty("bind_host");
+		int port = Integer.parseInt(System.getProperty("bind_port"));
+		int asyn = Integer.parseInt(System.getProperty("asyn"));
 
-//        for (int i = 0; i < THREAD; i++) {
-//            executorService.submit(new ClientSynchronizeTask(client, barrier));
-//        }
-        
-        for (int i = 0; i < THREAD; i++) {
-            executorService.submit(new ClientAsynchronousTask(client, barrier));
-        }
-    }
+		LOOP = Integer.parseInt(System.getProperty("loop"));
+		THREAD = Integer.parseInt(System.getProperty("thread_num"));
+		tcpConnections = new TcpConnection[THREAD];
+		log.info("threads: {}, loop: {}, total request: {}", THREAD, LOOP,
+				THREAD * LOOP);
+
+		ExecutorService executorService = Executors.newFixedThreadPool(THREAD);
+		final SimpleTcpClient client = new SimpleTcpClient(host, port,
+				new StringLineDecoder(), new StringLineEncoder());
+		for (int i = 0; i < THREAD; i++) {
+			tcpConnections[i] = client.connect();
+		}
+		final CyclicBarrier barrier = new CyclicBarrier(THREAD, new StatTask());
+
+		if (asyn == 0) {
+			log.info("synchronize test");
+			for (int i = 0; i < THREAD; i++) {
+				executorService.submit(new ClientSynchronizeTask(i, barrier));
+			}
+		} else {
+			log.info("asynchronous test");
+			for (int i = 0; i < THREAD; i++) {
+				executorService.submit(new ClientAsynchronousTask(i, barrier));
+			}
+		}
+	}
 }

@@ -7,7 +7,12 @@ import com.firefly.net.tcp.TcpServer;
 public class StringLineTcpServer {
 
     public static void main(String[] args) {
+//    	System.setProperty("bind_host", "localhost");
+//    	System.setProperty("bind_port", "9900");
+    	
+    	String host = System.getProperty("bind_host");
+    	int port = Integer.parseInt(System.getProperty("bind_port"));
         new TcpServer(new StringLineDecoder(),
-                new StringLineEncoder(), new StringLineHandler()).start("localhost", 9900);
+                new StringLineEncoder(), new StringLineHandler()).start(host, port);
     }
 }
