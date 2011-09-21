@@ -5,22 +5,30 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import com.firefly.net.Session;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 public class TcpConnection {
 	private Session session;
-	private long timeout = 5000L;
+	private long timeout;
 	private BlockingQueue<MessageReceiveCallBack> queue;
 	public static final String QUEUE_KEY = "#message_queue";
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 
 	public TcpConnection(Session session) {
 		this(session, 0);
 	}
 
-	public TcpConnection(Session session, int size) {
+	public TcpConnection(Session session, int queueLength) {
+		this(session, queueLength, 0);
+	}
+	
+	public TcpConnection(Session session, int queueLength, long timeout) {
 		this.queue = new ArrayBlockingQueue<MessageReceiveCallBack>(
-				size > 0 ? size : 1024 * 8);
+				queueLength > 0 ? queueLength : 1024 * 4);
 		this.session = session;
 		this.session.setAttribute(QUEUE_KEY, queue);
+		this.timeout = timeout > 0 ? timeout : 5000L;
 	}
 
 	public Object send(Object obj) {
@@ -41,10 +49,12 @@ public class TcpConnection {
 		try {
 			offer = queue.offer(callback, timeout, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			log.error("TcpConnection send exception", e);
 		}
 		if (offer)
 			session.encode(obj);
+		else
+			log.warn("tcp connection queue is full");
 	}
 
 	public int getId() {

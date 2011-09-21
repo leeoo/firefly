@@ -29,8 +29,12 @@ public class SimpleTcpClient {
 	}
 
 	public TcpConnection connect() {
+		return connect(0, 0);
+	}
+	
+	public TcpConnection connect(int queueLength, long timeout) {
 		int id = client.connect(host, port);
-		TcpConnection ret = new TcpConnection(synchronizer.get(id));
+		TcpConnection ret = new TcpConnection(synchronizer.get(id), queueLength, timeout);
 		return ret;
 	}
 

@@ -6,7 +6,6 @@ import com.firefly.net.support.SimpleTcpClient;
 import com.firefly.net.support.StringLineDecoder;
 import com.firefly.net.support.StringLineEncoder;
 import com.firefly.net.support.TcpConnection;
-import com.firefly.utils.log.LogFactory;
 
 public class SimpleTcpClientExample {
 	public static void main(String[] args) {
@@ -22,7 +21,7 @@ public class SimpleTcpClientExample {
 			}
 		});
 
-		c.send("test", new MessageReceiveCallBack() {
+		c.send("test client 2", new MessageReceiveCallBack() {
 
 			@Override
 			public void messageRecieved(Session session, Object obj) {
@@ -44,17 +43,12 @@ public class SimpleTcpClientExample {
 			@Override
 			public void messageRecieved(Session session, Object obj) {
 				System.out.println("con1|" + obj.toString());
-				session.close(false);
-				client.shutdown();
-				LogFactory.getInstance().shutdown();
 			}
 		});
 
-//		c = client.connect();
-//		System.out.println("con2|" + c.send("getfile"));
-//		c.close(false);
-//		client.shutdown();
-//		LogFactory.getInstance().shutdown();
+		c = client.connect();
+		System.out.println("con2|" + c.send("getfile"));
+		c.close(false);
 
 		
 	}
