@@ -13,7 +13,6 @@ public class FileTransferTcpServer {
         Server server = new TcpServer(new StringLineDecoder(),
                 new StringLineEncoder(), new SendFileHandler());
         server.start("localhost", 9900);
-//        server.shutdown();
     }
 
 }
