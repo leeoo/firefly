@@ -38,17 +38,17 @@ public class SimpleTcpClientExample {
 			}
 		});
 
-		c.send("quit", new MessageReceiveCallBack() {
-
-			@Override
-			public void messageRecieved(Session session, Object obj) {
-				System.out.println("con1|" + obj.toString());
-			}
-		});
+//		c.send("quit", new MessageReceiveCallBack() {
+//
+//			@Override
+//			public void messageRecieved(Session session, Object obj) {
+//				System.out.println("con1|" + obj.toString());
+//			}
+//		});
 
 		c = client.connect();
 		System.out.println("con2|" + c.send("getfile"));
-		c.close(false);
+//		c.close(false);
 
 		
 	}
