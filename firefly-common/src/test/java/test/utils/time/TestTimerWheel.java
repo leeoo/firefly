@@ -8,8 +8,7 @@ import static org.hamcrest.Matchers.*;
 public class TestTimerWheel {
 	@Test
 	public void test() {
-//		log.debug("test timer wheel");
-		TimeWheel t = new TimeWheel();
+		final TimeWheel t = new TimeWheel();
 		t.start();
 		final long start = System.currentTimeMillis();
 		t.add(1500, new Runnable() {
@@ -17,7 +16,7 @@ public class TestTimerWheel {
 			@Override
 			public void run() {
 				long end = System.currentTimeMillis();
-//				log.info("ttt1: " + (end - start));
+				System.out.println("t1: " + (end - start));
 				Assert.assertThat((end - start), greaterThanOrEqualTo(1500L));
 			}
 		});
@@ -27,8 +26,17 @@ public class TestTimerWheel {
 			@Override
 			public void run() {
 				long end = System.currentTimeMillis();
-//				log.info("ttt2: " + (end - start));
+				System.out.println("t2: " + (end - start));
 				Assert.assertThat((end - start), greaterThanOrEqualTo(2500L));
+				t.add(1200, new Runnable() {
+
+					@Override
+					public void run() {
+						long end = System.currentTimeMillis();
+						System.out.println("t2: " + (end - start));
+						Assert.assertThat((end - start), greaterThanOrEqualTo(3700L));
+					}
+				});
 			}
 		});
 	}
