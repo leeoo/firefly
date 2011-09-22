@@ -89,7 +89,7 @@ public class TimeWheel {
 						public void run() {
 							TimerSlot timerSlot = timerSlots[currentSlot++];
 							currentSlotNum = timerSlot.getSlotNum();
-							// System.out.println("fire: " + currentSlotNum);
+//							System.out.println("fire: " + timerSlot.getQueue().size());
 							for (Iterator<TimerNode> iterator = timerSlot
 									.getQueue().iterator(); iterator.hasNext();) {
 								TimerNode node = iterator.next();
