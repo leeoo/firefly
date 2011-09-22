@@ -108,18 +108,18 @@ public class StringLinePerformance {
 			int reqs = LOOP * THREAD;
 
 			double throughput = (reqs / (double) time) * 1000;
-			log.info("throughput: {} req/s, {} KBytes/s", throughput, THREAD * LOOP * Integer.parseInt(System.getProperty("size")) * 1000 / 1024.0 / time);
+			log.info("throughput: {} req/s, {} KBytes/s", throughput, THREAD * LOOP * DATA.length() * 2L * 1000 / 1024.0 / time);
 		}
 
 	}
 
 	public static void main(String[] args) {
-//		System.setProperty("bind_host", "127.0.0.1");
-//		System.setProperty("bind_port", "9900");
-//		System.setProperty("loop", "2000");
-//		System.setProperty("thread_num", "500");
-//		System.setProperty("asyn", "0");
-//		System.setProperty("size", "4096");
+		System.setProperty("bind_host", "127.0.0.1");
+		System.setProperty("bind_port", "9900");
+		System.setProperty("loop", "2000");
+		System.setProperty("thread_num", "500");
+		System.setProperty("asyn", "0");
+		System.setProperty("size", "4096");
 		
 		String host = System.getProperty("bind_host");
 		int port = Integer.parseInt(System.getProperty("bind_port"));
