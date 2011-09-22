@@ -485,7 +485,8 @@ public final class TcpWorker implements Worker {
 //			log.debug("check time: {}", t);
 			if(t > timeout) {
 //				log.debug("check timeout");
-				session.close(true);
+				if(session.isOpen())
+					session.close(true);
 			} else {
 				long nextCheckTime = timeout - t;
 //				log.debug("next check time: {}", nextCheckTime);
