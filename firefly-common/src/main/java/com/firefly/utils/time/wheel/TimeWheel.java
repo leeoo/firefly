@@ -1,8 +1,6 @@
 package com.firefly.utils.time.wheel;
 
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -12,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TimeWheel {
 	private Config config = new Config();
-	private List<TimerSlot> list = new LinkedList<TimerSlot>();
+	private TimerSlot[] timerSlots;
 	private AtomicInteger currentSlot = new AtomicInteger(0);
 	private volatile int currentSlotNum = 0;
 	private ScheduledFuture<?> fireHandle;
@@ -40,24 +38,35 @@ public class TimeWheel {
 	 *            任务处理
 	 */
 	public void add(long delay, Runnable run) {
-		int ticks = (int) (delay / config.getInterval()); // 计算刻度长度
-		int index = currentSlotNum + (ticks % config.getMaxTimers()); // 放到wheel的位置
-		int round = ticks / config.getMaxTimers(); // wheel旋转的圈数
-
+		final int maxTimers = config.getMaxTimers();
+		final int ticks = delay > config.getInterval() ? (int) (delay / config.getInterval()) : 1; // 计算刻度长度
+		int index = currentSlotNum + (ticks % maxTimers); // 放到wheel的位置
+		if(index >= maxTimers) {
+			index -= maxTimers;
+		}
+		
+		int round = ticks / maxTimers; // wheel旋转的圈数
+		if(index <= currentSlotNum && round > 0) {
+			round -= 1;
+		}
+//		System.out.println("maxTimers: " + maxTimers);
+//		System.out.println("currentSlotNum: " + currentSlotNum + " index: " + index + " round: " + round);
+		
 		TimerNode node = new TimerNode();
 		node.setRound(round);
 		node.setRun(run);
-		list.get(index).getQueue().add(node);
+		timerSlots[index].getQueue().add(node);
 	}
 
 	/**
 	 * TimeWheel开始旋转
 	 */
 	public void start() {
-		for (int i = 0; i < config.getMaxTimers(); i++) {
+		timerSlots = new TimerSlot[config.getMaxTimers()];
+		for (int i = 0; i < timerSlots.length; i++) {
 			TimerSlot timerSlot = new TimerSlot();
 			timerSlot.setSlotNum(i);
-			list.add(timerSlot);
+			timerSlots[i] = timerSlot;
 		}
 		final boolean hasWorkers = config.getWorkerThreads() > 0;
 		if (hasWorkers)
@@ -67,12 +76,13 @@ public class TimeWheel {
 
 		fireHandle = scheduler.scheduleAtFixedRate(new Runnable() {
 			public void run() {
-				TimerSlot timerSlot = list.get(currentSlot.getAndIncrement());
+				TimerSlot timerSlot = timerSlots[currentSlot.getAndIncrement()];
 				currentSlotNum = timerSlot.getSlotNum();
-				// log.debug("fire: {}", currentSlotNum);
+//				System.out.println("fire: " + currentSlotNum);
 				for (Iterator<TimerNode> iterator = timerSlot.getQueue()
 						.iterator(); iterator.hasNext();) {
 					TimerNode node = iterator.next();
+//					System.out.println("round: " + node.getRound());
 					if (node.getRound() == 0) {
 						if (hasWorkers)
 							workerThreadPool.submit(node.getRun());
@@ -82,8 +92,10 @@ public class TimeWheel {
 					} else {
 						node.setRound(node.getRound() - 1);
 					}
+//					System.out.println("iterator: " + iterator.hasNext());
 				}
-				currentSlot.compareAndSet(list.size(), 0);
+//				System.out.println("wheel end: " + currentSlotNum);
+				currentSlot.compareAndSet(timerSlots.length, 0);
 			}
 		}, config.getInitialDelay(), config.getInterval(),
 				TimeUnit.MILLISECONDS);
