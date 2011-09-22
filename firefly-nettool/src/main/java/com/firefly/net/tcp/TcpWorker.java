@@ -30,6 +30,8 @@ import com.firefly.net.exception.NetException;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
 import com.firefly.utils.time.TimeProvider;
+import com.firefly.utils.time.wheel.TimeWheel;
+
 import static com.firefly.net.tcp.TcpPerformanceParameter.*;
 
 public final class TcpWorker implements Worker {
@@ -44,6 +46,7 @@ public final class TcpWorker implements Worker {
 	private final Selector selector;
 	private volatile int cancelledKeys;
 	static final TimeProvider timeProvider = new TimeProvider(100);
+	static final TimeWheel timeWheel = new TimeWheel();
 	private Thread thread;
 	private final int workerId;
 	private EventManager eventManager;
@@ -51,6 +54,7 @@ public final class TcpWorker implements Worker {
 
 	static {
 		timeProvider.start();
+		timeWheel.start();
 	}
 
 	public TcpWorker(Config config, int workerId, EventManager eventManager) {
@@ -308,11 +312,13 @@ public final class TcpWorker implements Worker {
 			}
 		}
 
-		session.setLastWrittenTime(timeProvider.currentTimeMillis());
-		session.setWrittenBytes(writtenBytes);
-		log.debug("write complete size: {}", writtenBytes);
-		log.debug("1> session is open: {}", open);
-		log.debug("is in write loop: {}", session.isInWriteNowLoop());
+		if(writtenBytes > 0) {
+			session.setLastWrittenTime(timeProvider.currentTimeMillis());
+			session.setWrittenBytes(writtenBytes);
+			log.debug("write complete size: {}", writtenBytes);
+			log.debug("1> session is open: {}", open);
+			log.debug("is in write loop: {}", session.isInWriteNowLoop());
+		}	
 	}
 
 	private void cleanUpWriteBuffer(TcpSession session) {
@@ -386,14 +392,14 @@ public final class TcpWorker implements Worker {
 			// Update the predictor.
 			predictor.previousReceiveBufferSize(readBytes);
 			session.setReadBytes(readBytes);
+			session.setLastReadTime(timeProvider.currentTimeMillis());
 			// Decode
 			config.getDecoder().decode(bb, session);
 //			log.info("Worker {} decode", workerId);
 		} else {
 			receiveBufferPool.release(bb);
 		}
-
-		session.setLastReadTime(timeProvider.currentTimeMillis());
+		
 		if (ret < 0 || failure) {
 			log.debug("read failure session close");
 			k.cancel();
@@ -438,13 +444,15 @@ public final class TcpWorker implements Worker {
 				Session session = new TcpSession(sessionId, TcpWorker.this,
 						config, timeProvider.currentTimeMillis(), key);
 				key.attach(session);
-
+				
 				SocketAddress localAddress = session.getLocalAddress();
 				SocketAddress remoteAddress = session.getRemoteAddress();
 				if (localAddress == null || remoteAddress == null) {
 					TcpWorker.this.close(key);
 				}
 
+				if(config.getTimeout() > 0)
+					timeWheel.add(config.getTimeout(), new TimeoutTask(session, config.getTimeout()));
 				eventManager.executeOpenTask(session);
 			} catch (IOException e) {
 				log.error("socketChannel register error", e);
@@ -453,6 +461,32 @@ public final class TcpWorker implements Worker {
 
 		}
 
+	}
+	
+	private static final class TimeoutTask implements Runnable {
+		private Session session;
+		private final long timeout;
+		
+		public TimeoutTask(Session session, long timeout) {
+			this.session = session;
+			this.timeout = timeout;
+		}
+
+		@Override
+		public void run() {
+			long t = timeProvider.currentTimeMillis() - session.getLastActiveTime();
+//			log.debug("check time: {}", t);
+			if(t > timeout) {
+//				log.debug("check timeout");
+				session.close(true);
+			} else {
+				long nextCheckTime = timeout - t;
+//				log.debug("next check time: {}", nextCheckTime);
+				timeWheel.add(nextCheckTime, TimeoutTask.this);
+			}
+			
+		}
+		
 	}
 
 	public void close(SelectionKey key) {
@@ -600,6 +634,7 @@ public final class TcpWorker implements Worker {
 		eventManager.shutdown();
 		start = false;
 		timeProvider.stop();
+		timeWheel.stop();
 		log.debug("thread {} is shutdown: {}", thread.getName(),
 				thread.isInterrupted());
 	}
