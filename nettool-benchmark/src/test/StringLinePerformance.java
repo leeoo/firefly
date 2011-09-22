@@ -108,7 +108,7 @@ public class StringLinePerformance {
 			int reqs = LOOP * THREAD;
 
 			double throughput = (reqs / (double) time) * 1000;
-			log.info("throughput: {} req/s, {} KBytes/s", throughput, THREAD * LOOP * DATA.length() * 2L * 1000 / 1024.0 / time);
+			log.info("throughput: {} req/s, {} KBytes/s", throughput, THREAD * LOOP * Integer.parseInt(System.getProperty("size")) * 1000 / 1024.0 / time);
 		}
 
 	}
