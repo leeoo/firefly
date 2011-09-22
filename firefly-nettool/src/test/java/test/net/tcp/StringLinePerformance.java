@@ -114,12 +114,12 @@ public class StringLinePerformance {
         final SimpleTcpClient client = new SimpleTcpClient("localhost", 9900, new StringLineDecoder(), new StringLineEncoder());
         final CyclicBarrier barrier = new CyclicBarrier(THREAD, new StatTask());
 
-//        for (int i = 0; i < THREAD; i++) {
-//            executorService.submit(new ClientSynchronizeTask(client, barrier));
-//        }
-        
         for (int i = 0; i < THREAD; i++) {
-            executorService.submit(new ClientAsynchronousTask(client, barrier));
+            executorService.submit(new ClientSynchronizeTask(client, barrier));
         }
+        
+//        for (int i = 0; i < THREAD; i++) {
+//            executorService.submit(new ClientAsynchronousTask(client, barrier));
+//        }
     }
 }

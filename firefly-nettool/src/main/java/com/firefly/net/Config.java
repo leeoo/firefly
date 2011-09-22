@@ -1,7 +1,7 @@
 package com.firefly.net;
 
 public class Config {
-	private int timeout = 60 * 1000;
+	private int timeout = 10 * 1000;
 	private int handleThreads = -1;
 	private int receiveByteBufferSize = 0;
 	private boolean pipeline = false;
