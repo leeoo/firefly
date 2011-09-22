@@ -37,24 +37,25 @@ import static com.firefly.net.tcp.TcpPerformanceParameter.*;
 public final class TcpWorker implements Worker {
 
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
-	private Config config;
+	static final TimeProvider timeProvider = new TimeProvider(100);
+	
+	private final Config config;
 	private final Queue<Runnable> registerTaskQueue = new ConcurrentLinkedQueue<Runnable>();
 	private final Queue<Runnable> writeTaskQueue = new ConcurrentLinkedQueue<Runnable>();
 	private final AtomicBoolean wakenUp = new AtomicBoolean();
 	private final ReceiveBufferPool receiveBufferPool = new SocketReceiveBufferPool();
 	private final SendBufferPool sendBufferPool = new SocketSendBufferPool();
 	private final Selector selector;
-	private volatile int cancelledKeys;
-	static final TimeProvider timeProvider = new TimeProvider(100);
-	static final TimeWheel timeWheel = new TimeWheel();
-	private Thread thread;
+	private final TimeWheel timeWheel = new TimeWheel();
 	private final int workerId;
+	private volatile int cancelledKeys;
+	private Thread thread;
 	private EventManager eventManager;
 	private boolean start;
 
 	static {
 		timeProvider.start();
-		timeWheel.start();
+		
 	}
 
 	public TcpWorker(Config config, int workerId, EventManager eventManager) {
@@ -62,6 +63,12 @@ public final class TcpWorker implements Worker {
 			this.workerId = workerId;
 			this.config = config;
 			this.eventManager = eventManager;
+			
+			com.firefly.utils.time.wheel.Config wheelConfig = new com.firefly.utils.time.wheel.Config();
+			wheelConfig.setInterval(1000L);
+			wheelConfig.setMaxTimers(60);
+			timeWheel.setConfig(wheelConfig);
+			timeWheel.start();
 			
 			selector = Selector.open();
 			start = true;
@@ -463,7 +470,7 @@ public final class TcpWorker implements Worker {
 
 	}
 	
-	private static final class TimeoutTask implements Runnable {
+	private final class TimeoutTask implements Runnable {
 		private Session session;
 		private final long timeout;
 		
