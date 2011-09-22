@@ -70,12 +70,11 @@ public class TimeWheel {
 				TimerSlot timerSlot = list.get(currentSlot.getAndIncrement());
 				currentSlotNum = timerSlot.getSlotNum();
 				// log.debug("fire: {}", currentSlotNum);
-
-				Iterator<TimerNode> iterator = timerSlot.getQueue().iterator();
-				while (iterator.hasNext()) {
+				for (Iterator<TimerNode> iterator = timerSlot.getQueue()
+						.iterator(); iterator.hasNext();) {
 					TimerNode node = iterator.next();
 					if (node.getRound() == 0) {
-						if (hasWorkers && workerThreadPool != null)
+						if (hasWorkers)
 							workerThreadPool.submit(node.getRun());
 						else
 							node.getRun().run();
@@ -84,7 +83,6 @@ public class TimeWheel {
 						node.setRound(node.getRound() - 1);
 					}
 				}
-
 				currentSlot.compareAndSet(list.size(), 0);
 			}
 		}, config.getInitialDelay(), config.getInterval(),

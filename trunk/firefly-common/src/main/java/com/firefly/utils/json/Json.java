@@ -10,11 +10,9 @@ public abstract class Json {
 	public static String toJson(Object obj) {
 		String ret = null;
 		JsonStringWriter writer = new JsonStringWriter();
-		
 		try {
 			StateMachine.toJson(obj, writer);
 			ret = writer.toString();
-//			System.out.println(writer.size() + "|" + ret.length());
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
@@ -22,12 +20,4 @@ public abstract class Json {
 		}
 		return ret;
 	}
-
-//	public static void toJson(Object obj, Writer writer) {
-//		try {
-//			new JsonSerializer(writer).toJson(obj);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//	}
 }
