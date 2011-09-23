@@ -63,11 +63,6 @@ public final class TcpWorker implements Worker {
 			this.workerId = workerId;
 			this.config = config;
 			this.eventManager = eventManager;
-			
-			com.firefly.utils.time.wheel.Config wheelConfig = new com.firefly.utils.time.wheel.Config();
-			wheelConfig.setInterval(1000L);
-			wheelConfig.setMaxTimers(60);
-			timeWheel.setConfig(wheelConfig);
 			timeWheel.start();
 			
 			selector = Selector.open();
