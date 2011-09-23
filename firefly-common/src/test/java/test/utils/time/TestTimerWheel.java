@@ -8,6 +8,7 @@ public class TestTimerWheel {
 		final TimeWheel t = new TimeWheel();
 		Config config = new Config();
 		config.setMaxTimers(5);
+		config.setInterval(100);
 		t.setConfig(config);
 		t.start();
 		

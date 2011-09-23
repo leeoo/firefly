@@ -1,17 +1,8 @@
 package com.firefly.utils.time.wheel;
 
 public class Config {
-	private int maxTimers = 600; // wheel的格子数量
-	private long interval = 100; // wheel旋转时间间隔
-	private int workerThreads = 0; // 任务处理线程数量
-
-	public int getWorkerThreads() {
-		return workerThreads;
-	}
-
-	public void setWorkerThreads(int workerThreads) {
-		this.workerThreads = workerThreads;
-	}
+	private int maxTimers = 60; // wheel的格子数量
+	private long interval = 1000; // wheel旋转时间间隔
 
 	public int getMaxTimers() {
 		return maxTimers;
