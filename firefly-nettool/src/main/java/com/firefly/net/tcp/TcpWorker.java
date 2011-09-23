@@ -38,7 +38,7 @@ public final class TcpWorker implements Worker {
 
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	static final TimeProvider timeProvider = new TimeProvider(100);
-	
+
 	private final Config config;
 	private final Queue<Runnable> registerTaskQueue = new ConcurrentLinkedQueue<Runnable>();
 	private final Queue<Runnable> writeTaskQueue = new ConcurrentLinkedQueue<Runnable>();
@@ -55,7 +55,7 @@ public final class TcpWorker implements Worker {
 
 	static {
 		timeProvider.start();
-		
+
 	}
 
 	public TcpWorker(Config config, int workerId, EventManager eventManager) {
@@ -64,7 +64,7 @@ public final class TcpWorker implements Worker {
 			this.config = config;
 			this.eventManager = eventManager;
 			timeWheel.start();
-			
+
 			selector = Selector.open();
 			start = true;
 			new Thread(this, "Tcp-worker: " + workerId).start();
@@ -302,9 +302,6 @@ public final class TcpWorker implements Worker {
 			// Initially, the following block was executed after releasing
 			// the writeLock, but there was a race condition, and it has to be
 			// executed before releasing the writeLock:
-			//
-			// https://issues.jboss.org/browse/NETTY-410
-			//
 			if (open) {
 				if (addOpWrite) {
 					setOpWrite(session);
@@ -314,13 +311,13 @@ public final class TcpWorker implements Worker {
 			}
 		}
 
-		if(writtenBytes > 0) {
+		if (writtenBytes > 0) {
 			session.setLastWrittenTime(timeProvider.currentTimeMillis());
 			session.setWrittenBytes(writtenBytes);
 			log.debug("write complete size: {}", writtenBytes);
 			log.debug("1> session is open: {}", open);
 			log.debug("is in write loop: {}", session.isInWriteNowLoop());
-		}	
+		}
 	}
 
 	private void cleanUpWriteBuffer(TcpSession session) {
@@ -397,11 +394,11 @@ public final class TcpWorker implements Worker {
 			session.setLastReadTime(timeProvider.currentTimeMillis());
 			// Decode
 			config.getDecoder().decode(bb, session);
-//			log.info("Worker {} decode", workerId);
+			// log.info("Worker {} decode", workerId);
 		} else {
 			receiveBufferPool.release(bb);
 		}
-		
+
 		if (ret < 0 || failure) {
 			log.debug("read failure session close");
 			k.cancel();
@@ -446,15 +443,16 @@ public final class TcpWorker implements Worker {
 				Session session = new TcpSession(sessionId, TcpWorker.this,
 						config, timeProvider.currentTimeMillis(), key);
 				key.attach(session);
-				
+
 				SocketAddress localAddress = session.getLocalAddress();
 				SocketAddress remoteAddress = session.getRemoteAddress();
 				if (localAddress == null || remoteAddress == null) {
 					TcpWorker.this.close(key);
 				}
 
-				if(config.getTimeout() > 0)
-					timeWheel.add(config.getTimeout(), new TimeoutTask(session, config.getTimeout()));
+				if (config.getTimeout() > 0)
+					timeWheel.add(config.getTimeout(), new TimeoutTask(session,
+							config.getTimeout()));
 				eventManager.executeOpenTask(session);
 			} catch (IOException e) {
 				log.error("socketChannel register error", e);
@@ -464,11 +462,11 @@ public final class TcpWorker implements Worker {
 		}
 
 	}
-	
+
 	private final class TimeoutTask implements Runnable {
 		private Session session;
 		private final long timeout;
-		
+
 		public TimeoutTask(Session session, long timeout) {
 			this.session = session;
 			this.timeout = timeout;
@@ -476,20 +474,21 @@ public final class TcpWorker implements Worker {
 
 		@Override
 		public void run() {
-			long t = timeProvider.currentTimeMillis() - session.getLastActiveTime();
-//			log.debug("check time: {}", t);
-			if(t > timeout) {
-//				log.debug("check timeout");
-				if(session.isOpen())
+			long t = timeProvider.currentTimeMillis()
+					- session.getLastActiveTime();
+			// log.debug("check time: {}", t);
+			if (t > timeout) {
+				// log.debug("check timeout");
+				if (session.isOpen())
 					session.close(true);
 			} else {
 				long nextCheckTime = timeout - t;
-//				log.debug("next check time: {}", nextCheckTime);
+				// log.debug("next check time: {}", nextCheckTime);
 				timeWheel.add(nextCheckTime, TimeoutTask.this);
 			}
-			
+
 		}
-		
+
 	}
 
 	public void close(SelectionKey key) {
