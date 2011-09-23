@@ -1,9 +1,10 @@
 package test.utils.time;
 
+import com.firefly.utils.time.TimeProvider;
 import com.firefly.utils.time.wheel.Config;
 import com.firefly.utils.time.wheel.TimeWheel;
 
-public class TestTimerWheel {
+public class TimerWheelExample {
 	public void test() {
 		final TimeWheel t = new TimeWheel();
 		Config config = new Config();
@@ -17,8 +18,9 @@ public class TestTimerWheel {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		final long start = System.currentTimeMillis();
+
 		t.add(400, new Runnable() {
+			private long start = System.currentTimeMillis();
 
 			@Override
 			public void run() {
@@ -28,13 +30,14 @@ public class TestTimerWheel {
 		});
 
 		t.add(2500, new Runnable() {
-
+			private long start = System.currentTimeMillis();
+			
 			@Override
 			public void run() {
 				long end = System.currentTimeMillis();
 				System.out.println("t2: " + (end - start));
 				t.add(1200, new Runnable() {
-
+					private long start = System.currentTimeMillis();
 					@Override
 					public void run() {
 						long end = System.currentTimeMillis();
@@ -45,7 +48,14 @@ public class TestTimerWheel {
 		});
 	}
 
-	public static void main(String[] args) {
-		new TestTimerWheel().test();
+	public static void main(String[] args) throws InterruptedException {
+		new TimerWheelExample().test();
+		TimeProvider t = new TimeProvider(1000L);
+		t.start();
+		
+		Thread.sleep(1000L);
+		long start = t.currentTimeMillis();
+		Thread.sleep(5000L);
+		System.out.println("TimeProvider: " + (t.currentTimeMillis() - start));
 	}
 }
