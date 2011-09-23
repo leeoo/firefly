@@ -68,6 +68,7 @@ public class TimeWheel {
 
 	public void stop() {
 		start = false;
+		timerSlots = null;
 	}
 	
 	private final class Worker implements Runnable {
