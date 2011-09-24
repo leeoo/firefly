@@ -28,6 +28,16 @@ public class TimerWheelExample {
 				System.out.println("t1: " + (end - start));
 			}
 		});
+		
+		t.add(900, new Runnable() {
+			private long start = System.currentTimeMillis();
+
+			@Override
+			public void run() {
+				long end = System.currentTimeMillis();
+				System.out.println("t1: " + (end - start));
+			}
+		});
 
 		t.add(2500, new Runnable() {
 			private long start = System.currentTimeMillis();
@@ -37,7 +47,6 @@ public class TimerWheelExample {
 				long end = System.currentTimeMillis();
 				System.out.println("t2: " + (end - start));
 				t.add(1200, new Runnable() {
-					private long start = System.currentTimeMillis();
 					@Override
 					public void run() {
 						long end = System.currentTimeMillis();
