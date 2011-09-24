@@ -1,21 +1,22 @@
-<f:page extends="/common.html">
-	<f:section id="top">
-	<div>firefly模版引擎 &nbsp; &gt; &nbsp; 首页</div>
-	</f:section>
-	
-	<f:section id="body">
+<!DOCTYPE html>
+<html>
+<head>
+<!-- #set $title = "firefly模版引擎"-->
+<!-- #include "head.html" -->
+</head>
+<body>
+	<!-- #include "top.html" -->
 	<div>
-		<f:choose>
-			<f:when test="${user.isLogin && user.age > 18}">
-				Welcome ${user.name}
-			</f:when>
-			<f:otherwise>
-				您无法访问
-			</f:otherwise>
-		</f:choose>
-		<f:if test="${user.name == 'Pengtao Qiu'}">
-			城主来了
-		</f:if>
+		<!-- #if ${user.isLogin} && ${user.age} > 18 -->
+			Welcome ${user.name}
+		<!-- #else -->
+			您无法访问
+		<!-- #end -->
 	</div>
-	</f:section>
-</f:page>
+	<div>
+		<!-- #if ${user.name} == "Pengtao Qiu" -->
+		城主来了
+		<!-- #end -->
+	</div>
+</body>
+</html>
