@@ -31,10 +31,7 @@ public class TimeWheel {
 		final int ticks = delay > config.getInterval() ? (int) (delay / config
 				.getInterval()) : 1; // 计算刻度长度
 		final int index = (curSlot + (ticks % maxTimers)) % maxTimers; // 放到wheel的位置
-		int round = ticks / maxTimers; // wheel旋转的圈数
-		if (index == curSlot && round > 0) {
-			round -= 1;
-		}
+		int round = (ticks - 1) / maxTimers; // wheel旋转的圈数
 
 		timerSlots[index].add(new TimerTask(round, run));
 	}
@@ -44,7 +41,8 @@ public class TimeWheel {
 		if (!start) {
 			synchronized (this) {
 				if (!start) {
-					timerSlots = new ConcurrentLinkedQueue[config.getMaxTimers()];
+					timerSlots = new ConcurrentLinkedQueue[config
+							.getMaxTimers()];
 					for (int i = 0; i < timerSlots.length; i++) {
 						timerSlots[i] = new ConcurrentLinkedQueue<TimerTask>();
 					}
@@ -60,17 +58,18 @@ public class TimeWheel {
 		start = false;
 		timerSlots = null;
 	}
-	
+
 	private final class Worker implements Runnable {
 
 		@Override
 		public void run() {
-			while(start) {
+			while (start) {
 				int currentSlotTemp = currentSlot;
 				ConcurrentLinkedQueue<TimerTask> timerSlot = timerSlots[currentSlotTemp++];
 				currentSlotTemp %= timerSlots.length;
-				
-				for (Iterator<TimerTask> iterator = timerSlot.iterator(); iterator.hasNext();) {
+
+				for (Iterator<TimerTask> iterator = timerSlot.iterator(); iterator
+						.hasNext();) {
 					if (iterator.next().runTask())
 						iterator.remove();
 				}
@@ -80,14 +79,14 @@ public class TimeWheel {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				
+
 				currentSlot = currentSlotTemp;
 			}
-			
+
 		}
-		
+
 	}
-	
+
 	private final class TimerTask {
 		private int round;
 		private Runnable run;
