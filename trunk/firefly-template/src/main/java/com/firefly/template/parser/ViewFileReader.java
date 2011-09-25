@@ -53,10 +53,12 @@ public class ViewFileReader {
 			reader = new BufferedReader(new FileReader(f));
 			for (String line = null; (line = reader.readLine()) != null;) {
 				// TODO 文件分析
-				line = line.trim();
-				pre.append(line).append("\n");
+//				line = line.trim();
+//				pre.append(line).append("\n");
+				System.out.println(line);
 			}
-			Config.LOG.info(pre.toString());
+//			Config.LOG.info(pre.toString());
+			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
