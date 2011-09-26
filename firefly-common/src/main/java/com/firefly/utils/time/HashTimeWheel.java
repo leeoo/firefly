@@ -1,20 +1,30 @@
-package com.firefly.utils.time.wheel;
+package com.firefly.utils.time;
 
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class TimeWheel {
-	private Config config = new Config();
+public class HashTimeWheel {
+	private int maxTimers = 60; // wheel的格子数量
+	private long interval = 1000; // wheel旋转时间间隔
+	
 	private ConcurrentLinkedQueue<TimerTask>[] timerSlots;
 	private volatile int currentSlot = 0;
 	private volatile boolean start;
 
-	public Config getConfig() {
-		return config;
+	public int getMaxTimers() {
+		return maxTimers;
 	}
 
-	public void setConfig(Config config) {
-		this.config = config;
+	public void setMaxTimers(int maxTimers) {
+		this.maxTimers = maxTimers;
+	}
+
+	public long getInterval() {
+		return interval;
+	}
+
+	public void setInterval(long interval) {
+		this.interval = interval;
 	}
 
 	/**
@@ -26,11 +36,9 @@ public class TimeWheel {
 	 *            任务处理
 	 */
 	public void add(long delay, Runnable run) {
-		final int maxTimers = config.getMaxTimers();
 		final int curSlot = currentSlot;
 		
-		final int ticks = delay > config.getInterval() ? (int) (delay / config
-				.getInterval()) : 1; // 计算刻度长度
+		final int ticks = delay > interval ? (int) (delay / interval) : 1; // 计算刻度长度
 		final int index = (curSlot + (ticks % maxTimers)) % maxTimers; // 放到wheel的位置
 		final int round = (ticks - 1) / maxTimers; // wheel旋转的圈数
 
@@ -42,8 +50,7 @@ public class TimeWheel {
 		if (!start) {
 			synchronized (this) {
 				if (!start) {
-					timerSlots = new ConcurrentLinkedQueue[config
-							.getMaxTimers()];
+					timerSlots = new ConcurrentLinkedQueue[maxTimers];
 					for (int i = 0; i < timerSlots.length; i++) {
 						timerSlots[i] = new ConcurrentLinkedQueue<TimerTask>();
 					}
@@ -76,7 +83,7 @@ public class TimeWheel {
 				}
 
 				try {
-					Thread.sleep(config.getInterval());
+					Thread.sleep(interval);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
