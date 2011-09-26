@@ -77,8 +77,7 @@ public class JsonStringWriter extends StringWriter {
 	}
 
 	public void writeStringWithQuoteNoFilter(String value) {
-		int len = value.length();
-		int newcount = count + len + 2;
+		int newcount = count + value.length() + 2;
 		if (newcount > buf.length) {
 			expandCapacity(newcount);
 		}
@@ -95,13 +94,8 @@ public class JsonStringWriter extends StringWriter {
 		
 		int iMax = arrayLen - 1;
 		int totalSize = 2;
-		for (int i = 0; ; i++) {
-			int size = array[i].length() * 2 + 2 + 1;
-			totalSize += size;
-			if (i == iMax) {
-				break;
-			}
-			totalSize++;
+		for (int i = 0; i < arrayLen; i++) {
+			totalSize += array[i].length() + 2 + 1;
 		}
 
 		int newcount = count + totalSize;
@@ -138,13 +132,8 @@ public class JsonStringWriter extends StringWriter {
 		
 		int iMax = arrayLen - 1;
 		int totalSize = 2;
-		for (int i = 0; ; i++) {
-			int size = array[i].length() * 2 + 2 + 1;
-			totalSize += size;
-			if (i == iMax) {
-				break;
-			}
-			totalSize++;
+		for (int i = 0; i < arrayLen; i++) {
+			totalSize += array[i].length() * 2 + 2 + 1;
 		}
 
 		int newcount = count + totalSize;
