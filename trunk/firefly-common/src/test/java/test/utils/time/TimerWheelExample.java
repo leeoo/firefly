@@ -1,16 +1,13 @@
 package test.utils.time;
 
+import com.firefly.utils.time.HashTimeWheel;
 import com.firefly.utils.time.TimeProvider;
-import com.firefly.utils.time.wheel.Config;
-import com.firefly.utils.time.wheel.TimeWheel;
 
 public class TimerWheelExample {
 	public void test() {
-		final TimeWheel t = new TimeWheel();
-		Config config = new Config();
-		config.setMaxTimers(5);
-		config.setInterval(100);
-		t.setConfig(config);
+		final HashTimeWheel t = new HashTimeWheel();
+		t.setMaxTimers(5);
+		t.setInterval(100);
 		t.start();
 		
 		try {
