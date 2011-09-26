@@ -28,10 +28,11 @@ public class TimeWheel {
 	public void add(long delay, Runnable run) {
 		final int maxTimers = config.getMaxTimers();
 		final int curSlot = currentSlot;
+		
 		final int ticks = delay > config.getInterval() ? (int) (delay / config
 				.getInterval()) : 1; // 计算刻度长度
 		final int index = (curSlot + (ticks % maxTimers)) % maxTimers; // 放到wheel的位置
-		int round = (ticks - 1) / maxTimers; // wheel旋转的圈数
+		final int round = (ticks - 1) / maxTimers; // wheel旋转的圈数
 
 		timerSlots[index].add(new TimerTask(round, run));
 	}
