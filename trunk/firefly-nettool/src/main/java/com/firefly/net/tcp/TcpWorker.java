@@ -29,8 +29,8 @@ import com.firefly.net.buffer.SocketSendBufferPool.SendBuffer;
 import com.firefly.net.exception.NetException;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
+import com.firefly.utils.time.HashTimeWheel;
 import com.firefly.utils.time.TimeProvider;
-import com.firefly.utils.time.wheel.TimeWheel;
 
 import static com.firefly.net.tcp.TcpPerformanceParameter.*;
 
@@ -46,7 +46,7 @@ public final class TcpWorker implements Worker {
 	private final ReceiveBufferPool receiveBufferPool = new SocketReceiveBufferPool();
 	private final SendBufferPool sendBufferPool = new SocketSendBufferPool();
 	private final Selector selector;
-	private final TimeWheel timeWheel = new TimeWheel();
+	private final HashTimeWheel timeWheel = new HashTimeWheel();
 	private final int workerId;
 	private volatile int cancelledKeys;
 	private Thread thread;
