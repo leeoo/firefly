@@ -55,7 +55,6 @@ public final class TcpWorker implements Worker {
 
 	static {
 		timeProvider.start();
-
 	}
 
 	public TcpWorker(Config config, int workerId, EventManager eventManager) {
