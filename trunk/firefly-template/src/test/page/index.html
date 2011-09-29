@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-<!-- #set $title = "firefly模版引擎"-->
-<!-- #include "head.html" -->
+<!-- set title = "firefly模版引擎"-->
+<!-- include "head.html" -->
 </head>
 <body>
-	<!-- #include "top.html" -->
+	<!-- include "top.html" -->
 	<div>
-		<!-- #if ${user.isLogin} && ${user.age} > 18 -->
+		<!-- if user.isLogin && user.age > 18 -->
 			Welcome ${user.name}
-		<!-- #else -->
+		<!-- else -->
 			您无法访问
-		<!-- #end -->
+		<!-- end -->
 	</div>
 	<div>
-		<!-- #if ${user.name} == "Pengtao Qiu" -->
+		<!-- if user.name == "Pengtao Qiu" -->
 		城主来了
-		<!-- #end -->
+		<!-- end -->
 	</div>
 </body>
 </html>
