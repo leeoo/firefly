@@ -6,8 +6,6 @@ import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Deque;
-import java.util.LinkedList;
 
 import com.firefly.template.Config;
 
@@ -44,9 +42,7 @@ public class ViewFileReader {
 	}
 
 	private void parse(File f) {
-		Node page = new PageNode();
-		Node currentNode = page;
-		Deque<Node> stack = new LinkedList<Node>();
+		System.out.println("=======" + f.getName() + "=======");
 		BufferedReader reader = null;
 		StringBuilder pre = new StringBuilder();
 		try {
@@ -55,6 +51,7 @@ public class ViewFileReader {
 				// TODO 文件分析
 //				line = line.trim();
 //				pre.append(line).append("\n");
+				
 				System.out.println(line);
 			}
 //			Config.LOG.info(pre.toString());

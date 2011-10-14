@@ -1,7 +1,7 @@
 package com.firefly.template;
 
-import java.io.Writer;
+import java.io.OutputStream;
 
 public interface View {
-	void render(Model model, Writer writer);
+	void render(Model model, OutputStream out);
 }
