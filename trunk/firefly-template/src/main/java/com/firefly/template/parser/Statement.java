@@ -1,5 +1,5 @@
 package com.firefly.template.parser;
 
 public interface Statement {
-	void parse(String line, Node node);
+	void parse(String content, JavaFileBuilder javaFileBuilder);
 }
