@@ -6,12 +6,23 @@ import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.firefly.template.Config;
 
 public class ViewFileReader {
 	private Config config;
 	private boolean init = false;
+	private Set<String> keywords = new HashSet<String>();
+	
+	public ViewFileReader() {
+		keywords.add("set");
+		keywords.add("include");
+		keywords.add("if");
+		keywords.add("else");
+		keywords.add("for");
+	}
 
 	public void readAndBuild() {
 		if (!init)
@@ -49,8 +60,7 @@ public class ViewFileReader {
 			reader = new BufferedReader(new FileReader(f));
 			for (String line = null; (line = reader.readLine()) != null;) {
 				// TODO 文件分析
-//				line = line.trim();
-//				pre.append(line).append("\n");
+				pre.append(line.trim());
 				
 				System.out.println(line);
 			}
