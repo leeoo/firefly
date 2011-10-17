@@ -9,7 +9,6 @@ public class Config {
 	private String compiledPath;
 	private String suffix = "html";
 	private boolean compress = true;
-	private String namespace = "f";
 	public static final String COMPILED_FOLDER_NAME = "_compiled_view";
 
 	public String getViewPath() {
@@ -42,14 +41,6 @@ public class Config {
 
 	public void setCompress(boolean compress) {
 		this.compress = compress;
-	}
-
-	public String getNamespace() {
-		return namespace;
-	}
-
-	public void setNamespace(String namespace) {
-		this.namespace = namespace;
 	}
 
 }
