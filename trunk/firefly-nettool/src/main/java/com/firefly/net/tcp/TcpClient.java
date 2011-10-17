@@ -2,7 +2,6 @@ package com.firefly.net.tcp;
 
 import com.firefly.net.*;
 import com.firefly.net.event.CurrentThreadEventManager;
-import com.firefly.net.event.QueueEventManager;
 import com.firefly.net.event.ThreadPoolEventManager;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
@@ -29,7 +28,6 @@ public class TcpClient implements Client {
         config.setDecoder(decoder);
         config.setEncoder(encoder);
         config.setHandler(handler);
-        config.setHandleThreads(-1);
     }
 
     private synchronized Client init() {
@@ -40,26 +38,17 @@ public class TcpClient implements Client {
             throw new IllegalArgumentException("init error config is null");
         
         EventManager eventManager = null;
-        if (!config.isPipeline()) {
-			if (config.getHandleThreads() >= 0) {
-				eventManager = new ThreadPoolEventManager(config);
-			} else {
-				eventManager = new CurrentThreadEventManager(config);
-			}
+        if (config.getHandleThreads() >= 0) {
+			eventManager = new ThreadPoolEventManager(config);
 		} else {
-			log.info("Pipeline Mode");
+			eventManager = new CurrentThreadEventManager(config);
 		}
         
         log.info("client worker num: {}", config.getWorkerThreads());
         workers = new Worker[config.getWorkerThreads()];
-        for (int i = 0; i < config.getWorkerThreads(); i++) {
-        	if(config.isPipeline()) {
-				QueueEventManager queueEventManager = new QueueEventManager(config);
-				queueEventManager.start();
-				eventManager = queueEventManager;
-			}
+        for (int i = 0; i < config.getWorkerThreads(); i++)
             workers[i] = new TcpWorker(config, i, eventManager);
-        }
+        
         started = true;
         return this;
     }

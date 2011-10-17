@@ -24,7 +24,7 @@ public class SendFileHandler implements Handler {
 
 	@Override
 	public void sessionClosed(Session session) {
-		log.info("session close|" + session.getSessionId());
+		log.debug("session close|" + session.getSessionId());
 	}
 
 	@Override

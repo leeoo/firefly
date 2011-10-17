@@ -4,7 +4,6 @@ public class Config {
 	private int timeout = 10 * 1000;
 	private int handleThreads = -1;
 	private int receiveByteBufferSize = 0;
-	private boolean pipeline = false;
 	private int workerThreads;
 	{
 		int workers = Runtime.getRuntime().availableProcessors();
@@ -71,21 +70,6 @@ public class Config {
 	 */
 	public void setReceiveByteBufferSize(int receiveByteBufferSize) {
 		this.receiveByteBufferSize = receiveByteBufferSize;
-	}
-
-	/**
-	 * @return 是否使用管道模型
-	 */
-	public boolean isPipeline() {
-		return pipeline;
-	}
-
-	/**
-	 * 设置成管道模型，即按照接受到的数据包的顺序进行响应
-	 * @param pipeline
-	 */
-	public void setPipeline(boolean pipeline) {
-		this.pipeline = pipeline;
 	}
 
 	public int getWorkerThreads() {

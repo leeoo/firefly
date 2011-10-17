@@ -51,6 +51,7 @@ public final class TcpWorker implements Worker {
 	private volatile int cancelledKeys;
 	private Thread thread;
 	private EventManager eventManager;
+	
 	private boolean start;
 
 	static {
@@ -71,10 +72,6 @@ public final class TcpWorker implements Worker {
 			log.error("worker init error", e);
 			throw new NetException("worker init error");
 		}
-	}
-
-	public EventManager getEventManager() {
-		return eventManager;
 	}
 
 	public int getWorkerId() {
@@ -118,6 +115,10 @@ public final class TcpWorker implements Worker {
 			}
 		}
 
+	}
+	
+	EventManager getEventManager() {
+		return eventManager;
 	}
 
 	private void processWriteTaskQueue() throws IOException {
