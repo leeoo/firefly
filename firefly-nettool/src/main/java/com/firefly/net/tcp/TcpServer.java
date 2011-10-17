@@ -21,7 +21,6 @@ import com.firefly.net.Handler;
 import com.firefly.net.Server;
 import com.firefly.net.Worker;
 import com.firefly.net.event.CurrentThreadEventManager;
-import com.firefly.net.event.QueueEventManager;
 import com.firefly.net.event.ThreadPoolEventManager;
 import com.firefly.net.exception.NetException;
 import com.firefly.utils.log.Log;
@@ -44,7 +43,6 @@ public class TcpServer implements Server {
 		config.setDecoder(decoder);
 		config.setEncoder(encoder);
 		config.setHandler(handler);
-		config.setPipeline(true);
 	}
 
 	@Override
@@ -83,26 +81,16 @@ public class TcpServer implements Server {
 
 	private void listen(ServerSocketChannel serverSocketChannel) {
 		EventManager eventManager = null;
-		if (!config.isPipeline()) {
-			if (config.getHandleThreads() >= 0) {
-				eventManager = new ThreadPoolEventManager(config);
-			} else {
-				eventManager = new CurrentThreadEventManager(config);
-			}
+		if (config.getHandleThreads() >= 0) {
+			eventManager = new ThreadPoolEventManager(config);
 		} else {
-			log.info("Pipeline Mode");
+			eventManager = new CurrentThreadEventManager(config);
 		}
 
 		log.info("server worker num: {}", config.getWorkerThreads());
 		workers = new Worker[config.getWorkerThreads()];
-		for (int i = 0; i < config.getWorkerThreads(); i++) {
-			if(config.isPipeline()) {
-				QueueEventManager queueEventManager = new QueueEventManager(config);
-				queueEventManager.start();
-				eventManager = queueEventManager;
-			}
+		for (int i = 0; i < config.getWorkerThreads(); i++)
 			workers[i] = new TcpWorker(config, i, eventManager);
-		}
 
 		Boss boss = null;
 		try {
