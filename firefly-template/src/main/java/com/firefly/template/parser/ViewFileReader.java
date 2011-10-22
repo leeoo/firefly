@@ -56,7 +56,7 @@ public class ViewFileReader {
 		System.out.println("=======" + f.getName() + "=======");
 		BufferedReader reader = null;
 		StringBuilder text = new StringBuilder();
-		StringBuilder tmp = new StringBuilder();
+		StringBuilder comment = new StringBuilder();
 		int status = 0;
 		try {
 			reader = new BufferedReader(new FileReader(f));
@@ -76,12 +76,12 @@ public class ViewFileReader {
 
 						int j = line.indexOf("-->");
 						if (j > i + 4) {
-							assert tmp.length() == 0;
-							System.out.println(tmp.length() + "|0|tmp:\t"
+							assert comment.length() == 0;
+							System.out.println(comment.length() + "|0|comment:\t"
 									+ line.substring(i + 4, j).trim());
 						} else {
 							status = 1;
-							tmp.append(line.substring(i + 4).trim());
+							comment.append(line.substring(i + 4).trim());
 						}
 					} else {
 						text.append(line.trim());
@@ -91,12 +91,12 @@ public class ViewFileReader {
 					int j = line.indexOf("-->");
 					if (j >= 0) { // html注释结束
 						status = 0;
-						tmp.append(line.substring(0, j).trim());
-						System.out.println(tmp.length() + "|1|tmp:\t"
-								+ tmp.toString());
-						tmp = new StringBuilder();
+						comment.append(line.substring(0, j).trim());
+						System.out.println(comment.length() + "|1|comment:\t"
+								+ comment.toString());
+						comment = new StringBuilder();
 					} else
-						tmp.append(line.trim());
+						comment.append(line.trim());
 					break;
 
 				default:
