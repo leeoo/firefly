@@ -8,7 +8,6 @@ public class Config {
 	private String viewPath;
 	private String compiledPath;
 	private String suffix = "html";
-	private boolean compress = true;
 	public static final String COMPILED_FOLDER_NAME = "_compiled_view";
 
 	public String getViewPath() {
@@ -33,14 +32,6 @@ public class Config {
 
 	public void setSuffix(String suffix) {
 		this.suffix = suffix;
-	}
-
-	public boolean isCompress() {
-		return compress;
-	}
-
-	public void setCompress(boolean compress) {
-		this.compress = compress;
 	}
 
 }
