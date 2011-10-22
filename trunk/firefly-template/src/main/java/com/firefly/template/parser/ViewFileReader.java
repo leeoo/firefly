@@ -15,7 +15,7 @@ public class ViewFileReader {
 	private Config config;
 	private boolean init = false;
 	private Set<String> keywords = new HashSet<String>();
-	
+
 	public ViewFileReader() {
 		keywords.add("set");
 		keywords.add("include");
@@ -55,17 +55,62 @@ public class ViewFileReader {
 	private void parse(File f) {
 		System.out.println("=======" + f.getName() + "=======");
 		BufferedReader reader = null;
-		StringBuilder pre = new StringBuilder();
+		StringBuilder text = new StringBuilder();
+		StringBuilder tmp = new StringBuilder();
+		int status = 0;
 		try {
 			reader = new BufferedReader(new FileReader(f));
 			for (String line = null; (line = reader.readLine()) != null;) {
 				// TODO 文件分析
-				pre.append(line.trim());
-				
-				System.out.println(line);
+				switch (status) {
+				case 0:
+					int i = line.indexOf("<!--");
+
+					if (i >= 0) { // html注释开始
+						text.append(line.substring(0, i).trim());
+						if (text.length() > 0) {
+							System.out.println(text.length() + "|0|text:\t"
+									+ text.toString());
+							text = new StringBuilder();
+						}
+
+						int j = line.indexOf("-->");
+						if (j > i + 4) {
+							assert tmp.length() == 0;
+							System.out.println(tmp.length() + "|0|tmp:\t"
+									+ line.substring(i + 4, j).trim());
+						} else {
+							status = 1;
+							tmp.append(line.substring(i + 4).trim());
+						}
+					} else {
+						text.append(line.trim());
+					}
+					break;
+				case 1:
+					int j = line.indexOf("-->");
+					if (j >= 0) { // html注释结束
+						status = 0;
+						tmp.append(line.substring(0, j).trim());
+						System.out.println(tmp.length() + "|1|tmp:\t"
+								+ tmp.toString());
+						tmp = new StringBuilder();
+					} else
+						tmp.append(line.trim());
+					break;
+
+				default:
+					break;
+				}
+
 			}
-//			Config.LOG.info(pre.toString());
-			
+			if (text.length() > 0) {
+				System.out.println(text.length() + "|0|text:\t"
+						+ text.toString());
+				text = new StringBuilder();
+			}
+			// Config.LOG.info(pre.toString());
+
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
