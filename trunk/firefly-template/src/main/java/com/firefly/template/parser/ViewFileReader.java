@@ -98,11 +98,7 @@ public class ViewFileReader {
 					} else
 						comment.append(line.trim());
 					break;
-
-				default:
-					break;
 				}
-
 			}
 			if (text.length() > 0) {
 				System.out.println(text.length() + "|0|text:\t"
@@ -110,7 +106,6 @@ public class ViewFileReader {
 				text = new StringBuilder();
 			}
 			// Config.LOG.info(pre.toString());
-
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
