@@ -6,6 +6,8 @@ import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 
 import com.firefly.template.Config;
 
@@ -61,7 +63,8 @@ public class ViewFileReader {
 				name.length() - config.getSuffix().length()).replace('/', '_')
 				+ "java";
 		System.out.println("======= " + name + " =======");
-		JavaFileBuilder javaFileBuilder = new JavaFileBuilder(config, name);
+		JavaFileBuilder javaFileBuilder = new JavaFileBuilder(
+				config.getCompiledPath(), name);
 		BufferedReader reader = null;
 		StringBuilder text = new StringBuilder();
 		StringBuilder comment = new StringBuilder();
@@ -69,7 +72,6 @@ public class ViewFileReader {
 		try {
 			reader = new BufferedReader(new FileReader(f));
 			for (String line = null; (line = reader.readLine()) != null;) {
-				// TODO 文件分析
 				switch (status) {
 				case 0:
 					int i = line.indexOf("<!--");
@@ -77,14 +79,15 @@ public class ViewFileReader {
 					if (i >= 0) { // html注释开始
 						text.append(line.substring(0, i).trim());
 						if (text.length() > 0) {
-							parseText(text.toString());
+							parseText(text.toString(), javaFileBuilder);
 							text = new StringBuilder();
 						}
 
 						int j = line.indexOf("-->");
 						if (j > i + 4) { // html注释结束
 							assert comment.length() == 0;
-							parseComment(line.substring(i + 4, j).trim());
+							parseComment(line.substring(i + 4, j).trim(),
+									javaFileBuilder);
 						} else {
 							status = 1;
 							comment.append(line.substring(i + 4).trim() + "\n");
@@ -98,7 +101,7 @@ public class ViewFileReader {
 					if (j >= 0) { // html注释结束
 						status = 0;
 						comment.append(line.substring(0, j).trim());
-						parseComment(comment.toString());
+						parseComment(comment.toString(), javaFileBuilder);
 						comment = new StringBuilder();
 					} else
 						comment.append(line.trim() + "\n");
@@ -106,9 +109,10 @@ public class ViewFileReader {
 				}
 			}
 			if (text.length() > 0) {
-				parseText(text.toString());
+				parseText(text.toString(), javaFileBuilder);
 			}
-			// Config.LOG.info(pre.toString());
+
+			javaFileBuilder.write("\t}\n\n").writeTail().write("}");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -124,11 +128,19 @@ public class ViewFileReader {
 		}
 	}
 
-	private void parseComment(String comment) {
+	private void parseComment(String comment, JavaFileBuilder javaFileBuilder) {
 		System.out.println(comment.length() + "|1|comment:\t" + comment);
 	}
 
-	private void parseText(String text) {
-		System.out.println(text.length() + "|0|text:\t" + text);
+	private void parseText(String text, JavaFileBuilder javaFileBuilder) {
+		try {
+			String byteStr = Arrays
+					.toString(text.getBytes(config.getCharset()));
+			byteStr = byteStr.substring(1, byteStr.length() - 1);
+			javaFileBuilder.writerText(byteStr);
+			System.out.println(text.length() + "|0|text:\t" + byteStr);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 	}
 }

@@ -17,7 +17,6 @@ public abstract class AbstractView implements View {
 		}
 	}
 
-	abstract protected void main(Model model, OutputStream out)
-			throws Throwable;
+	abstract protected void main(Model model, OutputStream out) throws Throwable;
 
 }
