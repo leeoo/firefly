@@ -23,10 +23,7 @@ public class TestConfig {
 	public static void main(String[] args) {
 //		String path = "F:/develop/workspace2/firefly-template/src/test/page";
 		String path = "/Users/qiupengtao/Documents/workspace/firefly-project/firefly-template/src/test/page";
-		Config config = new Config();
-		config.setViewPath(path);
-		ViewFileReader reader = new ViewFileReader();
-		reader.setConfig(config);
+		ViewFileReader reader = new ViewFileReader(path);
 		reader.readAndBuild();
 	}
 }

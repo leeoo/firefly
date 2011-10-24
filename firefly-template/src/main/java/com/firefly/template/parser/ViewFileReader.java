@@ -6,27 +6,30 @@ import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
 import com.firefly.template.Config;
 
 public class ViewFileReader {
 	private Config config;
 	private boolean init = false;
-	private Set<String> keywords = new HashSet<String>();
 
 	public ViewFileReader() {
-		keywords.add("set");
-		keywords.add("include");
-		keywords.add("if");
-		keywords.add("else");
-		keywords.add("for");
+
+	}
+
+	public ViewFileReader(String path) {
+		config = new Config();
+		config.setViewPath(path);
 	}
 
 	public void readAndBuild() {
-		if (!init)
+		if (!init) {
+			File file = new File(config.getCompiledPath());
+			if (!file.exists()) {
+				file.mkdir();
+			}
 			read0(new File(config.getViewPath()));
+		}
 	}
 
 	public Config getConfig() {
@@ -53,7 +56,12 @@ public class ViewFileReader {
 	}
 
 	private void parse(File f) {
-		System.out.println("=======" + f.getName() + "=======");
+		String name = f.getAbsolutePath();
+		name = name.substring(config.getViewPath().length() - 1,
+				name.length() - config.getSuffix().length()).replace('/', '_')
+				+ "java";
+		System.out.println("======= " + name + " =======");
+		JavaFileBuilder javaFileBuilder = new JavaFileBuilder(config, name);
 		BufferedReader reader = null;
 		StringBuilder text = new StringBuilder();
 		StringBuilder comment = new StringBuilder();
@@ -69,19 +77,17 @@ public class ViewFileReader {
 					if (i >= 0) { // html注释开始
 						text.append(line.substring(0, i).trim());
 						if (text.length() > 0) {
-							System.out.println(text.length() + "|0|text:\t"
-									+ text.toString());
+							parseText(text.toString());
 							text = new StringBuilder();
 						}
 
 						int j = line.indexOf("-->");
-						if (j > i + 4) {
+						if (j > i + 4) { // html注释结束
 							assert comment.length() == 0;
-							System.out.println(comment.length() + "|0|comment:\t"
-									+ line.substring(i + 4, j).trim());
+							parseComment(line.substring(i + 4, j).trim());
 						} else {
 							status = 1;
-							comment.append(line.substring(i + 4).trim());
+							comment.append(line.substring(i + 4).trim() + "\n");
 						}
 					} else {
 						text.append(line.trim());
@@ -92,18 +98,15 @@ public class ViewFileReader {
 					if (j >= 0) { // html注释结束
 						status = 0;
 						comment.append(line.substring(0, j).trim());
-						System.out.println(comment.length() + "|1|comment:\t"
-								+ comment.toString());
+						parseComment(comment.toString());
 						comment = new StringBuilder();
 					} else
-						comment.append(line.trim());
+						comment.append(line.trim() + "\n");
 					break;
 				}
 			}
 			if (text.length() > 0) {
-				System.out.println(text.length() + "|0|text:\t"
-						+ text.toString());
-				text = new StringBuilder();
+				parseText(text.toString());
 			}
 			// Config.LOG.info(pre.toString());
 		} catch (FileNotFoundException e) {
@@ -117,6 +120,15 @@ public class ViewFileReader {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+			javaFileBuilder.close();
 		}
+	}
+
+	private void parseComment(String comment) {
+		System.out.println(comment.length() + "|1|comment:\t" + comment);
+	}
+
+	private void parseText(String text) {
+		System.out.println(text.length() + "|0|text:\t" + text);
 	}
 }
