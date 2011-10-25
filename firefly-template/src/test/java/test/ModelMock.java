@@ -19,4 +19,15 @@ public class ModelMock implements Model {
 		return map.get(key);
 	}
 
+	@Override
+	public void remove(String key) {
+		map.remove(key);
+		
+	}
+
+	@Override
+	public void clear() {
+		map.clear();
+	}
+
 }
