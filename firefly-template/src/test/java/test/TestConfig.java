@@ -2,11 +2,15 @@ package test;
 
 import static org.hamcrest.Matchers.is;
 
+import java.io.ByteArrayOutputStream;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.firefly.template.Config;
-import com.firefly.template.parser.ViewFileReader;
+import com.firefly.template.Model;
+import com.firefly.template.TemplateFactory;
+import com.firefly.template.View;
 
 public class TestConfig {
 
@@ -23,7 +27,11 @@ public class TestConfig {
 	public static void main(String[] args) {
 //		String path = "F:/develop/workspace2/firefly-template/src/test/page";
 		String path = "/Users/qiupengtao/Documents/workspace/firefly-project/firefly-template/src/test/page";
-		ViewFileReader reader = new ViewFileReader(path);
-		reader.readAndBuild();
+		TemplateFactory t = new TemplateFactory(path).init();
+		View view = t.getView("/index.html");
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		Model model = new ModelMock();
+		view.render(model, out);
+		System.out.println(out.toString());
 	}
 }
