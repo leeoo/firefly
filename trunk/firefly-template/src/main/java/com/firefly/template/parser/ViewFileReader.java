@@ -7,39 +7,51 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import com.firefly.template.Config;
+import com.firefly.template.exception.TemplateFileReadException;
+import com.firefly.template.support.CompileUtils;
 
 public class ViewFileReader {
 	private Config config;
-	private boolean init = false;
+	private List<String> javaFiles = new ArrayList<String>();
+	private List<String> templateFiles = new ArrayList<String>();
+	private List<String> classNames = new ArrayList<String>();
 
-	public ViewFileReader() {
-
-	}
-
-	public ViewFileReader(String path) {
-		config = new Config();
-		config.setViewPath(path);
-	}
-
-	public void readAndBuild() {
-		if (!init) {
-			File file = new File(config.getCompiledPath());
-			if (!file.exists()) {
-				file.mkdir();
-			}
-			read0(new File(config.getViewPath()));
-		}
-	}
-
-	public Config getConfig() {
-		return config;
-	}
-
-	public void setConfig(Config config) {
+	public ViewFileReader(Config config) {
 		this.config = config;
+		if(init() != 0)
+			throw new TemplateFileReadException("template file parse error");
+	}
+
+	private int init() {
+		int ret = 0;
+		File file = new File(config.getCompiledPath());
+		if (!file.exists()) {
+			file.mkdir();
+		}
+		read0(new File(config.getViewPath()));
+		ret = CompileUtils.compile(config.getCompiledPath(), javaFiles);
+		return ret;
+	}
+
+	public List<String> getJavaFiles() {
+		return javaFiles;
+	}
+
+	public List<String> getTemplateFiles() {
+		return templateFiles;
+	}
+
+	public List<String> getClassNames() {
+		return classNames;
+	}
+
+	public void setClassNames(List<String> classNames) {
+		this.classNames = classNames;
 	}
 
 	private void read0(File file) {
@@ -54,14 +66,16 @@ public class ViewFileReader {
 				return false;
 			}
 		});
-		init = true;
 	}
 
 	private void parse(File f) {
 		String name = f.getAbsolutePath();
+		templateFiles.add(name.substring(config.getViewPath().length() - 1));
 		name = name.substring(config.getViewPath().length() - 1,
 				name.length() - config.getSuffix().length()).replace('/', '_')
 				+ "java";
+		classNames.add(name.substring(0, name.length() - 5));
+		javaFiles.add(config.getCompiledPath() + "/" + name);
 		System.out.println("======= " + name + " =======");
 		JavaFileBuilder javaFileBuilder = new JavaFileBuilder(
 				config.getCompiledPath(), name);
@@ -138,7 +152,7 @@ public class ViewFileReader {
 					.toString(text.getBytes(config.getCharset()));
 			byteStr = byteStr.substring(1, byteStr.length() - 1);
 			javaFileBuilder.writerText(byteStr);
-			System.out.println(text.length() + "|0|text:\t" + byteStr);
+//			System.out.println(text.length() + "|0|text:\t" + byteStr);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
