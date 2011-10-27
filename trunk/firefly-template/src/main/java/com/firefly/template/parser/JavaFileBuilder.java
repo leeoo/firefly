@@ -46,7 +46,7 @@ public class JavaFileBuilder {
 	
 	public JavaFileBuilder writerText(String str) {
 		write("\t\tout.write(_TEXT_" + textCount + ");\n")
-		.appendTail("\tprivate static final byte[] _TEXT_" + textCount + " = new byte[]{" + str + "};\n");
+		.appendTail("\tprivate final byte[] _TEXT_" + textCount + " = new byte[]{" + str + "};\n");
 		textCount++;
 		return this;
 	}
