@@ -71,6 +71,7 @@ public class JavaFileBuilder {
 
 			writer.write("public class " + className
 					+ " extends AbstractView {\n\n");
+			writer.write("\tprivate " + className + "(){}\n\n");
 			writer.write("\tpublic static final " + className
 					+ " INSTANCE = new " + className + "();\n\n");
 			writer.write("\t@Override\n");

@@ -16,7 +16,7 @@ public class Config {
 	}
 
 	public void setViewPath(String viewPath) {
-		this.viewPath = viewPath.charAt(viewPath.length() - 1) == '/' ? viewPath
+		this.viewPath = viewPath.replace('\\', '/').charAt(viewPath.length() - 1) == '/' ? viewPath
 				: viewPath + "/";
 		compiledPath = this.viewPath + COMPILED_FOLDER_NAME;
 	}

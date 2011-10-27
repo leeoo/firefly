@@ -74,7 +74,7 @@ public class TemplateFactory {
 			};
 			
 			try {
-				map.put(templateFiles.get(i), (View)classLoader.loadClass(classNames.get(i)).newInstance());
+				map.put(templateFiles.get(i), (View)classLoader.loadClass(classNames.get(i)).getField("INSTANCE").get(null));
 			} catch (Throwable e) {
 				Config.LOG.error("load class error", e);
 			}

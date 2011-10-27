@@ -25,8 +25,8 @@ public class TestConfig {
 	}
 	
 	public static void main(String[] args) {
-//		String path = "F:/develop/workspace2/firefly-template/src/test/page";
-		String path = "/Users/qiupengtao/Documents/workspace/firefly-project/firefly-template/src/test/page";
+		String path = "F:/develop/workspace2/firefly-template/src/test/page";
+//		String path = "/Users/qiupengtao/Documents/workspace/firefly-project/firefly-template/src/test/page";
 		TemplateFactory t = new TemplateFactory(path).init();
 		View view = t.getView("/index.html");
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
