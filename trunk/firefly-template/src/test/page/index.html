@@ -11,19 +11,40 @@
 	<!-- #include "top.html" -->
 	<div>
 		<!-- #if ${user.login} && ${user.age} > 18 -->
-			Welcome ${user.name}
+		Welcome ${user.name}
 		<!-- #else -->
-			您无法访问
+		您无法访问
 		<!-- #end -->
 	</div>
 	
 	
 	<!-- #if ${user.name} == "Pengtao Qiu" -->
-		<div>城主来了</div>
+	<div>城主来了</div>
+	<!-- #end -->
+	
+	<!-- #if ${foo.numbers[2]} == 3 -->
+	<div>num3</div>
+	<!-- #elseif ${foo.numbers[2]} == 4 -->
+	<div>num4</div>
+	<!-- #elseif ${foo.price} < 5.5 -->
+	<div>price 5</div>
+	<!-- #else -->
+	<div>no</div>
+	<!-- #end -->
+	
+	<!-- #switch ${bar.xpr} -->
+	<!-- #case: 1 -->
+	<div>test case1</div>
+	<!-- #case: 3 -->
+	<div>test case3</div>
+	<!-- #case: 4 -->
+	<div>test case4</div>
+	<!-- #default:  -->
+	<div>test case5</div>
 	<!-- #end -->
 	
 	<!-- #for name : ${books} -->
-		<div>${name}</div>
+	<div>${name}</div>
 	<!-- #end -->
 </body>
 </html>

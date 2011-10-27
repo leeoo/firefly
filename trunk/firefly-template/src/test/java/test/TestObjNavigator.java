@@ -1,6 +1,6 @@
 package test;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -70,6 +70,8 @@ public class TestObjNavigator {
 		Assert.assertThat(String.valueOf(o.find(model, "foo.bar.price")), is("3.3"));
 		Assert.assertThat(String.valueOf(o.find(model, "foo.numbers[2]")), is("5"));
 		Assert.assertThat(String.valueOf(o.find(model, "foo.map['bar2'].price")), is("2.3"));
+		Assert.assertThat(o.find(model, "foo.map['bar5']"), nullValue());
+		Assert.assertThat(o.find(model, "ok"), nullValue());
 	}
 	
 	public static void main(String[] args) {
@@ -99,6 +101,7 @@ public class TestObjNavigator {
 		System.out.println(ObjectNavigator.getInstance().find(model, "foo.numbers[2]"));
 		System.out.println(ObjectNavigator.getInstance().find(model, "foo.map['bar2']"));
 		System.out.println(ObjectNavigator.getInstance().find(model, "foo.map['bar2'].price"));
+		System.out.println(ObjectNavigator.getInstance().find(model, "foo.map['bar4']"));
 		
 	}
 }

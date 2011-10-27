@@ -1,7 +1,6 @@
 package com.firefly.template;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
@@ -98,11 +97,7 @@ public class ObjectNavigator {
 		Object ret = null;
 		try {
 			ret = method.invoke(current);
-		} catch (IllegalArgumentException e) {
-			Config.LOG.error("getObjectProperty error", e);
-		} catch (IllegalAccessException e) {
-			Config.LOG.error("getObjectProperty error", e);
-		} catch (InvocationTargetException e) {
+		} catch (Throwable e) {
 			Config.LOG.error("getObjectProperty error", e);
 		}
 		return ret;
