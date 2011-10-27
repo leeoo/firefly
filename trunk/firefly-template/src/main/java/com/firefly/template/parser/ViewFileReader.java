@@ -34,6 +34,10 @@ public class ViewFileReader {
 			file.mkdir();
 		}
 		read0(new File(config.getViewPath()));
+		
+//		System.out.println(javaFiles);
+//		System.out.println(templateFiles);
+//		System.out.println(classNames);
 		ret = CompileUtils.compile(config.getCompiledPath(), javaFiles);
 		return ret;
 	}
@@ -69,7 +73,7 @@ public class ViewFileReader {
 	}
 
 	private void parse(File f) {
-		String name = f.getAbsolutePath();
+		String name = f.getAbsolutePath().replace('\\', '/');
 		templateFiles.add(name.substring(config.getViewPath().length() - 1));
 		name = name.substring(config.getViewPath().length() - 1,
 				name.length() - config.getSuffix().length()).replace('/', '_')
