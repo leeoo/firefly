@@ -102,6 +102,7 @@ public class TestObjNavigator {
 		System.out.println(ObjectNavigator.getInstance().find(model, "foo.map['bar2']"));
 		System.out.println(ObjectNavigator.getInstance().find(model, "foo.map['bar2'].price"));
 		System.out.println(ObjectNavigator.getInstance().find(model, "foo.map['bar4']"));
+		System.out.println(ObjectNavigator.getInstance().find(model, "user.name"));
 		
 	}
 }

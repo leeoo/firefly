@@ -4,6 +4,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+
+import com.firefly.template.Config;
 
 public class JavaFileBuilder {
 	private String name;
@@ -11,15 +15,17 @@ public class JavaFileBuilder {
 	private boolean writeHead = false;
 	private StringBuilder tail = new StringBuilder();
 	private int textCount = 0;
+	private Config config;
 
-	public JavaFileBuilder(String path, String name) {
+	public JavaFileBuilder(String path, String name, Config config) {
 		this.name = name;
 		File file = new File(path, name);
 		try {
 			if (!file.exists())
 				file.createNewFile();
-			
+
 			writer = new BufferedWriter(new FileWriter(file));
+			this.config = config;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -28,7 +34,7 @@ public class JavaFileBuilder {
 	public String getName() {
 		return name;
 	}
-	
+
 	public JavaFileBuilder write(String str) {
 		try {
 			writeHead();
@@ -38,16 +44,24 @@ public class JavaFileBuilder {
 		}
 		return this;
 	}
-	
+
 	public JavaFileBuilder appendTail(String str) {
 		tail.append(str);
 		return this;
 	}
-	
-	public JavaFileBuilder writerText(String str) {
+
+	public JavaFileBuilder writeText(String str)
+			throws UnsupportedEncodingException {
+		str = Arrays.toString(str.getBytes(config.getCharset()));
+		str = str.substring(1, str.length() - 1);
 		write("\t\tout.write(_TEXT_" + textCount + ");\n")
 		.appendTail("\tprivate final byte[] _TEXT_" + textCount + " = new byte[]{" + str + "};\n");
 		textCount++;
+		return this;
+	}
+	
+	public JavaFileBuilder writeObject(String el) {
+		write("\t\tout.write(objNav.getValue(model ,\"" + el + "\").getBytes(\"" + config.getCharset() + "\"));\n" );
 		return this;
 	}
 
@@ -76,7 +90,7 @@ public class JavaFileBuilder {
 					+ " INSTANCE = new " + className + "();\n\n");
 			writer.write("\t@Override\n");
 			writer.write("\tprotected void main(Model model, OutputStream out) throws Throwable {\n");
-
+			writer.write("\t\tObjectNavigator objNav = ObjectNavigator.getInstance();\n");
 			writeHead = true;
 		}
 	}
@@ -89,5 +103,5 @@ public class JavaFileBuilder {
 			e.printStackTrace();
 		}
 	}
-	
+
 }

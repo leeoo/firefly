@@ -25,12 +25,22 @@ public class TestConfig {
 	}
 	
 	public static void main(String[] args) {
+		User user = new User();
+		user.setName("Pengtao Qiu");
+		user.setAge(25);
+		
 //		String path = "F:/develop/workspace2/firefly-template/src/test/page";
 		String path = "/Users/qiupengtao/Documents/workspace/firefly-project/firefly-template/src/test/page";
 		TemplateFactory t = new TemplateFactory(path).init();
 		View view = t.getView("/index.html");
+		
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Model model = new ModelMock();
+		view.render(model, out);
+		System.out.println(out.toString());
+		
+		out = new ByteArrayOutputStream();
+		model.put("user", user);
 		view.render(model, out);
 		System.out.println(out.toString());
 	}

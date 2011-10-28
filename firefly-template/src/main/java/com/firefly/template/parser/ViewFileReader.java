@@ -8,7 +8,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.firefly.template.Config;
@@ -23,7 +22,7 @@ public class ViewFileReader {
 
 	public ViewFileReader(Config config) {
 		this.config = config;
-		if(init() != 0)
+		if (init() != 0)
 			throw new TemplateFileReadException("template file parse error");
 	}
 
@@ -34,10 +33,10 @@ public class ViewFileReader {
 			file.mkdir();
 		}
 		read0(new File(config.getViewPath()));
-		
-//		System.out.println(javaFiles);
-//		System.out.println(templateFiles);
-//		System.out.println(classNames);
+
+		// System.out.println(javaFiles);
+		// System.out.println(templateFiles);
+		// System.out.println(classNames);
 		ret = CompileUtils.compile(config.getCompiledPath(), javaFiles);
 		return ret;
 	}
@@ -82,7 +81,7 @@ public class ViewFileReader {
 		javaFiles.add(config.getCompiledPath() + "/" + name);
 		System.out.println("======= " + name + " =======");
 		JavaFileBuilder javaFileBuilder = new JavaFileBuilder(
-				config.getCompiledPath(), name);
+				config.getCompiledPath(), name, config);
 		BufferedReader reader = null;
 		StringBuilder text = new StringBuilder();
 		StringBuilder comment = new StringBuilder();
@@ -152,11 +151,15 @@ public class ViewFileReader {
 
 	private void parseText(String text, JavaFileBuilder javaFileBuilder) {
 		try {
-			String byteStr = Arrays
-					.toString(text.getBytes(config.getCharset()));
-			byteStr = byteStr.substring(1, byteStr.length() - 1);
-			javaFileBuilder.writerText(byteStr);
-//			System.out.println(text.length() + "|0|text:\t" + byteStr);
+			int cursor = 0;
+			for (int start, end; (start = text.indexOf("${", cursor)) != -1
+					&& (end = text.indexOf("}", start)) != -1;) {
+				javaFileBuilder.writeText(text.substring(cursor, start))
+				.writeObject(text.substring(start + 2, end));
+				cursor = end + 1;
+			}
+			javaFileBuilder.writeText(text.substring(cursor, text.length()));
+			// System.out.println(text.length() + "|0|text:\t" + byteStr);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
