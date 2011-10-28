@@ -6,7 +6,6 @@ import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -150,18 +149,13 @@ public class ViewFileReader {
 	}
 
 	private void parseText(String text, JavaFileBuilder javaFileBuilder) {
-		try {
-			int cursor = 0;
-			for (int start, end; (start = text.indexOf("${", cursor)) != -1
-					&& (end = text.indexOf("}", start)) != -1;) {
-				javaFileBuilder.writeText(text.substring(cursor, start))
-				.writeObject(text.substring(start + 2, end));
-				cursor = end + 1;
-			}
-			javaFileBuilder.writeText(text.substring(cursor, text.length()));
-			// System.out.println(text.length() + "|0|text:\t" + byteStr);
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+		int cursor = 0;
+		for (int start, end; (start = text.indexOf("${", cursor)) != -1
+				&& (end = text.indexOf("}", start)) != -1;) {
+			javaFileBuilder.writeText(text.substring(cursor, start))
+			.writeObject(text.substring(start + 2, end));
+			cursor = end + 1;
 		}
+		javaFileBuilder.writeText(text.substring(cursor, text.length()));
 	}
 }

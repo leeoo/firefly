@@ -50,13 +50,16 @@ public class JavaFileBuilder {
 		return this;
 	}
 
-	public JavaFileBuilder writeText(String str)
-			throws UnsupportedEncodingException {
-		str = Arrays.toString(str.getBytes(config.getCharset()));
-		str = str.substring(1, str.length() - 1);
-		write("\t\tout.write(_TEXT_" + textCount + ");\n")
-		.appendTail("\tprivate final byte[] _TEXT_" + textCount + " = new byte[]{" + str + "};\n");
-		textCount++;
+	public JavaFileBuilder writeText(String str) {
+		try {
+			str = Arrays.toString(str.getBytes(config.getCharset()));
+			str = str.substring(1, str.length() - 1);
+			write("\t\tout.write(_TEXT_" + textCount + ");\n")
+			.appendTail("\tprivate final byte[] _TEXT_" + textCount + " = new byte[]{" + str + "};\n");
+			textCount++;
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 		return this;
 	}
 	
