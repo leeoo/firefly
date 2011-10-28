@@ -11,8 +11,12 @@ public class _top extends AbstractView {
 
 	@Override
 	protected void main(Model model, OutputStream out) throws Throwable {
+		ObjectNavigator objNav = ObjectNavigator.getInstance();
 		out.write(_TEXT_0);
+		out.write(objNav.getValue(model ,"title").getBytes("UTF-8"));
+		out.write(_TEXT_1);
 	}
 
-	private final byte[] _TEXT_0 = new byte[]{60, 100, 105, 118, 62, 36, 123, 116, 105, 116, 108, 101, 125, 32, 38, 110, 98, 115, 112, 59, 32, 38, 103, 116, 59, 32, 38, 110, 98, 115, 112, 59, 32, -23, -90, -106, -23, -95, -75, 60, 47, 100, 105, 118, 62};
+	private final byte[] _TEXT_0 = new byte[]{60, 100, 105, 118, 62};
+	private final byte[] _TEXT_1 = new byte[]{32, 38, 110, 98, 115, 112, 59, 32, 38, 103, 116, 59, 32, 38, 110, 98, 115, 112, 59, 32, -23, -90, -106, -23, -95, -75, 60, 47, 100, 105, 118, 62};
 }

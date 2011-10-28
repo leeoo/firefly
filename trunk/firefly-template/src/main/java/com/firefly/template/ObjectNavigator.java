@@ -25,6 +25,11 @@ public class ObjectNavigator {
 		return Holder.instance;
 	}
 
+	public String getValue(Model model, String el) {
+		Object ret = find(model, el);
+		return ret != null ? String.valueOf(ret) : "";
+	}
+
 	public Object find(Model model, String el) {
 		Object current = null;
 		String[] elements = StringUtils.split(el, '.');
@@ -54,8 +59,8 @@ public class ObjectNavigator {
 			String keyEl = element.substring(listOrMapPrefixIndex + 1,
 					listOrMapSuffixIndex);
 			String p = element.substring(0, listOrMapPrefixIndex);
-			Object obj = root ? ((Model) current).get(p)
-					: getObjectProperty(current, p);
+			Object obj = root ? ((Model) current).get(p) : getObjectProperty(
+					current, p);
 
 			if (isMapKey(keyEl)) { // map
 				if ((obj instanceof Map))
@@ -69,8 +74,8 @@ public class ObjectNavigator {
 					return Array.get(obj, index);
 			}
 		} else if (listOrMapPrefixIndex < 0) { // object
-			return root ? ((Model) current).get(element)
-					: getObjectProperty(current, element);
+			return root ? ((Model) current).get(element) : getObjectProperty(
+					current, element);
 		} else {
 			throw new ExpressionError("expression error: " + element);
 		}
