@@ -14,6 +14,7 @@ public class JavaFileBuilder {
 	private BufferedWriter writer;
 	private boolean writeHead = false;
 	private StringBuilder tail = new StringBuilder();
+	private StringBuilder preBlank = new StringBuilder("\t\t");
 	private int textCount = 0;
 	private Config config;
 
@@ -44,6 +45,16 @@ public class JavaFileBuilder {
 		}
 		return this;
 	}
+	
+	public JavaFileBuilder appendTab() {
+		preBlank.append('\t');
+		return this;
+	}
+	
+	public JavaFileBuilder deleteTab() {
+		preBlank.deleteCharAt(preBlank.length() - 1);
+		return this;
+	}
 
 	public JavaFileBuilder appendTail(String str) {
 		tail.append(str);
@@ -54,7 +65,7 @@ public class JavaFileBuilder {
 		try {
 			str = Arrays.toString(str.getBytes(config.getCharset()));
 			str = str.substring(1, str.length() - 1);
-			write("\t\tout.write(_TEXT_" + textCount + ");\n")
+			write(preBlank + "out.write(_TEXT_" + textCount + ");\n")
 			.appendTail("\tprivate final byte[] _TEXT_" + textCount + " = new byte[]{" + str + "};\n");
 			textCount++;
 		} catch (UnsupportedEncodingException e) {
@@ -64,7 +75,7 @@ public class JavaFileBuilder {
 	}
 	
 	public JavaFileBuilder writeObject(String el) {
-		write("\t\tout.write(objNav.getValue(model ,\"" + el + "\").getBytes(\"" + config.getCharset() + "\"));\n" );
+		write(preBlank + "out.write(objNav.getValue(model ,\"" + el + "\").getBytes(\"" + config.getCharset() + "\"));\n" );
 		return this;
 	}
 
