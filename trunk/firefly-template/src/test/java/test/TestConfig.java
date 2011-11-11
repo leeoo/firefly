@@ -26,7 +26,7 @@ public class TestConfig {
 	
 	public static void main(String[] args) {
 		User user = new User();
-		user.setName("Pengtao Qiu");
+		user.setName("Jim");
 		user.setAge(25);
 		
 //		String path = "F:/develop/workspace2/firefly-template/src/test/page";
@@ -41,6 +41,7 @@ public class TestConfig {
 		
 		out = new ByteArrayOutputStream();
 		model.put("user", user);
+		model.put("login", true);
 		view.render(model, out);
 		System.out.println(out.toString());
 	}

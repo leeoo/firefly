@@ -9,42 +9,33 @@
 	换行还不错吧，
 	换行是可以的。 -->
 	<!-- #include "top.html" -->
+	
 	<div>
-		<!-- #if ${login} && ${user.age} > 18 -->
-		Welcome ${user.name}
-		<!-- #else -->
-		您无法访问
-		<!-- #end -->
+	<!-- #if ${login} -->
+	Welcome ${user.name}
+	<!-- #else -->
+	您无法访问
+	<!-- #end -->
 	</div>
 	
-	
-	<!-- #if ${user.name} == "Pengtao Qiu" -->
-	<div>城主来了</div>
+	<!-- #if ${user.age} > 18 -->
+	<div>年龄大于18</div>
 	<!-- #end -->
 	
-	<!-- #if ${foo.numbers[2]} == 3 -->
-	<div>num3</div>
-	<!-- #elseif ${foo.numbers[2]} == 4 -->
-	<div>num4</div>
-	<!-- #elseif ${foo.bar.price} < 5.5 -->
-	<div>price 5</div>
+	<!-- #if 30 <= ${user.age}  -->
+	<div>年龄不小于30</div>
+	<!-- #end -->
+	
+	<div>
+	<!-- #if "Pengtao Qiu" == ${user.name} -->
+		城主来了
+	<!-- #elseif ${user.name} == "Bob" -->
+		厨师来了
+	<!-- #elseif ${user.name} == "Jim" -->
+		Jim来了
 	<!-- #else -->
-	<div>no</div>
+		小罗罗来了
 	<!-- #end -->
-	
-	<!-- #switch ${foo.case} -->
-	<!-- #case: 1 -->
-	<div>test case1</div>
-	<!-- #case: 3 -->
-	<div>test case3</div>
-	<!-- #case: 4 -->
-	<div>test case4</div>
-	<!-- #default:  -->
-	<div>test case5</div>
-	<!-- #end -->
-	
-	<!-- #for u : ${users} -->
-	<div>${u.name}</div>
-	<!-- #end -->
+	</div>
 </body>
 </html>

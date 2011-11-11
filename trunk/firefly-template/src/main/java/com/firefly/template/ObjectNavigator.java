@@ -79,6 +79,21 @@ public class ObjectNavigator {
 	public static ObjectNavigator getInstance() {
 		return Holder.instance;
 	}
+	
+	public Long getLong(Model model, String el) {
+		Object ret = find(model, el);
+		return ret != null ? ((Number)ret).longValue() : 0L;
+	}
+	
+	public Double getDouble(Model model, String el) {
+		Object ret = find(model, el);
+		return ret != null ? ((Number)ret).doubleValue() : 0.0;
+	}
+	
+	public Boolean getBoolean(Model model, String el) {
+		Object ret = find(model, el);
+		return ret != null ? (Boolean)ret : false;
+	}
 
 	public String getValue(Model model, String el) {
 		Object ret = find(model, el);
