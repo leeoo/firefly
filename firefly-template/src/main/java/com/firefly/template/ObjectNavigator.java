@@ -130,7 +130,6 @@ public class ObjectNavigator {
 				if(a != null)
 					return a.get(obj, index);
 				if (c.isArray()) {
-//					return Array.get(obj, index);
 					return ((Object[])obj)[index];
 				}
 			}
