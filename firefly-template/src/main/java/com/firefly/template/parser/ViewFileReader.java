@@ -94,7 +94,11 @@ public class ViewFileReader {
 	}
 
 	private void parseComment(String comment, JavaFileBuilder javaFileBuilder) {
-		System.out.println(comment.length() + "|1|comment:\t" + comment);
+		int start = comment.indexOf('#');
+		int end = comment.indexOf(' ', start);
+		end = (start >= 0 && end > start) ? end : comment.length();
+		String keyword = (start >= 0 && end > start) ? comment.substring(start, end) : null;
+		System.out.println(comment.length() + "|1|comment:\t" + comment + "\t" + keyword);
 	}
 
 	private void parseText(String text, JavaFileBuilder javaFileBuilder) {

@@ -35,12 +35,13 @@ public class TestObjNavigator {
 		model.put("arr", arr);
 		model.put("list", list);
 		
-		Assert.assertThat(ObjectNavigator.getInstance().find(model, "a").toString(), is("fffff"));
-		Assert.assertThat(ObjectNavigator.getInstance().find(model, "b['ccc']").toString(), is("ddd"));
-		Assert.assertThat(ObjectNavigator.getInstance().find(model, "b['eee']").toString(), is("fff"));
-		Assert.assertThat(ObjectNavigator.getInstance().find(model, "b[\"ccc\"]").toString(), is("ddd"));
-		Assert.assertThat((Integer)ObjectNavigator.getInstance().find(model, "arr[2]"), is(333));
-		Assert.assertThat(ObjectNavigator.getInstance().find(model, "list[2]").toString(), is("list333"));
+		ObjectNavigator o = ObjectNavigator.getInstance();
+		Assert.assertThat(o.find(model, "a").toString(), is("fffff"));
+		Assert.assertThat(o.find(model, "b['ccc']").toString(), is("ddd"));
+		Assert.assertThat(o.find(model, "b['eee']").toString(), is("fff"));
+		Assert.assertThat(o.find(model, "b[\"ccc\"]").toString(), is("ddd"));
+		Assert.assertThat((Integer)o.find(model, "arr[2]"), is(333));
+		Assert.assertThat(o.find(model, "list[2]").toString(), is("list333"));
 	}
 	
 	@Test
@@ -75,6 +76,8 @@ public class TestObjNavigator {
 	}
 	
 	public static void main(String[] args) {
+		ObjectNavigator o = ObjectNavigator.getInstance();
+		
 		Foo foo = new Foo();
 		Bar bar = new Bar();
 		bar.setInfo("bar1");
@@ -94,15 +97,29 @@ public class TestObjNavigator {
 		Model model = new ModelMock();
 		model.put("foo", foo);
 		
-		System.out.println(ObjectNavigator.getInstance().find(model, "foo.bar.info"));
-		System.out.println(ObjectNavigator.getInstance().find(model, "foo.bar.info"));
-		System.out.println(ObjectNavigator.getInstance().find(model, "foo.bar.serialNumber"));
-		System.out.println(ObjectNavigator.getInstance().find(model, "foo.bar.price"));
-		System.out.println(ObjectNavigator.getInstance().find(model, "foo.numbers[2]"));
-		System.out.println(ObjectNavigator.getInstance().find(model, "foo.map['bar2']"));
-		System.out.println(ObjectNavigator.getInstance().find(model, "foo.map['bar2'].price"));
-		System.out.println(ObjectNavigator.getInstance().find(model, "foo.map['bar4']"));
-		System.out.println(ObjectNavigator.getInstance().find(model, "user.name"));
+//		System.out.println(o.find(model, "foo.bar.info"));
+//		System.out.println(o.find(model, "foo.bar.info"));
+//		System.out.println(o.find(model, "foo.bar.serialNumber"));
+//		System.out.println(o.find(model, "foo.bar.price"));
+//		System.out.println(o.find(model, "foo.numbers[2]"));
+//		System.out.println(o.find(model, "foo.map['bar2']"));
+//		System.out.println(o.find(model, "foo.map['bar2'].price"));
+//		System.out.println(o.find(model, "foo.map['bar4']"));
+//		System.out.println(o.find(model, "user.name"));
+		
+		long start = System.currentTimeMillis();
+		for (int i = 0; i < 1000000; i++) {
+			o.find(model, "foo.numbers[2]");
+		}
+		long end = System.currentTimeMillis() - start;
+		System.out.println(o.find(model, "foo.numbers[2]") + "|" + end);
+		
+		start = System.currentTimeMillis();
+		for (int i = 0; i < 1000000; i++) {
+			o.find(model, "foo.bags[3]");
+		}
+		end = System.currentTimeMillis() - start;
+		System.out.println(o.find(model, "foo.bags[3]") + "|" + end);
 		
 	}
 }
