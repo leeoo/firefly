@@ -10,6 +10,7 @@ import java.util.List;
 import com.firefly.template.Config;
 import com.firefly.template.exception.TemplateFileReadException;
 import com.firefly.template.support.CompileUtils;
+import com.firefly.utils.VerifyUtils;
 import com.firefly.utils.io.FileUtils;
 import com.firefly.utils.io.LineReaderHandler;
 
@@ -78,7 +79,7 @@ public class ViewFileReader {
 				+ "java";
 		classNames.add(name.substring(0, name.length() - 5));
 		javaFiles.add(config.getCompiledPath() + "/" + name);
-		System.out.println("======= " + name + " =======");
+		// System.out.println("======= " + name + " =======");
 
 		JavaFileBuilder javaFileBuilder = new JavaFileBuilder(
 				config.getCompiledPath(), name, config);
@@ -111,21 +112,26 @@ public class ViewFileReader {
 
 			String keyword = comment.substring(start, end);
 			String content = comment.substring(end).trim();
-			System.out.println(comment.length() + "|1|comment:\t" + keyword
-					+ " " + content);
+			// System.out.println(comment.length() + "|1|comment:\t" + keyword
+			// + " " + content);
 			StateMachine.parse(keyword, content, javaFileBuilder);
 		}
 	}
 
 	private void parseText(String text, JavaFileBuilder javaFileBuilder) {
 		int cursor = 0;
+		String t = null;
 		for (int start, end; (start = text.indexOf("${", cursor)) != -1
 				&& (end = text.indexOf("}", start)) != -1;) {
-			javaFileBuilder.writeText(text.substring(cursor, start))
-					.writeObject(text.substring(start + 2, end));
+			t = text.substring(cursor, start);
+			if (!VerifyUtils.isEmpty(t))
+				javaFileBuilder.writeText(t);
+			javaFileBuilder.writeObject(text.substring(start + 2, end));
 			cursor = end + 1;
 		}
-		javaFileBuilder.writeText(text.substring(cursor, text.length()));
+		t = text.substring(cursor, text.length());
+		if (!VerifyUtils.isEmpty(t))
+			javaFileBuilder.writeText(t);
 	}
 
 	private class TemplateFileLineReaderHandler implements LineReaderHandler,
