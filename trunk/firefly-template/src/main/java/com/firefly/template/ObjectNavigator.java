@@ -1,7 +1,7 @@
 package com.firefly.template;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,9 +12,64 @@ import com.firefly.utils.StringUtils;
 
 public class ObjectNavigator {
 	private ClassCache cache;
+	private IdentityHashMap<Class<?>, ArrayObj> map;
 
 	private ObjectNavigator() {
 		this.cache = new ObjectMetaInfoCache();
+		this.map = new IdentityHashMap<Class<?>, ArrayObj>();
+
+		map.put(long[].class, new ArrayObj() {
+			@Override
+			public Object get(Object obj, int index) {
+				return ((long[])obj)[index];
+			}
+		});
+		map.put(double[].class, new ArrayObj() {
+			@Override
+			public Object get(Object obj, int index) {
+				return ((double[])obj)[index];
+			}
+		});
+		map.put(int[].class, new ArrayObj() {
+			@Override
+			public Object get(Object obj, int index) {
+				return ((int[])obj)[index];
+			}
+		});
+		map.put(float[].class, new ArrayObj() {
+			@Override
+			public Object get(Object obj, int index) {
+				return ((float[])obj)[index];
+			}
+		});
+		map.put(char[].class, new ArrayObj() {
+			@Override
+			public Object get(Object obj, int index) {
+				return ((char[])obj)[index];
+			}
+		});
+		map.put(boolean[].class, new ArrayObj() {
+			@Override
+			public Object get(Object obj, int index) {
+				return ((boolean[])obj)[index];
+			}
+		});
+		map.put(short[].class, new ArrayObj() {
+			@Override
+			public Object get(Object obj, int index) {
+				return ((short[])obj)[index];
+			}
+		});
+		map.put(byte[].class, new ArrayObj() {
+			@Override
+			public Object get(Object obj, int index) {
+				return ((byte[])obj)[index];
+			}
+		});
+	}
+
+	interface ArrayObj {
+		Object get(Object obj, int index);
 	}
 
 	private static class Holder {
@@ -70,8 +125,14 @@ public class ObjectNavigator {
 				int index = Integer.parseInt(keyEl);
 				if ((obj instanceof List))
 					return ((List<?>) obj).get(index);
-				if (obj.getClass().isArray())
-					return Array.get(obj, index);
+				Class<?> c = obj.getClass();
+				ArrayObj a = map.get(c);
+				if(a != null)
+					return a.get(obj, index);
+				if (c.isArray()) {
+//					return Array.get(obj, index);
+					return ((Object[])obj)[index];
+				}
 			}
 		} else if (listOrMapPrefixIndex < 0) { // object
 			return root ? ((Model) current).get(element) : getObjectProperty(

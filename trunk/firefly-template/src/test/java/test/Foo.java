@@ -4,8 +4,17 @@ import java.util.Map;
 
 public class Foo {
 	private int[] numbers = { 3, 4, 5, 6 };
+	private Integer[] bags = {1, 2, 3, 4, 5};
 	private Bar bar;
 	private Map<String, Bar> map;
+
+	public Integer[] getBags() {
+		return bags;
+	}
+
+	public void setBags(Integer[] bags) {
+		this.bags = bags;
+	}
 
 	public int[] getNumbers() {
 		return numbers;
