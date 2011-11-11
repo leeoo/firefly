@@ -13,6 +13,7 @@ import com.firefly.template.TemplateFactory;
 import com.firefly.template.View;
 
 public class TestConfig {
+	public static final String PATH = "/Users/qiupengtao/Documents/workspace/firefly-project/firefly-template/src/test/page";
 
 	@Test
 	public void test() {
@@ -30,8 +31,7 @@ public class TestConfig {
 		user.setAge(25);
 		
 //		String path = "F:/develop/workspace2/firefly-template/src/test/page";
-		String path = "/Users/qiupengtao/Documents/workspace/firefly-project/firefly-template/src/test/page";
-		TemplateFactory t = new TemplateFactory(path).init();
+		TemplateFactory t = new TemplateFactory(PATH).init();
 		View view = t.getView("/testif.html");
 		
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
