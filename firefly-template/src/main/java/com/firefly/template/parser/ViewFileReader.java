@@ -79,11 +79,12 @@ public class ViewFileReader {
 		classNames.add(name.substring(0, name.length() - 5));
 		javaFiles.add(config.getCompiledPath() + "/" + name);
 		System.out.println("======= " + name + " =======");
-		
+
 		JavaFileBuilder javaFileBuilder = new JavaFileBuilder(
 				config.getCompiledPath(), name, config);
-		TemplateFileLineReaderHandler lineReaderHandler = new TemplateFileLineReaderHandler(javaFileBuilder);
-		
+		TemplateFileLineReaderHandler lineReaderHandler = new TemplateFileLineReaderHandler(
+				javaFileBuilder);
+
 		try {
 			FileUtils.read(f, lineReaderHandler);
 		} catch (IOException e) {
@@ -95,10 +96,25 @@ public class ViewFileReader {
 
 	private void parseComment(String comment, JavaFileBuilder javaFileBuilder) {
 		int start = comment.indexOf('#');
-		int end = comment.indexOf(' ', start);
-		end = (start >= 0 && end > start) ? end : comment.length();
-		String keyword = (start >= 0 && end > start) ? comment.substring(start, end) : null;
-		System.out.println(comment.length() + "|1|comment:\t" + comment + "\t" + keyword);
+		int end = 0;
+		if (start >= 0) {
+			for (int i = start; i < comment.length(); i++) {
+				if (comment.charAt(i) == ' ' || comment.charAt(i) == '\t'
+						|| comment.charAt(i) == '\r'
+						|| comment.charAt(i) == '\n') {
+					end = i;
+					break;
+				}
+			}
+			if (end <= start)
+				end = comment.length();
+
+			String keyword = comment.substring(start, end);
+			String content = comment.substring(end).trim();
+			System.out.println(comment.length() + "|1|comment:\t" + keyword
+					+ " " + content);
+			StateMachine.parse(keyword, content, javaFileBuilder);
+		}
 	}
 
 	private void parseText(String text, JavaFileBuilder javaFileBuilder) {
@@ -111,17 +127,18 @@ public class ViewFileReader {
 		}
 		javaFileBuilder.writeText(text.substring(cursor, text.length()));
 	}
-	
-	private class TemplateFileLineReaderHandler implements LineReaderHandler, Closeable {
+
+	private class TemplateFileLineReaderHandler implements LineReaderHandler,
+			Closeable {
 		JavaFileBuilder javaFileBuilder;
 		StringBuilder text = new StringBuilder();
 		StringBuilder comment = new StringBuilder();
 		int status = 0;
-		
+
 		public TemplateFileLineReaderHandler(JavaFileBuilder javaFileBuilder) {
 			this.javaFileBuilder = javaFileBuilder;
 		}
-		
+
 		@Override
 		public void close() {
 			if (text.length() > 0) {
@@ -152,8 +169,7 @@ public class ViewFileReader {
 								javaFileBuilder);
 					} else {
 						status = 1;
-						comment.append(line.substring(i + 4).trim()
-								+ "\n");
+						comment.append(line.substring(i + 4).trim() + "\n");
 					}
 				} else {
 					text.append(line.trim());

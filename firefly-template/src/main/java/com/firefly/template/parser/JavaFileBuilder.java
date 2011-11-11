@@ -45,15 +45,9 @@ public class JavaFileBuilder {
 		}
 		return this;
 	}
-	
-	public JavaFileBuilder appendTab() {
-		preBlank.append('\t');
-		return this;
-	}
-	
-	public JavaFileBuilder deleteTab() {
-		preBlank.deleteCharAt(preBlank.length() - 1);
-		return this;
+
+	public StringBuilder getPreBlank() {
+		return preBlank;
 	}
 
 	public JavaFileBuilder appendTail(String str) {
@@ -78,6 +72,27 @@ public class JavaFileBuilder {
 		write(preBlank + "out.write(objNav.getValue(model ,\"" + el + "\").getBytes(\"" + config.getCharset() + "\"));\n" );
 		return this;
 	}
+	
+	public JavaFileBuilder writeObjNav(String el) {
+		write("objNav.getValue(model ,\"" + el + "\")");
+		return this;
+	}
+	
+	public JavaFileBuilder writeBooleanObj(String el) {
+		write("objNav.getBoolean(model ,\"" + el + "\")");
+		return this;
+	}
+	
+	public JavaFileBuilder writeDoubleObj(String el) {
+		write("objNav.getDouble(model ,\"" + el + "\")");
+		return this;
+	}
+	
+	public JavaFileBuilder writeLongObj(String el) {
+		write("objNav.getLong(model ,\"" + el + "\")");
+		return this;
+	}
+	
 
 	public JavaFileBuilder writeTail() {
 		try {
