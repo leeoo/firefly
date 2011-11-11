@@ -97,29 +97,30 @@ public class TestObjNavigator {
 		Model model = new ModelMock();
 		model.put("foo", foo);
 		
-//		System.out.println(o.find(model, "foo.bar.info"));
-//		System.out.println(o.find(model, "foo.bar.info"));
-//		System.out.println(o.find(model, "foo.bar.serialNumber"));
-//		System.out.println(o.find(model, "foo.bar.price"));
-//		System.out.println(o.find(model, "foo.numbers[2]"));
-//		System.out.println(o.find(model, "foo.map['bar2']"));
-//		System.out.println(o.find(model, "foo.map['bar2'].price"));
-//		System.out.println(o.find(model, "foo.map['bar4']"));
-//		System.out.println(o.find(model, "user.name"));
+		System.out.println(o.find(model, "foo.bar.info"));
+		System.out.println(o.find(model, "foo.bar.info"));
+		System.out.println(o.find(model, "foo.bar.serialNumber"));
+		System.out.println(o.find(model, "foo.bar.price"));
+		System.out.println(o.find(model, "foo.numbers[2]"));
+		System.out.println(o.find(model, "foo.bags[2]"));
+		System.out.println(o.find(model, "foo.map['bar2']"));
+		System.out.println(o.find(model, "foo.map['bar2'].price"));
+		System.out.println(o.find(model, "foo.map['bar4']"));
+		System.out.println(o.find(model, "user.name"));
 		
-		long start = System.currentTimeMillis();
-		for (int i = 0; i < 1000000; i++) {
-			o.find(model, "foo.numbers[2]");
-		}
-		long end = System.currentTimeMillis() - start;
-		System.out.println(o.find(model, "foo.numbers[2]") + "|" + end);
-		
-		start = System.currentTimeMillis();
-		for (int i = 0; i < 1000000; i++) {
-			o.find(model, "foo.bags[3]");
-		}
-		end = System.currentTimeMillis() - start;
-		System.out.println(o.find(model, "foo.bags[3]") + "|" + end);
+//		long start = System.currentTimeMillis();
+//		for (int i = 0; i < 1000000; i++) {
+//			o.find(model, "foo.numbers[2]");
+//		}
+//		long end = System.currentTimeMillis() - start;
+//		System.out.println(o.find(model, "foo.numbers[2]") + "|" + end);
+//		
+//		start = System.currentTimeMillis();
+//		for (int i = 0; i < 1000000; i++) {
+//			o.find(model, "foo.bags[3]");
+//		}
+//		end = System.currentTimeMillis() - start;
+//		System.out.println(o.find(model, "foo.bags[3]") + "|" + end);
 		
 	}
 }
