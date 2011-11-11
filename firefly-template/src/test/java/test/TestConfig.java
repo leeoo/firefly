@@ -32,7 +32,7 @@ public class TestConfig {
 //		String path = "F:/develop/workspace2/firefly-template/src/test/page";
 		String path = "/Users/qiupengtao/Documents/workspace/firefly-project/firefly-template/src/test/page";
 		TemplateFactory t = new TemplateFactory(path).init();
-		View view = t.getView("/index.html");
+		View view = t.getView("/testif.html");
 		
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Model model = new ModelMock();

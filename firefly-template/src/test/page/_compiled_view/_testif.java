@@ -3,11 +3,11 @@ import com.firefly.template.ObjectNavigator;
 import com.firefly.template.Model;
 import com.firefly.template.view.AbstractView;
 
-public class _index extends AbstractView {
+public class _testif extends AbstractView {
 
-	private _index(){}
+	private _testif(){}
 
-	public static final _index INSTANCE = new _index();
+	public static final _testif INSTANCE = new _testif();
 
 	@Override
 	protected void main(Model model, OutputStream out) throws Throwable {
