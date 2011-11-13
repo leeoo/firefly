@@ -26,51 +26,20 @@ public class StatementIf implements Statement {
 		for (int i = 0; i < content.length(); i++) {
 			switch (content.charAt(i)) {
 			case '>':
-				left = pre.toString().trim();
-				right = content.charAt(i + 1) == '=' ? content.substring(i + 2)
-						.trim() : content.substring(i + 1).trim();
-				if (left.charAt(0) == '$') {
-					left = left.substring(2, left.length() - 1);
-					String symbol = content.charAt(i + 1) == '=' ? " >= "
-							: " > ";
-					parse0(left, right, symbol, javaFileBuilder);
-				} else {
-					right = right.substring(2, right.length() - 1);
-					String symbol = content.charAt(i + 1) == '=' ? " <= "
-							: " < ";
-					parse0(right, left, symbol, javaFileBuilder);
-				}
-				return false;
 			case '<':
 				left = pre.toString().trim();
 				right = content.charAt(i + 1) == '=' ? content.substring(i + 2)
 						.trim() : content.substring(i + 1).trim();
-				if (left.charAt(0) == '$') {
-					left = left.substring(2, left.length() - 1);
-					String symbol = content.charAt(i + 1) == '=' ? " <= "
-							: " < ";
-					parse0(left, right, symbol, javaFileBuilder);
-				} else {
-					right = right.substring(2, right.length() - 1);
-					String symbol = content.charAt(i + 1) == '=' ? " >= "
-							: " > ";
-					parse0(right, left, symbol, javaFileBuilder);
-				}
+				String symbol = content.charAt(i + 1) == '=' ? " "
+						+ String.valueOf(content.charAt(i)) + "= " : " "
+						+ String.valueOf(content.charAt(i)) + " ";
+				parseNotEq(left, right, symbol, javaFileBuilder);
 				return false;
 			case '=':
 				left = pre.toString().trim();
 				right = content.charAt(i + 1) == '=' ? content.substring(i + 2)
 						.trim() : content.substring(i + 1).trim();
-				if (left.charAt(0) == '$') {
-					left = left.substring(2, left.length() - 1);
-					javaFileBuilder.writeObjNav(left).write(".equals(")
-							.write(right).write(")");
-				} else {
-					right = right.substring(2, right.length() - 1);
-					javaFileBuilder.writeObjNav(right).write(".equals(")
-							.write(left).write(")");
-				}
-
+				parseEq(left, right, javaFileBuilder);
 				return false;
 			default:
 				pre.append(content.charAt(i));
@@ -79,12 +48,35 @@ public class StatementIf implements Statement {
 		return true;
 	}
 
-	private void parse0(String obj, String val, String symbol,
+	private void parseEq(String left, String right,
 			JavaFileBuilder javaFileBuilder) {
-		if (VerifyUtils.isNumeric(val)) {
-			javaFileBuilder.writeLongObj(obj).write(symbol).write(val);
-		} else if (VerifyUtils.isDouble(val)) {
-			javaFileBuilder.writeDoubleObj(obj).write(symbol).write(val);
+		if (left.charAt(0) == '$') {
+			left = left.substring(2, left.length() - 1);
+			javaFileBuilder.writeObjNav(left).write(".equals(").write(right)
+					.write(")");
+		} else {
+			right = right.substring(2, right.length() - 1);
+			javaFileBuilder.write(left).write(".equals(").writeObjNav(right)
+					.write(")");
+		}
+	}
+
+	private void parseNotEq(String left, String right, String symbol,
+			JavaFileBuilder javaFileBuilder) {
+		if (left.charAt(0) == '$') {
+			left = left.substring(2, left.length() - 1);
+			if (VerifyUtils.isNumeric(right)) {
+				javaFileBuilder.writeLongObj(left).write(symbol).write(right);
+			} else if (VerifyUtils.isDouble(right)) {
+				javaFileBuilder.writeDoubleObj(left).write(symbol).write(right);
+			}
+		} else {
+			right = right.substring(2, right.length() - 1);
+			if (VerifyUtils.isNumeric(left)) {
+				javaFileBuilder.write(left).write(symbol).writeLongObj(right);
+			} else if (VerifyUtils.isDouble(left)) {
+				javaFileBuilder.write(left).write(symbol).writeLongObj(right);
+			}
 		}
 	}
 
