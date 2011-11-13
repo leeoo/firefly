@@ -24,11 +24,11 @@ public class _testif extends AbstractView {
 		if (objNav.getLong(model ,"user.age") > 18){
 			out.write(_TEXT_5);
 		}
-		if (objNav.getLong(model ,"user.age") >= 30){
+		if (30 <= objNav.getLong(model ,"user.age")){
 			out.write(_TEXT_6);
 		}
 		out.write(_TEXT_7);
-		if (objNav.getValue(model ,"user.name").equals("Pengtao Qiu")){
+		if ("Pengtao Qiu".equals(objNav.getValue(model ,"user.name"))){
 			out.write(_TEXT_8);
 		} else if (objNav.getValue(model ,"user.name").equals("Bob")){
 			out.write(_TEXT_9);
