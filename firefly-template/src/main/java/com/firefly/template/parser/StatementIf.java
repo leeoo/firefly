@@ -8,7 +8,7 @@ public class StatementIf implements Statement {
 	public void parse(String content, JavaFileBuilder javaFileBuilder) {
 		writePrefix(javaFileBuilder);
 		content = content.trim();
-		if (parseBoolean(content, javaFileBuilder))
+		if (parse0(content, javaFileBuilder))
 			javaFileBuilder.writeBooleanObj(content.substring(2,
 					content.length() - 1));
 		javaFileBuilder.write("){\n");
@@ -19,7 +19,7 @@ public class StatementIf implements Statement {
 		javaFileBuilder.write(javaFileBuilder.getPreBlank() + "if (");
 	}
 
-	private boolean parseBoolean(String content, JavaFileBuilder javaFileBuilder) {
+	private boolean parse0(String content, JavaFileBuilder javaFileBuilder) {
 		StringBuilder pre = new StringBuilder();
 		String left = null, right = null;
 
