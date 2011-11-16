@@ -12,14 +12,21 @@ public class StatementExpression implements Statement {
 	@Override
 	public void parse(String content, JavaFileBuilder javaFileBuilder) {
 		List<Fragment> list = RPNUtils.getReversePolishNotation(content);
-		Deque<Fragment> valDeque = new LinkedList<Fragment>();
+		Deque<Fragment> d = new LinkedList<Fragment>();
 		for(Fragment f : list) {
 			if(f.symbol) {
+				Fragment f1 = d.pop();
+				Fragment f0 = d.pop();
+				
 				
 			} else {
-				
+				d.push(f);
 			}
 		}
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(Integer.parseInt("-3333"));
 	}
 
 }

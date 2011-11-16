@@ -25,15 +25,6 @@ public class TestRPN {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(getReversePolishNotation("(i += +-3 + + + + -i++ - -+i --) >= 2"));
-		System.out.println(getReversePolishNotation("${login}"));
-		System.out.println(getReversePolishNotation("(- ${user.age} += (-3 + -  2) * 4) > 22"));
-		System.out.println(getReversePolishNotation("(${user.age} += 3 + 2 * 4) > 22"));
-		System.out.println(getReversePolishNotation("1*2+3"));
-		System.out.println(getReversePolishNotation("1 + ((2 + 3) * 3) * 5"));
-		System.out.println(getReversePolishNotation("${user.age} > 1 + (2 + 3) * 5"));
-		System.out.println(getReversePolishNotation("${user.age} + 3 > 1 + (2 + 3) * 5"));
-		System.out.println(getReversePolishNotation("!${login} != !false "));
-		System.out.println(getReversePolishNotation("${user.age} + 3 == ${user1.age} + (2 + 3) * 5"));
+		System.out.println(getReversePolishNotation("\"Pengtao Qiu\" == ${user.name}"));
 	}
 }
