@@ -1,17 +1,18 @@
-package com.firefly.template;
+package com.firefly.template.support;
 
 import java.lang.reflect.Method;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.firefly.template.Config;
+import com.firefly.template.Model;
 import com.firefly.template.exception.ExpressionError;
-import com.firefly.template.support.ObjectMetaInfoCache;
 import com.firefly.utils.ReflectUtils;
 import com.firefly.utils.StringUtils;
 
 public class ObjectNavigator {
-	private ClassCache cache;
+	private ObjectMetaInfoCache cache;
 	private IdentityHashMap<Class<?>, ArrayObj> map;
 
 	private ObjectNavigator() {

@@ -11,7 +11,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.firefly.template.Model;
-import com.firefly.template.ObjectNavigator;
+import com.firefly.template.support.ObjectNavigator;
 
 
 public class TestObjNavigator {

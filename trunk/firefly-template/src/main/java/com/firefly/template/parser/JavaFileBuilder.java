@@ -106,7 +106,7 @@ public class JavaFileBuilder {
 	private void writeHead() throws IOException {
 		if (!writeHead) {
 			writer.write("import java.io.OutputStream;\n");
-			writer.write("import com.firefly.template.ObjectNavigator;\n");
+			writer.write("import com.firefly.template.support.ObjectNavigator;\n");
 			writer.write("import com.firefly.template.Model;\n");
 			writer.write("import com.firefly.template.view.AbstractView;\n\n");
 

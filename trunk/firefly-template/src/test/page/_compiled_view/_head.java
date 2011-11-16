@@ -1,5 +1,5 @@
 import java.io.OutputStream;
-import com.firefly.template.ObjectNavigator;
+import com.firefly.template.support.ObjectNavigator;
 import com.firefly.template.Model;
 import com.firefly.template.view.AbstractView;
 
