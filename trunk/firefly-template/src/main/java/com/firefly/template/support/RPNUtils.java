@@ -27,7 +27,6 @@ public class RPNUtils {
 		StringBuilder pre = new StringBuilder();
 		Deque<Fragment> symbolDeque = new LinkedList<Fragment>();
 		List<Fragment> list = new LinkedList<Fragment>();
-		Fragment f = null;
 		char c, n, n1, n2;
 		
 		for (int i = 0; i < content.length(); i++) {
@@ -35,11 +34,11 @@ public class RPNUtils {
 			case '(':
 				pre.delete(0, pre.length());
 				
-				f = new Fragment();
-				f.symbol = true;
-				f.priority = -1000;
-				f.value = "(";
-				symbolDeque.push(f);
+				Fragment f0 = new Fragment();
+				f0.symbol = true;
+				f0.priority = -1000;
+				f0.value = "(";
+				symbolDeque.push(f0);
 				break;
 			case '*':
 			case '/':
@@ -47,42 +46,27 @@ public class RPNUtils {
 				n = content.charAt(i + 1);
 				if(n == '=') { // *= /= %=
 					outValue(pre, list);
-					f = new Fragment();
-					f.symbol = true;
-					f.priority = 0;
-					f.value = String.valueOf(content.charAt(i)) + "=";
-					outSymbol(f, symbolDeque, list);
-					
+					outSymbol(String.valueOf(content.charAt(i)) + "=", 0, symbolDeque, list);
 					i++;
 					break;
 				}
 				
 				// * / %
 				outValue(pre, list);
-				f = new Fragment();
-				f.symbol = true;
-				f.priority = 10;
-				f.value = String.valueOf(content.charAt(i));
-				outSymbol(f, symbolDeque, list);
+				outSymbol(String.valueOf(content.charAt(i)), 10, symbolDeque, list);
 				break;
 			case '+':
 			case '-':
 				n = content.charAt(i + 1);
 				if(n == '=') { // += -=
 					outValue(pre, list);
-					f = new Fragment();
-					f.symbol = true;
-					f.priority = 0;
-					f.value = String.valueOf(content.charAt(i)) + "=";
-					outSymbol(f, symbolDeque, list);
-					
+					outSymbol(String.valueOf(content.charAt(i)) + "=", 0, symbolDeque, list);
 					i++;
 					break;
 				}
 				
 				if(n == '+' || n == '-') {
 					pre.append(content.charAt(i)).append(content.charAt(i + 1));
-					
 					i++;
 					break;
 				}
@@ -109,11 +93,7 @@ public class RPNUtils {
 					pre.append(content.charAt(i));
 				} else {
 					outValue(pre, list);
-					f = new Fragment();
-					f.symbol = true;
-					f.priority = 9;
-					f.value = String.valueOf(content.charAt(i));
-					outSymbol(f, symbolDeque, list);
+					outSymbol(String.valueOf(content.charAt(i)), 9, symbolDeque, list);
 				}
 				break;
 				
@@ -128,12 +108,7 @@ public class RPNUtils {
 						n1 = content.charAt(i + 2);
 						if(n1 == '=') { // <<= >>=
 							outValue(pre, list);
-							f = new Fragment();
-							f.symbol = true;
-							f.priority = 0;
-							f.value = String.valueOf(content.charAt(i)) + content.charAt(i + 1) + "=";
-							outSymbol(f, symbolDeque, list);
-							
+							outSymbol(String.valueOf(content.charAt(i)) + content.charAt(i + 1) + "=", 0, symbolDeque, list);
 							i += 2;
 							break;
 						}
@@ -141,12 +116,7 @@ public class RPNUtils {
 					
 					// << >>
 					outValue(pre, list);
-					f = new Fragment();
-					f.symbol = true;
-					f.priority = 8;
-					f.value = String.valueOf(content.charAt(i)) + content.charAt(i + 1);
-					outSymbol(f, symbolDeque, list);
-					
+					outSymbol(String.valueOf(content.charAt(i)) + content.charAt(i + 1), 8, symbolDeque, list);
 					i++;
 					break;
 				}
@@ -158,12 +128,7 @@ public class RPNUtils {
 						if(i + 3 < content.length()) {
 							if(n2 == '=') { // >>>=
 								outValue(pre, list);
-								f = new Fragment();
-								f.symbol = true;
-								f.priority = 0;
-								f.value = ">>>=";
-								outSymbol(f, symbolDeque, list);
-								
+								outSymbol(">>>=", 0, symbolDeque, list);
 								i += 3;
 								break;
 							}
@@ -171,12 +136,7 @@ public class RPNUtils {
 						
 						// >>>
 						outValue(pre, list);
-						f = new Fragment();
-						f.symbol = true;
-						f.priority = 8;
-						f.value = ">>>";
-						outSymbol(f, symbolDeque, list);
-						
+						outSymbol(">>>", 8, symbolDeque, list);
 						i += 2;
 						break;
 					}
@@ -184,58 +144,35 @@ public class RPNUtils {
 				
 				if(n == '=') { // <= >=
 					outValue(pre, list);
-					f = new Fragment();
-					f.symbol = true;
-					f.priority = 7;
-					f.value = String.valueOf(content.charAt(i)) + "=";
-					outSymbol(f, symbolDeque, list);
-					
+					outSymbol(String.valueOf(content.charAt(i)) + "=", 7, symbolDeque, list);
 					i++;
 					break;
 				}
 				
 				// < >
 				outValue(pre, list);
-				f = new Fragment();
-				f.symbol = true;
-				f.priority = 7;
-				f.value = String.valueOf(content.charAt(i));
-				outSymbol(f, symbolDeque, list);
+				outSymbol(String.valueOf(content.charAt(i)), 7, symbolDeque, list);
 				break;
 			
 			case '=':
 				n = content.charAt(i + 1);
 				if(n == '=') { // ==
 					outValue(pre, list);
-					f = new Fragment();
-					f.symbol = true;
-					f.priority = 6;
-					f.value = String.valueOf(content.charAt(i)) + "=";
-					outSymbol(f, symbolDeque, list);
-					
+					outSymbol(String.valueOf(content.charAt(i)) + "=", 6, symbolDeque, list);
 					i++;
 					break;
 				}
 				
 				// =
 				outValue(pre, list);
-				f = new Fragment();
-				f.symbol = true;
-				f.priority = 0;
-				f.value = String.valueOf(content.charAt(i));
-				outSymbol(f, symbolDeque, list);
+				outSymbol(String.valueOf(content.charAt(i)), 0, symbolDeque, list);
 				break;
 			
 			case '!':
 				n = content.charAt(i + 1);
 				if(n == '=') { // !=
 					outValue(pre, list);
-					f = new Fragment();
-					f.symbol = true;
-					f.priority = 6;
-					f.value = String.valueOf(content.charAt(i)) + "=";
-					outSymbol(f, symbolDeque, list);
-					
+					outSymbol(String.valueOf(content.charAt(i)) + "=", 6, symbolDeque, list);			
 					i++;
 					break;
 				}
@@ -246,99 +183,58 @@ public class RPNUtils {
 				n = content.charAt(i + 1);
 				if(n == '&') { // &&
 					outValue(pre, list);
-					f = new Fragment();
-					f.symbol = true;
-					f.priority = 2;
-					f.value = "&&";
-					outSymbol(f, symbolDeque, list);
-					
+					outSymbol("&&", 2, symbolDeque, list);
 					i++;
 					break;
 				}
 				
 				if(n == '=') { // &=
 					outValue(pre, list);
-					f = new Fragment();
-					f.symbol = true;
-					f.priority = 0;
-					f.value = "&=";
-					outSymbol(f, symbolDeque, list);
-					
+					outSymbol("&=", 0, symbolDeque, list);
 					i++;
 					break;
 				}
 				
 				// &
 				outValue(pre, list);
-				f = new Fragment();
-				f.symbol = true;
-				f.priority = 5;
-				f.value = "&";
-				outSymbol(f, symbolDeque, list);
+				outSymbol("&", 5, symbolDeque, list);
 				break;
 			case '|':
 				n = content.charAt(i + 1);
 				if(n == '|') { // ||
 					outValue(pre, list);
-					f = new Fragment();
-					f.symbol = true;
-					f.priority = 1;
-					f.value = "||";
-					outSymbol(f, symbolDeque, list);
-					
+					outSymbol("||", 1, symbolDeque, list);
 					i++;
 					break;
 				}
 				
 				if(n == '=') { // |=
 					outValue(pre, list);
-					f = new Fragment();
-					f.symbol = true;
-					f.priority = 0;
-					f.value = "|=";
-					outSymbol(f, symbolDeque, list);
-					
+					outSymbol("|=", 0, symbolDeque, list);
 					i++;
 					break;
 				}
 				
 				// |
 				outValue(pre, list);
-				f = new Fragment();
-				f.symbol = true;
-				f.priority = 4;
-				f.value = "|";
-				outSymbol(f, symbolDeque, list);
+				outSymbol("|", 4, symbolDeque, list);
 				break;
 			case '^':
 				n = content.charAt(i + 1);
 				if(n == '=') {// ^=
 					outValue(pre, list);
-					f = new Fragment();
-					f.symbol = true;
-					f.priority = 0;
-					f.value = String.valueOf(content.charAt(i)) + "=";
-					outSymbol(f, symbolDeque, list);
-					
+					outSymbol(String.valueOf(content.charAt(i)) + "=", 0, symbolDeque, list);
 					i++;
 					break;
 				}
 				
 				// ^
 				outValue(pre, list);
-				f = new Fragment();
-				f.symbol = true;
-				f.priority = 3;
-				f.value = "^";
-				outSymbol(f, symbolDeque, list);
+				outSymbol("^", 3, symbolDeque, list);
 				break;
 			case ')':
 				outValue(pre, list);
-				f = new Fragment();
-				f.symbol = true;
-				f.priority = -1000;
-				f.value = ")";
-				outSymbol(f, symbolDeque, list);
+				outSymbol(")", -1000, symbolDeque, list);
 				break;
 			default:
 				pre.append(content.charAt(i));
@@ -365,7 +261,11 @@ public class RPNUtils {
 		pre.delete(0, pre.length());
 	}
 	
-	private static void outSymbol(Fragment f, Deque<Fragment> symbolDeque, List<Fragment> list) {		
+	private static void outSymbol(String value, int priority, Deque<Fragment> symbolDeque, List<Fragment> list) {
+		Fragment f = new Fragment();
+		f.value = value;
+		f.priority = priority;
+		f.symbol = true;
 		if(f.value.equals(")")) {
 			for(Fragment top = null; !symbolDeque.isEmpty() 
 					&& !(top = symbolDeque.pop()).value.equals("("); ) {
@@ -382,9 +282,9 @@ public class RPNUtils {
 	}
 	
 	public static class Fragment {
-		int priority;
-		String value;
-		boolean symbol;
+		public int priority;
+		public String value;
+		public boolean symbol;
 		
 		public String toString() {
 			return value;

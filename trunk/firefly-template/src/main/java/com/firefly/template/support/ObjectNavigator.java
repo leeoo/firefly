@@ -81,6 +81,16 @@ public class ObjectNavigator {
 		return Holder.instance;
 	}
 	
+	public Integer getInteger(Model model, String el) {
+		Object ret = find(model, el);
+		return ret != null ? ((Number)ret).intValue() : 0;
+	}
+	
+	public Float getFloat(Model model, String el) {
+		Object ret = find(model, el);
+		return ret != null ? ((Number)ret).floatValue() : 0F;
+	}
+	
 	public Long getLong(Model model, String el) {
 		Object ret = find(model, el);
 		return ret != null ? ((Number)ret).longValue() : 0L;

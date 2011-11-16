@@ -83,6 +83,16 @@ public class JavaFileBuilder {
 		return this;
 	}
 	
+	public JavaFileBuilder writeIntegerObj(String el) {
+		write("objNav.getInteger(model ,\"" + el + "\")");
+		return this;
+	}
+	
+	public JavaFileBuilder writeFloatObj(String el) {
+		write("objNav.getFloat(model ,\"" + el + "\")");
+		return this;
+	}
+	
 	public JavaFileBuilder writeDoubleObj(String el) {
 		write("objNav.getDouble(model ,\"" + el + "\")");
 		return this;
