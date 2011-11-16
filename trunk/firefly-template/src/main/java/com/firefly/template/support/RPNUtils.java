@@ -40,7 +40,6 @@ public class RPNUtils {
 				f.priority = -1000;
 				f.value = "(";
 				symbolDeque.push(f);
-//				System.out.println("push (");
 				break;
 			case '*':
 			case '/':
@@ -390,19 +389,5 @@ public class RPNUtils {
 		public String toString() {
 			return value;
 		}
-	}
-	
-	public static void main(String[] args) {
-		System.out.println(-+3);
-		System.out.println(getReversePolishNotation("(i += +-3 + + + + -i++ - -+i --) >= 2"));
-		System.out.println(getReversePolishNotation("${login}"));
-		System.out.println(getReversePolishNotation("(- ${user.age} += (-3 + -  2) * 4) > 22"));
-		System.out.println(getReversePolishNotation("(${user.age} += 3 + 2 * 4) > 22"));
-		System.out.println(getReversePolishNotation("1*2+3"));
-		System.out.println(getReversePolishNotation("1 + ((2 + 3) * 3) * 5"));
-		System.out.println(getReversePolishNotation("${user.age} > 1 + (2 + 3) * 5"));
-		System.out.println(getReversePolishNotation("${user.age} + 3 > 1 + (2 + 3) * 5"));
-		System.out.println(getReversePolishNotation("!${login} != !false "));
-		System.out.println(getReversePolishNotation("${user.age} + 3 == ${user1.age} + (2 + 3) * 5"));
 	}
 }
