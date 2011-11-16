@@ -27,7 +27,6 @@ public class RPNUtils {
 		StringBuilder pre = new StringBuilder();
 		Deque<Fragment> symbolDeque = new LinkedList<Fragment>();
 		List<Fragment> list = new LinkedList<Fragment>();
-		
 		Fragment f = null;
 		char c, n, n1, n2;
 		
@@ -387,13 +386,14 @@ public class RPNUtils {
 	}
 	
 	public static void main(String[] args) {
+		System.out.println(getReversePolishNotation("${login}"));
 		System.out.println(getReversePolishNotation("(-${user.age} += (-3 + 2) * 4) > 22"));
 		System.out.println(getReversePolishNotation("(${user.age} += 3 + 2 * 4) > 22"));
 		System.out.println(getReversePolishNotation("1*2+3"));
 		System.out.println(getReversePolishNotation("1 + ((2 + 3) * 3) * 5"));
 		System.out.println(getReversePolishNotation("${user.age} > 1 + (2 + 3) * 5"));
 		System.out.println(getReversePolishNotation("${user.age} + 3 > 1 + (2 + 3) * 5"));
-		System.out.println(getReversePolishNotation("!${user.login} != !false "));
+		System.out.println(getReversePolishNotation("!${login} != !false "));
 		System.out.println(getReversePolishNotation("${user.age} + 3 == ${user1.age} + (2 + 3) * 5"));
 	}
 }
