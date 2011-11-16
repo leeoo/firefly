@@ -81,6 +81,13 @@ public class RPNUtils {
 					break;
 				}
 				
+				if(n == '+' || n == '-') {
+					pre.append(content.charAt(i)).append(content.charAt(i + 1));
+					
+					i++;
+					break;
+				}
+				
 				// 正负号判断
 				boolean s = false;
 				String left0 = "*/%+-><=&|(^";
@@ -386,8 +393,10 @@ public class RPNUtils {
 	}
 	
 	public static void main(String[] args) {
+		System.out.println(-+3);
+		System.out.println(getReversePolishNotation("(i += +-3 + + + + -i++ - -+i --) >= 2"));
 		System.out.println(getReversePolishNotation("${login}"));
-		System.out.println(getReversePolishNotation("(-${user.age} += (-3 + 2) * 4) > 22"));
+		System.out.println(getReversePolishNotation("(- ${user.age} += (-3 + -  2) * 4) > 22"));
 		System.out.println(getReversePolishNotation("(${user.age} += 3 + 2 * 4) > 22"));
 		System.out.println(getReversePolishNotation("1*2+3"));
 		System.out.println(getReversePolishNotation("1 + ((2 + 3) * 3) * 5"));
