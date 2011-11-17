@@ -1,10 +1,20 @@
 package com.firefly.template.support;
 
+import java.util.Arrays;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+
+import com.firefly.utils.VerifyUtils;
 
 public class RPNUtils {
+	
+	private static final Set<String> EQ = new HashSet<String>(Arrays.asList("==", "!=", ">", "<", ">=", "<="));
+	private static final Set<String> ARITHMETIC_OR_BOOLEAN = new HashSet<String>(Arrays.asList("&", "|"));
+	private static final Set<String> BOOLEAN_CALCULATION = new HashSet<String>(Arrays.asList("&&", "||"));
+	private static final Set<String> ASSIGNMENT = new HashSet<String>(Arrays.asList("=", "+=", "-=", "*=", "/=", "%=", "^=", "&=", "|=", "<<=", ">>=", ">>>="));
 	
 	/**
 	 * 生成逆波兰表达式
@@ -35,7 +45,6 @@ public class RPNUtils {
 				pre.delete(0, pre.length());
 				
 				Fragment f0 = new Fragment();
-				f0.symbol = true;
 				f0.priority = -1000;
 				f0.value = "(";
 				symbolDeque.push(f0);
@@ -80,8 +89,12 @@ public class RPNUtils {
 					for(int j = i - 1; j >= 0; j--) {
 						char ch = content.charAt(j);
 						if(!Character.isWhitespace(ch) ) {
-							if(left0.indexOf(ch) >= 0)
-								s = true;
+							if(left0.indexOf(ch) >= 0) {
+								int _n = j - 1;
+								if(_n < 0 || (content.charAt(_n) != ch)) {
+									s = true;
+								}
+							}
 							break;
 						}
 					}
@@ -249,13 +262,63 @@ public class RPNUtils {
 		return list;
 	}
 	
+	private static String getSimpleValue(String v) {
+		int left = 0;
+		boolean n = false;
+		for (int i = 0; i < v.length(); i++) {
+			char ch = v.charAt(i);
+			if(ch == '-')
+				n = true;
+			if(ch != '+' && ch != '-' && !Character.isWhitespace(ch)) {
+				left = i;
+				break;
+			}
+		}
+		String s = v.substring(left);
+		return n ? "-" + s : s;
+	}
+	
+	private static boolean isBoolean(String v) {
+		int start = v.charAt(0) == '!' ? 1 : 0;
+		return v.substring(start).trim().equals("true") || v.substring(start).trim().equals("false");
+	}
+	
+	private static boolean isVariable(String v) {
+		return v.indexOf("${") < v.indexOf("}");
+	}
+	
+	private static boolean isFloat(String v) {
+		char endCh = v.charAt(v.length() - 1);
+		if(!(endCh == 'f' || endCh == 'F' ))
+			return false;
+		
+		int point = 0;
+		int i = v.charAt(0) == '-' ? 1 : 0;
+		for (; i < v.length() - 1; i++) {
+			char c = v.charAt(i);
+			if(c == '.') {
+				point++;
+			} else if (VerifyUtils.isDigit(c) == false) {
+				return false;
+			}
+		}
+		return point == 1;
+	}
+	
 	private static void outValue(StringBuilder pre, List<Fragment> list) {
 		String v = pre.toString().trim();
 		if(v.length() > 0) {
 			Fragment f= new Fragment();
-			f.symbol = false;
 			f.priority = -200;
-			f.value = v;
+			f.value = getSimpleValue(v);
+			if(isVariable(f.value)) {
+				f.type = Type.VARIABLE;
+			} else if(isBoolean(f.value)) {
+				f.type = Type.BOOLEAN;
+			} else if(isFloat(f.value)) {
+				f.type = Type.FLOAT;
+			}
+			
 			list.add(f);
 		}
 		pre.delete(0, pre.length());
@@ -265,7 +328,18 @@ public class RPNUtils {
 		Fragment f = new Fragment();
 		f.value = value;
 		f.priority = priority;
-		f.symbol = true;
+		if(ARITHMETIC_OR_BOOLEAN.contains(value)) {
+			f.type = Type.ARITHMETIC_OR_BOOLEAN;
+		} else if(BOOLEAN_CALCULATION.contains(value)) {
+			f.type = Type.BOOLEAN_CALCULATION;
+		} else if(ASSIGNMENT.contains(value)) {
+			f.type = Type.ASSIGNMENT;
+		} else if(EQ.contains(value)) {
+			f.type = Type.EQ;
+		} else {
+			f.type = Type.ARITHMETIC;
+		}
+		
 		if(f.value.equals(")")) {
 			for(Fragment top = null; !symbolDeque.isEmpty() 
 					&& !(top = symbolDeque.pop()).value.equals("("); ) {
@@ -284,10 +358,26 @@ public class RPNUtils {
 	public static class Fragment {
 		public int priority;
 		public String value;
-		public boolean symbol;
+		public Type type;
 		
 		public String toString() {
 			return value;
 		}
+	}
+	
+	public static enum Type {
+		VARIABLE,
+		INTEGER,
+		LONG,
+		FLOAT,
+		DOUBLE,
+		BOOLEAN,
+		STRING,
+		
+		ARITHMETIC,
+		BOOLEAN_CALCULATION,
+		ASSIGNMENT,
+		ARITHMETIC_OR_BOOLEAN,
+		EQ
 	}
 }
