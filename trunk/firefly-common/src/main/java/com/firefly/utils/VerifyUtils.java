@@ -45,10 +45,12 @@ abstract public class VerifyUtils {
 	}
 
 	public static boolean isNumeric(String str) {
-		if (isEmpty(str)) {
+		if (isEmpty(str))
 			return false;
-		}
-		for (int i = 0; i < str.length(); i++) {
+		
+		char first = str.charAt(0);
+		int i = first == '-' ? 1 : 0;
+		for (; i < str.length(); i++) {
 			if (isDigit(str.charAt(i)) == false) {
 				return false;
 			}
@@ -56,12 +58,73 @@ abstract public class VerifyUtils {
 		return true;
 	}
 	
-	public static boolean isDouble(String str) {
-		if (isEmpty(str)) {
+	public static boolean isInteger(String str) {
+		if (isEmpty(str))
 			return false;
+		
+		char first = str.charAt(0);
+		int i = first == '-' ? 1 : 0;
+		for (; i < str.length(); i++) {
+			if (isDigit(str.charAt(i)) == false) {
+				return false;
+			}
 		}
+		
+		Long t = Long.parseLong(str);
+		return t <= Integer.MAX_VALUE && t >= Integer.MIN_VALUE;
+	}
+	
+	public static boolean isLong(String str) {
+		if (isEmpty(str))
+			return false;
+		
+		char first = str.charAt(0);
+		char end = str.charAt(str.length() - 1);
+		boolean j = end == 'l' || end == 'L';
+		int i = first == '-' ? 1 : 0;
+		int len = j ? str.length() - 1 : str.length();
+		for (; i < len; i++) {
+			if (isDigit(str.charAt(i)) == false) {
+				return false;
+			}
+		}
+		
+		if(!j) {
+			Long t = Long.parseLong(str);
+			return t > Integer.MAX_VALUE || t < Integer.MIN_VALUE;
+		} else {
+			return true;
+		}
+	}
+	
+	public static boolean isFloat(String str) {
+		if (isEmpty(str))
+			return false;
+		
+		char end = str.charAt(str.length() - 1);
+		if(!(end == 'f' || end == 'F' ))
+			return false;
+		
 		int point = 0;
-		for (int i = 0; i < str.length(); i++) {
+		int i = str.charAt(0) == '-' ? 1 : 0;
+		for (; i < str.length() - 1; i++) {
+			char c = str.charAt(i);
+			if(c == '.') {
+				point++;
+			} else if (VerifyUtils.isDigit(c) == false) {
+				return false;
+			}
+		}
+		return point == 1;
+	}
+	
+	public static boolean isDouble(String str) {
+		if (isEmpty(str))
+			return false;
+
+		int point = 0;
+		int i = str.charAt(0) == '-' ? 1 : 0;
+		for (; i < str.length(); i++) {
 			char c = str.charAt(i);
 			if(c == '.') {
 				point++;
