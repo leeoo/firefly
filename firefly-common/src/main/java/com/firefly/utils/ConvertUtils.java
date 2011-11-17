@@ -47,15 +47,15 @@ abstract public class ConvertUtils {
 		else if (c.equals(String.class))
 			ret = value;
 		else {
-			if (VerifyUtils.isNumeric(value)) {
-				long v = Long.parseLong(value);
-				if (v >= Integer.MIN_VALUE && v <= Integer.MAX_VALUE)
-					ret = Integer.parseInt(value);
-				else
-					ret = v;
-			} else if (VerifyUtils.isDouble(value)) {
+			if(VerifyUtils.isInteger(value)) {
+				ret = Integer.parseInt(value);
+			} else if(VerifyUtils.isLong(value)) {
+				ret = Long.parseLong(value);
+			} else if(VerifyUtils.isDouble(value)) {
 				ret = Double.parseDouble(value);
-			} else
+			} else if(VerifyUtils.isFloat(value)) {
+				ret = Float.parseFloat(value);
+			} else 
 				ret = value;
 		}
 		return (T) ret;
@@ -83,16 +83,27 @@ abstract public class ConvertUtils {
 		else if ("java.lang.String".equals(argsType))
 			ret = value;
 		else {
-			if (VerifyUtils.isNumeric(value)) {
-				long v = Long.parseLong(value);
-				if (v >= Integer.MIN_VALUE && v <= Integer.MAX_VALUE)
-					ret = Integer.parseInt(value);
-				else
-					ret = v;
-			} else if (VerifyUtils.isDouble(value)) {
+			if(VerifyUtils.isInteger(value)) {
+				ret = Integer.parseInt(value);
+			} else if(VerifyUtils.isLong(value)) {
+				ret = Long.parseLong(value);
+			} else if(VerifyUtils.isDouble(value)) {
 				ret = Double.parseDouble(value);
-			} else
+			} else if(VerifyUtils.isFloat(value)) {
+				ret = Float.parseFloat(value);
+			} else 
 				ret = value;
+			
+//			if (VerifyUtils.isNumeric(value)) {
+//				long v = Long.parseLong(value);
+//				if (v >= Integer.MIN_VALUE && v <= Integer.MAX_VALUE)
+//					ret = Integer.parseInt(value);
+//				else
+//					ret = v;
+//			} else if (VerifyUtils.isDouble(value)) {
+//				ret = Double.parseDouble(value);
+//			} else
+//				ret = value;
 		}
 		return (T) ret;
 	}
