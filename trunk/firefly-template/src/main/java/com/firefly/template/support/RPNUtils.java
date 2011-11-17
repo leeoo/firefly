@@ -278,6 +278,12 @@ public class RPNUtils {
 		return n ? "-" + s : s;
 	}
 	
+	private static boolean isString(String v) {
+		int start = v.charAt(0);
+		int end = v.charAt(v.length() - 1);
+		return (start == '"' && end == '"') || (start == '\'' && end == '\'');
+	}
+	
 	private static boolean isBoolean(String v) {
 		int start = v.charAt(0) == '!' ? 1 : 0;
 		return v.substring(start).trim().equals("true") || v.substring(start).trim().equals("false");
@@ -285,24 +291,6 @@ public class RPNUtils {
 	
 	private static boolean isVariable(String v) {
 		return v.indexOf("${") < v.indexOf("}");
-	}
-	
-	private static boolean isFloat(String v) {
-		char endCh = v.charAt(v.length() - 1);
-		if(!(endCh == 'f' || endCh == 'F' ))
-			return false;
-		
-		int point = 0;
-		int i = v.charAt(0) == '-' ? 1 : 0;
-		for (; i < v.length() - 1; i++) {
-			char c = v.charAt(i);
-			if(c == '.') {
-				point++;
-			} else if (VerifyUtils.isDigit(c) == false) {
-				return false;
-			}
-		}
-		return point == 1;
 	}
 	
 	private static void outValue(StringBuilder pre, List<Fragment> list) {
@@ -315,8 +303,16 @@ public class RPNUtils {
 				f.type = Type.VARIABLE;
 			} else if(isBoolean(f.value)) {
 				f.type = Type.BOOLEAN;
-			} else if(isFloat(f.value)) {
+			} else if(isString(f.value)) {
+				f.type = Type.STRING;
+			} else if(VerifyUtils.isFloat(f.value)) {
 				f.type = Type.FLOAT;
+			} else if(VerifyUtils.isDouble(f.value)) {
+				f.type = Type.DOUBLE;
+			} else if(VerifyUtils.isInteger(f.value)) {
+				f.type = Type.INTEGER;
+			} else if(VerifyUtils.isLong(f.value)) {
+				f.type = Type.LONG;
 			}
 			
 			list.add(f);
