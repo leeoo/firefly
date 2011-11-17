@@ -31,7 +31,7 @@ public class TestRPN {
 		Assert.assertThat(list.toString(), is("[!${login}, !false, !=]"));
 		Assert.assertThat(list.get(0).type, is(RPNUtils.Type.VARIABLE));
 		Assert.assertThat(list.get(1).type, is(RPNUtils.Type.BOOLEAN));
-		Assert.assertThat(list.get(2).type, is(RPNUtils.Type.EQ));
+		Assert.assertThat(list.get(2).type, is(RPNUtils.Type.CONDITIONAL_OPERATOR));
 		
 		list = getReversePolishNotation("${name} != \"Pengtao Qiu\"");
 		Assert.assertThat(list.get(1).type, is(RPNUtils.Type.STRING));
