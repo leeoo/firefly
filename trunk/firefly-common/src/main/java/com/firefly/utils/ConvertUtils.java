@@ -93,17 +93,6 @@ abstract public class ConvertUtils {
 				ret = Float.parseFloat(value);
 			} else 
 				ret = value;
-			
-//			if (VerifyUtils.isNumeric(value)) {
-//				long v = Long.parseLong(value);
-//				if (v >= Integer.MIN_VALUE && v <= Integer.MAX_VALUE)
-//					ret = Integer.parseInt(value);
-//				else
-//					ret = v;
-//			} else if (VerifyUtils.isDouble(value)) {
-//				ret = Double.parseDouble(value);
-//			} else
-//				ret = value;
 		}
 		return (T) ret;
 	}
