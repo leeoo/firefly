@@ -32,19 +32,41 @@ public class TestRPN {
 		Assert.assertThat(list.get(0).type, is(RPNUtils.Type.VARIABLE));
 		Assert.assertThat(list.get(1).type, is(RPNUtils.Type.BOOLEAN));
 		Assert.assertThat(list.get(2).type, is(RPNUtils.Type.EQ));
+		
+		list = getReversePolishNotation("${name} != \"Pengtao Qiu\"");
+		Assert.assertThat(list.get(1).type, is(RPNUtils.Type.STRING));
+		
+		list = getReversePolishNotation("${user.age} > 18");
+		Assert.assertThat(list.get(1).type, is(RPNUtils.Type.INTEGER));
+		
+		list = getReversePolishNotation("${user.id} > 18L");
+		Assert.assertThat(list.get(1).type, is(RPNUtils.Type.LONG));
+		
+		list = getReversePolishNotation("${food.price} > 3.3f");
+		Assert.assertThat(list.get(1).type, is(RPNUtils.Type.FLOAT));
+		
+		list = getReversePolishNotation("${food.price} > 3.3");
+		Assert.assertThat(list.get(1).type, is(RPNUtils.Type.DOUBLE));
 	}
 	
 	public static void main(String[] args) {
 		float e = -.3F;
 		
 		System.out.println(Boolean.parseBoolean("!false"));
-		System.out.println(Long.parseLong("-3L"));
+//		System.out.println(Long.parseLong("-3L"));
 		int i = 0;
 		if(!  ((-i + + - -+i) >= 2)) {
 			
 		}
 		
 		List<Fragment> list = getReversePolishNotation("! ${login} != ! false");
+		System.out.println(list.toString());
+		for(Fragment f : list) {
+			System.out.print(f.type + ", ");
+		}
+		System.out.println();
+		
+		list = getReversePolishNotation("${name} != \"Pengtao Qiu\"");
 		System.out.println(list.toString());
 		for(Fragment f : list) {
 			System.out.print(f.type + ", ");
