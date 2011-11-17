@@ -11,10 +11,10 @@ import com.firefly.utils.VerifyUtils;
 
 public class RPNUtils {
 	
-	private static final Set<String> EQ = new HashSet<String>(Arrays.asList("==", "!=", ">", "<", ">=", "<="));
-	private static final Set<String> ARITHMETIC_OR_BOOLEAN = new HashSet<String>(Arrays.asList("&", "|"));
-	private static final Set<String> BOOLEAN_CALCULATION = new HashSet<String>(Arrays.asList("&&", "||"));
-	private static final Set<String> ASSIGNMENT = new HashSet<String>(Arrays.asList("=", "+=", "-=", "*=", "/=", "%=", "^=", "&=", "|=", "<<=", ">>=", ">>>="));
+	private static final Set<String> CONDITIONAL_OPERATOR = new HashSet<String>(Arrays.asList("==", "!=", ">", "<", ">=", "<="));
+	private static final Set<String> ARITHMETIC_OR_LOGICAL_OPERATOR = new HashSet<String>(Arrays.asList("&", "|"));
+	private static final Set<String> LOGICAL_OPERATOR = new HashSet<String>(Arrays.asList("&&", "||"));
+	private static final Set<String> ASSIGNMENT_OPERATOR = new HashSet<String>(Arrays.asList("=", "+=", "-=", "*=", "/=", "%=", "^=", "&=", "|=", "<<=", ">>=", ">>>="));
 	
 	/**
 	 * 生成逆波兰表达式
@@ -262,6 +262,11 @@ public class RPNUtils {
 		return list;
 	}
 	
+	/**
+	 * 去掉多余+,-号
+	 * @param v
+	 * @return
+	 */
 	private static String getSimpleValue(String v) {
 		int left = 0;
 		boolean n = false;
@@ -299,6 +304,7 @@ public class RPNUtils {
 			Fragment f= new Fragment();
 			f.priority = -200;
 			f.value = getSimpleValue(v);
+			
 			if(isVariable(f.value)) {
 				f.type = Type.VARIABLE;
 			} else if(isBoolean(f.value)) {
@@ -324,16 +330,16 @@ public class RPNUtils {
 		Fragment f = new Fragment();
 		f.value = value;
 		f.priority = priority;
-		if(ARITHMETIC_OR_BOOLEAN.contains(value)) {
-			f.type = Type.ARITHMETIC_OR_BOOLEAN;
-		} else if(BOOLEAN_CALCULATION.contains(value)) {
-			f.type = Type.BOOLEAN_CALCULATION;
-		} else if(ASSIGNMENT.contains(value)) {
-			f.type = Type.ASSIGNMENT;
-		} else if(EQ.contains(value)) {
-			f.type = Type.EQ;
+		if(ARITHMETIC_OR_LOGICAL_OPERATOR.contains(value)) {
+			f.type = Type.ARITHMETIC_OR_LOGICAL_OPERATOR;
+		} else if(LOGICAL_OPERATOR.contains(value)) {
+			f.type = Type.LOGICAL_OPERATOR;
+		} else if(ASSIGNMENT_OPERATOR.contains(value)) {
+			f.type = Type.ASSIGNMENT_OPERATOR;
+		} else if(CONDITIONAL_OPERATOR.contains(value)) {
+			f.type = Type.CONDITIONAL_OPERATOR;
 		} else {
-			f.type = Type.ARITHMETIC;
+			f.type = Type.ARITHMETIC_OPERATOR;
 		}
 		
 		if(f.value.equals(")")) {
@@ -370,10 +376,10 @@ public class RPNUtils {
 		BOOLEAN,
 		STRING,
 		
-		ARITHMETIC,
-		BOOLEAN_CALCULATION,
-		ASSIGNMENT,
-		ARITHMETIC_OR_BOOLEAN,
-		EQ
+		ARITHMETIC_OPERATOR,
+		LOGICAL_OPERATOR,
+		ASSIGNMENT_OPERATOR,
+		ARITHMETIC_OR_LOGICAL_OPERATOR,
+		CONDITIONAL_OPERATOR
 	}
 }
