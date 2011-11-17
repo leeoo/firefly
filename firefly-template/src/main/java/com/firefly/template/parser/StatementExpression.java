@@ -14,19 +14,26 @@ public class StatementExpression implements Statement {
 		List<Fragment> list = RPNUtils.getReversePolishNotation(content);
 		Deque<Fragment> d = new LinkedList<Fragment>();
 		for(Fragment f : list) {
-			if(f.symbol) {
-				Fragment f1 = d.pop();
-				Fragment f0 = d.pop();
-				
-				
-			} else {
-				d.push(f);
-			}
+//			if(f.symbol) {
+//				Fragment f1 = d.pop();
+//				Fragment f0 = d.pop();
+//				
+//				
+//			} else {
+//				d.push(f);
+//			}
 		}
 	}
 	
+	private void parseValue(String v) {
+		
+	}
+	
+	
+	
 	public static void main(String[] args) {
 		System.out.println(Integer.parseInt("-3333"));
+		System.out.println(Long.parseLong("-3333L"));
 	}
 
 }
