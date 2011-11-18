@@ -115,8 +115,7 @@ public class RPNUtils {
 				c = content.charAt(i);
 				n = content.charAt(i + 1);
 				
-				if(c == '>' && n == '>' || 
-					c == '<' && n == '<') {
+				if(c == n) {
 					if(i + 2 < content.length()) {
 						n1 = content.charAt(i + 2);
 						if(n1 == '=') { // <<= >>=
