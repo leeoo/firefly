@@ -74,7 +74,7 @@ public class RPNUtils {
 					break;
 				}
 				
-				if(n == '+' || n == '-') {
+				if(n == content.charAt(i)) {
 					pre.append(content.charAt(i)).append(content.charAt(i + 1));
 					i++;
 					break;
