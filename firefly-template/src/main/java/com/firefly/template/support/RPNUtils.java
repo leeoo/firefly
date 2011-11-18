@@ -294,7 +294,9 @@ public class RPNUtils {
 	}
 	
 	private static boolean isVariable(String v) {
-		return v.indexOf("${") < v.indexOf("}");
+		int start = v.indexOf("${");
+		int end = v.indexOf("}");
+		return start >= 0 && start < end;
 	}
 	
 	private static void outValue(StringBuilder pre, List<Fragment> list) {

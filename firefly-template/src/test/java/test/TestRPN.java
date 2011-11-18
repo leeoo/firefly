@@ -51,14 +51,7 @@ public class TestRPN {
 	}
 	
 	public static void main(String[] args) {
-		float e = -.3F;
-		
 		System.out.println(Boolean.parseBoolean("!false"));
-//		System.out.println(Long.parseLong("-3L"));
-		int i = 0;
-		if(!  ((-i + + - -+i) >= 2)) {
-			
-		}
 		
 		List<Fragment> list = getReversePolishNotation("! ${login} != ! false");
 		System.out.println(list.toString());
