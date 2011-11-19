@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import com.firefly.template.exception.ExpressionError;
 import com.firefly.utils.VerifyUtils;
 
 public class RPNUtils {
@@ -262,7 +263,7 @@ public class RPNUtils {
 	}
 	
 	/**
-	 * 去掉多余+,-号
+	 * 去掉多余+,-号以及f,F,l,L
 	 * @param v
 	 * @return
 	 */
@@ -314,12 +315,20 @@ public class RPNUtils {
 				f.type = Type.STRING;
 			} else if(VerifyUtils.isFloat(f.value)) {
 				f.type = Type.FLOAT;
+				char end = f.value.charAt(f.value.length() - 1);
+				if(end == 'f' || end == 'F')
+					f.value = f.value.substring(0, f.value.length() - 1);
 			} else if(VerifyUtils.isDouble(f.value)) {
 				f.type = Type.DOUBLE;
 			} else if(VerifyUtils.isInteger(f.value)) {
 				f.type = Type.INTEGER;
 			} else if(VerifyUtils.isLong(f.value)) {
 				f.type = Type.LONG;
+				char end = f.value.charAt(f.value.length() - 1);
+				if(end == 'l' || end == 'L')
+					f.value = f.value.substring(0, f.value.length() - 1);
+			} else {
+				throw new ExpressionError("Can not determine the type: " + f.value);
 			}
 			
 			list.add(f);
