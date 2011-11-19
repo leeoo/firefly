@@ -17,6 +17,7 @@ public class TestVerifyUtils {
     
     @Test
     public void testIsFloat() {
+    	Assert.assertThat(VerifyUtils.isFloat("3f"), is(true));
     	Assert.assertThat(VerifyUtils.isFloat("3.3f"), is(true));
     	Assert.assertThat(VerifyUtils.isFloat("-.33f"), is(true));
     	Assert.assertThat(VerifyUtils.isFloat("-33.00f"), is(true));
