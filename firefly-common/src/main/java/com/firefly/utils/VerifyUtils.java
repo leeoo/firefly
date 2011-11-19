@@ -115,7 +115,7 @@ abstract public class VerifyUtils {
 				return false;
 			}
 		}
-		return point == 1;
+		return point == 1 || point == 0;
 	}
 	
 	public static boolean isDouble(String str) {
