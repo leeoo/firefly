@@ -61,6 +61,8 @@ public class TestRPN {
 		Assert.assertThat(se.parse("3f + 3f * 5f / 2f"), is("10.5"));
 		Assert.assertThat(se.parse("3.0 + 3 * 5.0 / 2.0"), is("10.5"));
 		Assert.assertThat(se.parse("3 + 3f * 5 / 2f"), is("10.5"));
+		Assert.assertThat(se.parse("1L +" + Integer.MAX_VALUE), is("2147483648"));
+		Assert.assertThat(se.parse("1 +" + Integer.MAX_VALUE), is("-2147483648"));
 		
 		Assert.assertThat(se.parse("\"hello \" + \"firefly \" + \"!\""), is("\"hello firefly !\""));
 		Assert.assertThat(se.parse("'hello ' + 'firefly ' + '!'"), is("\"hello firefly !\""));
@@ -113,7 +115,7 @@ public class TestRPN {
 		System.out.println(Float.parseFloat("3.5") + Long.parseLong("4"));
 		
 		System.out.println(getReversePolishNotation("3 + 3 * 5 / 2"));
-		
+		System.out.println(getReversePolishNotation("3 + 3 * 5 / 2"));
 		System.out.println("================================================");
 		StatementExpression se = new StatementExpression();
 		
@@ -126,7 +128,10 @@ public class TestRPN {
 		System.out.println(se.parse("'hello ' + 'firefly ' + ${i} + '!'"));
 //		System.out.println(se.parse("${i} + ${j} + ${k}"));
 		
-		System.out.println(se.parse("${i} + 3f + 5 + 2 / 1.0"));
+		System.out.println(se.parse("${i} + 3 + 5 + 2 / 1.0"));
 		System.out.println(se.parse("(3f + ${j}) / 2 + ${i} + 1.0"));
+		System.out.println(se.parse("1L +" + Integer.MAX_VALUE));
+		System.out.println(1 + Integer.MAX_VALUE);
+		System.out.println(se.parse("(3f + ${j} --) / 2 + ${i}++ + 1.0"));
 	}
 }
