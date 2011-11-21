@@ -19,6 +19,13 @@ public class StatementExpression implements Statement {
 
 	public String parse(String content) {
 		List<Fragment> list = RPNUtils.getReversePolishNotation(content);
+		if (list.size() == 1) {
+			Fragment f = list.get(0);
+			if (f.type == VARIABLE)
+				return getVariable(f.value, "Boolean");
+			else if (f.type == BOOLEAN)
+				return f.value;
+		}
 		Deque<Fragment> d = new LinkedList<Fragment>();
 		for (Fragment f : list) {
 			if (isSymbol(f.type)) {
@@ -51,7 +58,9 @@ public class StatementExpression implements Statement {
 								ret.value = left.value + " + " + right.value;
 						} else {
 							throw new ExpressionError(
-									"String only suport '+' operator.");
+									"The operation is not supported: "
+											+ left.type + " " + f.value + " "
+											+ right.type);
 						}
 					} else if (left.type == DOUBLE || right.type == DOUBLE) {
 						ret.type = DOUBLE;
@@ -75,15 +84,38 @@ public class StatementExpression implements Statement {
 					}
 					break;
 				case LOGICAL_OPERATOR:
-					break;
-				case ASSIGNMENT_OPERATOR:
+					ret.type = BOOLEAN;
+					if (left.type == VARIABLE && right.type == VARIABLE) {
+						ret.value = "(" + getVariable(left.value, "Boolean")
+								+ " " + f.value + " "
+								+ getVariable(right.value, "Boolean") + ")";
+					} else if (left.type == VARIABLE && right.type == BOOLEAN) {
+						ret.value = "(" + getVariable(left.value, "Boolean")
+								+ " " + f.value + " " + right.value + ")";
+					} else if (left.type == BOOLEAN && right.type == VARIABLE) {
+						ret.value = "(" + left.value + " " + f.value + " "
+								+ getVariable(right.value, "Boolean") + ")";
+					} else if (left.type == BOOLEAN && right.type == BOOLEAN) {
+						ret.value = "(" + left.value + " " + f.value + " "
+								+ right.value + ")";
+					} else
+						throw new ExpressionError(left.type + " and "
+								+ right.type
+								+ " ​​can not do boolean operation.");
 					break;
 				case ARITHMETIC_OR_LOGICAL_OPERATOR:
+					// TODO 尚未完成
 					break;
 				case CONDITIONAL_OPERATOR:
+					ret.type = BOOLEAN;
+					// TODO 需要增加类型推断
+					ret.value = "(" + left.value + " " + f.value + " "
+							+ right.value + ")";
 					break;
 				default:
-					break;
+					throw new ExpressionError(
+							"The operation is not supported: " + left.type
+									+ " " + f.value + " " + right.type);
 				}
 				d.push(ret);
 			} else {
@@ -171,7 +203,8 @@ public class StatementExpression implements Statement {
 			ret = String.valueOf(isFloat ? l % r : l0 % r0);
 			break;
 		default:
-			throw new ExpressionError(s + "is illegal");
+			throw new ExpressionError("The operation is not supported: "
+					+ lf.type + " " + s + " " + rf.type);
 		}
 		return ret;
 	}
@@ -233,14 +266,16 @@ public class StatementExpression implements Statement {
 			} else if (s.length() == 2 && s.charAt(1) == '>') {
 				ret = String.valueOf(isInteger ? l >> r : l0 >> r0);
 			} else {
-				throw new ExpressionError(s + "is illegal");
+				throw new ExpressionError("The operation is not supported: "
+						+ lf.type + " " + s + " " + rf.type);
 			}
 			break;
 		case '^':
 			ret = String.valueOf(isInteger ? l ^ r : l0 ^ r0);
 			break;
 		default:
-			throw new ExpressionError(s + "is illegal");
+			throw new ExpressionError("The operation is not supported: "
+					+ lf.type + " " + s + " " + rf.type);
 		}
 		return ret;
 	}
