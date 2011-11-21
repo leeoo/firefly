@@ -116,7 +116,7 @@ public class StatementExpression implements Statement {
 				"objNav.get" + t + "(model ,\"" + var.substring(start, end)
 						+ "\")");
 		if (end < var.length() - 1)
-			ret.append(var.substring(end + 1, var.length()));
+			throw new ExpressionError("Variable format error: " + var);
 		return ret.toString();
 	}
 
