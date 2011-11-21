@@ -263,7 +263,7 @@ public class RPNUtils {
 	}
 	
 	/**
-	 * 去掉多余+,-号以及f,F,l,L
+	 * 去掉多余+,-号
 	 * @param v
 	 * @return
 	 */
@@ -296,7 +296,7 @@ public class RPNUtils {
 	
 	private static boolean isVariable(String v) {
 		int start = v.indexOf("${");
-		int end = v.indexOf("}");
+		int end = v.indexOf('}');
 		return start >= 0 && start < end;
 	}
 	
@@ -313,6 +313,7 @@ public class RPNUtils {
 				f.type = Type.BOOLEAN;
 			} else if(isString(f.value)) {
 				f.type = Type.STRING;
+				f.value = "\"" + f.value.substring(1, f.value.length() - 1) + "\"";
 			} else if(VerifyUtils.isFloat(f.value)) {
 				f.type = Type.FLOAT;
 				char end = f.value.charAt(f.value.length() - 1);

@@ -1,13 +1,15 @@
 package test;
 
+import static com.firefly.template.support.RPNUtils.getReversePolishNotation;
 import static org.hamcrest.Matchers.is;
-import static com.firefly.template.support.RPNUtils.*;
 
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.firefly.template.exception.ExpressionError;
+import com.firefly.template.parser.StatementExpression;
 import com.firefly.template.support.RPNUtils;
 import com.firefly.template.support.RPNUtils.Fragment;
 
@@ -50,7 +52,37 @@ public class TestRPN {
 		Assert.assertThat(list.get(1).type, is(RPNUtils.Type.DOUBLE));
 	}
 	
+	@Test
+	public void testELParse() {
+		StatementExpression se = new StatementExpression();
+		Assert.assertThat(se.parse("3 + 3 * 5 / 2"), is("10"));
+		Assert.assertThat(se.parse("3L + 3L * 5L / 2L"), is("10"));
+		Assert.assertThat(se.parse("3.0 + 3.0 * 5.0 / 2.0"), is("10.5"));
+		Assert.assertThat(se.parse("3f + 3f * 5f / 2f"), is("10.5"));
+		Assert.assertThat(se.parse("3.0 + 3 * 5.0 / 2.0"), is("10.5"));
+		Assert.assertThat(se.parse("3 + 3f * 5 / 2f"), is("10.5"));
+		
+		Assert.assertThat(se.parse("\"hello \" + \"firefly \" + \"!\""), is("\"hello firefly !\""));
+		Assert.assertThat(se.parse("'hello ' + 'firefly ' + '!'"), is("\"hello firefly !\""));
+		Assert.assertThat(se.parse("'hello ' + 'firefly ' + ${i} + '!'"), is("\"hello firefly \" + objNav.getValue(model ,\"i\") + \"!\""));
+		Assert.assertThat(se.parse("(3f + ${j}) / 2 + ${i} + 1.0"), is("((3 + objNav.getFloat(model ,\"j\")) / 2 + objNav.getFloat(model ,\"i\")) + 1.0"));
+	}
+	
+	@Test(expected = ExpressionError.class)
+	public void testELParseError() {
+		StatementExpression se = new StatementExpression();
+		se.parse("${i} + ${j} + ${k}");
+	}
+	
+	@Test(expected = ExpressionError.class)
+	public void testELParseError2() {
+		StatementExpression se = new StatementExpression();
+		se.parse("${i} + ${j} + 2");
+	}
+	
 	public static void main(String[] args) {
+		System.out.println(Long.parseLong("3"));
+		System.out.println(Float.parseFloat("2"));
 		System.out.println(Boolean.parseBoolean("!false"));
 		
 		List<Fragment> list = getReversePolishNotation("! ${login} != ! false");
@@ -76,8 +108,25 @@ public class TestRPN {
 		
 		System.out.println(getReversePolishNotation("\"Pengtao Qiu\" == ${user.name}"));
 		System.out.println(getReversePolishNotation("(- ${user.age} += (-3 + -  2) * 4) > 22"));
-		System.out.println(getReversePolishNotation("(${i} += +-3 + + + + -${i} ++ - -+${i}  --) >= 2"));
+		System.out.println(getReversePolishNotation("(${i} += +-3 + + + + -${i} -- - -+${i}  --) >= 2"));
 		System.out.println(getReversePolishNotation("1*2+3>>2+1"));
 		System.out.println(Float.parseFloat("3.5") + Long.parseLong("4"));
+		
+		System.out.println(getReversePolishNotation("3 + 3 * 5 / 2"));
+		
+		System.out.println("================================================");
+		StatementExpression se = new StatementExpression();
+		
+		System.out.println(se.parse("3L + 3L * 5L / 2L"));
+		System.out.println(se.parse("3 + 3 * 5 / 2"));
+		System.out.println(se.parse("3.0 + 3 * 5.0 / 2.0"));
+		System.out.println(se.parse("3 + 3f * 5 / 2f"));
+		System.out.println(se.parse("\"hello \" + \"firefly \""));
+		System.out.println(se.parse("'hello ' + 'firefly ' + '!'"));
+		System.out.println(se.parse("'hello ' + 'firefly ' + ${i} + '!'"));
+//		System.out.println(se.parse("${i} + ${j} + ${k}"));
+		
+		System.out.println(se.parse("${i} + 3f + 5 + 2 / 1.0"));
+		System.out.println(se.parse("(3f + ${j}) / 2 + ${i} + 1.0"));
 	}
 }
