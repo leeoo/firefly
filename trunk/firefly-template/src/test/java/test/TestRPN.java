@@ -138,6 +138,7 @@ public class TestRPN {
 		System.out.println(se.parse("(3f + ${j}) / 2 + ${i} + 1.0"));
 		System.out.println(se.parse("1L +" + Integer.MAX_VALUE));
 		System.out.println(1 + Integer.MAX_VALUE);
+		System.out.println(se.parse("(3f + ${apple.price}) / 2 + ${i} + 1.0"));
 //		System.out.println(se.parse("(3f + ${j} --) / 2 + ${i}++ + 1.0"));
 	}
 }
