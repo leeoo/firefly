@@ -21,10 +21,7 @@ public class StatementExpression implements Statement {
 		List<Fragment> list = RPNUtils.getReversePolishNotation(content);
 		if (list.size() == 1) {
 			Fragment f = list.get(0);
-			if (f.type == VARIABLE)
-				return getVariable(f.value, "Boolean");
-			else if (f.type == BOOLEAN)
-				return f.value;
+			return f.type == VARIABLE ? getVariable(f.value, "Boolean") : f.value;
 		}
 		Deque<Fragment> d = new LinkedList<Fragment>();
 		for (Fragment f : list) {
