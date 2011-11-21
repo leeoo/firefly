@@ -82,6 +82,12 @@ public class TestRPN {
 		se.parse("${i} + ${j} + 2");
 	}
 	
+	@Test(expected = ExpressionError.class)
+	public void testELParseError3() {
+		StatementExpression se = new StatementExpression();
+		se.parse("${i}-- + ${j} + 2");
+	}
+	
 	public static void main(String[] args) {
 		System.out.println(Long.parseLong("3"));
 		System.out.println(Float.parseFloat("2"));
@@ -132,6 +138,6 @@ public class TestRPN {
 		System.out.println(se.parse("(3f + ${j}) / 2 + ${i} + 1.0"));
 		System.out.println(se.parse("1L +" + Integer.MAX_VALUE));
 		System.out.println(1 + Integer.MAX_VALUE);
-		System.out.println(se.parse("(3f + ${j} --) / 2 + ${i}++ + 1.0"));
+//		System.out.println(se.parse("(3f + ${j} --) / 2 + ${i}++ + 1.0"));
 	}
 }
