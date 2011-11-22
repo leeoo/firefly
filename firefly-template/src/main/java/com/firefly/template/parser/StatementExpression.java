@@ -194,20 +194,32 @@ public class StatementExpression implements Statement {
 		return f0 == '*' || f0 == '/' || f0 == '%' ? left.value + right.value
 				: "(" + left.value + right.value + ")";
 	}
-	
-	private String getEqResult(Fragment left, Fragment right, String s, boolean eq) {
+
+	private String getEqResult(Fragment left, Fragment right, String s,
+			boolean eq) {
 		String ret = null;
 		if (left.type == VARIABLE && right.type == VARIABLE)
-			ret = (eq ? "" : "!") + getVariableObj(left.value) + ".equals(" + getVariableObj(right.value) + ")";
-		else if (left.type == VARIABLE)
-			ret = (eq ? "" : "!") + "((Object)" + right.value + ").equals(" + getVariableObj(left.value) + ")";
-		else if (right.type == VARIABLE)
-			ret = (eq ? "" : "!") + "((Object)" + left.value + ").equals(" + getVariableObj(right.value) + ")";
-		else if (left.value.indexOf("objNav") >= 0
-			|| right.value.indexOf("objNav") >= 0)
-			ret = (eq ? "" : "!") + "((Object)" + left.value + ").equals(" + right.value + ")";
+			ret = (eq ? "" : "!") + getVariableObj(left.value) + ".equals("
+					+ getVariableObj(right.value) + ")";
+		else if (left.type == VARIABLE) {
+			if (right.type == NULL)
+				ret = getVariableObj(left.value) + " " + s + " " + right.value;
+			else
+				ret = (eq ? "" : "!") + "((Object)" + right.value + ").equals("
+						+ getVariableObj(left.value) + ")";
+		} else if (right.type == VARIABLE) {
+			if (left.type == NULL)
+				ret = left.value + " " + s + " " + getVariableObj(right.value);
+			else
+				ret = (eq ? "" : "!") + "((Object)" + left.value + ").equals("
+						+ getVariableObj(right.value) + ")";
+		} else if (left.value.indexOf("objNav") >= 0
+				|| right.value.indexOf("objNav") >= 0)
+			ret = (eq ? "" : "!") + "((Object)" + left.value + ").equals("
+					+ right.value + ")";
 		else
-			ret = String.valueOf(eq ? left.value.equals(right.value) : !left.value.equals(right.value));
+			ret = String.valueOf(eq ? left.value.equals(right.value)
+					: !left.value.equals(right.value));
 		return ret;
 	}
 
