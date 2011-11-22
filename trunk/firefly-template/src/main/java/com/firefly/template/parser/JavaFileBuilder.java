@@ -55,54 +55,62 @@ public class JavaFileBuilder {
 		return this;
 	}
 
+	public JavaFileBuilder writeEL(String str) {
+		write(preBlank + "out.write(String.valueOf(" + str + ").getBytes(\""
+				+ config.getCharset() + "\"));\n");
+		return this;
+	}
+
 	public JavaFileBuilder writeText(String str) {
 		try {
 			str = Arrays.toString(str.getBytes(config.getCharset()));
 			str = str.substring(1, str.length() - 1);
 			write(preBlank + "out.write(_TEXT_" + textCount + ");\n")
-			.appendTail("\tprivate final byte[] _TEXT_" + textCount + " = new byte[]{" + str + "};\n");
+					.appendTail(
+							"\tprivate final byte[] _TEXT_" + textCount
+									+ " = new byte[]{" + str + "};\n");
 			textCount++;
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 		return this;
 	}
-	
+
 	public JavaFileBuilder writeObject(String el) {
-		write(preBlank + "out.write(objNav.getValue(model ,\"" + el + "\").getBytes(\"" + config.getCharset() + "\"));\n" );
+		write(preBlank + "out.write(objNav.getValue(model ,\"" + el
+				+ "\").getBytes(\"" + config.getCharset() + "\"));\n");
 		return this;
 	}
-	
+
 	public JavaFileBuilder writeObjNav(String el) {
 		write("objNav.getValue(model ,\"" + el + "\")");
 		return this;
 	}
-	
+
 	public JavaFileBuilder writeBooleanObj(String el) {
 		write("objNav.getBoolean(model ,\"" + el + "\")");
 		return this;
 	}
-	
+
 	public JavaFileBuilder writeIntegerObj(String el) {
 		write("objNav.getInteger(model ,\"" + el + "\")");
 		return this;
 	}
-	
+
 	public JavaFileBuilder writeFloatObj(String el) {
 		write("objNav.getFloat(model ,\"" + el + "\")");
 		return this;
 	}
-	
+
 	public JavaFileBuilder writeDoubleObj(String el) {
 		write("objNav.getDouble(model ,\"" + el + "\")");
 		return this;
 	}
-	
+
 	public JavaFileBuilder writeLongObj(String el) {
 		write("objNav.getLong(model ,\"" + el + "\")");
 		return this;
 	}
-	
 
 	public JavaFileBuilder writeTail() {
 		try {

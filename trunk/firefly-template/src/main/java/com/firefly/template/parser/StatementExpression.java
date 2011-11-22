@@ -14,7 +14,7 @@ public class StatementExpression implements Statement {
 
 	@Override
 	public void parse(String content, JavaFileBuilder javaFileBuilder) {
-		javaFileBuilder.write(parse(content));
+		javaFileBuilder.writeEL(parse(content));
 	}
 
 	public String parse(String content) {

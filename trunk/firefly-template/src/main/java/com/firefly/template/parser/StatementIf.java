@@ -1,12 +1,12 @@
 package com.firefly.template.parser;
 
-public class StatementIf implements Statement {
+public class StatementIf extends StatementExpression {
 
 	@Override
 	public void parse(String content, JavaFileBuilder javaFileBuilder) {
 		writePrefix(javaFileBuilder);
 		content = content.trim();
-		StateMachine.parse("#eval", content, javaFileBuilder);
+		javaFileBuilder.write(parse(content));
 		javaFileBuilder.write("){\n");
 		javaFileBuilder.getPreBlank().append('\t');
 	}

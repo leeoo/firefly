@@ -38,6 +38,8 @@ public class _testif extends AbstractView {
 			out.write(_TEXT_11);
 		}
 		out.write(_TEXT_12);
+		out.write(String.valueOf(10.5).getBytes("UTF-8"));
+		out.write(_TEXT_13);
 	}
 
 	private final byte[] _TEXT_0 = new byte[]{60, 33, 68, 79, 67, 84, 89, 80, 69, 32, 104, 116, 109, 108, 62, 60, 104, 116, 109, 108, 62, 60, 98, 111, 100, 121, 62};
@@ -52,5 +54,6 @@ public class _testif extends AbstractView {
 	private final byte[] _TEXT_9 = new byte[]{-27, -114, -88, -27, -72, -120, -26, -99, -91, -28, -70, -122};
 	private final byte[] _TEXT_10 = new byte[]{74, 105, 109, -26, -99, -91, -28, -70, -122};
 	private final byte[] _TEXT_11 = new byte[]{-27, -80, -113, -25, -67, -105, -25, -67, -105, -26, -99, -91, -28, -70, -122};
-	private final byte[] _TEXT_12 = new byte[]{60, 47, 100, 105, 118, 62, 60, 47, 98, 111, 100, 121, 62, 60, 47, 104, 116, 109, 108, 62};
+	private final byte[] _TEXT_12 = new byte[]{60, 47, 100, 105, 118, 62, 60, 100, 105, 118, 62};
+	private final byte[] _TEXT_13 = new byte[]{60, 47, 98, 111, 100, 121, 62, 60, 47, 104, 116, 109, 108, 62};
 }
