@@ -109,10 +109,8 @@ public class StatementExpression implements Statement {
 					break;
 				case CONDITIONAL_OPERATOR:
 					ret.type = BOOLEAN;
-					if (f.value.equals("==")) {
-						ret.value = getEqResult(left, right, f.value, true);
-					} else if (f.value.equals("!=")) {
-						ret.value = getEqResult(left, right, f.value, false);
+					if (f.value.equals("==") || f.value.equals("!=")) {
+						ret.value = getEqResult(left, right, f.value);
 					} else {
 						if (left.type == DOUBLE || right.type == DOUBLE) {
 							ret.value = getFloatArithmeticResult(left, right,
@@ -195,8 +193,8 @@ public class StatementExpression implements Statement {
 				: "(" + left.value + right.value + ")";
 	}
 
-	private String getEqResult(Fragment left, Fragment right, String s,
-			boolean eq) {
+	private String getEqResult(Fragment left, Fragment right, String s) {
+		boolean eq = s.equals("==");
 		String ret = null;
 		if (left.type == VARIABLE && right.type == VARIABLE)
 			ret = (eq ? "" : "!") + getVariableObj(left.value) + ".equals("
