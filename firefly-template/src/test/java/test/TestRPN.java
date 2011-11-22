@@ -70,7 +70,7 @@ public class TestRPN {
 		Assert.assertThat(se.parse("\"hello \" + \"firefly \" + \"!\""), is("\"hello firefly !\""));
 		Assert.assertThat(se.parse("'hello ' + 'firefly ' + '!'"), is("\"hello firefly !\""));
 		Assert.assertThat(se.parse("'hello ' + 'firefly ' + ${i} + '!'"), is("\"hello firefly \" + objNav.getValue(model ,\"i\") + \"!\""));
-		Assert.assertThat(se.parse("(3f + ${j}) / 2 + ${i} + 1.0"), is("((3 + objNav.getFloat(model ,\"j\")) / 2 + objNav.getFloat(model ,\"i\")) + 1.0"));
+		Assert.assertThat(se.parse("(3f + ${j}) / 2 + ${i} + 1.0"), is("(((3 + objNav.getFloat(model ,\"j\")) / 2 + objNav.getFloat(model ,\"i\")) + 1.0)"));
 		
 		Assert.assertThat(se.parse("true"), is("true"));
 		Assert.assertThat(se.parse("false"), is("false"));
@@ -78,16 +78,16 @@ public class TestRPN {
 		Assert.assertThat(se.parse("1|2"), is("3"));
 		Assert.assertThat(se.parse("!${user.pass}"), is("!objNav.getBoolean(model ,\"user.pass\")"));
 		Assert.assertThat(se.parse("${user.pass}"), is("objNav.getBoolean(model ,\"user.pass\")"));
-		Assert.assertThat(se.parse("1 | 2 & ${i}"), is("1 | (2 & objNav.getInteger(model ,\"i\"))"));
+		Assert.assertThat(se.parse("1 | 2 & ${i}"), is("(1 | (2 & objNav.getInteger(model ,\"i\")))"));
 		Assert.assertThat(se.parse("!${i} || !${j} && ${k}"), is("(!objNav.getBoolean(model ,\"i\") || (!objNav.getBoolean(model ,\"j\") && objNav.getBoolean(model ,\"k\")))"));
 		Assert.assertThat(se.parse("${i} & ${j}"), is("(objNav.getBoolean(model ,\"i\") & objNav.getBoolean(model ,\"j\"))"));
 		Assert.assertThat(se.parse("${apple.price} > 7f && ${apple.price} <= 3"), is("(objNav.getFloat(model ,\"apple.price\") > 7) && (objNav.getInteger(model ,\"apple.price\") <= 3)"));
-		Assert.assertThat(se.parse("${i} != 'pt1 !'"), is("!((Object)\"pt1 !\").equals(objNav.find(model ,\"i\"))"));
+		Assert.assertThat(se.parse("${i} != 'pt1 !'"), is("!((Object)(\"pt1 !\")).equals(objNav.find(model ,\"i\"))"));
 		Assert.assertThat(se.parse("'pt1 !'!='pt1 !'"), is("false"));
 		Assert.assertThat(se.parse("${i} == ${j} && ${i} != ${k}"), is("objNav.find(model ,\"i\").equals(objNav.find(model ,\"j\")) && !objNav.find(model ,\"i\").equals(objNav.find(model ,\"k\"))"));
 		Assert.assertThat(se.parse("${i} != null && null == ${j} && ${i} != ${k}"), is("objNav.find(model ,\"i\") != null && null == objNav.find(model ,\"j\") && !objNav.find(model ,\"i\").equals(objNav.find(model ,\"k\"))"));
 		Assert.assertThat(se.parse("3 + 4 +-( -(2 - 1) + 1)"), is("7"));
-		Assert.assertThat(se.parse("!(${apple.price} > 7f && -(${apple.price} + 2) * 0.4 + 4 <= 3)"), is("((Object)(objNav.getFloat(model ,\"apple.price\") > 7) && 0 - (objNav.getInteger(model ,\"apple.price\") + 2) * 0.4 + 4 <= 3).equals(false)"));
+		Assert.assertThat(se.parse("!(${apple.price} > 7f && -(${apple.price} + 2) * 0.4 + 4 <= 3)"), is("((Object)((objNav.getFloat(model ,\"apple.price\") > 7) && (((0 - (objNav.getInteger(model ,\"apple.price\") + 2)) * 0.4 + 4) <= 3))).equals(false)"));
 	}
 	
 	@Test(expected = ExpressionError.class)
@@ -115,9 +115,10 @@ public class TestRPN {
 //		System.out.println(preprocessing("3 + 4 + -(-(2 - 1) + 1)"));
 //		System.out.println(getReversePolishNotation("3 + 4 + -(-(2 - 1) + 1)"));
 //		System.out.println(preprocessing("${apple.price} > 7f && -(${apple.price} + 2) * 0.4 + 4 <= 3"));
-//		System.out.println(preprocessing("!(${apple.price} > 7f && -(${apple.price} + 2) * 0.4 + 4 <= 3)"));
+		System.out.println(getReversePolishNotation("!(${apple.price} > 7f && -(${apple.price} + 2) * 0.4 + 4 <= 3)"));
 		
 		StatementExpression se = new StatementExpression();
+		System.out.println(se.parse("(0-(0 - ${i})) * 4"));
 		System.out.println(se.parse("3 + 4 +-( -(2 - 1) + 1)"));
 		System.out.println(se.parse("!(${apple.price} > 7f && -(${apple.price} + 2) * 0.4 + 4 <= 3)"));
 		

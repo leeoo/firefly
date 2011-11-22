@@ -189,8 +189,8 @@ public class StatementExpression implements Statement {
 				+ " " + s + " " : left.value;
 		right.value = right.type == VARIABLE ? " " + s + " "
 				+ getVariable(right.value, type) : right.value;
-		return f0 == '*' || f0 == '/' || f0 == '%' ? left.value + right.value
-				: "(" + left.value + right.value + ")";
+		return f0 == '*' || f0 == '/' || f0 == '%' ? (left.value + right.value)
+				: ("(" + left.value + right.value + ")");
 	}
 
 	private String getEqResult(Fragment left, Fragment right, String s) {
@@ -203,17 +203,17 @@ public class StatementExpression implements Statement {
 			if (right.type == NULL)
 				ret = getVariableObj(left.value) + " " + s + " " + right.value;
 			else
-				ret = (eq ? "" : "!") + "((Object)" + right.value + ").equals("
-						+ getVariableObj(left.value) + ")";
+				ret = (eq ? "" : "!") + "((Object)(" + right.value
+						+ ")).equals(" + getVariableObj(left.value) + ")";
 		} else if (right.type == VARIABLE) {
 			if (left.type == NULL)
 				ret = left.value + " " + s + " " + getVariableObj(right.value);
 			else
-				ret = (eq ? "" : "!") + "((Object)" + left.value + ").equals("
-						+ getVariableObj(right.value) + ")";
+				ret = (eq ? "" : "!") + "((Object)(" + left.value
+						+ ")).equals(" + getVariableObj(right.value) + ")";
 		} else if (left.value.indexOf("objNav") >= 0
 				|| right.value.indexOf("objNav") >= 0)
-			ret = (eq ? "" : "!") + "((Object)" + left.value + ").equals("
+			ret = (eq ? "" : "!") + "((Object)(" + left.value + ")).equals("
 					+ right.value + ")";
 		else
 			ret = String.valueOf(eq ? left.value.equals(right.value)
@@ -250,12 +250,15 @@ public class StatementExpression implements Statement {
 	private String getFloatArithmeticResult(Fragment left, Fragment right,
 			String s, boolean isFloat) {
 		String ret = null;
+		char f0 = s.charAt(0);
 		if (left.type == VARIABLE || right.type == VARIABLE)
 			ret = getArithmeticOrLogicalResult(left, right, s,
 					isFloat ? "Float" : "Double");
 		else if (left.value.indexOf("objNav") >= 0
 				|| right.value.indexOf("objNav") >= 0)
-			ret = left.value + " " + s + " " + right.value;
+			ret = f0 == '*' || f0 == '/' || f0 == '%' ? (left.value + " " + s
+					+ " " + right.value) : ("(" + left.value + " " + s + " "
+					+ right.value + ")");
 		else
 			ret = getConstFloatArithmeticResult(left, right, s, isFloat);
 		return ret;
@@ -312,12 +315,15 @@ public class StatementExpression implements Statement {
 	private String getIntegerArithmeticResult(Fragment left, Fragment right,
 			String s, boolean isInteger) {
 		String ret = null;
+		char f0 = s.charAt(0);
 		if (left.type == VARIABLE || right.type == VARIABLE)
 			ret = getArithmeticOrLogicalResult(left, right, s,
 					isInteger ? "Integer" : "Long");
 		else if (left.value.indexOf("objNav") >= 0
 				|| right.value.indexOf("objNav") >= 0)
-			ret = left.value + " " + s + " " + right.value;
+			ret = f0 == '*' || f0 == '/' || f0 == '%' ? (left.value + " " + s
+					+ " " + right.value) : ("(" + left.value + " " + s + " "
+					+ right.value + ")");
 		else
 			ret = getConstIntegerArithmeticResult(left, right, s, isInteger);
 		return ret;
