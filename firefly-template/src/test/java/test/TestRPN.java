@@ -64,6 +64,7 @@ public class TestRPN {
 		Assert.assertThat(se.parse("1L +" + Integer.MAX_VALUE), is("2147483648"));
 		Assert.assertThat(se.parse("1 +" + Integer.MAX_VALUE), is("-2147483648"));
 		
+		Assert.assertThat(se.parse("\"hello \" + \"firefly \\\" ***!! \""), is("\"hello firefly \\\" ***!! \""));
 		Assert.assertThat(se.parse("\"hello \" + \"firefly \" + \"!\""), is("\"hello firefly !\""));
 		Assert.assertThat(se.parse("'hello ' + 'firefly ' + '!'"), is("\"hello firefly !\""));
 		Assert.assertThat(se.parse("'hello ' + 'firefly ' + ${i} + '!'"), is("\"hello firefly \" + objNav.getValue(model ,\"i\") + \"!\""));
@@ -99,6 +100,19 @@ public class TestRPN {
 	}
 	
 	public static void main(String[] args) {
+		List<Fragment> list = getReversePolishNotation("(${i} += +-3 + + + + -${i} -- - -+${i}  --) >= 2");
+		System.out.println(list.toString());
+		for(Fragment f : list) {
+			System.out.print(f.type + ", ");
+		}
+		System.out.println();
+		
+		StatementExpression se = new StatementExpression();
+		System.out.println(se.parse("\"hello \" + \"firefly \\\" ***!! \""));
+		System.out.println(se.parse("!(3f + ${apple.price} > 7)"));
+	}
+	
+	public static void main2(String[] args) {
 		System.out.println(Long.parseLong("3"));
 		System.out.println(Float.parseFloat("2"));
 		System.out.println(Boolean.parseBoolean("!false"));

@@ -42,6 +42,15 @@ public class RPNUtils {
 		
 		for (int i = 0; i < content.length(); i++) {
 			switch (content.charAt(i)) {
+			case '\'':
+			case '"':
+				int next = content.indexOf(content.charAt(i), i + 1);
+				while(content.charAt(next - 1) == '\\') {
+					next = content.indexOf(content.charAt(i), next + 1);
+				}
+				pre.append(content.substring(i, next + 1));
+				i += next - i + 1;
+				break;
 			case '(':
 				pre.delete(0, pre.length());
 				
