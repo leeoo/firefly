@@ -337,6 +337,8 @@ public class RPNUtils {
 				char end = f.value.charAt(f.value.length() - 1);
 				if(end == 'l' || end == 'L')
 					f.value = f.value.substring(0, f.value.length() - 1);
+			} else if(f.value.equals("null")) { 
+				f.type = Type.NULL;
 			} else {
 				throw new ExpressionError("Can not determine the type: " + f.value);
 			}
@@ -395,6 +397,7 @@ public class RPNUtils {
 		DOUBLE,
 		BOOLEAN,
 		STRING,
+		NULL,
 		
 		ARITHMETIC_OPERATOR,
 		LOGICAL_OPERATOR,

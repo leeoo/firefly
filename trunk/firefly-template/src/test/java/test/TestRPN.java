@@ -83,6 +83,7 @@ public class TestRPN {
 		Assert.assertThat(se.parse("${i} != 'pt1 !'"), is("!((Object)\"pt1 !\").equals(objNav.find(model ,\"i\"))"));
 		Assert.assertThat(se.parse("'pt1 !'!='pt1 !'"), is("false"));
 		Assert.assertThat(se.parse("${i} == ${j} && ${i} != ${k}"), is("objNav.find(model ,\"i\").equals(objNav.find(model ,\"j\")) && !objNav.find(model ,\"i\").equals(objNav.find(model ,\"k\"))"));
+		Assert.assertThat(se.parse("${i} != null && null == ${j} && ${i} != ${k}"), is("objNav.find(model ,\"i\") != null && null == objNav.find(model ,\"j\") && !objNav.find(model ,\"i\").equals(objNav.find(model ,\"k\"))"));
 	}
 	
 	@Test(expected = ExpressionError.class)
@@ -111,7 +112,15 @@ public class TestRPN {
 		System.out.println(se.parse("'pt1 !'!= ${i}"));
 		System.out.println(se.parse("${i}!= 'pt1 !'"));
 		System.out.println(se.parse("'pt1 !' != 'pt1 !'"));
-		System.out.println(se.parse("${i} == ${j} && ${i} != ${k}"));
+//		String str = null;
+//		System.out.println("".equals(null));
+		List<Fragment> list = getReversePolishNotation("${i} != null && ${i} != ${k}");
+		System.out.println(list.toString());
+		for(Fragment f : list) {
+			System.out.print(f.type + ", ");
+		}
+		System.out.println();
+		System.out.println(se.parse("${i} != null && null == ${j} && ${i} != ${k}"));
 		
 	}
 	
