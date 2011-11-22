@@ -55,7 +55,7 @@ public class JavaFileBuilder {
 		return this;
 	}
 
-	public JavaFileBuilder writeEL(String str) {
+	public JavaFileBuilder writeStringValue(String str) {
 		write(preBlank + "out.write(String.valueOf(" + str + ").getBytes(\""
 				+ config.getCharset() + "\"));\n");
 		return this;
