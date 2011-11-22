@@ -14,7 +14,7 @@ public class StatementExpression implements Statement {
 
 	@Override
 	public void parse(String content, JavaFileBuilder javaFileBuilder) {
-
+		javaFileBuilder.write(parse(content));
 	}
 
 	public String parse(String content) {
@@ -109,14 +109,34 @@ public class StatementExpression implements Statement {
 					break;
 				case CONDITIONAL_OPERATOR:
 					ret.type = BOOLEAN;
-					// TODO 需要增加类型推断
-					ret.value = "(" + left.value + " " + f.value + " "
-							+ right.value + ")";
+					if (f.value.equals("==")) {
+						ret.value = getEqResult(left, right, f.value, true);
+					} else if (f.value.equals("!=")) {
+						ret.value = getEqResult(left, right, f.value, false);
+					} else {
+						if (left.type == DOUBLE || right.type == DOUBLE) {
+							ret.value = getFloatArithmeticResult(left, right,
+									f.value, false);
+						} else if (left.type == FLOAT || right.type == FLOAT) {
+							ret.value = getFloatArithmeticResult(left, right,
+									f.value, true);
+						} else if (left.type == LONG || right.type == LONG) {
+							ret.value = getIntegerArithmeticResult(left, right,
+									f.value, false);
+						} else if (left.type == INTEGER
+								|| right.type == INTEGER) {
+							ret.value = getIntegerArithmeticResult(left, right,
+									f.value, true);
+						} else {
+							throw new ExpressionError(left.type + " and "
+									+ right.type + " ​​can not do arithmetic.");
+						}
+					}
 					break;
 				default:
 					throw new ExpressionError(
-							"The operation is not supported: " + left.type
-									+ " " + f.value + " " + right.type);
+							"The operation is not supported: " + left.value
+									+ " " + f.value + " " + right.value);
 				}
 				d.push(ret);
 			} else {
@@ -153,6 +173,17 @@ public class StatementExpression implements Statement {
 		return ret.toString();
 	}
 
+	private String getVariableObj(String var) {
+		StringBuilder ret = new StringBuilder();
+		int start = var.indexOf("${") + 2;
+		int end = var.indexOf('}');
+		ret.append(var.substring(0, start - 2)).append(
+				"objNav.find(model ,\"" + var.substring(start, end) + "\")");
+		if (end < var.length() - 1)
+			throw new ExpressionError("Variable format error: " + var);
+		return ret.toString();
+	}
+
 	private String getArithmeticOrLogicalResult(Fragment left, Fragment right,
 			String s, String type) {
 		char f0 = s.charAt(0);
@@ -163,15 +194,47 @@ public class StatementExpression implements Statement {
 		return f0 == '*' || f0 == '/' || f0 == '%' ? left.value + right.value
 				: "(" + left.value + right.value + ")";
 	}
+	
+	private String getEqResult(Fragment left, Fragment right, String s, boolean eq) {
+		String ret = null;
+		if (left.type == VARIABLE && right.type == VARIABLE)
+			ret = (eq ? "" : "!") + getVariableObj(left.value) + ".equals(" + getVariableObj(right.value) + ")";
+		else if (left.type == VARIABLE)
+			ret = (eq ? "" : "!") + "((Object)" + right.value + ").equals(" + getVariableObj(left.value) + ")";
+		else if (right.type == VARIABLE)
+			ret = (eq ? "" : "!") + "((Object)" + left.value + ").equals(" + getVariableObj(right.value) + ")";
+		else if (left.value.indexOf("objNav") >= 0
+			|| right.value.indexOf("objNav") >= 0)
+			ret = (eq ? "" : "!") + "((Object)" + left.value + ").equals(" + right.value + ")";
+		else
+			ret = String.valueOf(eq ? left.value.equals(right.value) : !left.value.equals(right.value));
+		return ret;
+	}
 
 	private String getLogicalResult(Fragment left, Fragment right, String s) {
 		String ret = null;
+
 		if (left.type == VARIABLE && right.type == VARIABLE)
 			ret = "(" + getVariable(left.value, "Boolean") + " " + s + " "
 					+ getVariable(right.value, "Boolean") + ")";
-		else if (left.type == BOOLEAN || right.type == BOOLEAN)
+		else if (left.type == VARIABLE || right.type == VARIABLE)
 			ret = getArithmeticOrLogicalResult(left, right, s, "Boolean");
+		else if (left.value.indexOf("objNav") >= 0
+				|| right.value.indexOf("objNav") >= 0)
+			ret = left.value + " " + s + " " + right.value;
+		else
+			ret = String.valueOf(s.equals("&&") ? getBooleanValue(left.value)
+					&& getBooleanValue(right.value)
+					: getBooleanValue(left.value)
+							|| getBooleanValue(right.value));
 		return ret;
+	}
+
+	private boolean getBooleanValue(String v) {
+		if (v.charAt(0) == '!')
+			return !new Boolean(v.substring(1).trim());
+		else
+			return new Boolean(v.trim());
 	}
 
 	private String getFloatArithmeticResult(Fragment left, Fragment right,
@@ -183,9 +246,8 @@ public class StatementExpression implements Statement {
 		else if (left.value.indexOf("objNav") >= 0
 				|| right.value.indexOf("objNav") >= 0)
 			ret = left.value + " " + s + " " + right.value;
-		else {
+		else
 			ret = getConstFloatArithmeticResult(left, right, s, isFloat);
-		}
 		return ret;
 	}
 
@@ -212,6 +274,24 @@ public class StatementExpression implements Statement {
 		case '%':
 			ret = String.valueOf(isFloat ? l % r : l0 % r0);
 			break;
+		case '<':
+			if (s.length() == 2 && s.charAt(1) == '=')
+				ret = String.valueOf(isFloat ? l <= r : l0 <= r0);
+			else if (s.length() == 1)
+				ret = String.valueOf(isFloat ? l < r : l0 < r0);
+			else
+				throw new ExpressionError("The operation is not supported: "
+						+ lf.type + " " + s + " " + rf.type);
+			break;
+		case '>':
+			if (s.length() == 2 && s.charAt(1) == '=')
+				ret = String.valueOf(isFloat ? l >= r : l0 >= r0);
+			else if (s.length() == 1)
+				ret = String.valueOf(isFloat ? l > r : l0 > r0);
+			else
+				throw new ExpressionError("The operation is not supported: "
+						+ lf.type + " " + s + " " + rf.type);
+			break;
 		default:
 			throw new ExpressionError("The operation is not supported: "
 					+ lf.type + " " + s + " " + rf.type);
@@ -228,9 +308,8 @@ public class StatementExpression implements Statement {
 		else if (left.value.indexOf("objNav") >= 0
 				|| right.value.indexOf("objNav") >= 0)
 			ret = left.value + " " + s + " " + right.value;
-		else {
+		else
 			ret = getConstIntegerArithmeticResult(left, right, s, isInteger);
-		}
 		return ret;
 	}
 
@@ -257,17 +336,28 @@ public class StatementExpression implements Statement {
 			ret = String.valueOf(isInteger ? l % r : l0 % r0);
 			break;
 		case '<':
-			ret = String.valueOf(isInteger ? l << r : l0 << r0);
-			break;
-		case '>':
-			if (s.length() == 3 && s.charAt(1) == '>' && s.charAt(2) == '>') {
-				ret = String.valueOf(isInteger ? l >>> r : l0 >>> r0);
-			} else if (s.length() == 2 && s.charAt(1) == '>') {
-				ret = String.valueOf(isInteger ? l >> r : l0 >> r0);
-			} else {
+			if (s.length() == 2 && s.charAt(1) == '=')
+				ret = String.valueOf(isInteger ? l <= r : l0 <= r0);
+			else if (s.length() == 2 && s.charAt(1) == '<')
+				ret = String.valueOf(isInteger ? l << r : l0 << r0);
+			else if (s.length() == 1)
+				ret = String.valueOf(isInteger ? l < r : l0 < r0);
+			else
 				throw new ExpressionError("The operation is not supported: "
 						+ lf.type + " " + s + " " + rf.type);
-			}
+			break;
+		case '>':
+			if (s.length() == 3 && s.charAt(1) == '>' && s.charAt(2) == '>')
+				ret = String.valueOf(isInteger ? l >>> r : l0 >>> r0);
+			else if (s.length() == 2 && s.charAt(1) == '>')
+				ret = String.valueOf(isInteger ? l >> r : l0 >> r0);
+			else if (s.length() == 2 && s.charAt(1) == '=')
+				ret = String.valueOf(isInteger ? l >= r : l0 >= r0);
+			else if (s.length() == 1)
+				ret = String.valueOf(isInteger ? l > r : l0 > r0);
+			else
+				throw new ExpressionError("The operation is not supported: "
+						+ lf.type + " " + s + " " + rf.type);
 			break;
 		case '&':
 			ret = String.valueOf(isInteger ? l & r : l0 & r0);

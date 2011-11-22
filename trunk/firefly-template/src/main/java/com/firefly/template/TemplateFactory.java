@@ -40,6 +40,7 @@ public class TemplateFactory {
 		if(config == null)
 			throw new IllegalArgumentException("template config is null");
 		
+		long start = System.currentTimeMillis();
 		ViewFileReader reader = new ViewFileReader(config);
 		List<String> javaFiles = reader.getJavaFiles();
 		List<String> templateFiles = reader.getTemplateFiles();
@@ -79,6 +80,8 @@ public class TemplateFactory {
 				Config.LOG.error("load class error", e);
 			}
 		}
+		long end = System.currentTimeMillis();
+		Config.LOG.info("firefly-template init in {} ms", (end - start));
 		return this;
 	}
 	

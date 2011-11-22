@@ -79,6 +79,10 @@ public class TestRPN {
 		Assert.assertThat(se.parse("1 | 2 & ${i}"), is("1 | (2 & objNav.getInteger(model ,\"i\"))"));
 		Assert.assertThat(se.parse("!${i} || !${j} && ${k}"), is("(!objNav.getBoolean(model ,\"i\") || (!objNav.getBoolean(model ,\"j\") && objNav.getBoolean(model ,\"k\")))"));
 		Assert.assertThat(se.parse("${i} & ${j}"), is("(objNav.getBoolean(model ,\"i\") & objNav.getBoolean(model ,\"j\"))"));
+		Assert.assertThat(se.parse("${apple.price} > 7f && ${apple.price} <= 3"), is("(objNav.getFloat(model ,\"apple.price\") > 7) && (objNav.getInteger(model ,\"apple.price\") <= 3)"));
+		Assert.assertThat(se.parse("${i} != 'pt1 !'"), is("!((Object)\"pt1 !\").equals(objNav.find(model ,\"i\"))"));
+		Assert.assertThat(se.parse("'pt1 !'!='pt1 !'"), is("false"));
+		Assert.assertThat(se.parse("${i} == ${j} && ${i} != ${k}"), is("objNav.find(model ,\"i\").equals(objNav.find(model ,\"j\")) && !objNav.find(model ,\"i\").equals(objNav.find(model ,\"k\"))"));
 	}
 	
 	@Test(expected = ExpressionError.class)
@@ -99,8 +103,46 @@ public class TestRPN {
 		se.parse("${i}-- + ${j} + 2");
 	}
 	
+	
+	
 	public static void main(String[] args) {
+		System.out.println(((Object)"Bob").equals("Bob"));
+		StatementExpression se = new StatementExpression();
+		System.out.println(se.parse("'pt1 !'!= ${i}"));
+		System.out.println(se.parse("${i}!= 'pt1 !'"));
+		System.out.println(se.parse("'pt1 !' != 'pt1 !'"));
+		System.out.println(se.parse("${i} == ${j} && ${i} != ${k}"));
+		
+	}
+	
+	public static void main4(String[] args) {
+		List<Fragment> list = getReversePolishNotation("!(${apple.price} > 7f && ${apple.price} <= 3)");
+		System.out.println(list.toString());
+		for(Fragment f : list) {
+			System.out.print(f.type + ", ");
+		}
+		System.out.println();
+		
+		StatementExpression se = new StatementExpression();
+		
+		System.out.println(se.parse("!(${apple.price} > 7f && ${apple.price} <= 3)"));
+		System.out.println(se.parse("${apple.price} > 7f && ${apple.price} <= 3"));
+		System.out.println(se.parse("!${i} || !${j} && ${k}"));
+		System.out.println(se.parse("5 > 3 && 5 > 2"));
+		System.out.println(se.parse("${i} || 5 < 3 && 5 > 2"));
+	}
+	
+	
+	public static void main3(String[] args) {
+		System.out.println(((Object)(3)).equals(3));
 		List<Fragment> list = getReversePolishNotation("(${i} += +-3 + + + + -${i} -- - -+${i}  --) >= 2");
+		System.out.println(list.toString());
+		for(Fragment f : list) {
+			System.out.print(f.type + ", ");
+		}
+		System.out.println();
+		
+		list = getReversePolishNotation("!(3f + ${apple.price} > 7)");
 		System.out.println(list.toString());
 		for(Fragment f : list) {
 			System.out.print(f.type + ", ");
@@ -109,7 +151,7 @@ public class TestRPN {
 		
 		StatementExpression se = new StatementExpression();
 		System.out.println(se.parse("\"hello \" + \"firefly \\\" ***!! \""));
-		System.out.println(se.parse("!(3f + ${apple.price} > 7)"));
+		
 	}
 	
 	public static void main2(String[] args) {

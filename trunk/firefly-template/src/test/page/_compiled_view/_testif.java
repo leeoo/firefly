@@ -21,18 +21,18 @@ public class _testif extends AbstractView {
 			out.write(_TEXT_3);
 		}
 		out.write(_TEXT_4);
-		if (objNav.getLong(model ,"user.age") > 18){
+		if ((objNav.getInteger(model ,"user.age") > 18)){
 			out.write(_TEXT_5);
 		}
-		if (30 <= objNav.getLong(model ,"user.age")){
+		if ((30 <= objNav.getInteger(model ,"user.age"))){
 			out.write(_TEXT_6);
 		}
 		out.write(_TEXT_7);
-		if ("Pengtao Qiu".equals(objNav.getValue(model ,"user.name"))){
+		if (((Object)"Pengtao Qiu").equals(objNav.find(model ,"user.name"))){
 			out.write(_TEXT_8);
-		} else if (objNav.getValue(model ,"user.name").equals("Bob")){
+		} else if (((Object)"Bob").equals(objNav.find(model ,"user.name"))){
 			out.write(_TEXT_9);
-		} else if (objNav.getValue(model ,"user.name").equals("Jim")){
+		} else if (((Object)"Jim").equals(objNav.find(model ,"user.name"))){
 			out.write(_TEXT_10);
 		} else {
 			out.write(_TEXT_11);

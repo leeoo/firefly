@@ -49,7 +49,7 @@ public class RPNUtils {
 					next = content.indexOf(content.charAt(i), next + 1);
 				}
 				pre.append(content.substring(i, next + 1));
-				i += next - i + 1;
+				i += next - i;
 				break;
 			case '(':
 				pre.delete(0, pre.length());
@@ -292,18 +292,18 @@ public class RPNUtils {
 		return n ? "-" + s : s;
 	}
 	
-	private static boolean isString(String v) {
+	public static boolean isString(String v) {
 		int start = v.charAt(0);
 		int end = v.charAt(v.length() - 1);
 		return (start == '"' && end == '"') || (start == '\'' && end == '\'');
 	}
 	
-	private static boolean isBoolean(String v) {
+	public static boolean isBoolean(String v) {
 		int start = v.charAt(0) == '!' ? 1 : 0;
 		return v.substring(start).trim().equals("true") || v.substring(start).trim().equals("false");
 	}
 	
-	private static boolean isVariable(String v) {
+	public static boolean isVariable(String v) {
 		int start = v.indexOf("${");
 		int end = v.indexOf('}');
 		return start >= 0 && start < end;

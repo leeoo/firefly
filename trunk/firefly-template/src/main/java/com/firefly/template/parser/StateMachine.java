@@ -7,6 +7,7 @@ public class StateMachine {
 	private static Map<String, Statement> map = new HashMap<String, Statement>();
 	
 	static {
+		map.put("#eval", new StatementExpression());
 		map.put("#if", new StatementIf());
 		map.put("#elseif", new StatementElseIf());
 		map.put("#else", new StatementElse());
