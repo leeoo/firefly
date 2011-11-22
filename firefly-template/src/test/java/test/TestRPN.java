@@ -1,6 +1,6 @@
 package test;
 
-import static com.firefly.template.support.RPNUtils.getReversePolishNotation;
+import static com.firefly.template.support.RPNUtils.*;
 import static org.hamcrest.Matchers.is;
 
 import java.util.List;
@@ -29,6 +29,8 @@ public class TestRPN {
 		Assert.assertThat(getReversePolishNotation("${user.age} > 1 + (2 + 3) * 5").toString(), is("[${user.age}, 1, 2, 3, +, 5, *, +, >]"));
 		Assert.assertThat(getReversePolishNotation("${user.age} + 3 > 1 + (2 + 3) * 5").toString(), is("[${user.age}, 3, +, 1, 2, 3, +, 5, *, +, >]"));
 		Assert.assertThat(getReversePolishNotation("${user.age} + 3 == ${user1.age} + (2 + 3) * 5").toString(), is("[${user.age}, 3, +, ${user1.age}, 2, 3, +, 5, *, +, ==]"));
+		Assert.assertThat(getReversePolishNotation("${apple.price} > 7f && -(${apple.price} + 2) * 0.4 + 4 <= 3").toString(), is("[${apple.price}, 7, >, 0, ${apple.price}, 2, +, -, 0.4, *, 4, +, 3, <=, &&]"));
+		Assert.assertThat(getReversePolishNotation("!(${apple.price} > 7f && -(${apple.price} + 2) * 0.4 + 4 <= 3)").toString(), is("[${apple.price}, 7, >, 0, ${apple.price}, 2, +, -, 0.4, *, 4, +, 3, <=, &&, false, ==]"));
 		
 		List<Fragment> list = getReversePolishNotation("!${login} != !false ");
 		Assert.assertThat(list.toString(), is("[!${login}, !false, !=]"));
@@ -84,6 +86,8 @@ public class TestRPN {
 		Assert.assertThat(se.parse("'pt1 !'!='pt1 !'"), is("false"));
 		Assert.assertThat(se.parse("${i} == ${j} && ${i} != ${k}"), is("objNav.find(model ,\"i\").equals(objNav.find(model ,\"j\")) && !objNav.find(model ,\"i\").equals(objNav.find(model ,\"k\"))"));
 		Assert.assertThat(se.parse("${i} != null && null == ${j} && ${i} != ${k}"), is("objNav.find(model ,\"i\") != null && null == objNav.find(model ,\"j\") && !objNav.find(model ,\"i\").equals(objNav.find(model ,\"k\"))"));
+		Assert.assertThat(se.parse("3 + 4 +-( -(2 - 1) + 1)"), is("7"));
+		Assert.assertThat(se.parse("!(${apple.price} > 7f && -(${apple.price} + 2) * 0.4 + 4 <= 3)"), is("((Object)(objNav.getFloat(model ,\"apple.price\") > 7) && 0 - (objNav.getInteger(model ,\"apple.price\") + 2) * 0.4 + 4 <= 3).equals(false)"));
 	}
 	
 	@Test(expected = ExpressionError.class)
@@ -104,9 +108,22 @@ public class TestRPN {
 		se.parse("${i}-- + ${j} + 2");
 	}
 	
-	
-	
 	public static void main(String[] args) {
+		int i = 3 + 4 + -(-(2 - 1) + 1);
+		System.out.println(i);
+//		System.out.println(preprocessing("3 + 4 + (0 -(-(2 - 1) + 1))"));
+//		System.out.println(preprocessing("3 + 4 + -(-(2 - 1) + 1)"));
+//		System.out.println(getReversePolishNotation("3 + 4 + -(-(2 - 1) + 1)"));
+//		System.out.println(preprocessing("${apple.price} > 7f && -(${apple.price} + 2) * 0.4 + 4 <= 3"));
+//		System.out.println(preprocessing("!(${apple.price} > 7f && -(${apple.price} + 2) * 0.4 + 4 <= 3)"));
+		
+		StatementExpression se = new StatementExpression();
+		System.out.println(se.parse("3 + 4 +-( -(2 - 1) + 1)"));
+		System.out.println(se.parse("!(${apple.price} > 7f && -(${apple.price} + 2) * 0.4 + 4 <= 3)"));
+		
+	}
+	
+	public static void main5(String[] args) {
 		System.out.println(((Object)"Bob").equals("Bob"));
 		StatementExpression se = new StatementExpression();
 		System.out.println(se.parse("'pt1 !'!= ${i}"));
@@ -151,15 +168,15 @@ public class TestRPN {
 		}
 		System.out.println();
 		
-		list = getReversePolishNotation("!(3f + ${apple.price} > 7)");
-		System.out.println(list.toString());
-		for(Fragment f : list) {
-			System.out.print(f.type + ", ");
-		}
-		System.out.println();
-		
-		StatementExpression se = new StatementExpression();
-		System.out.println(se.parse("\"hello \" + \"firefly \\\" ***!! \""));
+//		list = getReversePolishNotation("!(3f + ${apple.price} > 7)");
+//		System.out.println(list.toString());
+//		for(Fragment f : list) {
+//			System.out.print(f.type + ", ");
+//		}
+//		System.out.println();
+//		
+//		StatementExpression se = new StatementExpression();
+//		System.out.println(se.parse("\"hello \" + \"firefly \\\" ***!! \""));
 		
 	}
 	

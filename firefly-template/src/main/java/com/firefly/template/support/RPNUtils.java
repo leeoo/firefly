@@ -17,6 +17,88 @@ public class RPNUtils {
 	private static final Set<String> LOGICAL_OPERATOR = new HashSet<String>(Arrays.asList("&&", "||"));
 	private static final Set<String> ASSIGNMENT_OPERATOR = new HashSet<String>(Arrays.asList("=", "+=", "-=", "*=", "/=", "%=", "^=", "&=", "|=", "<<=", ">>=", ">>>="));
 	
+	private static String preprocessing(String content) {
+		StringBuilder ret = new StringBuilder();
+		if(preprocessing0(content, ret))
+			return ret.toString();
+		else
+			return preprocessing(ret.toString());
+	}
+	
+	private static boolean preprocessing0(String content, StringBuilder ret) {
+		boolean t = true;
+		StringBuilder pre = new StringBuilder();
+		int c = 0;
+		int start = 0;
+		for (int i = 0; i < content.length(); i++) {
+			char ch = content.charAt(i);
+			switch (ch) {
+			case '!':
+			case '+':
+			case '-':
+				boolean l = false;
+				boolean r = false;
+				String left0 = "*/%+-><=&|(^";
+				if(i == 0) {
+					l = true;
+				} else {
+					for(int j = i - 1; j >= 0; j--) {
+						char c0 = content.charAt(j);
+						if(!Character.isWhitespace(c0) ) {
+							if(left0.indexOf(c0) >= 0) {
+								int _n = j - 1;
+								if(_n < 0 || !(c0 == '+' && content.charAt(_n) == '+' || c0 == '-' && content.charAt(_n) == '-')) {
+									l = true;
+								}
+							}
+							break;
+						}
+					}
+				}
+				
+				if(l) {
+					for (int j = i + 1; j < content.length(); j++) {
+						char c0 = content.charAt(j);
+						if(!Character.isWhitespace(c0)) {
+							if(c0 == '(') {
+								start = j + 1;
+								r = true;
+								pre.append(c0);
+							}
+							break;
+						}
+					}
+				}
+				if(l && r) {
+					t = false;
+					c += 1;
+					while(c != 0) {
+						char c0 = content.charAt(start++);
+						if(c0 == '(')
+							c++;
+						else if(c0 == ')')
+							c--;
+						pre.append(c0);
+					}
+					if(ch == '!') {
+						ret.append("(").append(pre).append(" == false) ");
+					} else {
+						ret.append("(0 ").append(ch).append(' ').append(pre).append(") ");
+					}
+					pre.delete(0, pre.length());
+					i = start;
+				} else {
+					ret.append(ch);
+				}
+				break;
+			default:
+				ret.append(ch);
+				break;
+			}
+		}
+		return t;
+	}
+	
 	/**
 	 * 生成逆波兰表达式
 	 * 符号优先级：
@@ -34,7 +116,8 @@ public class RPNUtils {
 	 * @param content
 	 * @return
 	 */
-	public static List<Fragment> getReversePolishNotation(String content) {
+	public static List<Fragment> getReversePolishNotation(String text) {
+		String content = preprocessing(text);
 		StringBuilder pre = new StringBuilder();
 		Deque<Fragment> symbolDeque = new LinkedList<Fragment>();
 		List<Fragment> list = new LinkedList<Fragment>();
@@ -101,7 +184,7 @@ public class RPNUtils {
 						if(!Character.isWhitespace(ch) ) {
 							if(left0.indexOf(ch) >= 0) {
 								int _n = j - 1;
-								if(_n < 0 || (content.charAt(_n) != ch)) {
+								if(_n < 0 || !(ch == '+' && content.charAt(_n) == '+' || ch == '-' && content.charAt(_n) == '-')) {
 									s = true;
 								}
 							}
@@ -292,18 +375,18 @@ public class RPNUtils {
 		return n ? "-" + s : s;
 	}
 	
-	public static boolean isString(String v) {
+	private static boolean isString(String v) {
 		int start = v.charAt(0);
 		int end = v.charAt(v.length() - 1);
 		return (start == '"' && end == '"') || (start == '\'' && end == '\'');
 	}
 	
-	public static boolean isBoolean(String v) {
+	private static boolean isBoolean(String v) {
 		int start = v.charAt(0) == '!' ? 1 : 0;
 		return v.substring(start).trim().equals("true") || v.substring(start).trim().equals("false");
 	}
 	
-	public static boolean isVariable(String v) {
+	private static boolean isVariable(String v) {
 		int start = v.indexOf("${");
 		int end = v.indexOf('}');
 		return start >= 0 && start < end;
