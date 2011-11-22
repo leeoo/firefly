@@ -21,7 +21,8 @@ public class StatementExpression implements Statement {
 		List<Fragment> list = RPNUtils.getReversePolishNotation(content);
 		if (list.size() == 1) {
 			Fragment f = list.get(0);
-			return f.type == VARIABLE ? getVariable(f.value, "Boolean") : f.value;
+			return f.type == VARIABLE ? getVariable(f.value, "Boolean")
+					: f.value;
 		}
 		Deque<Fragment> d = new LinkedList<Fragment>();
 		for (Fragment f : list) {
@@ -82,26 +83,29 @@ public class StatementExpression implements Statement {
 					break;
 				case LOGICAL_OPERATOR:
 					ret.type = BOOLEAN;
-					if (left.type == VARIABLE && right.type == VARIABLE) {
-						ret.value = "(" + getVariable(left.value, "Boolean")
-								+ " " + f.value + " "
-								+ getVariable(right.value, "Boolean") + ")";
-					} else if (left.type == VARIABLE && right.type == BOOLEAN) {
-						ret.value = "(" + getVariable(left.value, "Boolean")
-								+ " " + f.value + " " + right.value + ")";
-					} else if (left.type == BOOLEAN && right.type == VARIABLE) {
-						ret.value = "(" + left.value + " " + f.value + " "
-								+ getVariable(right.value, "Boolean") + ")";
-					} else if (left.type == BOOLEAN && right.type == BOOLEAN) {
-						ret.value = "(" + left.value + " " + f.value + " "
-								+ right.value + ")";
-					} else
-						throw new ExpressionError(left.type + " and "
-								+ right.type
-								+ " ​​can not do boolean operation.");
+					ret.value = getLogicalResult(left, right, f.value);
+					if (ret.value == null)
+						throw new ExpressionError(
+								"The operation is not supported: " + left.type
+										+ " " + f.value + " " + right.type);
 					break;
 				case ARITHMETIC_OR_LOGICAL_OPERATOR:
-					// TODO 尚未完成
+					if (left.type == LONG || right.type == LONG) {
+						ret.type = LONG;
+						ret.value = getIntegerArithmeticResult(left, right,
+								f.value, false);
+					} else if (left.type == INTEGER || right.type == INTEGER) {
+						ret.type = INTEGER;
+						ret.value = getIntegerArithmeticResult(left, right,
+								f.value, true);
+					} else {
+						ret.type = BOOLEAN;
+						ret.value = getLogicalResult(left, right, f.value);
+					}
+					if (ret.value == null)
+						throw new ExpressionError(
+								"The operation is not supported: " + left.type
+										+ " " + f.value + " " + right.type);
 					break;
 				case CONDITIONAL_OPERATOR:
 					ret.type = BOOLEAN;
@@ -149,11 +153,33 @@ public class StatementExpression implements Statement {
 		return ret.toString();
 	}
 
+	private String getArithmeticOrLogicalResult(Fragment left, Fragment right,
+			String s, String type) {
+		char f0 = s.charAt(0);
+		left.value = left.type == VARIABLE ? getVariable(left.value, type)
+				+ " " + s + " " : left.value;
+		right.value = right.type == VARIABLE ? " " + s + " "
+				+ getVariable(right.value, type) : right.value;
+		return f0 == '*' || f0 == '/' || f0 == '%' ? left.value + right.value
+				: "(" + left.value + right.value + ")";
+	}
+
+	private String getLogicalResult(Fragment left, Fragment right, String s) {
+		String ret = null;
+		if (left.type == VARIABLE && right.type == VARIABLE)
+			ret = "(" + getVariable(left.value, "Boolean") + " " + s + " "
+					+ getVariable(right.value, "Boolean") + ")";
+		else if (left.type == BOOLEAN || right.type == BOOLEAN)
+			ret = getArithmeticOrLogicalResult(left, right, s, "Boolean");
+		return ret;
+	}
+
 	private String getFloatArithmeticResult(Fragment left, Fragment right,
 			String s, boolean isFloat) {
 		String ret = null;
 		if (left.type == VARIABLE || right.type == VARIABLE)
-			ret = getVariableFloatArithmeticResult(left, right, s, isFloat);
+			ret = getArithmeticOrLogicalResult(left, right, s,
+					isFloat ? "Float" : "Double");
 		else if (left.value.indexOf("objNav") >= 0
 				|| right.value.indexOf("objNav") >= 0)
 			ret = left.value + " " + s + " " + right.value;
@@ -161,19 +187,6 @@ public class StatementExpression implements Statement {
 			ret = getConstFloatArithmeticResult(left, right, s, isFloat);
 		}
 		return ret;
-	}
-
-	private String getVariableFloatArithmeticResult(Fragment lf, Fragment rf,
-			String s, boolean isFloat) {
-		char f0 = s.charAt(0);
-		lf.value = lf.type == VARIABLE ? getVariable(lf.value,
-				isFloat ? "Float" : "Double")
-				+ " " + s + " " : lf.value;
-		rf.value = rf.type == VARIABLE ? " " + s + " "
-				+ getVariable(rf.value, isFloat ? "Float" : "Double")
-				: rf.value;
-		return f0 == '*' || f0 == '/' || f0 == '%' ? lf.value + rf.value : "("
-				+ lf.value + rf.value + ")";
 	}
 
 	private String getConstFloatArithmeticResult(Fragment lf, Fragment rf,
@@ -210,7 +223,8 @@ public class StatementExpression implements Statement {
 			String s, boolean isInteger) {
 		String ret = null;
 		if (left.type == VARIABLE || right.type == VARIABLE)
-			ret = getVariableIntegerArithmeticResult(left, right, s, isInteger);
+			ret = getArithmeticOrLogicalResult(left, right, s,
+					isInteger ? "Integer" : "Long");
 		else if (left.value.indexOf("objNav") >= 0
 				|| right.value.indexOf("objNav") >= 0)
 			ret = left.value + " " + s + " " + right.value;
@@ -218,18 +232,6 @@ public class StatementExpression implements Statement {
 			ret = getConstIntegerArithmeticResult(left, right, s, isInteger);
 		}
 		return ret;
-	}
-
-	private String getVariableIntegerArithmeticResult(Fragment lf, Fragment rf,
-			String s, boolean isInteger) {
-		char f0 = s.charAt(0);
-		lf.value = lf.type == VARIABLE ? getVariable(lf.value,
-				isInteger ? "Integer" : "Long")
-				+ " " + s + " " : lf.value;
-		rf.value = rf.type == VARIABLE ? " " + s + " "
-				+ getVariable(rf.value, "Integer") : rf.value;
-		return f0 == '*' || f0 == '/' || f0 == '%' ? lf.value + rf.value : "("
-				+ lf.value + rf.value + ")";
 	}
 
 	private String getConstIntegerArithmeticResult(Fragment lf, Fragment rf,
@@ -266,6 +268,12 @@ public class StatementExpression implements Statement {
 				throw new ExpressionError("The operation is not supported: "
 						+ lf.type + " " + s + " " + rf.type);
 			}
+			break;
+		case '&':
+			ret = String.valueOf(isInteger ? l & r : l0 & r0);
+			break;
+		case '|':
+			ret = String.valueOf(isInteger ? l | r : l0 | r0);
 			break;
 		case '^':
 			ret = String.valueOf(isInteger ? l ^ r : l0 ^ r0);
