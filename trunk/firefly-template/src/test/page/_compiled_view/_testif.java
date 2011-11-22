@@ -28,11 +28,11 @@ public class _testif extends AbstractView {
 			out.write(_TEXT_6);
 		}
 		out.write(_TEXT_7);
-		if (((Object)"Pengtao Qiu").equals(objNav.find(model ,"user.name"))){
+		if (((Object)("Pengtao Qiu")).equals(objNav.find(model ,"user.name"))){
 			out.write(_TEXT_8);
-		} else if (((Object)"Bob").equals(objNav.find(model ,"user.name"))){
+		} else if (((Object)("Bob")).equals(objNav.find(model ,"user.name"))){
 			out.write(_TEXT_9);
-		} else if (((Object)"Jim").equals(objNav.find(model ,"user.name"))){
+		} else if (((Object)("Jim")).equals(objNav.find(model ,"user.name"))){
 			out.write(_TEXT_10);
 		} else {
 			out.write(_TEXT_11);
