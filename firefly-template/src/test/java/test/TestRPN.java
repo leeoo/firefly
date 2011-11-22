@@ -72,8 +72,12 @@ public class TestRPN {
 		Assert.assertThat(se.parse("true"), is("true"));
 		Assert.assertThat(se.parse("false"), is("false"));
 		Assert.assertThat(se.parse("! true"), is("! true"));
+		Assert.assertThat(se.parse("1|2"), is("3"));
 		Assert.assertThat(se.parse("!${user.pass}"), is("!objNav.getBoolean(model ,\"user.pass\")"));
 		Assert.assertThat(se.parse("${user.pass}"), is("objNav.getBoolean(model ,\"user.pass\")"));
+		Assert.assertThat(se.parse("1 | 2 & ${i}"), is("1 | (2 & objNav.getInteger(model ,\"i\"))"));
+		Assert.assertThat(se.parse("!${i} || !${j} && ${k}"), is("(!objNav.getBoolean(model ,\"i\") || (!objNav.getBoolean(model ,\"j\") && objNav.getBoolean(model ,\"k\")))"));
+		Assert.assertThat(se.parse("${i} & ${j}"), is("(objNav.getBoolean(model ,\"i\") & objNav.getBoolean(model ,\"j\"))"));
 	}
 	
 	@Test(expected = ExpressionError.class)
@@ -146,10 +150,14 @@ public class TestRPN {
 		System.out.println(1 + Integer.MAX_VALUE);
 		System.out.println(se.parse("(3f + ${apple.price}) / 2 + ${i} + 1.0"));
 		System.out.println(se.parse("(3f + ${apple.price}) / 2 + ${i} + 1.0 >= 2"));
-		System.out.println(se.parse("${apple.price} + 1f >= 5 && ${apple.price} + 1f < 10"));
-		System.out.println(se.parse("! ${user1.pass} == !true && ${user2.pass} == true "));
+		System.out.println(se.parse("!${i} || !${j} && ${k}"));
+		System.out.println(se.parse("1 | 2 & ${i}"));
+		System.out.println(se.parse("${i} & ${j}"));
+//		System.out.println(se.parse("${apple.price} + 1f >= 5 && ${apple.price} + 1f < 10"));
+//		System.out.println(se.parse("! ${user1.pass} == !true && ${user2.pass} == true "));
 		
 		System.out.println(se.parse("!${user.pass}"));
 //		System.out.println(se.parse("(3f + ${j} --) / 2 + ${i}++ + 1.0"));
+		
 	}
 }
