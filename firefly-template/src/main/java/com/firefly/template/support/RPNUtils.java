@@ -299,7 +299,7 @@ public class RPNUtils {
 				boolean l = false;
 				boolean r = false;
 				String left0 = "*/%+-><=&|(^";
-				if(i == 0) {
+				if(i == 0 || ch == '!') {
 					l = true;
 				} else {
 					for(int j = i - 1; j >= 0; j--) {
