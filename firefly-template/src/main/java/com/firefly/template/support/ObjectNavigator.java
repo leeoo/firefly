@@ -125,6 +125,16 @@ public class ObjectNavigator {
 		}
 		return current;
 	}
+	
+	private Object getArrayObject(Object obj, int index) {
+		Class<?> c = obj.getClass();
+		ArrayObj a = map.get(c);
+		if(a != null)
+			return a.get(obj, index);
+		if (c.isArray())
+			return ((Object[])obj)[index];
+		return null;
+	}
 
 	private Object getObject(Object current, String el) {
 		boolean root = current instanceof Model;
@@ -151,13 +161,8 @@ public class ObjectNavigator {
 				int index = Integer.parseInt(keyEl);
 				if ((obj instanceof List))
 					return ((List<?>) obj).get(index);
-				Class<?> c = obj.getClass();
-				ArrayObj a = map.get(c);
-				if(a != null)
-					return a.get(obj, index);
-				if (c.isArray()) {
-					return ((Object[])obj)[index];
-				}
+				else
+					return getArrayObject(obj, index);
 			}
 		} else if (listOrMapPrefixIndex < 0) { // object
 			return root ? ((Model) current).get(element) : getObjectProperty(
@@ -179,8 +184,6 @@ public class ObjectNavigator {
 		Class<?> clazz = current.getClass();
 		Method method = cache.get(clazz, propertyName);
 		if (method == null) {
-			Config.LOG.debug("no cache: " + clazz.getName() + "|"
-					+ propertyName);
 			method = ReflectUtils.getGetterMethod(clazz, propertyName);
 			cache.put(clazz, propertyName, method);
 		}
