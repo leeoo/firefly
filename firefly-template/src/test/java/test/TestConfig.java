@@ -3,6 +3,9 @@ package test;
 import static org.hamcrest.Matchers.is;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,7 +29,7 @@ public class TestConfig {
 		Assert.assertThat(config.getCompiledPath(), is("/page2/_compiled_view"));
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		User user = new User();
 		user.setName("Jim");
 		user.setAge(25);
@@ -37,12 +40,41 @@ public class TestConfig {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Model model = new ModelMock();
 		view.render(model, out);
+		out.close();
 		System.out.println(out.toString());
 		
 		out = new ByteArrayOutputStream();
 		model.put("user", user);
 		model.put("login", true);
 		view.render(model, out);
+		out.close();
+		System.out.println(out.toString());
+		
+		
+		model = new ModelMock();
+		out = new ByteArrayOutputStream();
+		view = t.getView("/testfor.html");
+		
+		List<User> list = new ArrayList<User>();
+		user = new User();
+		user.setName("Tom");
+		user.setAge(20);
+		list.add(user);
+		
+		user = new User();
+		user.setName("小明");
+		user.setAge(13);
+		list.add(user);
+		
+		user = new User();
+		user.setName("小红");
+		user.setAge(20);
+		list.add(user);
+		
+		model.put("users", list);
+		model.put("intArr", new int[]{1,2,3,4,5});
+		view.render(model, out);
+		out.close();
 		System.out.println(out.toString());
 	}
 }

@@ -11,6 +11,7 @@ public class StateMachine {
 		MAP.put("#if", new StatementIf());
 		MAP.put("#elseif", new StatementElseIf());
 		MAP.put("#else", new StatementElse());
+		MAP.put("#for", new StatementFor());
 		MAP.put("#end", new StatementEnd());
 	}
 
