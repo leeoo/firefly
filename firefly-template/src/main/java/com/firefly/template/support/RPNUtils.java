@@ -46,9 +46,9 @@ public class RPNUtils {
 			case '\'':
 			case '"':
 				int next = content.indexOf(content.charAt(i), i + 1);
-				while(content.charAt(next - 1) == '\\') {
+				while(content.charAt(next - 1) == '\\')
 					next = content.indexOf(content.charAt(i), next + 1);
-				}
+
 				pre.append(content.substring(i, next + 1));
 				i += next - i;
 				break;
@@ -102,9 +102,7 @@ public class RPNUtils {
 						if(!Character.isWhitespace(ch) ) {
 							if(left0.indexOf(ch) >= 0) {
 								int _n = j - 1;
-								if(_n < 0 || !(ch == '+' && content.charAt(_n) == '+' || ch == '-' && content.charAt(_n) == '-')) {
-									s = true;
-								}
+								s = _n < 0 || !(ch == '+' && content.charAt(_n) == '+' || ch == '-' && content.charAt(_n) == '-');
 							}
 							break;
 						}
@@ -307,9 +305,7 @@ public class RPNUtils {
 						if(!Character.isWhitespace(c0) ) {
 							if(left0.indexOf(c0) >= 0) {
 								int _n = j - 1;
-								if(_n < 0 || !(c0 == '+' && content.charAt(_n) == '+' || c0 == '-' && content.charAt(_n) == '-')) {
-									l = true;
-								}
+								l = _n < 0 || !(c0 == '+' && content.charAt(_n) == '+' || c0 == '-' && content.charAt(_n) == '-');
 							}
 							break;
 						}
@@ -340,16 +336,15 @@ public class RPNUtils {
 							c--;
 						pre.append(c0);
 					}
-					if(ch == '!') {
+					if(ch == '!')
 						ret.append("(").append(pre).append(" == false) ");
-					} else {
+					else
 						ret.append("(0 ").append(ch).append(' ').append(pre).append(") ");
-					}
+
 					pre.delete(0, pre.length());
 					i = start;
-				} else {
+				} else
 					ret.append(ch);
-				}
 				break;
 			default:
 				ret.append(ch);
@@ -427,9 +422,8 @@ public class RPNUtils {
 					f.value = f.value.substring(0, f.value.length() - 1);
 			} else if(f.value.equals("null")) { 
 				f.type = Type.NULL;
-			} else {
+			} else
 				throw new ExpressionError("Can not determine the type: " + f.value);
-			}
 			
 			list.add(f);
 		}
@@ -448,15 +442,13 @@ public class RPNUtils {
 			f.type = Type.ASSIGNMENT_OPERATOR;
 		} else if(CONDITIONAL_OPERATOR.contains(value)) {
 			f.type = Type.CONDITIONAL_OPERATOR;
-		} else {
+		} else
 			f.type = Type.ARITHMETIC_OPERATOR;
-		}
 		
 		if(f.value.equals(")")) {
 			for(Fragment top = null; !symbolDeque.isEmpty() 
-					&& !(top = symbolDeque.pop()).value.equals("("); ) {
+					&& !(top = symbolDeque.pop()).value.equals("("); )
 				list.add(top);
-			}
 		} else {
 			for(Fragment top = null; !symbolDeque.isEmpty() 
 					&& (top = symbolDeque.peek()).priority >= f.priority; ) {

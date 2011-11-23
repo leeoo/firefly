@@ -87,7 +87,9 @@ public class TestRPN {
 		Assert.assertThat(se.parse("${i} == ${j} && ${i} != ${k}"), is("objNav.find(model ,\"i\").equals(objNav.find(model ,\"j\")) && !objNav.find(model ,\"i\").equals(objNav.find(model ,\"k\"))"));
 		Assert.assertThat(se.parse("${i} != null && null == ${j} && ${i} != ${k}"), is("objNav.find(model ,\"i\") != null && null == objNav.find(model ,\"j\") && !objNav.find(model ,\"i\").equals(objNav.find(model ,\"k\"))"));
 		Assert.assertThat(se.parse("3 + 4 +-( -(2 - 1) + 1)"), is("7"));
+		Assert.assertThat(se.parse("-(3 + 4) +-( -(2 - 1) + 1)"), is("-7"));
 		Assert.assertThat(se.parse("!(${apple.price} > 7f && -(${apple.price} + 2) * 0.4 + 4 <= 3)"), is("((Object)((objNav.getFloat(model ,\"apple.price\") > 7) && (((0 - (objNav.getInteger(model ,\"apple.price\") + 2)) * 0.4 + 4) <= 3))).equals(false)"));
+		Assert.assertThat(se.parse("${i} != null && ${i.size} > 0"), is("objNav.find(model ,\"i\") != null && (objNav.getInteger(model ,\"i.size\") > 0)"));
 	}
 	
 	@Test(expected = ExpressionError.class)
@@ -122,7 +124,7 @@ public class TestRPN {
 		System.out.println(se.parse("(0-(0 - ${i})) * 4"));
 		System.out.println(se.parse("-(3 + 4) +-( -(2 - 1) + 1)"));
 		System.out.println(se.parse("!(${apple.price} > 7f && -(${apple.price} + 2) * 0.4 + 4 <= 3)"));
-		
+		System.out.println(se.parse("${i} != null && ${i.size} > 0"));
 	}
 	
 	public static void main5(String[] args) {
