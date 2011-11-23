@@ -118,8 +118,9 @@ public class TestRPN {
 		System.out.println(getReversePolishNotation("!(${apple.price} > 7f && -(${apple.price} + 2) * 0.4 + 4 <= 3)"));
 		
 		StatementExpression se = new StatementExpression();
+		System.out.println(se.parse("-(3 + 4) > 8 && !(${i} > 0)"));
 		System.out.println(se.parse("(0-(0 - ${i})) * 4"));
-		System.out.println(se.parse("3 + 4 +-( -(2 - 1) + 1)"));
+		System.out.println(se.parse("-(3 + 4) +-( -(2 - 1) + 1)"));
 		System.out.println(se.parse("!(${apple.price} > 7f && -(${apple.price} + 2) * 0.4 + 4 <= 3)"));
 		
 	}
