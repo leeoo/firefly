@@ -3,6 +3,7 @@ package test;
 import static org.hamcrest.Matchers.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -121,6 +122,10 @@ public class TestObjNavigator {
 //		}
 //		end = System.currentTimeMillis() - start;
 //		System.out.println(o.find(model, "foo.bags[3]") + "|" + end);
+//		List<Object> list = null;
+//		for(Object obj : (Collection<?>)list) {
+//			
+//		}
 		
 	}
 }
