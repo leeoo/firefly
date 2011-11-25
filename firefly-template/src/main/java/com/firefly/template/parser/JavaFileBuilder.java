@@ -17,6 +17,7 @@ public class JavaFileBuilder {
 	private StringBuilder preBlank = new StringBuilder("\t\t");
 	private int textCount = 0;
 	private Config config;
+	boolean outBreak;
 
 	public JavaFileBuilder(String path, String name, Config config) {
 		this.name = name;

@@ -12,6 +12,9 @@ public class StateMachine {
 		MAP.put("#elseif", new StatementElseIf());
 		MAP.put("#else", new StatementElse());
 		MAP.put("#for", new StatementFor());
+		MAP.put("#switch", new StatementSwitch());
+		MAP.put("#case", new StatementSwitchCase());
+		MAP.put("#default", new StatementSwitchDefault());
 		MAP.put("#end", new StatementEnd());
 	}
 

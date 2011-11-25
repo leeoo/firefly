@@ -16,8 +16,8 @@ import com.firefly.template.TemplateFactory;
 import com.firefly.template.View;
 
 public class TestConfig {
-	public static final String PATH = "/Users/qiupengtao/Documents/workspace/firefly-project/firefly-template/src/test/page";
-//	public static final String PATH = "F:/develop/workspace2/firefly-template/src/test/page";
+//	public static final String PATH = "/Users/qiupengtao/Documents/workspace/firefly-project/firefly-template/src/test/page";
+	public static final String PATH = "F:/develop/workspace2/firefly-template/src/test/page";
 	
 	@Test
 	public void test() {
@@ -35,7 +35,7 @@ public class TestConfig {
 		user.setAge(25);
 
 		TemplateFactory t = new TemplateFactory(PATH).init();
-		View view = t.getView("/testif.html");
+		View view = t.getView("/testIf.html");
 		
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Model model = new ModelMock();
@@ -53,7 +53,7 @@ public class TestConfig {
 		
 		model = new ModelMock();
 		out = new ByteArrayOutputStream();
-		view = t.getView("/testfor.html");
+		view = t.getView("/testFor.html");
 		
 		List<User> list = new ArrayList<User>();
 		user = new User();
@@ -73,6 +73,14 @@ public class TestConfig {
 		
 		model.put("users", list);
 		model.put("intArr", new int[]{1,2,3,4,5});
+		view.render(model, out);
+		out.close();
+		System.out.println(out.toString());
+		
+		model = new ModelMock();
+		out = new ByteArrayOutputStream();
+		view = t.getView("/testSwitch.html");
+		model.put("stage", 2);
 		view.render(model, out);
 		out.close();
 		System.out.println(out.toString());
