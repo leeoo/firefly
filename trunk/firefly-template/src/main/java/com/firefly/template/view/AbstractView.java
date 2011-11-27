@@ -4,9 +4,12 @@ import java.io.OutputStream;
 
 import com.firefly.template.Config;
 import com.firefly.template.Model;
+import com.firefly.template.TemplateFactory;
 import com.firefly.template.View;
 
 public abstract class AbstractView implements View {
+	
+	protected TemplateFactory templateFactory;
 
 	@Override
 	public void render(Model model, OutputStream out) {
@@ -14,6 +17,7 @@ public abstract class AbstractView implements View {
 			main(model, out);
 		} catch (Throwable e) {
 			Config.LOG.error("view render error", e);
+			e.printStackTrace();
 		}
 	}
 
