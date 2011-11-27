@@ -17,6 +17,7 @@ public class StateMachine {
 		MAP.put("#default", new StatementSwitchDefault());
 		MAP.put("#end", new StatementEnd());
 		MAP.put("#set", new StatementSet());
+		MAP.put("#include", new StatementInclude());
 	}
 
 	public static void parse(String keyword, String content,

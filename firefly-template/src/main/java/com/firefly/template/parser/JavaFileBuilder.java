@@ -127,15 +127,14 @@ public class JavaFileBuilder {
 			writer.write("import java.io.OutputStream;\n");
 			writer.write("import com.firefly.template.support.ObjectNavigator;\n");
 			writer.write("import com.firefly.template.Model;\n");
-			writer.write("import com.firefly.template.view.AbstractView;\n\n");
+			writer.write("import com.firefly.template.view.AbstractView;\n");
+			writer.write("import com.firefly.template.TemplateFactory;\n\n");
 
 			String className = name.substring(0, name.length() - 5);
 
 			writer.write("public class " + className
 					+ " extends AbstractView {\n\n");
-			writer.write("\tprivate " + className + "(){}\n\n");
-			writer.write("\tpublic static final " + className
-					+ " INSTANCE = new " + className + "();\n\n");
+			writer.write("\tpublic " + className + "(TemplateFactory templateFactory){this.templateFactory = templateFactory;}\n\n");
 			writer.write("\t@Override\n");
 			writer.write("\tprotected void main(Model model, OutputStream out) throws Throwable {\n");
 			writer.write("\t\tObjectNavigator objNav = ObjectNavigator.getInstance();\n");

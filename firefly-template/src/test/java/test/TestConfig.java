@@ -94,5 +94,13 @@ public class TestConfig {
 		view.render(model, out);
 		out.close();
 		System.out.println(out.toString());
+		
+		// #include
+		model = new ModelMock();
+		out = new ByteArrayOutputStream();
+		view = t.getView("/testInclude.html");
+		view.render(model, out);
+		out.close();
+		System.out.println(out.toString());
 	}
 }
