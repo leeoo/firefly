@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class StateMachine {
 	private static final Map<String, Statement> MAP = new HashMap<String, Statement>();
-	
+
 	static {
 		MAP.put("#eval", new StatementExpression());
 		MAP.put("#if", new StatementIf());
@@ -16,6 +16,7 @@ public class StateMachine {
 		MAP.put("#case", new StatementSwitchCase());
 		MAP.put("#default", new StatementSwitchDefault());
 		MAP.put("#end", new StatementEnd());
+		MAP.put("#set", new StatementSet());
 	}
 
 	public static void parse(String keyword, String content,
