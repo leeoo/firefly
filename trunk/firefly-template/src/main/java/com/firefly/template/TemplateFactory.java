@@ -18,6 +18,11 @@ public class TemplateFactory {
 	public TemplateFactory() {
 
 	}
+	
+	public TemplateFactory(File file) {
+		this.config = new Config();
+		config.setViewPath(file.getAbsolutePath());
+	}
 
 	public TemplateFactory(String path) {
 		this.config = new Config();
