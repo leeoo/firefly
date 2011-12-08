@@ -3,7 +3,9 @@ package test;
 import static org.hamcrest.Matchers.is;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,8 +18,6 @@ import com.firefly.template.TemplateFactory;
 import com.firefly.template.View;
 
 public class TestConfig {
-	public static final String PATH = "/Users/qiupengtao/Documents/workspace/firefly-project/firefly-template/src/test/page";
-//	public static final String PATH = "F:/develop/workspace2/firefly-template/src/test/page";
 	
 	@Test
 	public void test() {
@@ -29,13 +29,16 @@ public class TestConfig {
 		Assert.assertThat(config.getCompiledPath(), is("/page2/_compiled_view"));
 	}
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, URISyntaxException {
 		User user = new User();
 		user.setName("Jim");
 		user.setAge(25);
 
+		
 		// #if #elseif #else
-		TemplateFactory t = new TemplateFactory(PATH).init();
+		TemplateFactory t = new TemplateFactory(new File(TestConfig.class.getResource("/page").toURI())).init();
+		System.out.println(t.getConfig().getViewPath());
+		System.out.println(t.getConfig().getCompiledPath());
 		View view = t.getView("/testIf.html");
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Model model = new ModelMock();
