@@ -33,7 +33,6 @@ public class TestConfig {
 		User user = new User();
 		user.setName("Jim");
 		user.setAge(25);
-
 		
 		// #if #elseif #else
 		TemplateFactory t = new TemplateFactory(new File(TestConfig.class.getResource("/page").toURI())).init();
