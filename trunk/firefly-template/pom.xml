@@ -20,8 +20,15 @@
 		</resources>
 		<testResources>
 			<testResource>
+				<filtering>false</filtering>
+				<directory>src/test/resources</directory>
+			</testResource>
+			<testResource>
 				<filtering>true</filtering>
 				<directory>src/test/resources</directory>
+				<excludes>
+					<exclude>**/*.html</exclude>
+				</excludes>
 			</testResource>
 			<testResource>
 				<filtering>true</filtering>
