@@ -129,6 +129,10 @@ public class TestMvc {
 		log.info(request.getDispatcherTarget());
 		Food food = (Food) request.getAttribute("fruit");
 		Assert.assertThat(food.getName(), is("orange"));
+		String returnView = (String) request.getAttribute("returnView");
+		Assert.assertThat(returnView, is("/food.jsp"));
+		String str2 = (String) request.getAttribute("str2");
+		Assert.assertThat(str2, nullValue());
 
 	}
 

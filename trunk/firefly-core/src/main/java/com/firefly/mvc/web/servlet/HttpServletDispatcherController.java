@@ -73,7 +73,7 @@ public class HttpServletDispatcherController implements DispatcherController {
 			// 前置拦截栈调用
 			if (beforeSet != null) {
 				for (MvcMetaInfo before : beforeSet) {
-					Object[] beforeP = getParams(request, response, before);
+					Object[] beforeP = getParams(request, response, before, null);
 					beforeRet = before.invoke(beforeP);
 					if (beforeRet != null) {
 						lastBefore = before;
@@ -84,13 +84,13 @@ public class HttpServletDispatcherController implements DispatcherController {
 
 			if (beforeRet == null) {
 				// controller调用
-				Object[] p = getParams(request, response, mvcMetaInfo);
+				Object[] p = getParams(request, response, mvcMetaInfo, null);
 				ret = mvcMetaInfo.invoke(p);
 
 				// 后置拦截栈调用
 				if (afterSet != null) {
 					for (MvcMetaInfo after : afterSet) {
-						Object[] afterP = getParams(request, response, after);
+						Object[] afterP = getParams(request, response, after, ret);
 						afterRet = after.invoke(afterP);
 						if (afterRet != null) {
 							lastAfter = after;
@@ -135,10 +135,11 @@ public class HttpServletDispatcherController implements DispatcherController {
 	 */
 	@SuppressWarnings("unchecked")
 	private Object[] getParams(HttpServletRequest request,
-			HttpServletResponse response, MvcMetaInfo mvcMetaInfo) {
+			HttpServletResponse response, MvcMetaInfo mvcMetaInfo, Object controllerReturn) {
 		byte[] methodParam = mvcMetaInfo.getMethodParam();
 		ParamMetaInfo[] paramMetaInfos = mvcMetaInfo.getParamMetaInfos();
 		Object[] p = new Object[methodParam.length];
+		boolean firstString = true;
 		for (int i = 0; i < p.length; i++) {
 			switch (methodParam[i]) {
 			case MethodParam.REQUEST:
@@ -162,6 +163,10 @@ public class HttpServletDispatcherController implements DispatcherController {
 				if (VerifyUtils.isNotEmpty(paramMetaInfo.getAttribute())) {
 					request.setAttribute(paramMetaInfo.getAttribute(), p[i]);
 				}
+				break;
+			case MethodParam.CONTROLLER_RETURN:
+				p[i] = firstString ? (String) controllerReturn : null;
+				firstString = false;
 				break;
 			}
 		}
