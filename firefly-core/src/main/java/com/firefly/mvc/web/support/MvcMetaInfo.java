@@ -47,6 +47,8 @@ public class MvcMetaInfo implements Comparable<MvcMetaInfo> {
 					methodParam[i] = MethodParam.REQUEST;
 				else if (paraTypes[i].equals(HttpServletResponse.class))
 					methodParam[i] = MethodParam.RESPONSE;
+				else if (paraTypes[i].equals(String.class))
+					methodParam[i] = MethodParam.CONTROLLER_RETURN;
 			}
 		}
 	}

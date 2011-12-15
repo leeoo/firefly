@@ -26,7 +26,9 @@ public class FoodInterceptor {
 			return null;
 	}
 
-	public void after(HttpServletRequest request, HttpServletResponse response) {
-		log.info("after 0 [{}]", request.getRequestURI());
+	public void after(HttpServletRequest request, HttpServletResponse response, String view, String str2) {
+		log.info("after 0 [{}], return [{}], str2 [{}]", request.getRequestURI(), view, str2);
+		request.setAttribute("returnView", view);
+		request.setAttribute("str2", str2);
 	}
 }
