@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.firefly.utils.json.Serializer;
 import com.firefly.utils.json.annotation.SpecialCharacterFilter;
+import com.firefly.utils.json.annotation.Transient;
 import com.firefly.utils.json.serializer.StateMachine;
 import com.firefly.utils.json.serializer.StringArrayNoFilterSerializer;
 import com.firefly.utils.json.serializer.StringArraySerializer;
@@ -37,6 +38,7 @@ public class EncodeCompiler {
             if (!method.getName().startsWith("is") && !method.getName().startsWith("get")) continue;
             if (method.getParameterTypes().length != 0) continue;
             if (method.getReturnType() == void.class) continue;
+            if (method.isAnnotationPresent(Transient.class)) continue;
 
             String propertyName = null;
 			if (methodName.charAt(0) == 'g') {
@@ -66,9 +68,9 @@ public class EncodeCompiler {
 			}
 
 			if (field != null
-					&& Modifier.isTransient(field.getModifiers())) {
+					&& (Modifier.isTransient(field.getModifiers())
+					|| field.isAnnotationPresent(Transient.class)))
 				continue;
-			}
 
 			Class<?> fieldClazz = method.getReturnType();
 			JsonObjMetaInfo fieldJsonObjMetaInfo = new JsonObjMetaInfo();

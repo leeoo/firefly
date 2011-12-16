@@ -1,9 +1,12 @@
 package test.utils.json;
 
+import com.firefly.utils.json.annotation.Transient;
+
 public class Book {
+	@Transient
 	private String text, title;
 	private Integer id;
-	private Double price;
+	private double price;
 	private Boolean sell;
 
 	public String getTitle() {
@@ -14,6 +17,7 @@ public class Book {
 		this.title = title;
 	}
 
+	@Transient
 	public Boolean getSell() {
 		return sell;
 	}
@@ -38,11 +42,11 @@ public class Book {
 		this.id = id;
 	}
 
-	public Double getPrice() {
+	public double getPrice() {
 		return price;
 	}
 
-	public void setPrice(Double price) {
+	public void setPrice(double price) {
 		this.price = price;
 	}
 
