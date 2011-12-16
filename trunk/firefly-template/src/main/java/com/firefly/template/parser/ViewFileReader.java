@@ -10,6 +10,7 @@ import java.util.List;
 import com.firefly.template.Config;
 import com.firefly.template.exception.TemplateFileReadException;
 import com.firefly.template.support.CompileUtils;
+import com.firefly.utils.StringUtils;
 import com.firefly.utils.VerifyUtils;
 import com.firefly.utils.io.FileUtils;
 import com.firefly.utils.io.LineReaderHandler;
@@ -135,7 +136,17 @@ public class ViewFileReader {
 			t = text.substring(cursor, start);
 			if (!VerifyUtils.isEmpty(t))
 				javaFileBuilder.writeText(t);
-			javaFileBuilder.writeObject(text.substring(start + 2, end));
+			String e = text.substring(start + 2, end);
+			int l = e.indexOf('(');
+			if(l > 0) {
+				int r = e.indexOf(')');
+				if(r > l) { // function
+					String functionName = e.substring(0, l);
+					String[] params = StringUtils.split(e.substring(l + 1, r), ',');
+					javaFileBuilder.writeFunction(functionName, params);
+				}
+			} else
+				javaFileBuilder.writeObject(e);
 			cursor = end + 1;
 		}
 		t = text.substring(cursor, text.length());

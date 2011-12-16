@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.is;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.firefly.template.Config;
+import com.firefly.template.Function;
+import com.firefly.template.FunctionRegistry;
 import com.firefly.template.Model;
 import com.firefly.template.TemplateFactory;
 import com.firefly.template.View;
@@ -33,6 +36,32 @@ public class TestConfig {
 		User user = new User();
 		user.setName("Jim");
 		user.setAge(25);
+		
+		Function function = new Function(){
+			@Override
+			public void render(Model model, OutputStream out, Object... obj) {
+				Integer i = (Integer)obj[0];
+				String str = (String)obj[1];
+				String o = String.valueOf(obj[2]);
+				
+				try {
+					out.write((i + "|" + str + "|" + o).getBytes("UTF-8"));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}};
+		FunctionRegistry.add("testFunction", function);
+		
+		Function function2 = new Function(){
+			@Override
+			public void render(Model model, OutputStream out, Object... obj) {
+				try {
+					out.write("testFunction2".getBytes("UTF-8"));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}};
+		FunctionRegistry.add("testFunction2", function2);
 		
 		// #if #elseif #else
 		TemplateFactory t = new TemplateFactory(new File(TestConfig.class.getResource("/page").toURI())).init();
@@ -104,5 +133,7 @@ public class TestConfig {
 		view.render(model, out);
 		out.close();
 		System.out.println(out.toString());
+		
+//		FunctionRegistry.MAP.get("").render(model, out, obj)
 	}
 }
