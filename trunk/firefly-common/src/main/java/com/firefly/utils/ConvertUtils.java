@@ -24,38 +24,120 @@ import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import com.firefly.utils.collection.IdentityHashMap;
 
 abstract public class ConvertUtils {
+	private static final IdentityHashMap<Class<?>, ParseValue> map = new IdentityHashMap<Class<?>, ParseValue>();
+	private static final Map<String, ParseValue> map2 = new HashMap<String, ParseValue>();
+
+	static {
+		ParseValue p = new ParseValue() {
+			@Override
+			public Object parse(String value) {
+				return Integer.parseInt(value);
+			}
+		};
+		map.put(int.class, p);
+		map.put(Integer.class, p);
+		map2.put("byte", p);
+		map2.put("java.lang.Byte", p);
+		
+		p = new ParseValue() {
+			@Override
+			public Object parse(String value) {
+				return Long.parseLong(value);
+			}
+		};
+		map.put(long.class, p);
+		map.put(Long.class, p);
+		map2.put("long", p);
+		map2.put("java.lang.Long", p);
+		
+		p = new ParseValue() {
+			@Override
+			public Object parse(String value) {
+				return Double.parseDouble(value);
+			}
+		};
+		map.put(double.class, p);
+		map.put(Double.class, p);
+		map2.put("double", p);
+		map2.put("java.lang.Double", p);
+		
+		p = new ParseValue() {
+			@Override
+			public Object parse(String value) {
+				return Float.parseFloat(value);
+			}
+		};
+		map.put(float.class, p);
+		map.put(Float.class, p);
+		map2.put("float", p);
+		map2.put("java.lang.Float", p);
+		
+		p = new ParseValue() {
+			@Override
+			public Object parse(String value) {
+				return Boolean.parseBoolean(value);
+			}
+		};
+		map.put(boolean.class, p);
+		map.put(Boolean.class, p);
+		map2.put("boolean", p);
+		map2.put("java.lang.Boolean", p);
+		
+		p = new ParseValue() {
+			@Override
+			public Object parse(String value) {
+				return Short.parseShort(value);
+			}
+		};
+		map.put(short.class, p);
+		map.put(Short.class, p);
+		map2.put("short", p);
+		map2.put("java.lang.Short", p);
+		
+		p = new ParseValue() {
+			@Override
+			public Object parse(String value) {
+				return Byte.parseByte(value);
+			}
+		};
+		map.put(byte.class, p);
+		map.put(Byte.class, p);
+		map2.put("byte", p);
+		map2.put("java.lang.Byte", p);
+		
+		p = new ParseValue() {
+			@Override
+			public Object parse(String value) {
+				return value;
+			}
+		};
+		map.put(String.class, p);
+		map2.put("java.lang.String", p);
+	}
+
+	interface ParseValue {
+		Object parse(String value);
+	}
 
 	@SuppressWarnings("unchecked")
 	public static <T> T convert(String value, Class<T> c) {
 		Object ret = null;
-		if (c.equals(int.class) || c.equals(Integer.class))
-			ret = Integer.parseInt(value);
-		else if (c.equals(long.class) || c.equals(Long.class))
-			ret = Long.parseLong(value);
-		else if (c.equals(double.class) || c.equals(Double.class))
-			ret = Double.parseDouble(value);
-		else if (c.equals(float.class) || c.equals(Float.class))
-			ret = Float.parseFloat(value);
-		else if (c.equals(boolean.class) || c.equals(Boolean.class))
-			ret = Boolean.parseBoolean(value);
-		else if (c.equals(short.class) || c.equals(Short.class))
-			ret = Short.parseShort(value);
-		else if (c.equals(byte.class) || c.equals(Byte.class))
-			ret = Byte.parseByte(value);
-		else if (c.equals(String.class))
-			ret = value;
+		ParseValue p = c == null ? null : map.get(c);
+		if (p != null)
+			ret = p.parse(value);
 		else {
-			if(VerifyUtils.isInteger(value)) {
+			if (VerifyUtils.isInteger(value)) {
 				ret = Integer.parseInt(value);
-			} else if(VerifyUtils.isLong(value)) {
+			} else if (VerifyUtils.isLong(value)) {
 				ret = Long.parseLong(value);
-			} else if(VerifyUtils.isDouble(value)) {
+			} else if (VerifyUtils.isDouble(value)) {
 				ret = Double.parseDouble(value);
-			} else if(VerifyUtils.isFloat(value)) {
+			} else if (VerifyUtils.isFloat(value)) {
 				ret = Float.parseFloat(value);
-			} else 
+			} else
 				ret = value;
 		}
 		return (T) ret;
@@ -64,34 +146,19 @@ abstract public class ConvertUtils {
 	@SuppressWarnings("unchecked")
 	public static <T> T convert(String value, String argsType) {
 		Object ret = null;
-		if ("byte".equals(argsType) || "java.lang.Byte".equals(argsType))
-			ret = Byte.parseByte(value);
-		else if ("short".equals(argsType) || "java.lang.Short".equals(argsType))
-			ret = Short.parseShort(value);
-		else if ("int".equals(argsType) || "java.lang.Integer".equals(argsType))
-			ret = Integer.parseInt(value);
-		else if ("long".equals(argsType) || "java.lang.Long".equals(argsType))
-			ret = Long.parseLong(value);
-		else if ("float".equals(argsType) || "java.lang.Float".equals(argsType))
-			ret = Float.parseFloat(value);
-		else if ("double".equals(argsType)
-				|| "java.lang.Double".equals(argsType))
-			ret = Double.parseDouble(value);
-		else if ("boolean".equals(argsType)
-				|| "java.lang.Boolean".equals(argsType))
-			ret = Boolean.parseBoolean(value);
-		else if ("java.lang.String".equals(argsType))
-			ret = value;
+		ParseValue p = argsType == null ? null : map2.get(argsType);
+		if (p != null)
+			ret = p.parse(value);
 		else {
-			if(VerifyUtils.isInteger(value)) {
+			if (VerifyUtils.isInteger(value)) {
 				ret = Integer.parseInt(value);
-			} else if(VerifyUtils.isLong(value)) {
+			} else if (VerifyUtils.isLong(value)) {
 				ret = Long.parseLong(value);
-			} else if(VerifyUtils.isDouble(value)) {
+			} else if (VerifyUtils.isDouble(value)) {
 				ret = Double.parseDouble(value);
-			} else if(VerifyUtils.isFloat(value)) {
+			} else if (VerifyUtils.isFloat(value)) {
 				ret = Float.parseFloat(value);
-			} else 
+			} else
 				ret = value;
 		}
 		return (T) ret;
@@ -99,7 +166,7 @@ abstract public class ConvertUtils {
 
 	/**
 	 * 把集合转换为指定类型的数组
-	 *
+	 * 
 	 * @param collection
 	 * @param type
 	 * @return
@@ -117,15 +184,15 @@ abstract public class ConvertUtils {
 				throw new IllegalArgumentException("type is not a array");
 
 			componentType = arrayType.getComponentType();
-//			log.debug("componentType = " + componentType.getName());
+			// log.debug("componentType = " + componentType.getName());
 		}
 		Object newArray = Array.newInstance(componentType, size);
 
 		// Convert and set each element in the new Array
 		for (int i = 0; i < size; i++) {
 			Object element = iterator.next();
-//			log.debug("element value [{}], type [{}]", element, element
-//					.getClass().getName());
+			// log.debug("element value [{}], type [{}]", element, element
+			// .getClass().getName());
 			Array.set(newArray, i, element);
 		}
 
@@ -134,7 +201,7 @@ abstract public class ConvertUtils {
 
 	/**
 	 * 根据类型自动返回一个集合
-	 *
+	 * 
 	 * @param clazz
 	 * @return
 	 */
@@ -193,7 +260,7 @@ abstract public class ConvertUtils {
 			return map;
 		}
 	}
-	
+
 	public static <T> Enumeration<T> enumeration(Collection<T> col) {
 		final Iterator<T> it = col.iterator();
 		return new Enumeration<T>() {
