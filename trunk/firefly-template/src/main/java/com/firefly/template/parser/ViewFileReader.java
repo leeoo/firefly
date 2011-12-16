@@ -19,6 +19,7 @@ public class ViewFileReader {
 	private List<String> javaFiles = new ArrayList<String>();
 	private List<String> templateFiles = new ArrayList<String>();
 	private List<String> classNames = new ArrayList<String>();
+	private List<String> javaFiles0 = new ArrayList<String>();
 
 	public ViewFileReader(Config config) {
 		this.config = config;
@@ -33,11 +34,8 @@ public class ViewFileReader {
 			file.mkdir();
 		}
 		read0(new File(config.getViewPath()));
-
-		// System.out.println(javaFiles);
-		// System.out.println(templateFiles);
-		// System.out.println(classNames);
-		ret = CompileUtils.compile(config.getCompiledPath(), javaFiles);
+		if(javaFiles0.size() > 0)
+			ret = CompileUtils.compile(config.getCompiledPath(), javaFiles0);
 		return ret;
 	}
 
@@ -74,11 +72,22 @@ public class ViewFileReader {
 	private void parse(File f) {
 		String name = f.getAbsolutePath().replace('\\', '/');
 		templateFiles.add(name.substring(config.getViewPath().length() - 1));
+		
 		name = name.substring(config.getViewPath().length() - 1,
 				name.length() - config.getSuffix().length()).replace('/', '_')
 				+ "java";
 		classNames.add(name.substring(0, name.length() - 5));
-		javaFiles.add(config.getCompiledPath() + "/" + name);
+		
+		String javaFile = config.getCompiledPath() + "/" + name;
+		javaFiles.add(javaFile);
+		
+		String classFileName = javaFile.substring(0, javaFile.length() - 4) + "class";
+		File classFile = new File(classFileName);
+		if(classFile.exists() && classFile.lastModified() >= f.lastModified()) {
+//			System.out.println(classFile.getAbsolutePath() + "|" +  classFile.lastModified() + "|" + f.lastModified());
+			return;
+		}
+		javaFiles0.add(javaFile);
 		// System.out.println("======= " + name + " =======");
 
 		JavaFileBuilder javaFileBuilder = new JavaFileBuilder(

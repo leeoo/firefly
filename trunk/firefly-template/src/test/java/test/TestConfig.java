@@ -36,8 +36,8 @@ public class TestConfig {
 		
 		// #if #elseif #else
 		TemplateFactory t = new TemplateFactory(new File(TestConfig.class.getResource("/page").toURI())).init();
-		System.out.println(t.getConfig().getViewPath());
-		System.out.println(t.getConfig().getCompiledPath());
+//		System.out.println(t.getConfig().getViewPath());
+//		System.out.println(t.getConfig().getCompiledPath());
 		View view = t.getView("/testIf.html");
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Model model = new ModelMock();
