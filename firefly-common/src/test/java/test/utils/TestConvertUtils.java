@@ -30,6 +30,12 @@ public class TestConvertUtils {
 	public void testAutoConvertLong() {
 		Long x = ConvertUtils.convert("10000000000", "");
 		Assert.assertThat(x, is(10000000000L));
+		
+		x = ConvertUtils.convert("10000000000", long.class);
+		Assert.assertThat(x, is(10000000000L));
+		
+		x = ConvertUtils.convert("10000000000", "long");
+		Assert.assertThat(x, is(10000000000L));
 	}
 
 	public int setArray(String[] arr) {
