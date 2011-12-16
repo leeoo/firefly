@@ -8,6 +8,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 import com.firefly.template.Config;
+import com.firefly.utils.VerifyUtils;
 
 public class JavaFileBuilder {
 	private String name;
@@ -82,6 +83,28 @@ public class JavaFileBuilder {
 				+ "\").getBytes(\"" + config.getCharset() + "\"));\n");
 		return this;
 	}
+	
+	public JavaFileBuilder writeFunction(String functionName, String[] params) {
+		write(preBlank + "FunctionRegistry.get(\"" + functionName + "\").render(model, out");
+		for (String param : params) {
+			param = param.trim();
+			if(param.length() > 0) {
+				write(", ");
+				if(VerifyUtils.isDouble(param) 
+						|| VerifyUtils.isLong(param) 
+						|| VerifyUtils.isFloat(param) 
+						|| VerifyUtils.isInteger(param) 
+						|| "null".equals(param)
+						|| (param.charAt(0) == '\"' && param.charAt(param.length() - 1) == '\"' )) {
+					write(param);
+				} else {
+					write("objNav.find(model, \"" + param + "\")");
+				}
+			}
+		}
+		write(");\n");
+		return this;
+	}
 
 	public JavaFileBuilder writeObjNav(String el) {
 		write("objNav.getValue(model ,\"" + el + "\")");
@@ -128,7 +151,8 @@ public class JavaFileBuilder {
 			writer.write("import com.firefly.template.support.ObjectNavigator;\n");
 			writer.write("import com.firefly.template.Model;\n");
 			writer.write("import com.firefly.template.view.AbstractView;\n");
-			writer.write("import com.firefly.template.TemplateFactory;\n\n");
+			writer.write("import com.firefly.template.TemplateFactory;\n");
+			writer.write("import com.firefly.template.FunctionRegistry;\n\n");
 
 			String className = name.substring(0, name.length() - 5);
 
