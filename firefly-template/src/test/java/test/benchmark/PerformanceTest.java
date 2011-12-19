@@ -2,10 +2,8 @@ package test.benchmark;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,12 +48,12 @@ public class PerformanceTest {
         configuration.setTemplateLoader(new ClassTemplateLoader(PerformanceTest.class, "/"));
         Template template = configuration.getTemplate("books.ftl");
         template.process(context, writer);
-        byte[] ret = null;
+//        byte[] ret = null;
         long start = System.currentTimeMillis();
         for (int i = 0; i < times; i++) {
         	writer = new StringWriter();
         	template.process(context, writer);
-        	ret = writer.toString().getBytes("UTF-8");
+        	writer.toString().getBytes("UTF-8");
 		}
         long end = System.currentTimeMillis();
         System.out.println("freemark: " + (end - start) + "ms\t" + (int)(times / (double)(end - start) * 1000) + "tps");
