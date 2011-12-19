@@ -20,15 +20,12 @@
 		</resources>
 		<testResources>
 			<testResource>
-				<filtering>false</filtering>
+				<filtering>true</filtering>
 				<directory>src/test/resources</directory>
 			</testResource>
 			<testResource>
-				<filtering>true</filtering>
-				<directory>src/test/resources</directory>
-				<excludes>
-					<exclude>**/*.html</exclude>
-				</excludes>
+				<filtering>false</filtering>
+				<directory>src/test/template</directory>
 			</testResource>
 			<testResource>
 				<filtering>true</filtering>
@@ -109,6 +106,12 @@
 			<groupId>org.hamcrest</groupId>
 			<artifactId>hamcrest-all</artifactId>
 			<version>1.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.freemarker</groupId>
+			<artifactId>freemarker</artifactId>
+			<version>2.3.18</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
