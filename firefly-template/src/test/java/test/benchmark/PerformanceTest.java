@@ -44,6 +44,23 @@ public class PerformanceTest {
         model.put("user", new User("liangfei", "admin"));
         model.put("books", books);
         
+     // freemark
+        StringWriter writer = new StringWriter();
+        Configuration configuration = new Configuration();
+        configuration.setTemplateLoader(new ClassTemplateLoader(PerformanceTest.class, "/"));
+        Template template = configuration.getTemplate("books.ftl");
+        template.process(context, writer);
+        byte[] ret = null;
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < times; i++) {
+        	writer = new StringWriter();
+        	template.process(context, writer);
+        	ret = writer.toString().getBytes("UTF-8");
+		}
+        long end = System.currentTimeMillis();
+        System.out.println("freemark: " + (end - start) + "ms\t" + (int)(times / (double)(end - start) * 1000) + "tps");
+//        System.out.println(new String(ret, "UTF-8"));
+        
         // firefly
         Function function = new Function(){
 			@Override
@@ -86,32 +103,15 @@ public class PerformanceTest {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         view.render(model, out);
 		out.close();
-		long start = System.currentTimeMillis();
+		start = System.currentTimeMillis();
         for (int i = 0; i < times; i++) {
         	out = new ByteArrayOutputStream();
             view.render(model, out);
     		out.close();
         }
-        long end = System.currentTimeMillis();
-        System.out.println("firefly-template: " + (end - start) + "ms\t" + (times / (double)(end - start) * 1000) + "tps");
-//        System.out.println(new String(out.toByteArray(), "UTF-8"));
-        
-        // freemark
-        StringWriter writer = new StringWriter();
-        Configuration configuration = new Configuration();
-        configuration.setTemplateLoader(new ClassTemplateLoader(PerformanceTest.class, "/"));
-        Template template = configuration.getTemplate("books.ftl");
-        template.process(context, writer);
-        byte[] ret = null;
-        start = System.currentTimeMillis();
-        for (int i = 0; i < times; i++) {
-        	writer = new StringWriter();
-        	template.process(context, writer);
-        	ret = writer.toString().getBytes("UTF-8");
-		}
         end = System.currentTimeMillis();
-        System.out.println("freemark: " + (end - start) + "ms\t" + (times / (double)(end - start) * 1000) + "tps");
-//        System.out.println(new String(ret, "UTF-8"));
+        System.out.println("firefly-template: " + (end - start) + "ms\t" + (int)(times / (double)(end - start) * 1000) + "tps");
+//        System.out.println(new String(out.toByteArray(), "UTF-8"));
 
 	}
 
