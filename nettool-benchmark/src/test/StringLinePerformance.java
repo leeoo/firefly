@@ -114,12 +114,12 @@ public class StringLinePerformance {
 	}
 
 	public static void main(String[] args) {
-//		System.setProperty("bind_host", "localhost");
-//		System.setProperty("bind_port", "9900");
-//		System.setProperty("loop", "2000");
-//		System.setProperty("thread_num", "500");
-//		System.setProperty("asyn", "0");
-//		System.setProperty("size", "4096");
+		System.setProperty("bind_host", "localhost");
+		System.setProperty("bind_port", "9900");
+		System.setProperty("loop", "2000");
+		System.setProperty("thread_num", "500");
+		System.setProperty("asyn", "0");
+		System.setProperty("size", "32");
 		
 		String host = System.getProperty("bind_host");
 		int port = Integer.parseInt(System.getProperty("bind_port"));
