@@ -1,10 +1,9 @@
 package com.firefly.net.support;
 
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 import com.firefly.net.Session;
+import com.firefly.utils.collection.LinkedTransferQueue;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
 
@@ -18,14 +17,9 @@ public class TcpConnection {
 	public TcpConnection(Session session) {
 		this(session, 0);
 	}
-
-	public TcpConnection(Session session, int queueLength) {
-		this(session, queueLength, 0);
-	}
 	
-	public TcpConnection(Session session, int queueLength, long timeout) {
-		this.queue = new ArrayBlockingQueue<MessageReceiveCallBack>(
-				queueLength > 0 ? queueLength : 1024 * 4);
+	public TcpConnection(Session session, long timeout) {
+		this.queue = new LinkedTransferQueue<MessageReceiveCallBack>();
 		this.session = session;
 		this.session.setAttribute(QUEUE_KEY, queue);
 		this.timeout = timeout > 0 ? timeout : 5000L;
@@ -45,16 +39,10 @@ public class TcpConnection {
 	}
 
 	public void send(Object obj, MessageReceiveCallBack callback) {
-		boolean offer = false;
-		try {
-			offer = queue.offer(callback, timeout, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-			log.error("TcpConnection send exception", e);
-		}
-		if (offer)
+		if (queue.offer(callback))
 			session.encode(obj);
 		else
-			log.warn("tcp connection queue is full");
+			log.warn("tcp connection queue offer failure!");
 	}
 
 	public int getId() {
@@ -71,9 +59,5 @@ public class TcpConnection {
 
 	public Session getSession() {
 		return session;
-	}
-	
-	public int getCallBackQueueSize() {
-		return queue.size();
 	}
 }
