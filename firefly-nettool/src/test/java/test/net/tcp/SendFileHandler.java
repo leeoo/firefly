@@ -16,19 +16,19 @@ public class SendFileHandler implements Handler {
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 
 	@Override
-	public void sessionOpened(Session session) {
+	public void sessionOpened(Session session) throws Throwable {
 		log.debug("session open |" + session.getSessionId());
 		log.debug("local: " + session.getLocalAddress());
 		log.debug("remote: " + session.getRemoteAddress());
 	}
 
 	@Override
-	public void sessionClosed(Session session) {
+	public void sessionClosed(Session session) throws Throwable {
 		log.debug("session close|" + session.getSessionId());
 	}
 
 	@Override
-	public void messageRecieved(Session session, Object message) {
+	public void messageRecieved(Session session, Object message) throws Throwable {
 		String str = (String) message;
 		if (str.equals("quit")) {
 			session.encode("bye!");
@@ -63,7 +63,7 @@ public class SendFileHandler implements Handler {
 	}
 
 	@Override
-	public void exceptionCaught(Session session, Throwable t) {
+	public void exceptionCaught(Session session, Throwable t) throws Throwable{
 		log.error(t.getMessage() + "|" + session.getSessionId(), t);
 	}
 

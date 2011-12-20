@@ -10,7 +10,7 @@ public class StringLineEncoder implements Encoder {
 	private static final String LINE_LIMITOR = System.getProperty("line.separator");
 	
 	@Override
-	public void encode(Object message, Session session) {
+	public void encode(Object message, Session session) throws Throwable {
 		String str = message + LINE_LIMITOR;
 
 		ByteBuffer byteBuffer = ByteBuffer.wrap(str.getBytes());

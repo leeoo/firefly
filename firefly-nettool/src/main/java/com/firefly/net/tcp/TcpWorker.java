@@ -1,5 +1,8 @@
 package com.firefly.net.tcp;
 
+import static com.firefly.net.tcp.TcpPerformanceParameter.CLEANUP_INTERVAL;
+import static com.firefly.net.tcp.TcpPerformanceParameter.WRITE_SPIN_COUNT;
+
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -13,7 +16,6 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.firefly.net.Config;
@@ -27,12 +29,11 @@ import com.firefly.net.buffer.SocketReceiveBufferPool;
 import com.firefly.net.buffer.SocketSendBufferPool;
 import com.firefly.net.buffer.SocketSendBufferPool.SendBuffer;
 import com.firefly.net.exception.NetException;
+import com.firefly.utils.collection.LinkedTransferQueue;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
 import com.firefly.utils.time.HashTimeWheel;
 import com.firefly.utils.time.TimeProvider;
-
-import static com.firefly.net.tcp.TcpPerformanceParameter.*;
 
 public final class TcpWorker implements Worker {
 
@@ -40,8 +41,8 @@ public final class TcpWorker implements Worker {
 	static final TimeProvider timeProvider = new TimeProvider(100);
 
 	private final Config config;
-	private final Queue<Runnable> registerTaskQueue = new ConcurrentLinkedQueue<Runnable>();
-	private final Queue<Runnable> writeTaskQueue = new ConcurrentLinkedQueue<Runnable>();
+	private final Queue<Runnable> registerTaskQueue = new LinkedTransferQueue<Runnable>();
+	private final Queue<Runnable> writeTaskQueue = new LinkedTransferQueue<Runnable>();
 	private final AtomicBoolean wakenUp = new AtomicBoolean();
 	private final ReceiveBufferPool receiveBufferPool = new SocketReceiveBufferPool();
 	private final SendBufferPool sendBufferPool = new SocketSendBufferPool();
@@ -393,7 +394,12 @@ public final class TcpWorker implements Worker {
 			session.setReadBytes(readBytes);
 			session.setLastReadTime(timeProvider.currentTimeMillis());
 			// Decode
-			config.getDecoder().decode(bb, session);
+			
+			try {
+				config.getDecoder().decode(bb, session);
+			} catch (Throwable t) {
+				eventManager.executeExceptionTask(session, t);
+			}
 			// log.info("Worker {} decode", workerId);
 		} else {
 			receiveBufferPool.release(bb);
@@ -441,7 +447,7 @@ public final class TcpWorker implements Worker {
 
 				key = socketChannel.register(selector, SelectionKey.OP_READ);
 				Session session = new TcpSession(sessionId, TcpWorker.this,
-						config, timeProvider.currentTimeMillis(), key);
+						config, timeProvider.currentTimeMillis(), key, eventManager);
 				key.attach(session);
 
 				SocketAddress localAddress = session.getLocalAddress();
