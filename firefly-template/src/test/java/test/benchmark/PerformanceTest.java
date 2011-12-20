@@ -18,7 +18,6 @@ import com.firefly.template.FunctionRegistry;
 import com.firefly.template.Model;
 import com.firefly.template.TemplateFactory;
 import com.firefly.template.View;
-import com.firefly.utils.time.SafeSimpleDateFormat;
 
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
@@ -60,43 +59,16 @@ public class PerformanceTest {
 //        System.out.println(new String(ret, "UTF-8"));
         
         // firefly
-        Function function = new Function(){
-			@Override
-			public void render(Model model, OutputStream out, Object... obj) {
-				Date date = (Date)obj[0];
-				try {
-					out.write(SafeSimpleDateFormat.defaultDateFormat.format(date).getBytes("UTF-8"));
-				} catch (Throwable e) {
-					e.printStackTrace();
-				}
-			}};
-		FunctionRegistry.add("date_format", function);
-		Function function2 = new Function(){
-			@Override
-			public void render(Model model, OutputStream out, Object... obj) {
-				Integer index = (Integer)model.get("book_index");
-				if(index != null) {
-					model.put("book_index", index + 1);
-				} else {
-					model.put("book_index", 1);
-				}
-			}};
-		FunctionRegistry.add("book_index", function2);
-		Function function3 = new Function() {
+        final TemplateFactory t = new TemplateFactory(new File(TestConfig.class.getResource("/").toURI())).init();
+        FunctionRegistry.add("book_count", new Function() {
 
 			@Override
-			public void render(Model model, OutputStream out, Object... obj) {
+			public void render(Model model, OutputStream out, Object... obj) throws Throwable {
 				Book book = (Book)obj[0];
-				try {
-					out.write(String.valueOf(book.getPrice() * book.getDiscount() / 100).getBytes("UTF-8"));
-				} catch (Throwable e) {
-					e.printStackTrace();
-				}
+				out.write(String.valueOf(book.getPrice() * book.getDiscount() / 100).getBytes(t.getConfig().getCharset()));
 			}
 			
-		};
-		FunctionRegistry.add("book_count", function3);
-        TemplateFactory t = new TemplateFactory(new File(TestConfig.class.getResource("/").toURI())).init();
+		});
         View view = t.getView("/books.html");
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         view.render(model, out);

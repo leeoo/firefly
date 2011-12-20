@@ -8,13 +8,14 @@ ${i} &nbsp;&nbsp;
 </div>
 
 <div>
+<div>${len(users)}</div>
 <table style="table-layout: fixed;">
 	<thead style="text-align: center;">
 	<tr><th>姓名</th><th>年龄</th></tr>
 	</thead>
 	<tbody>
 	<!-- #for u : ${users} -->
-	<tr><td>${u.name}</td><td>${u.age}</td></tr>
+	<tr><td>${u.name}|||${len(u.name)}</td><td>${u.age}</td></tr>
 	<!-- #end -->
 	</tbody>
 </table>
