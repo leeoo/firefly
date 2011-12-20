@@ -30,7 +30,7 @@ public class StringLinePerformance {
 					log.debug("rev: {}", ret);
 				}
 			} finally {
-				if(c != null)
+				if (c != null)
 					c.close(false);
 			}
 			log.debug("session {} complete", c.getId());
@@ -123,12 +123,10 @@ public class StringLinePerformance {
 				new StringLineDecoder(), new StringLineEncoder());
 		final CyclicBarrier barrier = new CyclicBarrier(THREAD, new StatTask());
 
-		for (int i = 0; i < THREAD; i++) {
+		for (int i = 0; i < THREAD; i++)
 			executorService.submit(new ClientSynchronizeTask(client, barrier));
-		}
 
-		// for (int i = 0; i < THREAD; i++) {
-		// executorService.submit(new ClientAsynchronousTask(client, barrier));
-		// }
+//		for (int i = 0; i < THREAD; i++)
+//			executorService.submit(new ClientAsynchronousTask(client, barrier));
 	}
 }

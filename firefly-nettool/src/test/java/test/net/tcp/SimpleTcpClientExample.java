@@ -46,9 +46,9 @@ public class SimpleTcpClientExample {
 			}
 		});
 
-		c = client.connect();
-		System.out.println("con2|" + c.send("getfile"));
-//		c.close(false);
+		TcpConnection c2 = client.connect();
+		System.out.println("con2|" + c2.send("getfile"));
+		c2.close(false);
 
 		
 	}
