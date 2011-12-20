@@ -17,11 +17,11 @@
 	<!-- #for book : ${books} -->
 		<!-- #if ${book.price} > 0 -->
 		<tr>
-		  <td>${book_index()}</td>
+		  <td>${book_index}</td>
 		  <td>${book.title}</td>
 		  <td>${book.author}</td>
 		  <td>${book.publisher}</td>
-		  <td>${date_format(book.publication)}</td>
+		  <td>${dateFormat(book.publication)}</td>
 		  <td>${book.price}</td>
 		  <td>${book.discount}%</td>
 		  <td>${book_count(book)}</td>

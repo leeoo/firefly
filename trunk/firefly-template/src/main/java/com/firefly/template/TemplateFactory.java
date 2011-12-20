@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.firefly.template.function.DateFormatFunction;
+import com.firefly.template.function.LengthFunction;
 import com.firefly.template.parser.ViewFileReader;
 
 public class TemplateFactory {
@@ -46,6 +48,8 @@ public class TemplateFactory {
 			throw new IllegalArgumentException("template config is null");
 		
 		long start = System.currentTimeMillis();
+		FunctionRegistry.add("dateFormat", new DateFormatFunction(config.getCharset()));
+		FunctionRegistry.add("len", new LengthFunction(config.getCharset()));
 		ViewFileReader reader = new ViewFileReader(config);
 		List<String> javaFiles = reader.getJavaFiles();
 		List<String> templateFiles = reader.getTemplateFiles();
