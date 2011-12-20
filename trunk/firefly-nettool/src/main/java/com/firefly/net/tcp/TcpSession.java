@@ -1,5 +1,8 @@
 package com.firefly.net.tcp;
 
+import static com.firefly.net.tcp.TcpPerformanceParameter.WRITE_BUFFER_HIGH_WATER_MARK;
+import static com.firefly.net.tcp.TcpPerformanceParameter.WRITE_BUFFER_LOW_WATER_MARK;
+
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -7,20 +10,20 @@ import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.firefly.net.Config;
+import com.firefly.net.EventManager;
 import com.firefly.net.ReceiveBufferSizePredictor;
 import com.firefly.net.Session;
 import com.firefly.net.buffer.AdaptiveReceiveBufferSizePredictor;
 import com.firefly.net.buffer.FixedReceiveBufferSizePredictor;
 import com.firefly.net.buffer.SocketSendBufferPool.SendBuffer;
-import com.firefly.net.support.ThreadLocalBoolean;
+import com.firefly.utils.ThreadLocalBoolean;
+import com.firefly.utils.collection.LinkedTransferQueue;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
-import static com.firefly.net.tcp.TcpPerformanceParameter.*;
 
 public final class TcpSession implements Session {
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
@@ -46,15 +49,17 @@ public final class TcpSession implements Session {
 	private SendBuffer currentWriteBuffer;
 	private volatile int state;
 	private ReceiveBufferSizePredictor receiveBufferSizePredictor;
+	private EventManager eventManager;
 
 	public TcpSession(int sessionId, TcpWorker worker, Config config,
-			long openTime, SelectionKey selectionKey) {
+			long openTime, SelectionKey selectionKey, EventManager eventManager) {
 		super();
 		this.sessionId = sessionId;
 		this.worker = worker;
 		this.config = config;
 		this.openTime = openTime;
 		this.selectionKey = selectionKey;
+		this.eventManager = eventManager;
 		if (config.getReceiveByteBufferSize() > 0) {
 			log.debug("fix buffer size: {}", config.getReceiveByteBufferSize());
 			receiveBufferSizePredictor = new FixedReceiveBufferSizePredictor(
@@ -208,7 +213,11 @@ public final class TcpSession implements Session {
 
 	@Override
 	public void encode(Object message) {
-		config.getEncoder().encode(message, this);
+		try {
+			config.getEncoder().encode(message, this);
+		} catch (Throwable t) {
+			eventManager.executeExceptionTask(this, t);
+		}
 	}
 
 	@Override
@@ -247,7 +256,7 @@ public final class TcpSession implements Session {
 		}
 	}
 
-	private final class WriteRequestQueue extends ConcurrentLinkedQueue<Object> {
+	private final class WriteRequestQueue extends LinkedTransferQueue<Object> {
 		private static final long serialVersionUID = -2493148252918843163L;
 		private final ThreadLocalBoolean notifying = new ThreadLocalBoolean();
 

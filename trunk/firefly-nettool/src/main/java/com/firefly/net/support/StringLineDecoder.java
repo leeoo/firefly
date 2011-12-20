@@ -9,7 +9,7 @@ public class StringLineDecoder implements Decoder {
 	private static final byte LINE_LIMITOR = '\n';
 
 	@Override
-	public void decode(ByteBuffer buffer, Session session) {
+	public void decode(ByteBuffer buffer, Session session) throws Throwable {
 		ByteBuffer now = buffer;
 		ByteBuffer prev = (ByteBuffer) session.getAttribute("buff");
 
