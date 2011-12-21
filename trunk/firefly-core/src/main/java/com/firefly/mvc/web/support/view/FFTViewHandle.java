@@ -40,7 +40,6 @@ public class FFTViewHandle implements ViewHandle {
 		config.setCharset(encoding);
 
 		URL url = config.getClass().getResource("");
-//		log.info("classpath: [{}]", url.getPath());
 		if("jar".equals(url.getProtocol())) {
 			String f = url.getPath();
 			try {
@@ -99,14 +98,5 @@ public class FFTViewHandle implements ViewHandle {
 			}
 		}
 	}
-	
-//	public static void main(String[] args) throws URISyntaxException {
-//		FFTViewHandle f = FFTViewHandle.getInstance();
-//		URL u = f.getClass().getResource("");
-//		System.out.println(u.getProtocol());
-//		System.out.println(u.getFile());
-//		System.out.println(u.getPath());
-//		System.out.println(new File(u.toURI()).getAbsolutePath());
-//	}
 
 }

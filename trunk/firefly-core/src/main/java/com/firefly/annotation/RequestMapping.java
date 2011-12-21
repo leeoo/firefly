@@ -6,7 +6,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import com.firefly.mvc.web.HttpMethod;
-import com.firefly.mvc.web.View;
 
 @Target( { ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
@@ -16,5 +15,5 @@ public @interface RequestMapping {
 
 	String method() default HttpMethod.GET;
 
-	String view() default View.JSP;
+	String view() default "";
 }

@@ -1,15 +1,11 @@
 package com.firefly.core.support.annotation;
 
-import com.firefly.utils.VerifyUtils;
-
 public class Config {
-	private String viewPath, encoding;
+	private String viewPath = "/WEB-INF/page", encoding = "UTF-8", viewType = "jsp";
 	private String[] paths;
-	private static final String DEFAULT_VIEW_PATH = "/WEB-INF/page";
-	private static final String DEFAULT_ENCODING = "UTF-8";
 
 	public String getViewPath() {
-		return VerifyUtils.isNotEmpty(viewPath) ? viewPath : DEFAULT_VIEW_PATH;
+		return viewPath;
 	}
 
 	public void setViewPath(String viewPath) {
@@ -17,11 +13,19 @@ public class Config {
 	}
 
 	public String getEncoding() {
-		return VerifyUtils.isNotEmpty(encoding) ? encoding : DEFAULT_ENCODING;
+		return encoding;
 	}
 
 	public void setEncoding(String encoding) {
 		this.encoding = encoding;
+	}
+
+	public String getViewType() {
+		return viewType;
+	}
+
+	public void setViewType(String viewType) {
+		this.viewType = viewType;
 	}
 
 	public String[] getPaths() {
