@@ -15,7 +15,7 @@ public class FileUtilsExample {
 			public void readline(String text, int num) {
 				System.out.println(num + "\t" + text);
 			}
-		});
+		}, "utf-8");
 		
 		long ret = FileUtils.copy(new File(parent, "dev_note"), new File(parent, "dev_note.bak"));
 		System.out.println("copy length: " + ret);
