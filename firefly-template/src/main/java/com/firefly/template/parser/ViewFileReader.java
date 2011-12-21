@@ -36,7 +36,7 @@ public class ViewFileReader {
 		}
 		read0(new File(config.getViewPath()));
 		if(javaFiles0.size() > 0)
-			ret = CompileUtils.compile(config.getCompiledPath(), javaFiles0);
+			ret = CompileUtils.compile(config.getCompiledPath(), config.getClassPath(), javaFiles0);
 		return ret;
 	}
 
