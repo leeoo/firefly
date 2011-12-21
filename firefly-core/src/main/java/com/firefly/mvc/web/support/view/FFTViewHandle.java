@@ -1,6 +1,8 @@
 package com.firefly.mvc.web.support.view;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Enumeration;
 
 import javax.servlet.ServletException;
@@ -36,8 +38,17 @@ public class FFTViewHandle implements ViewHandle {
 		com.firefly.template.Config config = new com.firefly.template.Config();
 		config.setViewPath(viewPath);
 		config.setCharset(encoding);
-		// TODO 这里怎么取classpath
-		config.setClassPath("F:/develop/apache-maven/maven_repository/com/firefly/firefly-template/1.0-SNAPSHOT/firefly-template-1.0-SNAPSHOT.jar");
+
+		URL url = config.getClass().getResource("");
+//		log.info("classpath: [{}]", url.getPath());
+		if("jar".equals(url.getProtocol())) {
+			String f = url.getPath();
+			try {
+				config.setClassPath(new File(new URL(f.substring(0, f.indexOf("!/com/firefly"))).toURI()).getAbsolutePath());
+			} catch (Throwable e) {
+				log.error("classpath error: ", e);
+			}
+		}
 		t = new TemplateFactory(config).init();
 		return this;
 	}
@@ -88,5 +99,14 @@ public class FFTViewHandle implements ViewHandle {
 			}
 		}
 	}
+	
+//	public static void main(String[] args) throws URISyntaxException {
+//		FFTViewHandle f = FFTViewHandle.getInstance();
+//		URL u = f.getClass().getResource("");
+//		System.out.println(u.getProtocol());
+//		System.out.println(u.getFile());
+//		System.out.println(u.getPath());
+//		System.out.println(new File(u.toURI()).getAbsolutePath());
+//	}
 
 }
