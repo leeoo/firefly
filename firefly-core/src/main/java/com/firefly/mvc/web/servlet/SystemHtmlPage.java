@@ -10,6 +10,7 @@ public class SystemHtmlPage {
 	public static void scNotFound(HttpServletRequest request,
 			HttpServletResponse response, String charset) {
 		response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+		response.setCharacterEncoding(charset);
 		response.setHeader("Content-Type",
 				"text/html; charset=" + charset);
 		PrintWriter writer = null;
