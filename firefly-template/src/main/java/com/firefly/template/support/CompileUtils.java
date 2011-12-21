@@ -7,11 +7,11 @@ import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
 public class CompileUtils {
-	public static int compile(String path, String classPath, List<String> files) {
+	public static int compile(String path, String classPath, String encoding, List<String> files) {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		List<String> params = new LinkedList<String>();
 		params.add("-encoding");
-		params.add("utf-8");
+		params.add(encoding);
 		params.add("-sourcepath");
 		params.add(path);
 		if(classPath != null) {
