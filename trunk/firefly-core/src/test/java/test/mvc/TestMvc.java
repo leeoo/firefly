@@ -17,7 +17,7 @@ import com.firefly.utils.log.LogFactory;
 public class TestMvc {
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	private static DispatcherController dispatcherController = HttpServletDispatcherController
-			.getInstance().init("firefly-mvc.xml");
+			.getInstance().init("firefly-mvc.xml", null);
 
 	@Test
 	public void testControllerHello() {

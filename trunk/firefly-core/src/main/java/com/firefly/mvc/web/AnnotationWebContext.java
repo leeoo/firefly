@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.servlet.ServletContext;
+
 import com.firefly.annotation.RequestMapping;
 import com.firefly.core.XmlApplicationContext;
 import com.firefly.core.support.BeanDefinition;
@@ -15,6 +17,7 @@ import com.firefly.mvc.web.support.MvcMetaInfo;
 import com.firefly.mvc.web.support.ViewHandle;
 import com.firefly.mvc.web.support.WebBeanDefinition;
 import com.firefly.mvc.web.support.WebBeanReader;
+import com.firefly.mvc.web.support.view.FFTViewHandle;
 import com.firefly.mvc.web.support.view.JsonViewHandle;
 import com.firefly.mvc.web.support.view.JspViewHandle;
 import com.firefly.mvc.web.support.view.RedirectHandle;
@@ -34,12 +37,14 @@ public class AnnotationWebContext extends XmlApplicationContext implements
 		WebContext {
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 
-	public AnnotationWebContext() {
-		this(null);
-	}
+//	public AnnotationWebContext() {
+//		this(null);
+//	}
 
-	public AnnotationWebContext(String file) {
+	public AnnotationWebContext(String file, ServletContext servletContext) {
 		super(file);
+		if(servletContext != null)
+			FFTViewHandle.getInstance().init(servletContext.getRealPath(getViewPath()), getEncoding());
 		JspViewHandle.getInstance().init(getViewPath());
 		TextViewHandle.getInstance().init(getEncoding());
 		JsonViewHandle.getInstance().init(getEncoding());
@@ -175,7 +180,9 @@ public class AnnotationWebContext extends XmlApplicationContext implements
 
 	private ViewHandle getViewHandle(String view) {
 		ViewHandle viewHandle = null;
-		if (view.equals(View.JSP)) {
+		if (view.equals(View.FFT)) {
+			viewHandle = FFTViewHandle.getInstance();
+		} else if (view.equals(View.JSP)) {
 			viewHandle = JspViewHandle.getInstance();
 		} else if (view.equals(View.TEXT)) {
 			viewHandle = TextViewHandle.getInstance();
