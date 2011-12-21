@@ -97,7 +97,7 @@ public class ViewFileReader {
 				javaFileBuilder);
 
 		try {
-			FileUtils.read(f, lineReaderHandler);
+			FileUtils.read(f, lineReaderHandler, config.getCharset());
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
