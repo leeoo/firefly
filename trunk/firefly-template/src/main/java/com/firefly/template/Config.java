@@ -9,6 +9,7 @@ public class Config {
 	private String compiledPath;
 	private String suffix = "html";
 	private String charset = "UTF-8";
+	private String classPath;
 	public static final String COMPILED_FOLDER_NAME = "_compiled_view";
 
 	public String getViewPath() {
@@ -40,6 +41,14 @@ public class Config {
 
 	public void setCharset(String charset) {
 		this.charset = charset;
+	}
+
+	public String getClassPath() {
+		return classPath;
+	}
+
+	public void setClassPath(String classPath) {
+		this.classPath = classPath;
 	}
 
 }
