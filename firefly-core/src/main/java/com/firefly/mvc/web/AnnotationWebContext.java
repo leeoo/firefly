@@ -29,22 +29,23 @@ import com.firefly.utils.log.LogFactory;
 
 /**
  * Web应用上下文默认实现
- *
+ * 
  * @author AlvinQiu
- *
+ * 
  */
 public class AnnotationWebContext extends XmlApplicationContext implements
 		WebContext {
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 
-//	public AnnotationWebContext() {
-//		this(null);
-//	}
+	// public AnnotationWebContext() {
+	// this(null);
+	// }
 
 	public AnnotationWebContext(String file, ServletContext servletContext) {
 		super(file);
-		if(servletContext != null)
-			FFTViewHandle.getInstance().init(servletContext.getRealPath(getViewPath()), getEncoding());
+		if (servletContext != null)
+			FFTViewHandle.getInstance().init(
+					servletContext.getRealPath(getViewPath()), getEncoding());
 		JspViewHandle.getInstance().init(getViewPath());
 		TextViewHandle.getInstance().init(getEncoding());
 		JsonViewHandle.getInstance().init(getEncoding());
@@ -93,8 +94,9 @@ public class AnnotationWebContext extends XmlApplicationContext implements
 						.value();
 				final String method = m.getAnnotation(RequestMapping.class)
 						.method();
-				final String view = m.getAnnotation(RequestMapping.class)
-						.view();
+				String view = m.getAnnotation(RequestMapping.class).view();
+				view = VerifyUtils.isNotEmpty(view) ? view : ConfigReader
+						.getInstance().getConfig().getViewType();
 				String key = method + "@" + uri;
 
 				// 构造请求uri对应的方法的元信息
@@ -102,14 +104,16 @@ public class AnnotationWebContext extends XmlApplicationContext implements
 						beanDefinition.getObject(), m, getViewHandle(view));
 				map.put(key, mvcMetaInfo);
 				uriList.add(key);
-				log.info("register uri [{}]", key);
-				if (key.charAt(key.length() - 1) == '/')
+				
+				if (key.charAt(key.length() - 1) == '/') {
 					key = key.substring(0, key.length() - 1);
-				else
+					log.info("register uri [{}], view [{}]", key, view);
+				} else {
+					log.info("register uri [{}], view [{}]", key, view);
 					key += "/";
+				}
 				map.put(key, mvcMetaInfo);
 				uriList.add(key);
-				log.info("register uri [{}]", key);
 			}
 		}
 
@@ -146,7 +150,7 @@ public class AnnotationWebContext extends XmlApplicationContext implements
 
 	/**
 	 * 根据拦截器模式获取所有注册的Uri
-	 *
+	 * 
 	 * @param pattern
 	 * @return
 	 */
@@ -165,7 +169,7 @@ public class AnnotationWebContext extends XmlApplicationContext implements
 
 	/**
 	 * 拦截地址匹配，忽略uri和pattern最后的'/'
-	 *
+	 * 
 	 * @param pattern
 	 * @param uri
 	 * @return
