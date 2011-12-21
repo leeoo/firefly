@@ -32,7 +32,7 @@ public class Hello2Controller {
 
 		request.setAttribute("hello", "test2 hello firefly! ");
 
-		return "/index.jsp";
+		return "/index.html";
 	}
 
 	@RequestMapping(value = "/hello3")
@@ -60,7 +60,7 @@ public class Hello2Controller {
 			HttpServletResponse response) {
 		int i = addService.add(99, 100);
 		request.setAttribute("hello", "test2 hello inject! " + i);
-		return "/index.jsp";
+		return "/index.html";
 	}
 
 	@RequestMapping(value = "/hello5", view = View.REDIRECT)

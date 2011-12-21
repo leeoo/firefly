@@ -16,7 +16,7 @@ public class FileUploadController {
 
 	@RequestMapping(value = "/fileUpload")
 	public String index(HttpServletRequest request) {
-		return "/fileUpload.jsp";
+		return "/fileUpload.html";
 	}
 
 	@RequestMapping(value = "/upload", method=HttpMethod.POST)
@@ -26,6 +26,6 @@ public class FileUploadController {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return "/fileUpload.jsp";
+		return "/fileUpload.html";
 	}
 }

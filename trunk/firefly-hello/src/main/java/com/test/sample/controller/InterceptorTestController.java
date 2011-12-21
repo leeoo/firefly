@@ -12,19 +12,19 @@ public class InterceptorTestController {
 	@RequestMapping(value = "/itest1")
 	public String index(HttpServletRequest request) {
 		request.setAttribute("hello", "你好 itest1!");
-		return "/index.jsp";
+		return "/index.html";
 	}
 
 	@RequestMapping(value = "/itest2/t2")
 	public String index2(HttpServletRequest request) {
 		request.setAttribute("hello", "你好 itest2!");
-		return "/index.jsp";
+		return "/index.html";
 	}
 
 	@RequestMapping(value = "/itest4")
 	public String index3(HttpServletRequest request) {
 		request.setAttribute("hello", "你好 itest4!");
-		return "/index.jsp";
+		return "/index.html";
 	}
 
 	@RequestMapping(value = "/ti", view = View.TEXT)

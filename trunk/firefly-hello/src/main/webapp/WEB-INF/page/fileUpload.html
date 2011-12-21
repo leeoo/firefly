@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>firefly</title>
+</head>
+<body>
+	<form action='${url("/app/upload")}' method="POST" enctype="multipart/form-data">
+		<div>图片名：<input type="text" name="picName"></input></div>
+		<div>地点：<input type="text" name="picSite"></input></div>
+		<div>图片：<input type="file" name="fu"></input></div>
+		<div><input type="submit" value="提交"></input></div>
+	</form>
+</body>
+</html>
