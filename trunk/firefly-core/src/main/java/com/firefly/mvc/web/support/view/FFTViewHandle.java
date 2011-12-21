@@ -18,32 +18,33 @@ import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
 
 public class FFTViewHandle implements ViewHandle {
-	
+
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	private TemplateFactory t;
-	
+
 	private FFTViewHandle() {
-		
+
 	}
-	
+
 	private static class Holder {
 		private static FFTViewHandle instance = new FFTViewHandle();
 	}
-	
+
 	public static FFTViewHandle getInstance() {
 		return Holder.instance;
 	}
-	
+
 	public FFTViewHandle init(String viewPath, String encoding) {
 		com.firefly.template.Config config = new com.firefly.template.Config();
 		config.setViewPath(viewPath);
 		config.setCharset(encoding);
 
 		URL url = config.getClass().getResource("");
-		if("jar".equals(url.getProtocol())) {
+		if ("jar".equals(url.getProtocol())) {
 			String f = url.getPath();
 			try {
-				config.setClassPath(new File(new URL(f.substring(0, f.indexOf("!/com/firefly"))).toURI()).getAbsolutePath());
+				config.setClassPath(new File(new URL(f.substring(0,
+						f.indexOf("!/com/firefly"))).toURI()).getAbsolutePath());
 			} catch (Throwable e) {
 				log.error("classpath error: ", e);
 			}
@@ -60,17 +61,21 @@ public class FFTViewHandle implements ViewHandle {
 			String ret = (String) view;
 			log.debug("fft path [{}]", ret);
 			com.firefly.template.View v = t.getView(ret);
-			if(v == null) {
-				SystemHtmlPage.scNotFound(request, response, t.getConfig().getCharset());
-			} else {
+			if (v == null)
+				SystemHtmlPage.scNotFound(request, response, t.getConfig()
+						.getCharset());
+			else {
+				response.setCharacterEncoding(t.getConfig().getCharset());
+				response.setHeader("Content-Type", "text/html; charset="
+						+ t.getConfig().getCharset());
 				ServletOutputStream out = response.getOutputStream();
-				Model model = new Model(){
+				Model model = new Model() {
 
 					@SuppressWarnings("unchecked")
 					@Override
 					public void clear() {
 						Enumeration<String> e = request.getAttributeNames();
-						while(e.hasMoreElements()) {
+						while (e.hasMoreElements()) {
 							String name = e.nextElement();
 							request.removeAttribute(name);
 						}
@@ -89,7 +94,8 @@ public class FFTViewHandle implements ViewHandle {
 					@Override
 					public void remove(String name) {
 						request.removeAttribute(name);
-					}};
+					}
+				};
 				try {
 					v.render(model, out);
 				} finally {
