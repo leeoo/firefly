@@ -59,7 +59,7 @@ public class DispatcherServlet extends HttpServlet {
 		log.info("initParam [{}]", initParam);
 		long start = System.currentTimeMillis();
 		dispatcherController = HttpServletDispatcherController.getInstance()
-				.init(initParam);
+				.init(initParam, getServletContext());
 		long end = System.currentTimeMillis();
 		log.info("firefly startup in {} ms", (end - start));
 	}

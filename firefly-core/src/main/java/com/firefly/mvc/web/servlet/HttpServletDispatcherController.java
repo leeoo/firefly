@@ -1,18 +1,20 @@
 package com.firefly.mvc.web.servlet;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
 import java.util.Set;
+
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import com.firefly.mvc.web.AnnotationWebContext;
 import com.firefly.mvc.web.DispatcherController;
 import com.firefly.mvc.web.WebContext;
-import com.firefly.mvc.web.support.MvcMetaInfo;
 import com.firefly.mvc.web.support.MethodParam;
+import com.firefly.mvc.web.support.MvcMetaInfo;
 import com.firefly.mvc.web.support.ParamMetaInfo;
 import com.firefly.utils.VerifyUtils;
 import com.firefly.utils.log.Log;
@@ -117,12 +119,12 @@ public class HttpServletDispatcherController implements DispatcherController {
 				e.printStackTrace();
 			}
 		} else {
-			scNotFound(request, response);
+			SystemHtmlPage.scNotFound(request, response, webContext.getEncoding());
 		}
 	}
 
-	public HttpServletDispatcherController init(String initParam) {
-		webContext = new AnnotationWebContext(initParam);
+	public HttpServletDispatcherController init(String initParam, ServletContext servletContext) {
+		webContext = new AnnotationWebContext(initParam, servletContext);
 		return this;
 	}
 
@@ -171,24 +173,6 @@ public class HttpServletDispatcherController implements DispatcherController {
 			}
 		}
 		return p;
-	}
-
-	private void scNotFound(HttpServletRequest request,
-			HttpServletResponse response) {
-		response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-		response.setHeader("Content-Type", "text/html; charset="
-				+ webContext.getEncoding());
-		PrintWriter writer = null;
-		try {
-			writer = response.getWriter();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		writer.print("<html><body>");
-		writer.print("<h2>HTTP ERROR 404</h2>");
-		writer.print("<hr/><i><small>firefly mvc framework</small></i>");
-		writer.print("</body></html>");
-		writer.close();
 	}
 
 }
