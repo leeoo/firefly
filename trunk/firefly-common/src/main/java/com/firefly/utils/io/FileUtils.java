@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.nio.channels.FileChannel;
 
@@ -25,9 +25,10 @@ abstract public class FileUtils {
 		dir.delete();
 	}
 
-	public static void read(File file, LineReaderHandler handler)
+	public static void read(File file, LineReaderHandler handler, String charset)
 			throws IOException {
-		LineNumberReader reader = new LineNumberReader(new FileReader(file));
+		LineNumberReader reader = new LineNumberReader(new InputStreamReader(
+				new FileInputStream(file), charset));
 		try {
 			for (String line = null; (line = reader.readLine()) != null;) {
 				handler.readline(line, reader.getLineNumber());
