@@ -21,8 +21,4 @@ public class CompileUtils {
 		params.addAll(files);
 		return compiler.run(null, null, null, params.toArray(new String[0]));
 	}
-	
-	public static void main(String[] args) {
-		System.out.println(System.getProperties());
-	}
 }
