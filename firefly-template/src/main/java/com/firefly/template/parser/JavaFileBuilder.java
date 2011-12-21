@@ -73,7 +73,7 @@ public class JavaFileBuilder {
 									+ " = new byte[]{" + str + "};\n");
 			textCount++;
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			Config.LOG.error("write text error", e);
 		}
 		return this;
 	}
