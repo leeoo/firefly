@@ -1,5 +1,8 @@
 package com.firefly.template;
 
+import java.io.File;
+import java.net.URL;
+
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
 
@@ -11,6 +14,19 @@ public class Config {
 	private String charset = "UTF-8";
 	private String classPath;
 	public static final String COMPILED_FOLDER_NAME = "_compiled_view";
+
+	public Config() {
+		URL url = this.getClass().getResource("");
+		if ("jar".equals(url.getProtocol())) {
+			String f = url.getPath();
+			try {
+				this.classPath = new File(new URL(f.substring(0,
+						f.indexOf("!/com/firefly"))).toURI()).getAbsolutePath();
+			} catch (Throwable t) {
+				LOG.error("template config init error", t);
+			}
+		}
+	}
 
 	public String getViewPath() {
 		return viewPath;
