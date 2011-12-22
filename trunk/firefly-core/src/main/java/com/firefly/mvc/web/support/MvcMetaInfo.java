@@ -1,12 +1,13 @@
 package com.firefly.mvc.web.support;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.firefly.annotation.HttpParam;
 import com.firefly.utils.ReflectUtils;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 /**
  * 保存请求key对应的对象
@@ -15,6 +16,8 @@ import com.firefly.utils.ReflectUtils;
  * 
  */
 public class MvcMetaInfo implements Comparable<MvcMetaInfo> {
+	
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 
 	private final Object object; // controller的实例对象
 	private final Method method; // 请求uri对应的方法
@@ -89,12 +92,8 @@ public class MvcMetaInfo implements Comparable<MvcMetaInfo> {
 		Object ret = null;
 		try {
 			ret = method.invoke(object, args);
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
+		} catch (Throwable t) {
+			log.error("controller invoke error", t);
 		}
 		return ret;
 	}

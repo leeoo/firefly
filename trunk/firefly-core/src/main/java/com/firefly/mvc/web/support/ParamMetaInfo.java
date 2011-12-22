@@ -1,11 +1,14 @@
 package com.firefly.mvc.web.support;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import com.firefly.utils.ConvertUtils;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 public class ParamMetaInfo {
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
+	
 	private final Class<?> paramClass; // 要注入的类型
 	private final Map<String, Method> beanSetMethod; // 要注入的bean的set方法
 	private final String attribute; // 要setAttribute的属性
@@ -35,12 +38,8 @@ public class ParamMetaInfo {
 				Class<?> p = m.getParameterTypes()[0];
 				m.invoke(o, ConvertUtils.convert(value, p));
 			}
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
+		} catch (Throwable t) {
+			log.error("set param error", t);
 		}
 	}
 
@@ -52,10 +51,8 @@ public class ParamMetaInfo {
 		Object o = null;
 		try {
 			o = paramClass.newInstance();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+		} catch (Throwable t) {
+			log.error("new param error", t);
 		}
 		return o;
 	}

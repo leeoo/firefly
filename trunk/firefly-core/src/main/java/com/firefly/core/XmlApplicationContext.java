@@ -1,7 +1,6 @@
 package com.firefly.core;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -99,12 +98,8 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 					try {
 						method.invoke(object,
 								getInjectArg(value, method));
-					} catch (IllegalArgumentException e) {
-						e.printStackTrace();
-					} catch (IllegalAccessException e) {
-						e.printStackTrace();
-					} catch (InvocationTargetException e) {
-						e.printStackTrace();
+					} catch (Throwable t) {
+						log.error("xml inject error", t);
 					}
 				}
 				return false;
@@ -122,7 +117,6 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 	 *            该属性的set方法
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	private Object getInjectArg(Object value, Method method) {
 		if (value instanceof ManagedValue) { // value
 			return getValueArg(value, method);
@@ -165,7 +159,7 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 		return instance;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Object getListArg(Object value, Method method) {
 		Class<?> setterParamType = null;
 		if (method != null) {
@@ -179,12 +173,8 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 				collection = (Collection) XmlApplicationContext.class
 						.getClassLoader().loadClass(values.getTypeName())
 						.newInstance();
-			} catch (InstantiationException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+			} catch (Throwable t) {
+				log.error("list inject error", t);
 			}
 		} else { // 根据set方法参数类型获取list类型
 			collection = (setterParamType == null ? new ArrayList()
@@ -199,7 +189,7 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 		return collection;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Object getArrayArg(Object value, Method method) {
 		Class<?> setterParamType = null;
 		if (method != null) {
@@ -214,7 +204,7 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 		return ConvertUtils.convert(collection, setterParamType);
 	}
 
-	@SuppressWarnings({ "unchecked" })
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Object getMapArg(Object value, Method method) {
 		Class<?> setterParamType = null;
 		if (method != null) {
@@ -226,12 +216,8 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 			try {
 				m = (Map) XmlApplicationContext.class.getClassLoader()
 						.loadClass(values.getTypeName()).newInstance();
-			} catch (InstantiationException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+			} catch (Throwable t) {
+				log.error("map inject error", t);
 			}
 		} else { // 根据set方法参数类型获取map类型
 			m = (setterParamType == null ? new HashMap() : ConvertUtils
@@ -278,10 +264,8 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 			if (instance != null) {
 				try {
 					field.set(object, instance);
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
+				} catch (Throwable t) {
+					log.error("field inject error", t);
 				}
 			}
 		}
@@ -308,12 +292,8 @@ public class XmlApplicationContext extends AbstractApplicationContext {
 			}
 			try {
 				method.invoke(object, p);
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
+			} catch (Throwable t) {
+				log.error("method inject error", t);
 			}
 		}
 	}
