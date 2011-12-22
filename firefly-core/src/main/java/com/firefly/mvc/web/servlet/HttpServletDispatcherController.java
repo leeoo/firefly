@@ -1,12 +1,9 @@
 package com.firefly.mvc.web.servlet;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -49,8 +46,8 @@ public class HttpServletDispatcherController implements DispatcherController {
 		String encoding = webContext.getEncoding();
 		try {
 			request.setCharacterEncoding(encoding);
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+		} catch (Throwable t) {
+			log.error("dispatcher error", t);
 		}
 		response.setCharacterEncoding(encoding);
 
@@ -113,10 +110,8 @@ public class HttpServletDispatcherController implements DispatcherController {
 				} else {
 					mvcMetaInfo.getViewHandle().render(request, response, ret);
 				}
-			} catch (ServletException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
+			} catch (Throwable t) {
+				log.error("dispatcher error", t);
 			}
 		} else {
 			SystemHtmlPage.scNotFound(request, response, webContext.getEncoding());

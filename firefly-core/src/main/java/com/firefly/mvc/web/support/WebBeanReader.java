@@ -87,10 +87,8 @@ public class WebBeanReader extends AnnotationBeanReader {
 		try {
 			Object object = c.newInstance();
 			webBeanDefinition.setObject(object);
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+		} catch (Throwable t) {
+			log.error("set web bean error", t);
 		}
 	}
 

@@ -1,8 +1,6 @@
 package com.firefly.mvc.web.support.view;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.Enumeration;
 
 import javax.servlet.ServletException;

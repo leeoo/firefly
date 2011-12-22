@@ -2,12 +2,9 @@ package com.firefly.core.support.annotation;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.JarURLConnection;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -62,8 +59,8 @@ public class AnnotationBeanReader extends AbstractBeanReader {
 		File path = null;
 		try {
 			path = new File(url.toURI());
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
+		} catch (Throwable t) {
+			log.error("parse file error", t);
 		}
 		path.listFiles(new FileFilter() {
 			public boolean accept(File file) {
@@ -75,8 +72,8 @@ public class AnnotationBeanReader extends AbstractBeanReader {
 					try {
 						parseFile(file.toURI().toURL(), packageDirName + "/"
 								+ name);
-					} catch (MalformedURLException e) {
-						e.printStackTrace();
+					} catch (Throwable t) {
+						log.error("parse file error", t);
 					}
 				return false;
 			}
@@ -88,8 +85,8 @@ public class AnnotationBeanReader extends AbstractBeanReader {
 		try {
 			entries = ((JarURLConnection) url.openConnection()).getJarFile()
 					.entries();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Throwable t) {
+			log.error("parse jar error", t);
 		}
 		while (entries.hasMoreElements()) {
 			String name = entries.nextElement().getName();
@@ -106,8 +103,8 @@ public class AnnotationBeanReader extends AbstractBeanReader {
 		try {
 			c = AnnotationBeanReader.class.getClassLoader()
 					.loadClass(className);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+		} catch (Throwable t) {
+			log.error("parse class error", t);
 		}
 
 		BeanDefinition beanDefinition = getBeanDefinition(c);
@@ -143,10 +140,8 @@ public class AnnotationBeanReader extends AbstractBeanReader {
 		try {
 			Object object = c.newInstance();
 			annotationBeanDefinition.setObject(object);
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+		} catch (Throwable t) {
+			log.error("component parser error", t);
 		}
 		return annotationBeanDefinition;
 	}
