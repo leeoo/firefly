@@ -38,17 +38,6 @@ public class FFTViewHandle implements ViewHandle {
 		com.firefly.template.Config config = new com.firefly.template.Config();
 		config.setViewPath(viewPath);
 		config.setCharset(encoding);
-
-		URL url = config.getClass().getResource("");
-		if ("jar".equals(url.getProtocol())) {
-			String f = url.getPath();
-			try {
-				config.setClassPath(new File(new URL(f.substring(0,
-						f.indexOf("!/com/firefly"))).toURI()).getAbsolutePath());
-			} catch (Throwable e) {
-				log.error("classpath error: ", e);
-			}
-		}
 		t = new TemplateFactory(config).init();
 		return this;
 	}
