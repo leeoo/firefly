@@ -1,5 +1,7 @@
 package com.firefly.utils.log;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Date;
 
 import com.firefly.utils.StringUtils;
@@ -45,12 +47,17 @@ public class LogItem {
 			date = SafeSimpleDateFormat.defaultDateFormat.format(new Date());
 			content = StringUtils.replace(content, objs);
 			if (throwable != null) {
-				StringBuilder strBuilder = new StringBuilder();
-				strBuilder.append(Log.CL);
-				for (StackTraceElement ele : throwable.getStackTrace()) {
-					strBuilder.append(ele).append(Log.CL);
+				StringWriter str = new StringWriter();
+				PrintWriter out = new PrintWriter(str);
+				try {
+					out.println();
+					out.println("$err_start");
+					throwable.printStackTrace(out);
+					out.println("$err_end");
+				} finally {
+					out.close();
 				}
-				content += strBuilder.toString();
+				content += str.toString();
 			}
 
 			logStr = level + " " + date + "\t" + content;

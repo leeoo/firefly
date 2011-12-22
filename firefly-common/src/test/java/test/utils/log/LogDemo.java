@@ -51,9 +51,27 @@ public class LogDemo {
 
 			defaultLog.debug("default log debug");
 			defaultLog.info("default log info");
+
+			try {
+				test3();
+			} catch (Throwable t) {
+				log4.error("test exception", t);
+			}
 		} finally {
 			LogFactory.getInstance().shutdown();
 		}
+	}
+	
+	public static void test1() {
+		throw new RuntimeException();
+	}
+	
+	public static void test2() {
+		test1();
+	}
+	
+	public static void test3() {
+		test2();
 	}
 
 }
