@@ -29,8 +29,8 @@ public class JavaFileBuilder {
 
 			writer = new BufferedWriter(new FileWriter(file));
 			this.config = config;
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Throwable t) {
+			Config.LOG.error("java file builder error", t);
 		}
 	}
 
@@ -42,8 +42,8 @@ public class JavaFileBuilder {
 		try {
 			writeHead();
 			writer.write(str);
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Throwable t) {
+			Config.LOG.error("write error", t);
 		}
 		return this;
 	}
@@ -139,8 +139,8 @@ public class JavaFileBuilder {
 	public JavaFileBuilder writeTail() {
 		try {
 			writer.write(tail.toString());
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Throwable t) {
+			Config.LOG.error("write error", t);
 		}
 		return this;
 	}
@@ -170,8 +170,8 @@ public class JavaFileBuilder {
 		try {
 			if (writer != null)
 				writer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Throwable t) {
+			Config.LOG.error("java file builder close error", t);
 		}
 	}
 

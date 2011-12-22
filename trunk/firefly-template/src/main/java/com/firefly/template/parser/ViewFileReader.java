@@ -98,8 +98,8 @@ public class ViewFileReader {
 
 		try {
 			FileUtils.read(f, lineReaderHandler, config.getCharset());
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Throwable t) {
+			Config.LOG.error("view file read error", t);
 		} finally {
 			lineReaderHandler.close();
 		}

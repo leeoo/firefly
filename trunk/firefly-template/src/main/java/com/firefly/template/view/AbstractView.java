@@ -15,9 +15,8 @@ public abstract class AbstractView implements View {
 	public void render(Model model, OutputStream out) {
 		try {
 			main(model, out);
-		} catch (Throwable e) {
-			Config.LOG.error("view render error", e);
-			e.printStackTrace();
+		} catch (Throwable t) {
+			Config.LOG.error("view render error", t);
 		}
 	}
 
