@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.Map;
 
 import com.firefly.utils.json.annotation.CircularReferenceCheck;
-import com.firefly.utils.json.annotation.SpecialCharacterFilter;
 
 @CircularReferenceCheck
 public class Node {
@@ -75,7 +74,6 @@ public class Node {
 		this.id = id;
 	}
 
-	@SpecialCharacterFilter
 	public String getText() {
 		return text;
 	}
