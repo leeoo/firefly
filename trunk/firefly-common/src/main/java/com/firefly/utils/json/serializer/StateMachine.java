@@ -22,6 +22,7 @@ abstract public class StateMachine {
 	private static final Serializer COLLECTION = new CollectionSerializer();
 	private static final Serializer ARRAY = new ArraySerializer();
 	private static final Serializer ENUM = new EnumSerializer();
+	private static final DynamicObjectSerializer DYNAMIC = new DynamicObjectSerializer();
 
 	static {
 		map.put(long.class, new LongSerializer());
@@ -82,6 +83,27 @@ abstract public class StateMachine {
 				ret = clazz.isAnnotationPresent(CircularReferenceCheck.class) ? new ObjectSerializer(
 						clazz) : new ObjectNoCheckSerializer(clazz);
 			map.put(clazz, ret);
+		}
+		return ret;
+	}
+	
+	public static Serializer getSerializerInCompiling(Class<?> clazz) {
+		Serializer ret = map.get(clazz);
+		if (ret == null || ret instanceof ObjectSerializer || ret instanceof ObjectNoCheckSerializer) {
+			if (clazz.isEnum()) {
+				ret = ENUM;
+				map.put(clazz, ret);
+			} else if (Map.class.isAssignableFrom(clazz)) {
+				ret = MAP;
+				map.put(clazz, ret);
+			} else if (Collection.class.isAssignableFrom(clazz)) {
+				ret = COLLECTION;
+				map.put(clazz, ret);
+			} else if (clazz.isArray()) {
+				ret = ARRAY;
+				map.put(clazz, ret);
+			} else
+				ret = DYNAMIC;
 		}
 		return ret;
 	}

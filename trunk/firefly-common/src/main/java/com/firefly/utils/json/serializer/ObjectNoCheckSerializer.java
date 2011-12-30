@@ -13,19 +13,14 @@ import com.firefly.utils.json.support.JsonStringWriter;
 public class ObjectNoCheckSerializer implements Serializer {
 	
 	private JsonObjMetaInfo[] jsonObjMetaInfos;
-	private Class<?> clazz;
 	
 	public ObjectNoCheckSerializer(Class<?> clazz) {
-		this.clazz = clazz;
+		jsonObjMetaInfos = EncodeCompiler.compile(clazz);
 	}
 
 	@Override
 	public void convertTo(JsonStringWriter writer, Object obj)
 			throws IOException {
-//		System.out.println("object no check");
-		if(jsonObjMetaInfos == null)
-			jsonObjMetaInfos = EncodeCompiler.compile(clazz, obj);
-
 		writer.append(OBJ_PRE);
 		for(JsonObjMetaInfo metaInfo : jsonObjMetaInfos){
 			writer.write(metaInfo.getPropertyName());
