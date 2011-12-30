@@ -13,14 +13,32 @@ public class BookDemo {
 		System.out.println(Json.toJson(book));
 		
 		TestBook t = new TestBook();
+		t.setObj(new Object());
+		t.setBook(book);
+		System.out.println("t: " + Json.toJson(t));
+		
+		t = new TestBook();
 		t.setObj(book);
 		t.setBook(book);
-		System.out.println(Json.toJson(t));
+		System.out.println("t: " + Json.toJson(t));
+		t.setObj(new Object());
+		System.out.println("t: " + Json.toJson(t));
+		t.setObj(book);
+		System.out.println("t: " + Json.toJson(t));
 
 		TestBook2<Book> t2 = new TestBook2<Book>();
 		t2.setObj(book);
 		t2.setBook(null);
-		System.out.println(Json.toJson(t2));
+		System.out.println("t2: " + Json.toJson(t2));
+		t2.setObj(book);
+		System.out.println("t2: " + Json.toJson(t2));
+		
+		TestBook2<Object> t3 = new TestBook2<Object>();
+		t3.setObj(book);
+		t3.setBook(book);
+		System.out.println(Json.toJson(t3));
+		
+
 	}
 	
 	public static class TestBook {

@@ -13,10 +13,9 @@ import com.firefly.utils.json.support.JsonStringWriter;
 public class ObjectSerializer implements Serializer {
 	
 	private JsonObjMetaInfo[] jsonObjMetaInfos;
-	private Class<?> clazz;
 	
 	public ObjectSerializer(Class<?> clazz) {
-		this.clazz = clazz;
+		jsonObjMetaInfos = EncodeCompiler.compile(clazz);
 	}
 
 	@Override
@@ -27,17 +26,12 @@ public class ObjectSerializer implements Serializer {
 		}
 		
 		writer.pushRef(obj);
-		
-		if(jsonObjMetaInfos == null)
-			jsonObjMetaInfos = EncodeCompiler.compile(clazz, obj);
-
 		writer.append(OBJ_PRE);
 		for(JsonObjMetaInfo metaInfo : jsonObjMetaInfos){
 			writer.write(metaInfo.getPropertyName());
 			metaInfo.toJson(obj, writer);
 		}
 		writer.append(OBJ_SUF);
-
 		writer.popRef();
 	}
 

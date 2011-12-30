@@ -9,7 +9,6 @@ import java.util.List;
 import com.firefly.utils.json.Serializer;
 import com.firefly.utils.json.annotation.SpecialCharacterFilter;
 import com.firefly.utils.json.annotation.Transient;
-import com.firefly.utils.json.serializer.DynamicObjectSerializer;
 import com.firefly.utils.json.serializer.StateMachine;
 import com.firefly.utils.json.serializer.StringArrayNoFilterSerializer;
 import com.firefly.utils.json.serializer.StringArraySerializer;
@@ -22,9 +21,8 @@ public class EncodeCompiler {
 	private static final JsonObjMetaInfo[] EMPTY_ARRAY = new JsonObjMetaInfo[0];
 	private static final Serializer STRING_NO_FILTER = new StringNoFilterSerializer();
 	private static final Serializer STRING_ARRAY_NO_FILTER = new StringArrayNoFilterSerializer();
-	private static final DynamicObjectSerializer DYNAMIC = new DynamicObjectSerializer();
 	
-	public static JsonObjMetaInfo[] compile(Class<?> clazz, Object obj) {
+	public static JsonObjMetaInfo[] compile(Class<?> clazz) {
 		JsonObjMetaInfo[] jsonObjMetaInfos = null;
 		List<JsonObjMetaInfo> fieldList = new ArrayList<JsonObjMetaInfo>();
 		
@@ -71,22 +69,13 @@ public class EncodeCompiler {
 					&& (Modifier.isTransient(field.getModifiers())
 					|| field.isAnnotationPresent(Transient.class)))
 				continue;
-			
-			Class<?> realClazz = null;
-			if(obj != null)
-				try {
-					Object r = method.invoke(obj);
-					realClazz = r != null ? method.invoke(obj).getClass() : null;
-				} catch (Throwable t) {
-					t.printStackTrace();
-				}
 
 			Class<?> fieldClazz = method.getReturnType();
 			JsonObjMetaInfo fieldJsonObjMetaInfo = new JsonObjMetaInfo();
 			fieldJsonObjMetaInfo.setPropertyName(propertyName, first);
 			fieldJsonObjMetaInfo.setMethod(method);
 			
-			Serializer serializer = fieldClazz.equals(realClazz) ? StateMachine.getSerializer(fieldClazz) : DYNAMIC;
+			Serializer serializer = StateMachine.getSerializerInCompiling(fieldClazz);
 			if(!method.isAnnotationPresent(SpecialCharacterFilter.class)) {
 				if(serializer instanceof StringSerializer)
 					serializer = STRING_NO_FILTER;
