@@ -29,7 +29,7 @@ public class ObjectSerializer implements Serializer {
 		writer.pushRef(obj);
 		
 		if(jsonObjMetaInfos == null)
-			jsonObjMetaInfos = EncodeCompiler.compile(clazz);
+			jsonObjMetaInfos = EncodeCompiler.compile(clazz, obj);
 
 		writer.append(OBJ_PRE);
 		for(JsonObjMetaInfo metaInfo : jsonObjMetaInfos){

@@ -24,7 +24,7 @@ public class ObjectNoCheckSerializer implements Serializer {
 			throws IOException {
 //		System.out.println("object no check");
 		if(jsonObjMetaInfos == null)
-			jsonObjMetaInfos = EncodeCompiler.compile(clazz);
+			jsonObjMetaInfos = EncodeCompiler.compile(clazz, obj);
 
 		writer.append(OBJ_PRE);
 		for(JsonObjMetaInfo metaInfo : jsonObjMetaInfos){
