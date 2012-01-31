@@ -32,9 +32,22 @@ public class StringLineDecoder implements Decoder {
 			}
 		}
 
-		if (now.hasRemaining()) {
+		if (now.hasRemaining())
 			session.setAttribute("buff", now);
-		}
+	}
+	
+	public static void main(String[] args) {
+		ByteBuffer buf = ByteBuffer.allocate(16);
+		buf.putInt(1);
+		buf.putInt(2);
+		buf.putInt(3);
+		buf.putInt(4);
+		buf.flip();
+		System.out.println(buf.getInt() + "|" + buf.getInt() + "\t" + buf.position() + "|" + buf.remaining());
+		ByteBuffer buf2 = buf.slice();
+		System.out.println(buf2.position() + "|" + buf2.remaining());
+		System.out.println(buf2.getInt());
+		System.out.println(buf2.getInt());
 	}
 
 }
