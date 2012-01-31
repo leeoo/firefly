@@ -16,7 +16,6 @@ import javax.servlet.http.HttpSession;
 
 public class HttpServletRequestImpl implements HttpServletRequest {
 	int status;
-	boolean first = true;
 	String method;
 
 	@Override
