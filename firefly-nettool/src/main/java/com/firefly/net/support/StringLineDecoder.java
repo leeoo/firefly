@@ -20,9 +20,9 @@ public class StringLineDecoder implements Decoder {
 					.put(buffer).flip();
 		}
 
-		int dataLen = now.remaining();
+		int dataLen = now.position() + now.remaining();
 
-		for (int i = 0, p = 0; i < dataLen; i++) {
+		for (int i = now.position(), p = i; i < dataLen; i++) {
 			if (now.get(i) == LINE_LIMITOR) {
 				byte[] data = new byte[i - p + 1];
 				now.get(data);
@@ -33,9 +33,7 @@ public class StringLineDecoder implements Decoder {
 		}
 
 		if (now.hasRemaining()) {
-			ByteBuffer succ = (ByteBuffer) ByteBuffer.allocate(now.remaining())
-					.put(now).flip();
-			session.setAttribute("buff", succ);
+			session.setAttribute("buff", now);
 		}
 	}
 
