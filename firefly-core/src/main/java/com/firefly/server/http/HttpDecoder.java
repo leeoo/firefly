@@ -98,7 +98,8 @@ public class HttpDecoder implements Decoder {
 						if (VerifyUtils.isEmpty(requestLine)) {
 							log.error("request line length is 0");
 							clear(session);
-							session.close(true);
+							// TODO response 400 Bad Request
+							session.close(false);
 							return false;
 						}
 
@@ -107,7 +108,8 @@ public class HttpDecoder implements Decoder {
 							log.error("request line format error: {}",
 									requestLine);
 							clear(session);
-							session.close(true);
+							// TODO response 400 Bad Request
+							session.close(false);
 							return false;
 						}
 
@@ -119,7 +121,8 @@ public class HttpDecoder implements Decoder {
 					log.error("request line length is {}, it more than {}", i,
 							config.getMaxRequestLineLength());
 					clear(session);
-					session.close(true);
+					// TODO response 414 Request-URI Too Long
+					session.close(false);
 					return false;
 				}
 			}
