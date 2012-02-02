@@ -2,6 +2,7 @@ package com.firefly.server.http;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PipedInputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.Enumeration;
@@ -17,11 +18,36 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 public class HttpServletRequestImpl implements HttpServletRequest {
-	int status, contentLength;
+	int status, contentLength, serverPort, remotePort, localPort;
 	String method, requestURI, queryString, characterEncoding, contentType,
-			protocol, scheme, serverName;
+			protocol, serverName, remoteAddr, remoteHost, localName, localAddr;
+	PipedInputStream pipedInputStream = new PipedInputStream();
+	Cookie[] cookies;
+	Map<String, String> headMap = new HashMap<String, String>();
+
 	private Map<String, Object> parameterMap = new HashMap<String, Object>(),
 			attributeMap = new HashMap<String, Object>();
+	private ServletInputStream servletInputStream = new ServletInputStream() {
+
+		@Override
+		public int read() throws IOException {
+			return pipedInputStream.read();
+		}
+
+		@Override
+		public int available() throws IOException {
+			return pipedInputStream.available();
+		}
+
+		@Override
+		public void close() throws IOException {
+			pipedInputStream.close();
+		}
+
+		public int read(byte[] b, int off, int len) throws IOException {
+			return pipedInputStream.read(b, off, len);
+		}
+	};
 
 	@Override
 	public Object getAttribute(String name) {
@@ -69,8 +95,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public ServletInputStream getInputStream() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return servletInputStream;
 	}
 
 	@Override
@@ -113,19 +138,23 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public String getScheme() {
-		// TODO 这个是什么值
-		return scheme;
+		return "http";
 	}
 
+	/**
+	 *@return 服务器绑定的ip或者域名
+	 */
 	@Override
 	public String getServerName() {
 		return serverName;
 	}
 
+	/**
+	 *@return 服务器监听的端口
+	 */
 	@Override
 	public int getServerPort() {
-		// TODO
-		return 0;
+		return serverPort;
 	}
 
 	@Override
@@ -136,14 +165,12 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public String getRemoteAddr() {
-		// TODO Auto-generated method stub
-		return null;
+		return remoteAddr;
 	}
 
 	@Override
 	public String getRemoteHost() {
-		// TODO Auto-generated method stub
-		return null;
+		return remoteHost;
 	}
 
 	@Override
@@ -188,26 +215,31 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public int getRemotePort() {
-		// TODO Auto-generated method stub
-		return 0;
+		return remotePort;
 	}
 
+	/**
+	 * @return 接收请求的ip或域名
+	 */
 	@Override
 	public String getLocalName() {
-		// TODO Auto-generated method stub
-		return null;
+		return localName;
 	}
 
+	/**
+	 * @return 接收请求的ip
+	 */
 	@Override
 	public String getLocalAddr() {
-		// TODO Auto-generated method stub
-		return null;
+		return localAddr;
 	}
 
+	/**
+	 * @return 接收请求的端口
+	 */
 	@Override
 	public int getLocalPort() {
-		// TODO Auto-generated method stub
-		return 0;
+		return localPort;
 	}
 
 	@Override
@@ -218,38 +250,46 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public Cookie[] getCookies() {
-		// TODO Auto-generated method stub
-		return null;
+		return cookies;
 	}
 
 	@Override
 	public long getDateHeader(String name) {
-		// TODO Auto-generated method stub
-		return 0;
+		return Long.parseLong(headMap.get(name));
 	}
 
 	@Override
 	public String getHeader(String name) {
-		// TODO Auto-generated method stub
-		return null;
+		return headMap.get(name);
 	}
 
 	@Override
 	public Enumeration<String> getHeaders(String name) {
-		// TODO Auto-generated method stub
-		return null;
+		return new Enumeration<String>() {
+			private Iterator<String> iterator = headMap.keySet()
+					.iterator();
+
+			@Override
+			public boolean hasMoreElements() {
+				return iterator.hasNext();
+			}
+
+			@Override
+			public String nextElement() {
+				return iterator.next();
+			}
+		};
 	}
 
 	@Override
-	public Enumeration getHeaderNames() {
+	public Enumeration<String> getHeaderNames() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public int getIntHeader(String name) {
-		// TODO Auto-generated method stub
-		return 0;
+		return Integer.parseInt(headMap.get(name));
 	}
 
 	@Override
@@ -277,7 +317,6 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public String getQueryString() {
-		// TODO Auto-generated method stub
 		return queryString;
 	}
 
@@ -354,8 +393,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public boolean isRequestedSessionIdFromUrl() {
-		// TODO Auto-generated method stub
-		return false;
+		return isRequestedSessionIdFromURL();
 	}
 
 }
