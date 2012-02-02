@@ -38,12 +38,7 @@ public class HttpDecoder implements Decoder {
 				save(now, session);
 		}
 
-		public void save(ByteBuffer buf, Session session) {
-			if (buf.hasRemaining())
-				session.setAttribute("buff", buf);
-		}
-
-		public ByteBuffer getBuffer(ByteBuffer buf, Session session) {
+		private ByteBuffer getBuffer(ByteBuffer buf, Session session) {
 			ByteBuffer now = buf;
 			ByteBuffer prev = (ByteBuffer) session.getAttribute("buff");
 
@@ -56,7 +51,7 @@ public class HttpDecoder implements Decoder {
 			return now;
 		}
 
-		public HttpServletRequestImpl getHttpServletRequestImpl(Session session) {
+		private HttpServletRequestImpl getHttpServletRequestImpl(Session session) {
 			HttpServletRequestImpl req = (HttpServletRequestImpl) session
 					.getAttribute(HTTP_REQUEST);
 			if (req == null) {
@@ -65,14 +60,20 @@ public class HttpDecoder implements Decoder {
 			}
 			return req;
 		}
+		
+		private void save(ByteBuffer buf, Session session) {
+			if (buf.hasRemaining())
+				session.setAttribute("buff", buf);
+		}
 
-		public void next(ByteBuffer buf, Session session,
+		private void next(ByteBuffer buf, Session session,
 				HttpServletRequestImpl req) throws Throwable {
 			req.status++;
-			httpDecode[req.status].decode(buf, session, req);
+			if (req.status < httpDecode.length)
+				httpDecode[req.status].decode(buf, session, req);
 		}
-		
-		public void clear(Session session) {
+
+		protected void clear(Session session) {
 			session.removeAttribute("buff");
 			session.removeAttribute(HTTP_REQUEST);
 		}
@@ -92,24 +93,26 @@ public class HttpDecoder implements Decoder {
 					if (buf.get(i) == LINE_LIMITOR) {
 						byte[] data = new byte[i + 1];
 						buf.get(data);
-						String requestLine = new String(data, config.getEncoding()).trim();
-						if(VerifyUtils.isEmpty(requestLine)) {
+						String requestLine = new String(data,
+								config.getEncoding()).trim();
+						if (VerifyUtils.isEmpty(requestLine)) {
 							log.error("request line length is 0");
 							clear(session);
 							session.close(true);
 							return false;
 						}
-						
-						String[] infos = StringUtils.split(requestLine, ' ');
-						if(infos.length > 3) {
-							log.error("request line format error: {}", requestLine);
+
+						String[] reqLine = StringUtils.split(requestLine, ' ');
+						if (reqLine.length > 3) {
+							log.error("request line format error: {}",
+									requestLine);
 							clear(session);
 							session.close(true);
 							return false;
 						}
-						
-						req.method = infos[0];
-						
+
+						req.method = reqLine[0];
+						req.protocol = reqLine[2];
 						return true;
 					}
 				} else {
@@ -141,7 +144,7 @@ public class HttpDecoder implements Decoder {
 		@Override
 		public boolean decode(ByteBuffer buf, Session session,
 				HttpServletRequestImpl req) throws Throwable {
-			// TODO Auto-generated method stub
+			// TODO 调用handler前要clear
 			return false;
 		}
 
