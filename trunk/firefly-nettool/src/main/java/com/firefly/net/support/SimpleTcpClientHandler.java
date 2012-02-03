@@ -19,7 +19,7 @@ public class SimpleTcpClientHandler implements Handler {
     @Override
     public void sessionOpened(Session session) throws Throwable {
         log.debug("session: {} open", session.getSessionId());
-        synchronizer.put(session, session.getSessionId());
+        synchronizer.put(session.getSessionId(), session);
     }
 
     @Override

@@ -34,7 +34,7 @@ public class Synchronizer<T> {
 		return objs[index & (size - 1)].get(timeout);
 	}
 
-	public void put(T t, int index) {
+	public void put(int index, T t) {
 		log.debug("put index {}", index);
 		objs[index & (size - 1)].put(t, timeout);
 	}
