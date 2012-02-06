@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 public class HttpServletRequestImpl implements HttpServletRequest {
-	int status, contentLength, serverPort, remotePort, localPort;
+	int status, contentLength, serverPort, remotePort, localPort, headLength, offset;
 	String method, requestURI, queryString, characterEncoding, contentType,
 			protocol, serverName, remoteAddr, remoteHost, localName, localAddr;
 	PipedInputStream pipedInputStream = new PipedInputStream();

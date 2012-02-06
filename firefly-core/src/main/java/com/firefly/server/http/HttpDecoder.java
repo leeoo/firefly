@@ -23,44 +23,49 @@ public class HttpDecoder implements Decoder {
 
 	@Override
 	public void decode(ByteBuffer buf, Session session) throws Throwable {
-		httpDecode[0].decode(buf, session);
+		ByteBuffer now = getBuffer(buf, session);
+		HttpServletRequestImpl req = getHttpServletRequestImpl(session);
+		httpDecode[req.status].decode0(now, session, req);
 	}
 
-	abstract private class AbstractHttpDecoder implements Decoder {
-		@Override
-		public void decode(ByteBuffer buf, Session session) throws Throwable {
-			ByteBuffer now = getBuffer(buf, session);
-			HttpServletRequestImpl req = getHttpServletRequestImpl(session);
+	private ByteBuffer getBuffer(ByteBuffer buf, Session session) {
+		ByteBuffer now = buf;
+		ByteBuffer prev = (ByteBuffer) session.getAttribute("buff");
+
+		if (prev != null) {
+			session.removeAttribute("buff");
+			now = (ByteBuffer) ByteBuffer
+					.allocate(prev.remaining() + buf.remaining()).put(prev)
+					.put(buf).flip();
+		}
+		return now;
+	}
+
+	private HttpServletRequestImpl getHttpServletRequestImpl(Session session) {
+		HttpServletRequestImpl req = (HttpServletRequestImpl) session
+				.getAttribute(HTTP_REQUEST);
+		if (req == null) {
+			req = new HttpServletRequestImpl();
+			session.setAttribute(HTTP_REQUEST, req);
+		}
+		return req;
+	}
+
+	private void clear(Session session) {
+		session.removeAttribute("buff");
+		session.removeAttribute(HTTP_REQUEST);
+	}
+
+	abstract private class AbstractHttpDecoder {
+		private void decode0(ByteBuffer now, Session session,
+				HttpServletRequestImpl req) throws Throwable {
 			boolean finished = decode(now, session, req);
 			if (finished)
-				next(now.slice(), session, req);
+				next(now, session, req);
 			else
 				save(now, session);
 		}
 
-		private ByteBuffer getBuffer(ByteBuffer buf, Session session) {
-			ByteBuffer now = buf;
-			ByteBuffer prev = (ByteBuffer) session.getAttribute("buff");
-
-			if (prev != null) {
-				session.removeAttribute("buff");
-				now = (ByteBuffer) ByteBuffer
-						.allocate(prev.remaining() + buf.remaining()).put(prev)
-						.put(buf).flip();
-			}
-			return now;
-		}
-
-		private HttpServletRequestImpl getHttpServletRequestImpl(Session session) {
-			HttpServletRequestImpl req = (HttpServletRequestImpl) session
-					.getAttribute(HTTP_REQUEST);
-			if (req == null) {
-				req = new HttpServletRequestImpl();
-				session.setAttribute(HTTP_REQUEST, req);
-			}
-			return req;
-		}
-		
 		private void save(ByteBuffer buf, Session session) {
 			if (buf.hasRemaining())
 				session.setAttribute("buff", buf);
@@ -73,12 +78,7 @@ public class HttpDecoder implements Decoder {
 				httpDecode[req.status].decode(buf, session, req);
 		}
 
-		protected void clear(Session session) {
-			session.removeAttribute("buff");
-			session.removeAttribute(HTTP_REQUEST);
-		}
-
-		abstract public boolean decode(ByteBuffer buf, Session session,
+		abstract protected boolean decode(ByteBuffer buf, Session session,
 				HttpServletRequestImpl req) throws Throwable;
 	}
 
@@ -88,44 +88,50 @@ public class HttpDecoder implements Decoder {
 		public boolean decode(ByteBuffer buf, Session session,
 				HttpServletRequestImpl req) throws Throwable {
 			int len = buf.remaining();
-			for (int i = 0; i < len; i++) {
-				if (i <= config.getMaxRequestLineLength()) {
-					if (buf.get(i) == LINE_LIMITOR) {
-						byte[] data = new byte[i + 1];
-						buf.get(data);
-						String requestLine = new String(data,
-								config.getEncoding()).trim();
-						if (VerifyUtils.isEmpty(requestLine)) {
-							log.error("request line length is 0");
-							clear(session);
-							// TODO response 400 Bad Request
-							session.close(false);
-							return false;
-						}
-
-						String[] reqLine = StringUtils.split(requestLine, ' ');
-						if (reqLine.length > 3) {
-							log.error("request line format error: {}",
-									requestLine);
-							clear(session);
-							// TODO response 400 Bad Request
-							session.close(false);
-							return false;
-						}
-
-						req.method = reqLine[0];
-						req.protocol = reqLine[2];
-						return true;
+			for (; req.offset < len; req.offset++) {
+				if (buf.get(req.offset) == LINE_LIMITOR) {
+					int requestLineLength = req.offset + 1;
+					if (requestLineLength > config.getMaxRequestLineLength()) {
+						log.error("request line length is {}, it more than {}",
+								len, config.getMaxRequestLineLength());
+						clear(session);
+						// TODO response 414 Request-URI Too Long
+						session.close(false);
+						req.status = httpDecode.length;
+						return false;
 					}
-				} else {
-					log.error("request line length is {}, it more than {}", i,
-							config.getMaxRequestLineLength());
-					clear(session);
-					// TODO response 414 Request-URI Too Long
-					session.close(false);
-					return false;
+
+					byte[] data = new byte[requestLineLength];
+					buf.get(data);
+					String requestLine = new String(data, config.getEncoding())
+							.trim();
+					if (VerifyUtils.isEmpty(requestLine)) {
+						log.error("request line length is 0");
+						clear(session);
+						// TODO response 400 Bad Request
+						session.close(false);
+						req.status = httpDecode.length;
+						return false;
+					}
+
+					String[] reqLine = StringUtils.split(requestLine, ' ');
+					if (reqLine.length > 3) {
+						log.error("request line format error: {}", requestLine);
+						clear(session);
+						// TODO response 400 Bad Request
+						session.close(false);
+						req.status = httpDecode.length;
+						return false;
+					}
+
+					req.method = reqLine[0];
+					req.requestURI = reqLine[1];
+					req.protocol = reqLine[2];
+					req.offset = requestLineLength;
+					return true;
 				}
 			}
+			req.offset = len;
 			return false;
 		}
 
@@ -137,6 +143,10 @@ public class HttpDecoder implements Decoder {
 		public boolean decode(ByteBuffer buf, Session session,
 				HttpServletRequestImpl req) throws Throwable {
 			// TODO Auto-generated method stub
+			int len = buf.remaining();
+			for (; req.offset < len; req.offset++) {
+
+			}
 			return false;
 		}
 
@@ -148,6 +158,10 @@ public class HttpDecoder implements Decoder {
 		public boolean decode(ByteBuffer buf, Session session,
 				HttpServletRequestImpl req) throws Throwable {
 			// TODO 调用handler前要clear
+			int len = buf.remaining();
+			for (; req.offset < len; req.offset++) {
+
+			}
 			return false;
 		}
 
