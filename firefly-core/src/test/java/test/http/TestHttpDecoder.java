@@ -48,6 +48,24 @@ public class TestHttpDecoder {
 		Assert.assertThat(req.getProtocol(), is("HTTP/1.1"));
 	}
 	
+	@Test
+	public void testRequestLine3() throws Throwable {
+		byte[] buf1 = "GET /firefly-demo/app/hel".getBytes(config.getEncoding());
+		byte[] buf2 = "lo?query=3.3&test=4 HTTP/1.1\ndfsdfsdf".getBytes(config.getEncoding());
+		ByteBuffer[] buf = new ByteBuffer[] {ByteBuffer.wrap(buf1), ByteBuffer.wrap(buf2)};
+		MockSession session = new MockSession();
+
+		for (int i = 0; i < buf.length; i++) {
+			httpDecoder.decode(buf[i], session);
+		}
+		
+		HttpServletRequestImpl req = (HttpServletRequestImpl)session.getAttribute(HttpDecoder.HTTP_REQUEST);
+		Assert.assertThat(req.getMethod(), is("GET"));
+		Assert.assertThat(req.getRequestURI(), is("/firefly-demo/app/hello"));
+		Assert.assertThat(req.getProtocol(), is("HTTP/1.1"));
+		Assert.assertThat(req.getQueryString(), is("query=3.3&test=4"));
+	}
+	
 
 	/**
 	 * @param args
