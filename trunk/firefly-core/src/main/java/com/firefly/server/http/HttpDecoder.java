@@ -15,6 +15,7 @@ public class HttpDecoder implements Decoder {
 	private AbstractHttpDecoder[] httpDecode = new AbstractHttpDecoder[] {
 			new RequestLineDecoder(), new HeadDecoder(), new BodyDecoder() };
 	public static final String HTTP_REQUEST = "http_req";
+	public static final String REMAIN_DATA = "remain_data";
 	private static final byte LINE_LIMITOR = '\n';
 
 	public HttpDecoder(Config config) {
@@ -30,10 +31,10 @@ public class HttpDecoder implements Decoder {
 
 	private ByteBuffer getBuffer(ByteBuffer buf, Session session) {
 		ByteBuffer now = buf;
-		ByteBuffer prev = (ByteBuffer) session.getAttribute("buff");
+		ByteBuffer prev = (ByteBuffer) session.getAttribute(REMAIN_DATA);
 
 		if (prev != null) {
-			session.removeAttribute("buff");
+			session.removeAttribute(REMAIN_DATA);
 			now = (ByteBuffer) ByteBuffer
 					.allocate(prev.remaining() + buf.remaining()).put(prev)
 					.put(buf).flip();
@@ -51,16 +52,10 @@ public class HttpDecoder implements Decoder {
 		return req;
 	}
 
-	private void clear(Session session) {
-		session.removeAttribute("buff");
-		session.removeAttribute(HTTP_REQUEST);
-	}
-
 	abstract private class AbstractHttpDecoder {
 		private void decode0(ByteBuffer now, Session session,
 				HttpServletRequestImpl req) throws Throwable {
-			boolean finished = decode(now, session, req);
-			if (finished)
+			if (decode(now, session, req))
 				next(now, session, req);
 			else
 				save(now, session);
@@ -68,7 +63,7 @@ public class HttpDecoder implements Decoder {
 
 		private void save(ByteBuffer buf, Session session) {
 			if (buf.hasRemaining())
-				session.setAttribute("buff", buf);
+				session.setAttribute(REMAIN_DATA, buf);
 		}
 
 		private void next(ByteBuffer buf, Session session,
@@ -76,6 +71,23 @@ public class HttpDecoder implements Decoder {
 			req.status++;
 			if (req.status < httpDecode.length)
 				httpDecode[req.status].decode(buf, session, req);
+		}
+		
+		protected void clear(Session session) {
+			session.removeAttribute(REMAIN_DATA);
+			session.removeAttribute(HTTP_REQUEST);
+		}
+
+		protected void response(Session session, HttpServletRequestImpl req,
+				int httpStatus) {
+			try {
+				clear(session);
+				req.status = httpDecode.length;
+				// TODO response msg
+
+			} finally {
+				session.close(false);
+			}
 		}
 
 		abstract protected boolean decode(ByteBuffer buf, Session session,
@@ -94,10 +106,7 @@ public class HttpDecoder implements Decoder {
 					if (requestLineLength > config.getMaxRequestLineLength()) {
 						log.error("request line length is {}, it more than {}",
 								len, config.getMaxRequestLineLength());
-						clear(session);
-						// TODO response 414 Request-URI Too Long
-						session.close(false);
-						req.status = httpDecode.length;
+						response(session, req, 414);
 						return false;
 					}
 
@@ -107,20 +116,14 @@ public class HttpDecoder implements Decoder {
 							.trim();
 					if (VerifyUtils.isEmpty(requestLine)) {
 						log.error("request line length is 0");
-						clear(session);
-						// TODO response 400 Bad Request
-						session.close(false);
-						req.status = httpDecode.length;
+						response(session, req, 400);
 						return false;
 					}
 
 					String[] reqLine = StringUtils.split(requestLine, ' ');
 					if (reqLine.length > 3) {
 						log.error("request line format error: {}", requestLine);
-						clear(session);
-						// TODO response 400 Bad Request
-						session.close(false);
-						req.status = httpDecode.length;
+						response(session, req, 400);
 						return false;
 					}
 

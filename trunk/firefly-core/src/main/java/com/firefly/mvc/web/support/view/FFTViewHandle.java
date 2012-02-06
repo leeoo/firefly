@@ -49,8 +49,9 @@ public class FFTViewHandle implements ViewHandle {
 			log.debug("fft path [{}]", ret);
 			com.firefly.template.View v = t.getView(ret);
 			if (v == null)
-				SystemHtmlPage.scNotFound(request, response, t.getConfig()
-						.getCharset());
+				SystemHtmlPage.responseSystemPage(request, response, t
+						.getConfig().getCharset(),
+						HttpServletResponse.SC_NOT_FOUND);
 			else {
 				response.setCharacterEncoding(t.getConfig().getCharset());
 				response.setHeader("Content-Type", "text/html; charset="
