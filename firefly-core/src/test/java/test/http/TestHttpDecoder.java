@@ -55,7 +55,7 @@ public class TestHttpDecoder {
 	 */
 	public static void main(String[] args) throws Throwable {
 		byte[] buf1 = "GET /firefly-demo/app/hel".getBytes(config.getEncoding());
-		byte[] buf2 = "lo HTTP/1.1\ndfsdfsdf".getBytes(config.getEncoding());
+		byte[] buf2 = "lo HTTP/1.1\ntestNext".getBytes(config.getEncoding());
 		ByteBuffer[] buf = new ByteBuffer[] {ByteBuffer.wrap(buf1), ByteBuffer.wrap(buf2)};
 		MockSession session = new MockSession();
 

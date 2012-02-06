@@ -56,7 +56,7 @@ public class HttpDecoder implements Decoder {
 		private void decode0(ByteBuffer now, Session session,
 				HttpServletRequestImpl req) throws Throwable {
 			if (decode(now, session, req))
-				next(now, session, req);
+				next(now.slice(), session, req);
 			else
 				save(now, session);
 		}
@@ -69,8 +69,10 @@ public class HttpDecoder implements Decoder {
 		private void next(ByteBuffer buf, Session session,
 				HttpServletRequestImpl req) throws Throwable {
 			req.status++;
-			if (req.status < httpDecode.length)
+			if (req.status < httpDecode.length) {
+				req.offset = 0;
 				httpDecode[req.status].decode(buf, session, req);
+			}
 		}
 		
 		protected void clear(Session session) {
@@ -130,11 +132,9 @@ public class HttpDecoder implements Decoder {
 					req.method = reqLine[0];
 					req.requestURI = reqLine[1];
 					req.protocol = reqLine[2];
-					req.offset = requestLineLength;
 					return true;
 				}
 			}
-			req.offset = len;
 			return false;
 		}
 
@@ -147,9 +147,14 @@ public class HttpDecoder implements Decoder {
 				HttpServletRequestImpl req) throws Throwable {
 			// TODO Auto-generated method stub
 			int len = buf.remaining();
+			System.out.println(len);
 			for (; req.offset < len; req.offset++) {
 
 			}
+			System.out.println(req.offset);
+			byte[] data = new byte[len];
+			buf.get(data);
+			System.out.println(new String(data, config.getEncoding()));
 			return false;
 		}
 
