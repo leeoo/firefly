@@ -19,8 +19,9 @@ import com.firefly.utils.log.LogFactory;
 
 /**
  * 前端控制器
+ * 
  * @author alvinqiu
- *
+ * 
  */
 public class HttpServletDispatcherController implements DispatcherController {
 
@@ -72,7 +73,8 @@ public class HttpServletDispatcherController implements DispatcherController {
 			// 前置拦截栈调用
 			if (beforeSet != null) {
 				for (MvcMetaInfo before : beforeSet) {
-					Object[] beforeP = getParams(request, response, before, null);
+					Object[] beforeP = getParams(request, response, before,
+							null);
 					beforeRet = before.invoke(beforeP);
 					if (beforeRet != null) {
 						lastBefore = before;
@@ -89,7 +91,8 @@ public class HttpServletDispatcherController implements DispatcherController {
 				// 后置拦截栈调用
 				if (afterSet != null) {
 					for (MvcMetaInfo after : afterSet) {
-						Object[] afterP = getParams(request, response, after, ret);
+						Object[] afterP = getParams(request, response, after,
+								ret);
 						afterRet = after.invoke(afterP);
 						if (afterRet != null) {
 							lastAfter = after;
@@ -114,17 +117,20 @@ public class HttpServletDispatcherController implements DispatcherController {
 				log.error("dispatcher error", t);
 			}
 		} else {
-			SystemHtmlPage.scNotFound(request, response, webContext.getEncoding());
+			SystemHtmlPage.responseSystemPage(request, response,
+					webContext.getEncoding(), HttpServletResponse.SC_NOT_FOUND);
 		}
 	}
 
-	public HttpServletDispatcherController init(String initParam, ServletContext servletContext) {
+	public HttpServletDispatcherController init(String initParam,
+			ServletContext servletContext) {
 		webContext = new AnnotationWebContext(initParam, servletContext);
 		return this;
 	}
 
 	/**
 	 * controller方法参数注入
+	 * 
 	 * @param request
 	 * @param response
 	 * @param mvcMetaInfo
@@ -132,7 +138,8 @@ public class HttpServletDispatcherController implements DispatcherController {
 	 */
 	@SuppressWarnings("unchecked")
 	private Object[] getParams(HttpServletRequest request,
-			HttpServletResponse response, MvcMetaInfo mvcMetaInfo, Object controllerReturn) {
+			HttpServletResponse response, MvcMetaInfo mvcMetaInfo,
+			Object controllerReturn) {
 		byte[] methodParam = mvcMetaInfo.getMethodParam();
 		ParamMetaInfo[] paramMetaInfos = mvcMetaInfo.getParamMetaInfos();
 		Object[] p = new Object[methodParam.length];
