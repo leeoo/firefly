@@ -2,9 +2,18 @@ package com.firefly.server.http;
 
 public class Config {
 	private String encoding = "UTF-8";
-	private int maxRequestLineLength = 1024 * 10, maxRangeNum = 8;
+	private int maxRequestLineLength = 8 * 1024,
+			maxRequestHeadLength = 16 * 1024, maxRangeNum = 8;
 	private long maxUploadLength = 50 * 1024 * 1024;
-	private boolean keepAlive = false;
+	private boolean keepAlive = true;
+
+	public int getMaxRequestHeadLength() {
+		return maxRequestHeadLength;
+	}
+
+	public void setMaxRequestHeadLength(int maxRequestHeadLength) {
+		this.maxRequestHeadLength = maxRequestHeadLength;
+	}
 
 	public String getEncoding() {
 		return encoding;
