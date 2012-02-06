@@ -16,7 +16,7 @@ public class SystemHtmlPage {
 	public static final Map<Integer, String> SYS_PAGE = new HashMap<Integer, String>();
 	
 	static {
-		SYS_PAGE.put(404, "<!DOCTYPE html><html><body><h2>HTTP ERROR 404</h2><hr/><i><small>firefly mvc framework</small></i></body></html>");
+		SYS_PAGE.put(404, systemPageTemplate(404, "page not found"));
 	}
 
 	public static void responseSystemPage(HttpServletRequest request,
@@ -36,5 +36,27 @@ public class SystemHtmlPage {
 			if (writer != null)
 				writer.close();
 		}
+	}
+	
+	public static String systemPageTemplate(int status, String content) {
+		StringBuilder ret = new StringBuilder();
+		ret.append("<!DOCTYPE html>")
+		.append("<html>")
+		.append("<body>")
+		.append("<h2>")
+			.append("HTTP ERROR").append(status)
+		.append("</h2>")
+		.append("<div>")
+			.append(content)
+		.append("</div>")
+		.append("<hr/>")
+		.append("<i>")
+			.append("<small>")
+				.append("firefly framework")
+			.append("</small>")
+		.append("</i>")
+		.append("</body>")
+		.append("</html>");
+		return ret.toString();
 	}
 }
