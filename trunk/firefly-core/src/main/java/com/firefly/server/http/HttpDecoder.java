@@ -74,7 +74,7 @@ public class HttpDecoder implements Decoder {
 				httpDecode[req.status].decode(buf, session, req);
 			}
 		}
-		
+
 		protected void clear(Session session) {
 			session.removeAttribute(REMAIN_DATA);
 			session.removeAttribute(HTTP_REQUEST);
@@ -103,16 +103,15 @@ public class HttpDecoder implements Decoder {
 				HttpServletRequestImpl req) throws Throwable {
 			int len = buf.remaining();
 			for (; req.offset < len; req.offset++) {
-				if (buf.get(req.offset) == LINE_LIMITOR) {
-					int requestLineLength = req.offset + 1;
-					if (requestLineLength > config.getMaxRequestLineLength()) {
-						log.error("request line length is {}, it more than {}",
-								len, config.getMaxRequestLineLength());
-						response(session, req, 414);
-						return false;
-					}
+				if (req.offset >= config.getMaxRequestLineLength()) {
+					log.error("request line length is {}, it more than {}",
+							len, config.getMaxRequestLineLength());
+					response(session, req, 414);
+					return false;
+				}
 
-					byte[] data = new byte[requestLineLength];
+				if (buf.get(req.offset) == LINE_LIMITOR) {
+					byte[] data = new byte[req.offset + 1];
 					buf.get(data);
 					String requestLine = new String(data, config.getEncoding())
 							.trim();
@@ -146,7 +145,7 @@ public class HttpDecoder implements Decoder {
 		public boolean decode(ByteBuffer buf, Session session,
 				HttpServletRequestImpl req) throws Throwable {
 			// TODO Auto-generated method stub
-			int len = buf.remaining();
+			int len = req.offset + buf.remaining();
 			System.out.println(len);
 			for (; req.offset < len; req.offset++) {
 
@@ -166,10 +165,6 @@ public class HttpDecoder implements Decoder {
 		public boolean decode(ByteBuffer buf, Session session,
 				HttpServletRequestImpl req) throws Throwable {
 			// TODO 调用handler前要clear
-			int len = buf.remaining();
-			for (; req.offset < len; req.offset++) {
-
-			}
 			return false;
 		}
 
