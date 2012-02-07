@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 public class HttpServletRequestImpl implements HttpServletRequest {
-	int status, contentLength, serverPort, remotePort, localPort, headLength, offset, from;
+	int status, contentLength, serverPort, remotePort, localPort, headLength, offset;
 	String method, requestURI, queryString, characterEncoding, contentType,
 			protocol, serverName, remoteAddr, remoteHost, localName, localAddr;
 	PipedInputStream pipedInputStream = new PipedInputStream();
@@ -397,4 +397,8 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 		return isRequestedSessionIdFromURL();
 	}
 
+	@Override
+	public String toString() {
+		return headMap.toString();
+	}
 }
