@@ -25,6 +25,8 @@ public class HttpDecoder implements Decoder {
 	@Override
 	public void decode(ByteBuffer buf, Session session) throws Throwable {
 		ByteBuffer now = getBuffer(buf, session);
+		System.out.println("**************************************");
+		System.out.println("start: " + now.remaining());
 		HttpServletRequestImpl req = getHttpServletRequestImpl(session);
 		httpDecode[req.status].decode0(now, session, req);
 	}
@@ -32,6 +34,7 @@ public class HttpDecoder implements Decoder {
 	private ByteBuffer getBuffer(ByteBuffer buf, Session session) {
 		ByteBuffer now = buf;
 		ByteBuffer prev = (ByteBuffer) session.getAttribute(REMAIN_DATA);
+		//System.out.println("get: " + (prev != null ? prev.remaining() : "0") + "|" + now.remaining());
 
 		if (prev != null) {
 			session.removeAttribute(REMAIN_DATA);
@@ -57,14 +60,16 @@ public class HttpDecoder implements Decoder {
 	abstract private class AbstractHttpDecoder {
 		private void decode0(ByteBuffer now, Session session,
 				HttpServletRequestImpl req) throws Throwable {
-			if (decode(now, session, req))
+			boolean next = decode(now, session, req);
+			System.out.println(next);
+			if (next)
 				next(now.slice(), session, req);
 			else
 				save(now, session);
 		}
 
 		private void save(ByteBuffer buf, Session session) {
-			if (buf.hasRemaining())
+			if (buf.hasRemaining()) 
 				session.setAttribute(REMAIN_DATA, buf);
 		}
 
@@ -73,7 +78,8 @@ public class HttpDecoder implements Decoder {
 			req.status++;
 			if (req.status < httpDecode.length) {
 				req.offset = 0;
-				httpDecode[req.status].decode(buf, session, req);
+				req.from = 0;
+				httpDecode[req.status].decode0(buf, session, req);
 			}
 		}
 
@@ -153,7 +159,14 @@ public class HttpDecoder implements Decoder {
 		@Override
 		public boolean decode(ByteBuffer buf, Session session,
 				HttpServletRequestImpl req) throws Throwable {
-			for (int p = req.offset; buf.remaining() > 0; req.offset++) {
+			int len = req.offset + buf.remaining();
+			buf.mark();
+			byte[] dst = new byte[buf.remaining()];
+			buf.get(dst);
+			buf.reset();
+			System.out.println(new String(dst));
+			System.out.println("head decode length: " + len + "|" + req.offset);
+			for (; req.offset < len; req.offset++) {
 				if (req.offset >= config.getMaxRequestHeadLength()) {
 					log.error("request head length is {}, it more than {}",
 							req.offset, config.getMaxRequestHeadLength());
@@ -161,18 +174,20 @@ public class HttpDecoder implements Decoder {
 					return true;
 				}
 				
+				
 				if (buf.get(req.offset) == LINE_LIMITOR) {
-					byte[] data = new byte[req.offset - p + 1];
+					byte[] data = new byte[req.offset - req.from + 1];
 					buf.get(data);
 					String line = new String(data, config.getEncoding()).trim();
-					p = req.offset + 1;
-
+					System.out.println(req.offset + "|" + req.from + ">>>>>>>: " + line);
+					
 					if (VerifyUtils.isEmpty(line)) {
 						if (req.getMethod().equals("POST")
 								|| req.getMethod().equals("PUT")) {
 							// TODO 合法性判断
-						} else
-							response(session, req);
+						} else {
+							//response(session, req);
+						}
 						
 						return true;
 					} else {
@@ -186,8 +201,9 @@ public class HttpDecoder implements Decoder {
 						String name = line.substring(0,i).toLowerCase().trim();
 						String value = line.substring(i+1).trim();
 						req.headMap.put(name, value);
-						return false;
+						req.from = req.offset + 1;
 					}
+					
 				}
 			}
 			return false;

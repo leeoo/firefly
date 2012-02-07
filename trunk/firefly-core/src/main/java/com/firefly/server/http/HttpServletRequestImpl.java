@@ -17,10 +17,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import com.firefly.net.Session;
-
 public class HttpServletRequestImpl implements HttpServletRequest {
-	int status, contentLength, serverPort, remotePort, localPort, headLength, offset;
+	int status, contentLength, serverPort, remotePort, localPort, headLength, offset, from;
 	String method, requestURI, queryString, characterEncoding, contentType,
 			protocol, serverName, remoteAddr, remoteHost, localName, localAddr;
 	PipedInputStream pipedInputStream = new PipedInputStream();
