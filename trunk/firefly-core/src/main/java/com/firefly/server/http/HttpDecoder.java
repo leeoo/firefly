@@ -26,8 +26,6 @@ public class HttpDecoder implements Decoder {
 	public void decode(ByteBuffer buf, Session session) throws Throwable {
 		ByteBuffer now = getBuffer(buf, session);
 		HttpServletRequestImpl req = getHttpServletRequestImpl(session);
-		System.out
-				.println("==================================================");
 		httpDecode[req.status].decode0(now, session, req);
 	}
 
@@ -160,26 +158,28 @@ public class HttpDecoder implements Decoder {
 		public boolean decode(ByteBuffer buf, Session session,
 				HttpServletRequestImpl req) throws Throwable {
 			int len = buf.remaining();
-			System.out.println(req.offset + "|" + len + "|" + buf.position()
-					+ "|" + buf.remaining());
+//			System.out.println(req.offset + "|" + len + "|" + buf.position()
+//					+ "|" + buf.remaining() + "|" + req.headLength);
 
-			for (int i = 0, p = 0; i < len; i++) {
-//				if (req.offset >= config.getMaxRequestHeadLength()) {
-//					log.error("request head length is {}, it more than {}|{}",
-//							req.offset, config.getMaxRequestHeadLength(),
-//							session.getRemoteAddress().toString());
-//					responseError(session, req, 400);
-//					return true;
-//				}
-
+			for (int i = req.offset, p = 0; i < len; i++) {
 				if (buf.get(i) == LINE_LIMITOR) {
-					byte[] data = new byte[i - p + 1];
+					int parseLen = i - p + 1;
+					req.headLength += parseLen;
+					
+					if (req.headLength >= config.getMaxRequestHeadLength()) {
+						log.error("request head length is {}, it more than {}|{}",
+								req.offset, config.getMaxRequestHeadLength(),
+								session.getRemoteAddress().toString());
+						responseError(session, req, 400);
+						return true;
+					}
+					
+					byte[] data = new byte[parseLen];
 					buf.get(data);
 					String headLine = new String(data, config.getEncoding())
 							.trim();
-					System.out.println(headLine + "|" + req.offset);
+//					System.out.println(headLine + "|" + req.offset);
 					p = i + 1;
-					//req.offset += parseLen - 1;
 
 					if (VerifyUtils.isEmpty(headLine)) {
 						if (req.getMethod().equals("POST")
@@ -204,11 +204,11 @@ public class HttpDecoder implements Decoder {
 								.trim();
 						String value = headLine.substring(h + 1).trim();
 						req.headMap.put(name, value);
+						req.offset = len - i - 1;
 					}
-//					break;
 				}
+				
 			}
-			// System.out.println(req.offset);
 			return false;
 		}
 
