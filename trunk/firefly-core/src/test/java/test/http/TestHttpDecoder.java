@@ -117,13 +117,59 @@ public class TestHttpDecoder {
 				is("zh-CN,zh;q=0.8"));
 	}
 
-	/**
-	 * @param args
-	 * @throws Throwable
-	 */
+	@Test
+	public void testHead3() throws Throwable {
+		byte[] buf1 = "GET /firefly-demo/app/hello HTTP/1.1\r\n"
+				.getBytes(config.getEncoding());
+		byte[] buf2 = "Host:127.0.0.1\r\n".getBytes(config.getEncoding());
+		byte[] buf3 = "Accept-Language:zh-CN,zh;q=0.8\r\nConnection:keep-alive\r\n"
+				.getBytes(config.getEncoding());
+		byte[] buf4 = "Accept-Encoding: gzip,deflate,sdch\r\n\r\n"
+				.getBytes(config.getEncoding());
+		ByteBuffer[] buf = new ByteBuffer[] { ByteBuffer.wrap(buf1),
+				ByteBuffer.wrap(buf2), ByteBuffer.wrap(buf3),
+				ByteBuffer.wrap(buf4) };
+		MockSession session = new MockSession();
+
+		for (int i = 0; i < buf.length; i++) {
+			httpDecoder.decode(buf[i], session);
+		}
+
+		HttpServletRequestImpl req = (HttpServletRequestImpl) session
+				.getAttribute(HttpDecoder.HTTP_REQUEST);
+		Assert.assertThat(req.getHeader("host"), is("127.0.0.1"));
+		Assert.assertThat(req.getHeader("connection"), is("keep-alive"));
+		Assert.assertThat(req.getHeader("Accept-Language"),
+				is("zh-CN,zh;q=0.8"));
+		Assert.assertThat(req.getHeader("Accept-Encoding"),
+				is("gzip,deflate,sdch"));
+	}
+	
+	@Test
+	public void testHead4() throws Throwable {
+		byte[] buf1 = "GET /firefly-demo/app/hello HTTP/1.1\r\nHost:127.0.0.1\r\nAccept-Language:zh-CN,zh;q=0.8\r\nConnection:keep-alive\r\nAccept-Encoding: gzip,deflate,sdch\r\n\r\n"
+				.getBytes(config.getEncoding());
+		ByteBuffer[] buf = new ByteBuffer[] { ByteBuffer.wrap(buf1) };
+		MockSession session = new MockSession();
+
+		for (int i = 0; i < buf.length; i++) {
+			httpDecoder.decode(buf[i], session);
+		}
+
+		HttpServletRequestImpl req = (HttpServletRequestImpl) session
+				.getAttribute(HttpDecoder.HTTP_REQUEST);
+		Assert.assertThat(req.getMethod(), is("GET"));
+		Assert.assertThat(req.getRequestURI(), is("/firefly-demo/app/hello"));
+		Assert.assertThat(req.getProtocol(), is("HTTP/1.1"));
+		Assert.assertThat(req.getHeader("host"), is("127.0.0.1"));
+		Assert.assertThat(req.getHeader("connection"), is("keep-alive"));
+		Assert.assertThat(req.getHeader("Accept-Language"),
+				is("zh-CN,zh;q=0.8"));
+		Assert.assertThat(req.getHeader("Accept-Encoding"),
+				is("gzip,deflate,sdch"));
+	}
+
 	public static void main(String[] args) throws Throwable {
-		System.out.println("Accept-Language:zh-CN,zh;q=0.8\r\nConnection:keep-alive\r\n".length());
-		
 		byte[] buf1 = "GET /firefly-demo/app/hel"
 				.getBytes(config.getEncoding());
 		byte[] buf2 = "lo HTTP/1.1\r\nHost:127.0.0.1\r\nAccept-Language:zh-CN,"
