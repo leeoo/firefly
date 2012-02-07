@@ -82,6 +82,24 @@ public class TestHttpDecoder {
 		Assert.assertThat(req.getHeader("Host"), is("127.0.0.1"));
 	}
 	
+	@Test
+	public void testHead2() throws Throwable {
+		byte[] buf1 = "GET /firefly-demo/app/hel".getBytes(config.getEncoding());
+		byte[] buf2 = "lo HTTP/1.1\r\nHost:127.0.0.1\r\nAccept-Language:zh-CN,".getBytes(config.getEncoding());
+		byte[] buf3 = "zh;q=0.8\r\nConnection:keep-alive\r\n\r\n".getBytes(config.getEncoding());
+		ByteBuffer[] buf = new ByteBuffer[] {ByteBuffer.wrap(buf1), ByteBuffer.wrap(buf2), ByteBuffer.wrap(buf3)};
+		MockSession session = new MockSession();
+
+		for (int i = 0; i < buf.length; i++) {
+			httpDecoder.decode(buf[i], session);
+		}
+		
+		HttpServletRequestImpl req = (HttpServletRequestImpl)session.getAttribute(HttpDecoder.HTTP_REQUEST);
+		Assert.assertThat(req.getHeader("host"), is("127.0.0.1"));
+		Assert.assertThat(req.getHeader("connection"), is("keep-alive"));
+		Assert.assertThat(req.getHeader("Accept-Language"), is("zh-CN,zh;q=0.8"));
+	}
+	
 
 	/**
 	 * @param args
@@ -91,19 +109,12 @@ public class TestHttpDecoder {
 		byte[] buf1 = "GET /firefly-demo/app/hel".getBytes(config.getEncoding());
 		byte[] buf2 = "lo HTTP/1.1\r\nHost:127.0.0.1\r\nAccept-Language:zh-CN,".getBytes(config.getEncoding());
 		byte[] buf3 = "zh;q=0.8\r\nConnection:keep-alive\r\n\r\n".getBytes(config.getEncoding());
-		System.out.println("Host:127.0.0.1\r\nAccept-Language:zh-CN,".length());
-		System.out.println("Accept-Language:zh-CN,".length());
-		System.out.println("zh;q=0.8\r\nConnection:keep-alive\r\n\r\n".length());
-		System.out.println("===================================================");
-		
-		
 		ByteBuffer[] buf = new ByteBuffer[] {ByteBuffer.wrap(buf1), ByteBuffer.wrap(buf2), ByteBuffer.wrap(buf3)};
 		MockSession session = new MockSession();
 
 		for (int i = 0; i < buf.length; i++) {
 			httpDecoder.decode(buf[i], session);
 		}
-		
 		HttpServletRequestImpl req = (HttpServletRequestImpl)session.getAttribute(HttpDecoder.HTTP_REQUEST);
 		System.out.println(req.getMethod());
 		System.out.println(req.getRequestURI());
@@ -111,6 +122,7 @@ public class TestHttpDecoder {
 		System.out.println(req.getHeader("Host"));
 		System.out.println(req.getHeader("Accept-Language"));
 		System.out.println(req.getHeader("Connection"));
+		System.out.println(req.toString());
 	}
 
 }
