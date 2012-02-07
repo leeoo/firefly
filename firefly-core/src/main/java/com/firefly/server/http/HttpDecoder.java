@@ -26,7 +26,8 @@ public class HttpDecoder implements Decoder {
 	public void decode(ByteBuffer buf, Session session) throws Throwable {
 		ByteBuffer now = getBuffer(buf, session);
 		HttpServletRequestImpl req = getHttpServletRequestImpl(session);
-		System.out.println("==================================================");
+		System.out
+				.println("==================================================");
 		httpDecode[req.status].decode0(now, session, req);
 	}
 
@@ -159,7 +160,8 @@ public class HttpDecoder implements Decoder {
 		public boolean decode(ByteBuffer buf, Session session,
 				HttpServletRequestImpl req) throws Throwable {
 			int len = buf.remaining();
-			System.out.println( req.offset + "|" + len + "|" + buf.position() + "|" + buf.remaining());
+			System.out.println(req.offset + "|" + len + "|" + buf.position()
+					+ "|" + buf.remaining());
 
 			for (int i = 0, p = 0; i < len; i++) {
 				if (req.offset >= config.getMaxRequestHeadLength()) {
@@ -178,7 +180,7 @@ public class HttpDecoder implements Decoder {
 							.trim();
 					System.out.println(headLine + "|" + req.offset);
 					p = i + 1;
-//					req.offset += parseLen - 1;
+					//req.offset += parseLen - 1;
 
 					if (VerifyUtils.isEmpty(headLine)) {
 						if (req.getMethod().equals("POST")
@@ -207,8 +209,8 @@ public class HttpDecoder implements Decoder {
 
 				}
 			}
-//			req.offset = req.offset - parseLen;
-//			System.out.println(req.offset);
+			// req.offset = req.offset - parseLen;
+			// System.out.println(req.offset);
 			return false;
 		}
 
