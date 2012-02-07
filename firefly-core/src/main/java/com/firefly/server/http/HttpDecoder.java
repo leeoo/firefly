@@ -164,17 +164,16 @@ public class HttpDecoder implements Decoder {
 					+ "|" + buf.remaining());
 
 			for (int i = 0, p = 0; i < len; i++) {
-				if (req.offset >= config.getMaxRequestHeadLength()) {
-					log.error("request head length is {}, it more than {}|{}",
-							req.offset, config.getMaxRequestHeadLength(),
-							session.getRemoteAddress().toString());
-					responseError(session, req, 400);
-					return true;
-				}
+//				if (req.offset >= config.getMaxRequestHeadLength()) {
+//					log.error("request head length is {}, it more than {}|{}",
+//							req.offset, config.getMaxRequestHeadLength(),
+//							session.getRemoteAddress().toString());
+//					responseError(session, req, 400);
+//					return true;
+//				}
 
 				if (buf.get(i) == LINE_LIMITOR) {
-					int parseLen = i - p + 1;
-					byte[] data = new byte[parseLen];
+					byte[] data = new byte[i - p + 1];
 					buf.get(data);
 					String headLine = new String(data, config.getEncoding())
 							.trim();
@@ -206,10 +205,9 @@ public class HttpDecoder implements Decoder {
 						String value = headLine.substring(h + 1).trim();
 						req.headMap.put(name, value);
 					}
-
+//					break;
 				}
 			}
-			// req.offset = req.offset - parseLen;
 			// System.out.println(req.offset);
 			return false;
 		}
