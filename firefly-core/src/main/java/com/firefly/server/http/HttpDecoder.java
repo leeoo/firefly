@@ -129,7 +129,7 @@ public class HttpDecoder implements Decoder {
 					}
 
 					int s = reqLine[1].indexOf('?');
-					req.method = reqLine[0];
+					req.method = reqLine[0].toUpperCase();
 					if (s > 0) {
 						req.requestURI = reqLine[1].substring(0, s);
 						req.queryString = reqLine[1].substring(s + 1,

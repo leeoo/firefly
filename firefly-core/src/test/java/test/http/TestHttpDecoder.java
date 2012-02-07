@@ -18,7 +18,7 @@ public class TestHttpDecoder {
 	@Test
 	public void testRequestLine() throws Throwable {
 		byte[] buf1 = "GET /firefly-demo/app/hel".getBytes(config.getEncoding());
-		byte[] buf2 = "lo HTTP/1.1\ndfsdfsdf".getBytes(config.getEncoding());
+		byte[] buf2 = "lo HTTP/1.1\r\nHost: 127.0.0.1\r\n".getBytes(config.getEncoding());
 		ByteBuffer[] buf = new ByteBuffer[] {ByteBuffer.wrap(buf1), ByteBuffer.wrap(buf2)};
 		MockSession session = new MockSession();
 
@@ -34,7 +34,7 @@ public class TestHttpDecoder {
 	
 	@Test
 	public void testRequestLine2() throws Throwable {
-		byte[] buf1 = "GET /firefly-demo/app/hello HTTP/1.1\n".getBytes(config.getEncoding());
+		byte[] buf1 = "GET /firefly-demo/app/hello HTTP/1.1\r\n".getBytes(config.getEncoding());
 		ByteBuffer[] buf = new ByteBuffer[] {ByteBuffer.wrap(buf1)};
 		MockSession session = new MockSession();
 
@@ -51,7 +51,7 @@ public class TestHttpDecoder {
 	@Test
 	public void testRequestLine3() throws Throwable {
 		byte[] buf1 = "GET /firefly-demo/app/hel".getBytes(config.getEncoding());
-		byte[] buf2 = "lo?query=3.3&test=4 HTTP/1.1\ndfsdfsdf".getBytes(config.getEncoding());
+		byte[] buf2 = "lo?query=3.3&test=4 HTTP/1.1\r\nHost: 127.0.0.1\r\n".getBytes(config.getEncoding());
 		ByteBuffer[] buf = new ByteBuffer[] {ByteBuffer.wrap(buf1), ByteBuffer.wrap(buf2)};
 		MockSession session = new MockSession();
 
@@ -73,7 +73,7 @@ public class TestHttpDecoder {
 	 */
 	public static void main(String[] args) throws Throwable {
 		byte[] buf1 = "GET /firefly-demo/app/hel".getBytes(config.getEncoding());
-		byte[] buf2 = "lo HTTP/1.1\ntestNext".getBytes(config.getEncoding());
+		byte[] buf2 = "lo HTTP/1.1\r\nHost: 127.0.0.1\r\n".getBytes(config.getEncoding());
 		ByteBuffer[] buf = new ByteBuffer[] {ByteBuffer.wrap(buf1), ByteBuffer.wrap(buf2)};
 		MockSession session = new MockSession();
 
