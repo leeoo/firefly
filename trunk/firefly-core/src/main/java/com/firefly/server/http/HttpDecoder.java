@@ -26,6 +26,7 @@ public class HttpDecoder implements Decoder {
 	public void decode(ByteBuffer buf, Session session) throws Throwable {
 		ByteBuffer now = getBuffer(buf, session);
 		HttpServletRequestImpl req = getHttpServletRequestImpl(session);
+		System.out.println("==================================================");
 		httpDecode[req.status].decode0(now, session, req);
 	}
 
@@ -157,10 +158,10 @@ public class HttpDecoder implements Decoder {
 		@Override
 		public boolean decode(ByteBuffer buf, Session session,
 				HttpServletRequestImpl req) throws Throwable {
-			int len = req.offset + buf.remaining();
+			int len = buf.remaining();
+			System.out.println( req.offset + "|" + len + "|" + buf.position() + "|" + buf.remaining());
 
-			int parseLen = 0;
-			for (int from = 0; req.offset < len; req.offset++) {
+			for (int i = 0, p = 0; i < len; i++) {
 				if (req.offset >= config.getMaxRequestHeadLength()) {
 					log.error("request head length is {}, it more than {}|{}",
 							req.offset, config.getMaxRequestHeadLength(),
@@ -169,13 +170,15 @@ public class HttpDecoder implements Decoder {
 					return true;
 				}
 
-				if (buf.get(req.offset) == LINE_LIMITOR) {
-					parseLen = req.offset - from + 1;
+				if (buf.get(i) == LINE_LIMITOR) {
+					int parseLen = i - p + 1;
 					byte[] data = new byte[parseLen];
 					buf.get(data);
 					String headLine = new String(data, config.getEncoding())
 							.trim();
-					from = req.offset + 1;
+					System.out.println(headLine + "|" + req.offset);
+					p = i + 1;
+//					req.offset += parseLen - 1;
 
 					if (VerifyUtils.isEmpty(headLine)) {
 						if (req.getMethod().equals("POST")
@@ -187,8 +190,8 @@ public class HttpDecoder implements Decoder {
 
 						return true;
 					} else {
-						int i = headLine.indexOf(':');
-						if (i <= 0) {
+						int h = headLine.indexOf(':');
+						if (h <= 0) {
 							log.error("head line format error: {}|{}",
 									headLine, session.getRemoteAddress()
 											.toString());
@@ -196,15 +199,16 @@ public class HttpDecoder implements Decoder {
 							return true;
 						}
 
-						String name = headLine.substring(0, i).toLowerCase()
+						String name = headLine.substring(0, h).toLowerCase()
 								.trim();
-						String value = headLine.substring(i + 1).trim();
+						String value = headLine.substring(h + 1).trim();
 						req.headMap.put(name, value);
 					}
 
 				}
 			}
-			req.offset = parseLen;
+//			req.offset = req.offset - parseLen;
+//			System.out.println(req.offset);
 			return false;
 		}
 
