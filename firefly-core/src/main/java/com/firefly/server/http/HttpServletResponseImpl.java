@@ -8,8 +8,14 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
+import com.firefly.net.Session;
+
 public class HttpServletResponseImpl implements HttpServletResponse {
 
+	boolean systemPage = false;
+	Session session;
+	HttpServletRequestImpl request;
+	
 	@Override
 	public String getCharacterEncoding() {
 		// TODO Auto-generated method stub
