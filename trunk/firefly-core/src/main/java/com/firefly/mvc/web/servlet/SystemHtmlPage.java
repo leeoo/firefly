@@ -12,16 +12,23 @@ import com.firefly.utils.log.LogFactory;
 
 public class SystemHtmlPage {
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
-	
+
 	public static final Map<Integer, String> SYS_PAGE = new HashMap<Integer, String>();
-	
+
 	static {
 		SYS_PAGE.put(404, systemPageTemplate(404, "page not found"));
 	}
 
 	public static void responseSystemPage(HttpServletRequest request,
 			HttpServletResponse response, String charset, int status) {
-		response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+		responseSystemPage(request, response, charset, status,
+				SYS_PAGE.get(status));
+	}
+
+	public static void responseSystemPage(HttpServletRequest request,
+			HttpServletResponse response, String charset, int status,
+			String content) {
+		response.setStatus(status);
 		response.setCharacterEncoding(charset);
 		response.setHeader("Content-Type", "text/html; charset=" + charset);
 		PrintWriter writer = null;
@@ -29,34 +36,23 @@ public class SystemHtmlPage {
 			try {
 				writer = response.getWriter();
 			} catch (Throwable t) {
-				log.error("scNotFound error", t);
+				log.error("responseSystemPage error", t);
 			}
-			writer.print(SYS_PAGE.get(status));
+			writer.print(content);
 		} finally {
 			if (writer != null)
 				writer.close();
 		}
 	}
-	
+
 	public static String systemPageTemplate(int status, String content) {
 		StringBuilder ret = new StringBuilder();
-		ret.append("<!DOCTYPE html>")
-		.append("<html>")
-		.append("<body>")
-		.append("<h2>")
-			.append("HTTP ERROR").append(status)
-		.append("</h2>")
-		.append("<div>")
-			.append(content)
-		.append("</div>")
-		.append("<hr/>")
-		.append("<i>")
-			.append("<small>")
-				.append("firefly framework")
-			.append("</small>")
-		.append("</i>")
-		.append("</body>")
-		.append("</html>");
+		ret.append(
+				"<!DOCTYPE html><html><head><title>firefly</title></head><body><h2>HTTP ERROR")
+				.append(status)
+				.append("</h2><div>")
+				.append(content)
+				.append("</div><hr/><i><small>firefly framework</small></i></body></html>");
 		return ret.toString();
 	}
 }
