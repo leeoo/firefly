@@ -17,6 +17,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import com.firefly.net.Session;
+
 public class HttpServletRequestImpl implements HttpServletRequest {
 	int status, contentLength, serverPort, remotePort, localPort, headLength, offset;
 	String method, requestURI, queryString, characterEncoding, contentType,
@@ -24,6 +26,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	PipedInputStream pipedInputStream = new PipedInputStream();
 	Cookie[] cookies;
 	Map<String, String> headMap = new HashMap<String, String>();
+	HttpServletResponseImpl response;
 
 	private Map<String, Object> parameterMap = new HashMap<String, Object>(),
 			attributeMap = new HashMap<String, Object>();
@@ -255,12 +258,12 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public long getDateHeader(String name) {
-		return Long.parseLong(headMap.get(name));
+		return Long.parseLong(headMap.get(name.toLowerCase()));
 	}
 
 	@Override
 	public String getHeader(String name) {
-		return headMap.get(name);
+		return headMap.get(name.toLowerCase());
 	}
 
 	@Override
@@ -289,7 +292,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public int getIntHeader(String name) {
-		return Integer.parseInt(headMap.get(name));
+		return Integer.parseInt(headMap.get(name.toLowerCase()));
 	}
 
 	@Override

@@ -47,6 +47,8 @@ public class HttpDecoder implements Decoder {
 				.getAttribute(HTTP_REQUEST);
 		if (req == null) {
 			req = new HttpServletRequestImpl();
+			req.response = new HttpServletResponseImpl();
+			req.response.session = session;
 			session.setAttribute(HTTP_REQUEST, req);
 		}
 		return req;
@@ -75,21 +77,22 @@ public class HttpDecoder implements Decoder {
 			}
 		}
 
-		protected void clear(Session session) {
+		private void finish(Session session, HttpServletRequestImpl req) {
 			session.removeAttribute(REMAIN_DATA);
 			session.removeAttribute(HTTP_REQUEST);
+			req.status = httpDecode.length;
 		}
 
-		protected void response(Session session, HttpServletRequestImpl req,
-				int httpStatus) {
-			try {
-				clear(session);
-				req.status = httpDecode.length;
-				// TODO response msg
+		protected void responseError(Session session,
+				HttpServletRequestImpl req, int httpStatus) {
+			finish(session, req);
+			req.response.systemPage = true;
+			session.fireReceiveMessage(req);
+		}
 
-			} finally {
-				session.close(false);
-			}
+		protected void response(Session session, HttpServletRequestImpl req) {
+			finish(session, req);
+			session.fireReceiveMessage(req);
 		}
 
 		abstract protected boolean decode(ByteBuffer buf, Session session,
@@ -105,9 +108,9 @@ public class HttpDecoder implements Decoder {
 			for (; req.offset < len; req.offset++) {
 				if (req.offset >= config.getMaxRequestLineLength()) {
 					log.error("request line length is {}, it more than {}",
-							len, config.getMaxRequestLineLength());
-					response(session, req, 414);
-					return false;
+							req.offset, config.getMaxRequestLineLength());
+					responseError(session, req, 414);
+					return true;
 				}
 
 				if (buf.get(req.offset) == LINE_LIMITOR) {
@@ -117,15 +120,15 @@ public class HttpDecoder implements Decoder {
 							.trim();
 					if (VerifyUtils.isEmpty(requestLine)) {
 						log.error("request line length is 0");
-						response(session, req, 400);
-						return false;
+						responseError(session, req, 400);
+						return true;
 					}
 
 					String[] reqLine = StringUtils.split(requestLine, ' ');
 					if (reqLine.length > 3) {
 						log.error("request line format error: {}", requestLine);
-						response(session, req, 400);
-						return false;
+						responseError(session, req, 400);
+						return true;
 					}
 
 					int s = reqLine[1].indexOf('?');
@@ -150,16 +153,43 @@ public class HttpDecoder implements Decoder {
 		@Override
 		public boolean decode(ByteBuffer buf, Session session,
 				HttpServletRequestImpl req) throws Throwable {
-			// TODO Auto-generated method stub
-			int len = req.offset + buf.remaining();
-			System.out.println(len);
-			for (; req.offset < len; req.offset++) {
+			for (int p = req.offset; buf.remaining() > 0; req.offset++) {
+				if (req.offset >= config.getMaxRequestHeadLength()) {
+					log.error("request head length is {}, it more than {}",
+							req.offset, config.getMaxRequestHeadLength());
+					responseError(session, req, 400);
+					return true;
+				}
+				
+				if (buf.get(req.offset) == LINE_LIMITOR) {
+					byte[] data = new byte[req.offset - p + 1];
+					buf.get(data);
+					String line = new String(data, config.getEncoding()).trim();
+					p = req.offset + 1;
 
+					if (VerifyUtils.isEmpty(line)) {
+						if (req.getMethod().equals("POST")
+								|| req.getMethod().equals("PUT")) {
+							// TODO 合法性判断
+						} else
+							response(session, req);
+						
+						return true;
+					} else {
+						int i = line.indexOf(':');
+						if(i <= 0) {
+							log.error("head line format error: {}", line);
+							responseError(session, req, 400);
+							return true;
+						}
+						
+						String name = line.substring(0,i).toLowerCase().trim();
+						String value = line.substring(i+1).trim();
+						req.headMap.put(name, value);
+						return false;
+					}
+				}
 			}
-			System.out.println(req.offset);
-			byte[] data = new byte[len];
-			buf.get(data);
-			System.out.println(new String(data, config.getEncoding()));
 			return false;
 		}
 
