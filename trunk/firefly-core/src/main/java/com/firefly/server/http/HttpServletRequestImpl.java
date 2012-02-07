@@ -18,7 +18,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 public class HttpServletRequestImpl implements HttpServletRequest {
-	int status, contentLength, serverPort, remotePort, localPort, headLength, offset;
+	int status, contentLength, serverPort, remotePort, localPort, headLength,
+			offset;
 	String method, requestURI, queryString, characterEncoding, contentType,
 			protocol, serverName, remoteAddr, remoteHost, localName, localAddr;
 	PipedInputStream pipedInputStream = new PipedInputStream();
@@ -143,7 +144,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	/**
-	 *@return 服务器绑定的ip或者域名
+	 * @return 服务器绑定的ip或者域名
 	 */
 	@Override
 	public String getServerName() {
@@ -151,7 +152,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	/**
-	 *@return 服务器监听的端口
+	 * @return 服务器监听的端口
 	 */
 	@Override
 	public int getServerPort() {
@@ -267,8 +268,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	@Override
 	public Enumeration<String> getHeaders(String name) {
 		return new Enumeration<String>() {
-			private Iterator<String> iterator = headMap.keySet()
-					.iterator();
+			private Iterator<String> iterator = headMap.keySet().iterator();
 
 			@Override
 			public boolean hasMoreElements() {

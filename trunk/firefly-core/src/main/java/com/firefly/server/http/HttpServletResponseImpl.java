@@ -2,7 +2,11 @@ package com.firefly.server.http;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
@@ -12,20 +16,22 @@ import com.firefly.net.Session;
 
 public class HttpServletResponseImpl implements HttpServletResponse {
 
-	boolean systemPage = false;
+	boolean system = false, committed = false;
 	Session session;
 	HttpServletRequestImpl request;
-	
+	int status, bufferSize;
+	String characterEncoding;
+	Map<String, String> headMap = new HashMap<String, String>();
+	List<Cookie> cookies = new LinkedList<Cookie>();
+
 	@Override
 	public String getCharacterEncoding() {
-		// TODO Auto-generated method stub
-		return null;
+		return characterEncoding;
 	}
 
 	@Override
 	public String getContentType() {
-		// TODO Auto-generated method stub
-		return null;
+		return headMap.get("Content-Type");
 	}
 
 	@Override
@@ -42,32 +48,27 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	@Override
 	public void setCharacterEncoding(String charset) {
-		// TODO Auto-generated method stub
-
+		characterEncoding = charset;
 	}
 
 	@Override
 	public void setContentLength(int len) {
-		// TODO Auto-generated method stub
-
+		headMap.put("Content-Length", String.valueOf(len));
 	}
 
 	@Override
 	public void setContentType(String type) {
-		// TODO Auto-generated method stub
-
+		headMap.put("Content-Type", type);
 	}
 
 	@Override
 	public void setBufferSize(int size) {
-		// TODO Auto-generated method stub
-
+		bufferSize = size;
 	}
 
 	@Override
 	public int getBufferSize() {
-		// TODO Auto-generated method stub
-		return 0;
+		return bufferSize;
 	}
 
 	@Override
@@ -84,8 +85,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	@Override
 	public boolean isCommitted() {
-		// TODO Auto-generated method stub
-		return false;
+		return committed;
 	}
 
 	@Override
@@ -108,14 +108,12 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	@Override
 	public void addCookie(Cookie cookie) {
-		// TODO Auto-generated method stub
-
+		cookies.add(cookie);
 	}
 
 	@Override
 	public boolean containsHeader(String name) {
-		// TODO Auto-generated method stub
-		return false;
+		return headMap.containsKey(name);
 	}
 
 	@Override
@@ -197,15 +195,13 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	}
 
 	@Override
-	public void setStatus(int sc) {
-		// TODO Auto-generated method stub
-
+	public void setStatus(int status) {
+		this.status = status;
 	}
 
 	@Override
-	public void setStatus(int sc, String sm) {
-		// TODO Auto-generated method stub
-
+	public void setStatus(int status, String sm) {
+		this.status = status;
 	}
 
 }
