@@ -48,6 +48,7 @@ public class HttpDecoder implements Decoder {
 		if (req == null) {
 			req = new HttpServletRequestImpl();
 			req.response = new HttpServletResponseImpl();
+			req.response.characterEncoding = config.getEncoding();
 			req.response.session = session;
 			session.setAttribute(HTTP_REQUEST, req);
 		}
@@ -86,7 +87,8 @@ public class HttpDecoder implements Decoder {
 		protected void responseError(Session session,
 				HttpServletRequestImpl req, int httpStatus) {
 			finish(session, req);
-			req.response.systemPage = true;
+			req.response.system = true;
+			req.response.setStatus(httpStatus);
 			session.fireReceiveMessage(req);
 		}
 
@@ -158,37 +160,31 @@ public class HttpDecoder implements Decoder {
 		public boolean decode(ByteBuffer buf, Session session,
 				HttpServletRequestImpl req) throws Throwable {
 			int len = buf.remaining();
-//			System.out.println(req.offset + "|" + len + "|" + buf.position()
-//					+ "|" + buf.remaining() + "|" + req.headLength);
 
 			for (int i = req.offset, p = 0; i < len; i++) {
 				if (buf.get(i) == LINE_LIMITOR) {
 					int parseLen = i - p + 1;
 					req.headLength += parseLen;
-					
+
 					if (req.headLength >= config.getMaxRequestHeadLength()) {
-						log.error("request head length is {}, it more than {}|{}",
+						log.error(
+								"request head length is {}, it more than {}|{}",
 								req.offset, config.getMaxRequestHeadLength(),
 								session.getRemoteAddress().toString());
 						responseError(session, req, 400);
 						return true;
 					}
-					
+
 					byte[] data = new byte[parseLen];
 					buf.get(data);
 					String headLine = new String(data, config.getEncoding())
 							.trim();
-//					System.out.println(headLine + "|" + req.offset);
 					p = i + 1;
 
 					if (VerifyUtils.isEmpty(headLine)) {
-						if (req.getMethod().equals("POST")
-								|| req.getMethod().equals("PUT")) {
-							// TODO 合法性判断
-						} else {
+						if (!req.getMethod().equals("POST")
+								&& !req.getMethod().equals("PUT"))
 							response(session, req);
-						}
-
 						return true;
 					} else {
 						int h = headLine.indexOf(':');
@@ -205,13 +201,22 @@ public class HttpDecoder implements Decoder {
 						String value = headLine.substring(h + 1).trim();
 						req.headMap.put(name, value);
 						req.offset = len - i - 1;
+
+						if (name.equals("expect") && value.startsWith("100-")
+								&& req.getProtocol().equals("HTTP/1.1"))
+							response100Continue(session, req);
 					}
 				}
-				
 			}
 			return false;
 		}
 
+		private void response100Continue(Session session,
+				HttpServletRequestImpl req) {
+			req.response.setStatus(100);
+			req.response.system = true;
+			session.fireReceiveMessage(req);
+		}
 	}
 
 	private class BodyDecoder extends AbstractHttpDecoder {

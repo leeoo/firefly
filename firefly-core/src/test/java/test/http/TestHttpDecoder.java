@@ -144,7 +144,7 @@ public class TestHttpDecoder {
 		Assert.assertThat(req.getHeader("Accept-Encoding"),
 				is("gzip,deflate,sdch"));
 	}
-	
+
 	@Test
 	public void testHead4() throws Throwable {
 		byte[] buf1 = "GET /firefly-demo/app/hello HTTP/1.1\r\nHost:127.0.0.1\r\nAccept-Language:zh-CN,zh;q=0.8\r\nConnection:keep-alive\r\nAccept-Encoding: gzip,deflate,sdch\r\n\r\n"
