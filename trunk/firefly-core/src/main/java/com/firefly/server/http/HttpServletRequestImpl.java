@@ -3,6 +3,7 @@ package com.firefly.server.http;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.Enumeration;
@@ -18,12 +19,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import com.firefly.net.Session;
+import com.firefly.utils.StringUtils;
 
 public class HttpServletRequestImpl implements HttpServletRequest {
-	int status, contentLength, headLength, offset;
-	String method, requestURI, queryString, contentType, protocol;
+	int status, headLength, offset;
+	String method, requestURI, queryString, formData, protocol;
 
 	PipedInputStream pipedInputStream = new PipedInputStream();
+	PipedOutputStream pipedOutputStream;
 	Cookie[] cookies;
 	Map<String, String> headMap = new HashMap<String, String>();
 	HttpServletResponseImpl response;
@@ -32,6 +35,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	private Session session;
 	private Map<String, Object> parameterMap = new HashMap<String, Object>(),
 			attributeMap = new HashMap<String, Object>();
+	private boolean loadParam = false;
 	private ServletInputStream servletInputStream = new ServletInputStream() {
 
 		@Override
@@ -58,6 +62,12 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 		this.characterEncoding = characterEncoding;
 		this.session = session;
 		response = new HttpServletResponseImpl(session, this, characterEncoding);
+	}
+	
+	private void loadParam() {
+		if(!loadParam) {
+			// TODO 分析queryStr和formData
+		}
 	}
 
 	@Override
@@ -96,12 +106,12 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public int getContentLength() {
-		return contentLength;
+		return getIntHeader("Content-Length");
 	}
 
 	@Override
 	public String getContentType() {
-		return contentType;
+		return getHeader("Content-Type");
 	}
 
 	@Override
@@ -111,11 +121,13 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public String getParameter(String name) {
+		loadParam();
 		return (String) parameterMap.get(name);
 	}
 
 	@Override
 	public Enumeration<String> getParameterNames() {
+		loadParam();
 		return new Enumeration<String>() {
 			private Iterator<String> iterator = parameterMap.keySet()
 					.iterator();
@@ -134,11 +146,13 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public String[] getParameterValues(String name) {
+		loadParam();
 		return (String[]) parameterMap.get(name);
 	}
 
 	@Override
 	public Map<String, Object> getParameterMap() {
+		loadParam();
 		return parameterMap;
 	}
 
@@ -266,7 +280,8 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public long getDateHeader(String name) {
-		return Long.parseLong(headMap.get(name.toLowerCase()));
+		String v = getHeader(name);
+		return v != null ? Long.parseLong(v) : 0;
 	}
 
 	@Override
@@ -276,6 +291,25 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public Enumeration<String> getHeaders(String name) {
+		String value = getHeader(name);
+		final String[] values = StringUtils.split(value, ',');
+		return new Enumeration<String>() {
+			private int i = 0;
+
+			@Override
+			public boolean hasMoreElements() {
+				return i < values.length;
+			}
+
+			@Override
+			public String nextElement() {
+				return values[i++];
+			}
+		};
+	}
+
+	@Override
+	public Enumeration<String> getHeaderNames() {
 		return new Enumeration<String>() {
 			private Iterator<String> iterator = headMap.keySet().iterator();
 
@@ -292,14 +326,9 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	@Override
-	public Enumeration<String> getHeaderNames() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public int getIntHeader(String name) {
-		return Integer.parseInt(headMap.get(name.toLowerCase()));
+		String v = getHeader(name);
+		return v != null ? Integer.parseInt(v) : 0;
 	}
 
 	@Override

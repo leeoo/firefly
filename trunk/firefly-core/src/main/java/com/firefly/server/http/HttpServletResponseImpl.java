@@ -2,28 +2,40 @@ package com.firefly.server.http;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import com.firefly.net.Session;
+import com.firefly.utils.time.SafeSimpleDateFormat;
 
 public class HttpServletResponseImpl implements HttpServletResponse {
 
+	public static SafeSimpleDateFormat GMT_FORMAT;
 	boolean system = false;
 	private boolean committed = false;
 	private Session session;
 	private HttpServletRequestImpl request;
-	int status, bufferSize;
-	private String characterEncoding;
+	private int status, bufferSize;
+	private String characterEncoding, shortMessage;
 	private Map<String, String> headMap = new HashMap<String, String>();
 	private List<Cookie> cookies = new LinkedList<Cookie>();
+
+	static {
+		SimpleDateFormat sdf = new SimpleDateFormat(
+				"EEE, d MMM yyyy HH:mm:ss z", Locale.ENGLISH);
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+		GMT_FORMAT = new SafeSimpleDateFormat(sdf);
+	}
 
 	public HttpServletResponseImpl(Session session,
 			HttpServletRequestImpl request, String characterEncoding) {
@@ -138,14 +150,12 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	@Override
 	public String encodeUrl(String url) {
-		// TODO Auto-generated method stub
-		return null;
+		return encodeURL(url);
 	}
 
 	@Override
 	public String encodeRedirectUrl(String url) {
-		// TODO Auto-generated method stub
-		return null;
+		return encodeRedirectURL(url);
 	}
 
 	@Override
@@ -168,48 +178,49 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	@Override
 	public void setDateHeader(String name, long date) {
-		// TODO Auto-generated method stub
-
+		setHeader(name, GMT_FORMAT.format(new Date(date)));
 	}
 
 	@Override
 	public void addDateHeader(String name, long date) {
-		// TODO Auto-generated method stub
-
+		addHeader(name, GMT_FORMAT.format(new Date(date)));
 	}
 
 	@Override
 	public void setHeader(String name, String value) {
-		// TODO Auto-generated method stub
-
+		headMap.put(name, value);
 	}
 
 	@Override
 	public void addHeader(String name, String value) {
-		// TODO Auto-generated method stub
-
+		String v = headMap.get(name);
+		if (v != null) {
+			v += "," + value;
+			setHeader(name, v);
+		} else
+			setHeader(name, value);
 	}
 
 	@Override
 	public void setIntHeader(String name, int value) {
-		// TODO Auto-generated method stub
-
+		setHeader(name, String.valueOf(value));
 	}
 
 	@Override
 	public void addIntHeader(String name, int value) {
-		// TODO Auto-generated method stub
-
+		addHeader(name, String.valueOf(value));
 	}
 
 	@Override
 	public void setStatus(int status) {
 		this.status = status;
+		this.shortMessage = Constants.STATUS_CODE.get(status);
 	}
 
 	@Override
-	public void setStatus(int status, String sm) {
+	public void setStatus(int status, String shortMessage) {
 		this.status = status;
+		this.shortMessage = shortMessage;
 	}
 
 }

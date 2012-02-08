@@ -1,8 +1,10 @@
 package test.http;
 
-import java.nio.ByteBuffer;
+import static org.hamcrest.Matchers.is;
 
-import static org.hamcrest.Matchers.*;
+import java.nio.ByteBuffer;
+import java.util.Date;
+import java.util.Enumeration;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -10,6 +12,7 @@ import org.junit.Test;
 import com.firefly.server.http.Config;
 import com.firefly.server.http.HttpDecoder;
 import com.firefly.server.http.HttpServletRequestImpl;
+import com.firefly.server.http.HttpServletResponseImpl;
 
 public class TestHttpDecoder {
 	private static final Config config = new Config();
@@ -19,7 +22,7 @@ public class TestHttpDecoder {
 	public void testRequestLine() throws Throwable {
 		byte[] buf1 = "GET /firefly-demo/app/hel"
 				.getBytes(config.getEncoding());
-		byte[] buf2 = "lo HTTP/1.1\r\nHost: 127.0.0.1\r\n".getBytes(config
+		byte[] buf2 = "lo HTTP/1.1\r\nHost: 127.0.0.1\r\n\r\n".getBytes(config
 				.getEncoding());
 		ByteBuffer[] buf = new ByteBuffer[] { ByteBuffer.wrap(buf1),
 				ByteBuffer.wrap(buf2) };
@@ -29,8 +32,7 @@ public class TestHttpDecoder {
 			httpDecoder.decode(buf[i], session);
 		}
 
-		HttpServletRequestImpl req = (HttpServletRequestImpl) session
-				.getAttribute(HttpDecoder.HTTP_REQUEST);
+		HttpServletRequestImpl req = session.request;
 		Assert.assertThat(req.getMethod(), is("GET"));
 		Assert.assertThat(req.getRequestURI(), is("/firefly-demo/app/hello"));
 		Assert.assertThat(req.getProtocol(), is("HTTP/1.1"));
@@ -38,7 +40,7 @@ public class TestHttpDecoder {
 
 	@Test
 	public void testRequestLine2() throws Throwable {
-		byte[] buf1 = "GET /firefly-demo/app/hello HTTP/1.1\r\n"
+		byte[] buf1 = "GET /firefly-demo/app/hello HTTP/1.1\r\n\r\n"
 				.getBytes(config.getEncoding());
 		ByteBuffer[] buf = new ByteBuffer[] { ByteBuffer.wrap(buf1) };
 		MockSession session = new MockSession();
@@ -47,8 +49,7 @@ public class TestHttpDecoder {
 			httpDecoder.decode(buf[i], session);
 		}
 
-		HttpServletRequestImpl req = (HttpServletRequestImpl) session
-				.getAttribute(HttpDecoder.HTTP_REQUEST);
+		HttpServletRequestImpl req = session.request;
 		Assert.assertThat(req.getMethod(), is("GET"));
 		Assert.assertThat(req.getRequestURI(), is("/firefly-demo/app/hello"));
 		Assert.assertThat(req.getProtocol(), is("HTTP/1.1"));
@@ -56,7 +57,7 @@ public class TestHttpDecoder {
 
 	@Test
 	public void testRequestLine3() throws Throwable {
-		byte[] buf1 = "GET /firefly-demo/app/hello?query=3.3&test=4 HTTP/1.1\r\nHost: 127.0.0.1\r\n"
+		byte[] buf1 = "GET /firefly-demo/app/hello?query=3.3&test=4 HTTP/1.1\r\nHost: 127.0.0.1\r\n\r\n"
 				.getBytes(config.getEncoding());
 		ByteBuffer[] buf = new ByteBuffer[] { ByteBuffer.wrap(buf1) };
 		MockSession session = new MockSession();
@@ -65,8 +66,7 @@ public class TestHttpDecoder {
 			httpDecoder.decode(buf[i], session);
 		}
 
-		HttpServletRequestImpl req = (HttpServletRequestImpl) session
-				.getAttribute(HttpDecoder.HTTP_REQUEST);
+		HttpServletRequestImpl req = session.request;
 		Assert.assertThat(req.getMethod(), is("GET"));
 		Assert.assertThat(req.getRequestURI(), is("/firefly-demo/app/hello"));
 		Assert.assertThat(req.getProtocol(), is("HTTP/1.1"));
@@ -87,8 +87,7 @@ public class TestHttpDecoder {
 			httpDecoder.decode(buf[i], session);
 		}
 
-		HttpServletRequestImpl req = (HttpServletRequestImpl) session
-				.getAttribute(HttpDecoder.HTTP_REQUEST);
+		HttpServletRequestImpl req = session.request;
 		Assert.assertThat(req.getHeader("host"), is("127.0.0.1"));
 		Assert.assertThat(req.getHeader("Host"), is("127.0.0.1"));
 	}
@@ -109,8 +108,7 @@ public class TestHttpDecoder {
 			httpDecoder.decode(buf[i], session);
 		}
 
-		HttpServletRequestImpl req = (HttpServletRequestImpl) session
-				.getAttribute(HttpDecoder.HTTP_REQUEST);
+		HttpServletRequestImpl req = session.request;
 		Assert.assertThat(req.getHeader("host"), is("127.0.0.1"));
 		Assert.assertThat(req.getHeader("connection"), is("keep-alive"));
 		Assert.assertThat(req.getHeader("Accept-Language"),
@@ -135,8 +133,7 @@ public class TestHttpDecoder {
 			httpDecoder.decode(buf[i], session);
 		}
 
-		HttpServletRequestImpl req = (HttpServletRequestImpl) session
-				.getAttribute(HttpDecoder.HTTP_REQUEST);
+		HttpServletRequestImpl req = session.request;
 		Assert.assertThat(req.getHeader("host"), is("127.0.0.1"));
 		Assert.assertThat(req.getHeader("connection"), is("keep-alive"));
 		Assert.assertThat(req.getHeader("Accept-Language"),
@@ -156,8 +153,7 @@ public class TestHttpDecoder {
 			httpDecoder.decode(buf[i], session);
 		}
 
-		HttpServletRequestImpl req = (HttpServletRequestImpl) session
-				.getAttribute(HttpDecoder.HTTP_REQUEST);
+		HttpServletRequestImpl req = session.request;
 		Assert.assertThat(req.getMethod(), is("GET"));
 		Assert.assertThat(req.getRequestURI(), is("/firefly-demo/app/hello"));
 		Assert.assertThat(req.getProtocol(), is("HTTP/1.1"));
@@ -186,8 +182,7 @@ public class TestHttpDecoder {
 		for (int i = 0; i < buf.length; i++) {
 			httpDecoder.decode(buf[i], session);
 		}
-		HttpServletRequestImpl req = (HttpServletRequestImpl) session
-				.getAttribute(HttpDecoder.HTTP_REQUEST);
+		HttpServletRequestImpl req = session.request;
 		System.out.println(req.getMethod());
 		System.out.println(req.getRequestURI());
 		System.out.println(req.getProtocol());
@@ -196,6 +191,13 @@ public class TestHttpDecoder {
 		System.out.println(req.getHeader("Connection"));
 		System.out.println(req.getHeader("Accept-Encoding"));
 		System.out.println(req.toString());
+		
+		Enumeration<String> enumeration = req.getHeaders("Accept-Encoding");
+		while(enumeration.hasMoreElements()) {
+			System.out.println(">>" + enumeration.nextElement());
+		}
+		
+		System.out.println(HttpServletResponseImpl.GMT_FORMAT.format(new Date()));
 	}
 
 }
