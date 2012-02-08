@@ -5,10 +5,13 @@ import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -20,6 +23,9 @@ import javax.servlet.http.HttpSession;
 
 import com.firefly.net.Session;
 import com.firefly.utils.StringUtils;
+import com.firefly.utils.VerifyUtils;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 
 public class HttpServletRequestImpl implements HttpServletRequest {
 	int status, headLength, offset;
@@ -31,10 +37,12 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	Map<String, String> headMap = new HashMap<String, String>();
 	HttpServletResponseImpl response;
 
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
+	private static final String[] EMPTY_STR_ARR = new String[0];
 	private String characterEncoding;
 	private Session session;
-	private Map<String, Object> parameterMap = new HashMap<String, Object>(),
-			attributeMap = new HashMap<String, Object>();
+	private Map<String, List<String>> parameterMap = new HashMap<String, List<String>>();
+	private Map<String, Object> attributeMap = new HashMap<String, Object>();
 	private boolean loadParam = false;
 	private ServletInputStream servletInputStream = new ServletInputStream() {
 
@@ -63,10 +71,37 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 		this.session = session;
 		response = new HttpServletResponseImpl(session, this, characterEncoding);
 	}
-	
+
 	private void loadParam() {
-		if(!loadParam) {
-			// TODO 分析queryStr和formData
+		if (!loadParam) {
+			try {
+				loadParam(queryString);
+				loadParam(formData);
+			} catch (UnsupportedEncodingException e) {
+				log.error("load param error", e);
+			}
+		}
+	}
+
+	private void loadParam(String str) throws UnsupportedEncodingException {
+		if (VerifyUtils.isNotEmpty(str)) {
+			String[] p = StringUtils.split(str, '&');
+			for (String kv : p) {
+				int i = kv.indexOf('=');
+				if (i > 0) {
+					String name = kv.substring(0, i);
+					String value = kv.substring(i + 1);
+
+					List<String> list = parameterMap.get(name);
+					if (list == null) {
+						list = new ArrayList<String>();
+						parameterMap.put(name, list);
+
+					}
+					list.add(URLDecoder.decode(value, characterEncoding));
+				}
+
+			}
 		}
 	}
 
@@ -122,7 +157,8 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	@Override
 	public String getParameter(String name) {
 		loadParam();
-		return (String) parameterMap.get(name);
+		List<String> list = parameterMap.get(name);
+		return list != null ? list.get(0) : null;
 	}
 
 	@Override
@@ -147,11 +183,11 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	@Override
 	public String[] getParameterValues(String name) {
 		loadParam();
-		return (String[]) parameterMap.get(name);
+		return parameterMap.get(name).toArray(EMPTY_STR_ARR);
 	}
 
 	@Override
-	public Map<String, Object> getParameterMap() {
+	public Map<String, List<String>> getParameterMap() {
 		loadParam();
 		return parameterMap;
 	}
