@@ -17,16 +17,19 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import com.firefly.net.Session;
+
 public class HttpServletRequestImpl implements HttpServletRequest {
-	int status, contentLength, serverPort, remotePort, localPort, headLength,
-			offset;
-	String method, requestURI, queryString, characterEncoding, contentType,
-			protocol, serverName, remoteAddr, remoteHost, localName, localAddr;
+	int status, contentLength, headLength, offset;
+	String method, requestURI, queryString, contentType, protocol;
+
 	PipedInputStream pipedInputStream = new PipedInputStream();
 	Cookie[] cookies;
 	Map<String, String> headMap = new HashMap<String, String>();
 	HttpServletResponseImpl response;
 
+	private String characterEncoding;
+	private Session session;
 	private Map<String, Object> parameterMap = new HashMap<String, Object>(),
 			attributeMap = new HashMap<String, Object>();
 	private ServletInputStream servletInputStream = new ServletInputStream() {
@@ -50,6 +53,12 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 			return pipedInputStream.read(b, off, len);
 		}
 	};
+
+	public HttpServletRequestImpl(Session session, String characterEncoding) {
+		this.characterEncoding = characterEncoding;
+		this.session = session;
+		response = new HttpServletResponseImpl(session, this, characterEncoding);
+	}
 
 	@Override
 	public Object getAttribute(String name) {
@@ -148,7 +157,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	 */
 	@Override
 	public String getServerName() {
-		return serverName;
+		return session.getLocalAddress().getHostName();
 	}
 
 	/**
@@ -156,7 +165,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	 */
 	@Override
 	public int getServerPort() {
-		return serverPort;
+		return session.getLocalAddress().getPort();
 	}
 
 	@Override
@@ -167,12 +176,12 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public String getRemoteAddr() {
-		return remoteAddr;
+		return session.getRemoteAddress().toString();
 	}
 
 	@Override
 	public String getRemoteHost() {
-		return remoteHost;
+		return session.getRemoteAddress().getHostName();
 	}
 
 	@Override
@@ -217,7 +226,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public int getRemotePort() {
-		return remotePort;
+		return session.getRemoteAddress().getPort();
 	}
 
 	/**
@@ -225,7 +234,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	 */
 	@Override
 	public String getLocalName() {
-		return localName;
+		return session.getLocalAddress().getHostName();
 	}
 
 	/**
@@ -233,7 +242,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	 */
 	@Override
 	public String getLocalAddr() {
-		return localAddr;
+		return session.getLocalAddress().toString();
 	}
 
 	/**
@@ -241,7 +250,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	 */
 	@Override
 	public int getLocalPort() {
-		return localPort;
+		return session.getLocalAddress().getPort();
 	}
 
 	@Override

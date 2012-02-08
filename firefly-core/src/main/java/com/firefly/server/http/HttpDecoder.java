@@ -46,10 +46,7 @@ public class HttpDecoder implements Decoder {
 		HttpServletRequestImpl req = (HttpServletRequestImpl) session
 				.getAttribute(HTTP_REQUEST);
 		if (req == null) {
-			req = new HttpServletRequestImpl();
-			req.response = new HttpServletResponseImpl();
-			req.response.characterEncoding = config.getEncoding();
-			req.response.session = session;
+			req = new HttpServletRequestImpl(session, config.getEncoding());
 			session.setAttribute(HTTP_REQUEST, req);
 		}
 		return req;

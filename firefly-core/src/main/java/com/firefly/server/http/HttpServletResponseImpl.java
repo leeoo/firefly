@@ -16,13 +16,21 @@ import com.firefly.net.Session;
 
 public class HttpServletResponseImpl implements HttpServletResponse {
 
-	boolean system = false, committed = false;
-	Session session;
-	HttpServletRequestImpl request;
+	boolean system = false;
+	private boolean committed = false;
+	private Session session;
+	private HttpServletRequestImpl request;
 	int status, bufferSize;
-	String characterEncoding;
-	Map<String, String> headMap = new HashMap<String, String>();
-	List<Cookie> cookies = new LinkedList<Cookie>();
+	private String characterEncoding;
+	private Map<String, String> headMap = new HashMap<String, String>();
+	private List<Cookie> cookies = new LinkedList<Cookie>();
+
+	public HttpServletResponseImpl(Session session,
+			HttpServletRequestImpl request, String characterEncoding) {
+		this.session = session;
+		this.request = request;
+		this.characterEncoding = characterEncoding;
+	}
 
 	@Override
 	public String getCharacterEncoding() {
