@@ -5,10 +5,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.firefly.net.Session;
+import com.firefly.server.http.HttpServletRequestImpl;
 
 public class MockSession implements Session {
 	
 	Map<String, Object> map = new HashMap<String, Object>();
+	HttpServletRequestImpl request = null;
 
 	@Override
 	public void setAttribute(String key, Object value) {
@@ -32,7 +34,7 @@ public class MockSession implements Session {
 
 	@Override
 	public void fireReceiveMessage(Object message) {
-		// TODO Auto-generated method stub
+		request = (HttpServletRequestImpl)message;
 
 	}
 

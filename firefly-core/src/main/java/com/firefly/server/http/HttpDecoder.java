@@ -1,5 +1,6 @@
 package com.firefly.server.http;
 
+import java.io.PipedOutputStream;
 import java.nio.ByteBuffer;
 
 import com.firefly.net.Decoder;
@@ -76,8 +77,9 @@ public class HttpDecoder implements Decoder {
 			}
 		}
 
-		private void finish(Session session, HttpServletRequestImpl req) {
+		protected void finish(Session session, HttpServletRequestImpl req) {
 			session.removeAttribute(REMAIN_DATA);
+			session.removeAttribute(HTTP_REQUEST);
 			req.status = httpDecode.length;
 		}
 
@@ -221,7 +223,41 @@ public class HttpDecoder implements Decoder {
 		@Override
 		public boolean decode(ByteBuffer buf, Session session,
 				HttpServletRequestImpl req) throws Throwable {
-			// TODO 调用handler前要clear
+			int contentLength = req.getContentLength();
+			if(contentLength > 0) {
+				if(contentLength > config.getMaxUploadLength()) {
+					responseError(session, req, 400);
+					return true;
+				}
+				
+				String contentType = req.getContentType();
+				if("application/x-www-form-urlencoded".equals(contentType)) {
+					req.offset += buf.remaining();
+					if(req.offset >= contentLength) {
+						byte[] data = new byte[buf.remaining()];
+						buf.get(data);
+						req.formData = new String(data, config.getEncoding());
+						response(session, req);
+						return true;
+					}
+				} else {
+					session.fireReceiveMessage(req);
+					req.pipedOutputStream = new PipedOutputStream(req.pipedInputStream);
+					byte[] data = new byte[buf.remaining()];
+					buf.get(data);
+					req.pipedOutputStream.write(data);
+					
+					req.offset += buf.remaining();
+					if(req.offset >= contentLength) {
+						req.pipedOutputStream.close();
+						finish(session, req);
+						return true;
+					}
+				}
+			} else {
+				response(session, req);
+				return true;
+			}
 			return false;
 		}
 
