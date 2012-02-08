@@ -6,6 +6,8 @@ import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.Enumeration;
 
+import javax.servlet.ServletInputStream;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -164,7 +166,7 @@ public class TestHttpDecoder {
 		Assert.assertThat(req.getHeader("Accept-Encoding"),
 				is("gzip,deflate,sdch"));
 	}
-	
+
 	@Test
 	public void testBody() throws Throwable {
 		byte[] buf1 = "POST /firefly-demo/app/hel".getBytes(config
@@ -189,12 +191,12 @@ public class TestHttpDecoder {
 		for (int i = 0; i < buf.length; i++) {
 			httpDecoder.decode(buf[i], session);
 		}
-		
+
 		HttpServletRequestImpl req = session.request;
 		Assert.assertThat(req.getParameter("title"), is("测试"));
 		Assert.assertThat(req.getParameter("price"), is("3.3"));
 	}
-	
+
 	@Test
 	public void testBody2() throws Throwable {
 		byte[] buf1 = "POST /firefly-demo/app/hel".getBytes(config
@@ -219,12 +221,12 @@ public class TestHttpDecoder {
 		for (int i = 0; i < buf.length; i++) {
 			httpDecoder.decode(buf[i], session);
 		}
-		
+
 		HttpServletRequestImpl req = session.request;
 		Assert.assertThat(req.getParameter("title"), is("测试"));
 		Assert.assertThat(req.getParameter("price"), is(""));
 	}
-	
+
 	@Test
 	public void testBody3() throws Throwable {
 		byte[] buf1 = "POST /firefly-demo/app/hel".getBytes(config
@@ -235,10 +237,9 @@ public class TestHttpDecoder {
 				.getEncoding());
 		byte[] buf4 = "Accept-Encoding:gzip,deflate,sdch\r\nContent-Type:app"
 				.getBytes(config.getEncoding());
-		byte[] buf5 = "lication/x-www-form-urlencoded\r\nContent-Length:24\r\n\r\n"
+		byte[] buf5 = "lication/x-www-form-urlencoded\r\nContent-Length:24\r\n\r\ntit"
 				.getBytes(config.getEncoding());
-		byte[] buf6 = "title=%E6%B5%8B%E8%AF%95".getBytes(config
-				.getEncoding());
+		byte[] buf6 = "le=%E6%B5%8B%E8%AF%95".getBytes(config.getEncoding());
 
 		ByteBuffer[] buf = new ByteBuffer[] { ByteBuffer.wrap(buf1),
 				ByteBuffer.wrap(buf2), ByteBuffer.wrap(buf3),
@@ -249,30 +250,28 @@ public class TestHttpDecoder {
 		for (int i = 0; i < buf.length; i++) {
 			httpDecoder.decode(buf[i], session);
 		}
-		
+
 		HttpServletRequestImpl req = session.request;
 		Assert.assertThat(req.getParameter("title"), is("测试"));
 		Assert.assertThat(req.getParameter("price"), nullValue());
 		Assert.assertThat(req.getContentLength(), is(24));
-		Assert.assertThat(req.getContentType(), is("application/x-www-form-urlencoded"));
+		Assert.assertThat(req.getContentType(),
+				is("application/x-www-form-urlencoded"));
 	}
-
-	public static void main(String[] args) throws Throwable {
-		test2();
-	}
-
-	public static void test2() throws Throwable {
+	
+	@Test
+	public void testBody4() throws Throwable {
 		byte[] buf1 = "POST /firefly-demo/app/hel".getBytes(config
 				.getEncoding());
 		byte[] buf2 = "lo HTTP/1.1\r\nHost:127.0.0.1\r\nAccept-Language:zh-CN,"
 				.getBytes(config.getEncoding());
 		byte[] buf3 = "zh;q=0.8\r\nConnection:keep-alive\r\n".getBytes(config
 				.getEncoding());
-		byte[] buf4 = "Accept-Encoding:gzip,deflate,sdch\r\nContent-Type:app"
-				.getBytes(config.getEncoding());
-		byte[] buf5 = "lication/x-www-form-urlencoded\r\nContent-Length:24\r\n\r\n"
-				.getBytes(config.getEncoding());
-		byte[] buf6 = "title=%E6%B5%8B%E8%AF%95".getBytes(config
+		byte[] buf4 = "Accept-Encoding:gzip,deflate,sdch".getBytes(config
+				.getEncoding());
+		byte[] buf5 = "\r\nContent-Length:47\r\n\r\n".getBytes(config
+				.getEncoding());
+		byte[] buf6 = "| 90 | 测试 | 测试当前book | 3.3 | true |".getBytes(config
 				.getEncoding());
 
 		ByteBuffer[] buf = new ByteBuffer[] { ByteBuffer.wrap(buf1),
@@ -284,13 +283,29 @@ public class TestHttpDecoder {
 		for (int i = 0; i < buf.length; i++) {
 			httpDecoder.decode(buf[i], session);
 		}
-		
+
 		HttpServletRequestImpl req = session.request;
-		System.out.println(req.getMethod());
-		System.out.println(req.getContentType());
-		System.out.println(req.getContentLength());
-		System.out.println(req.getParameter("title"));
-		System.out.println(req.getParameter("price"));
+		ServletInputStream input = req.getInputStream();
+		byte[] temp = new byte[30];
+		byte[] data = null;
+		for (int len = 0; (len = input.read(temp)) != -1;) {
+			if (data == null) {
+				data = new byte[len];
+				System.arraycopy(temp, 0, data, 0, len);
+			} else {
+				byte[] pre = data;
+				data = new byte[pre.length + len];
+				System.arraycopy(pre, 0, data, 0, pre.length);
+				System.arraycopy(temp, 0, data, pre.length, len);
+			}
+		}
+
+		Assert.assertThat(new String(data, config.getEncoding()), is("| 90 | 测试 | 测试当前book | 3.3 | true |"));
+		Assert.assertThat(data, is(buf6));
+	}
+
+	public static void main(String[] args) throws Throwable {
+		test1();
 	}
 
 	public static void test1() throws Throwable {

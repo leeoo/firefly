@@ -242,12 +242,13 @@ public class HttpDecoder implements Decoder {
 					}
 				} else {
 					session.fireReceiveMessage(req);
-					req.pipedOutputStream = new PipedOutputStream(req.pipedInputStream);
+					if(req.pipedOutputStream == null)
+						req.pipedOutputStream = new PipedOutputStream(req.pipedInputStream);
+					req.offset += buf.remaining();
 					byte[] data = new byte[buf.remaining()];
 					buf.get(data);
 					req.pipedOutputStream.write(data);
-					
-					req.offset += buf.remaining();
+
 					if(req.offset >= contentLength) {
 						req.pipedOutputStream.close();
 						finish(session, req);
