@@ -2,6 +2,7 @@ package com.firefly.server.http;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.UnsupportedEncodingException;
@@ -44,6 +45,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	private Map<String, List<String>> parameterMap = new HashMap<String, List<String>>();
 	private Map<String, Object> attributeMap = new HashMap<String, Object>();
 	private boolean loadParam = false;
+	private BufferedReader bufferedReader;
 	private ServletInputStream servletInputStream = new ServletInputStream() {
 
 		@Override
@@ -220,8 +222,10 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public BufferedReader getReader() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		if (bufferedReader == null)
+			bufferedReader = new BufferedReader(new InputStreamReader(
+					pipedInputStream, characterEncoding));
+		return bufferedReader;
 	}
 
 	@Override

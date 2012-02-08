@@ -1,7 +1,9 @@
 package test.http;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
+import java.io.BufferedReader;
 import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.Enumeration;
@@ -299,9 +301,46 @@ public class TestHttpDecoder {
 				System.arraycopy(temp, 0, data, pre.length, len);
 			}
 		}
+		input.close();
 
 		Assert.assertThat(new String(data, config.getEncoding()), is("| 90 | 测试 | 测试当前book | 3.3 | true |"));
 		Assert.assertThat(data, is(buf6));
+	}
+	
+	@Test
+	public void testBody5() throws Throwable {
+		byte[] buf1 = "POST /firefly-demo/app/hel".getBytes(config
+				.getEncoding());
+		byte[] buf2 = "lo HTTP/1.1\r\nHost:127.0.0.1\r\nAccept-Language:zh-CN,"
+				.getBytes(config.getEncoding());
+		byte[] buf3 = "zh;q=0.8\r\nConnection:keep-alive\r\n".getBytes(config
+				.getEncoding());
+		byte[] buf4 = "Accept-Encoding:gzip,deflate,sdch".getBytes(config
+				.getEncoding());
+		byte[] buf5 = "\r\nContent-Length:47\r\n\r\n".getBytes(config
+				.getEncoding());
+		byte[] buf6 = "| 90 | 测试 | 测试当前book | 3.3 | true |".getBytes(config
+				.getEncoding());
+
+		ByteBuffer[] buf = new ByteBuffer[] { ByteBuffer.wrap(buf1),
+				ByteBuffer.wrap(buf2), ByteBuffer.wrap(buf3),
+				ByteBuffer.wrap(buf4), ByteBuffer.wrap(buf5),
+				ByteBuffer.wrap(buf6) };
+		MockSession session = new MockSession();
+
+		for (int i = 0; i < buf.length; i++) {
+			httpDecoder.decode(buf[i], session);
+		}
+
+		HttpServletRequestImpl req = session.request;
+		BufferedReader reader = req.getReader();
+		StringBuilder sb = new StringBuilder();
+		for (String line = null; (line = reader.readLine()) != null;) {
+			sb.append(line);
+		}
+		reader.close();
+
+		Assert.assertThat(sb.toString(), is("| 90 | 测试 | 测试当前book | 3.3 | true |"));
 	}
 
 	public static void main(String[] args) throws Throwable {
