@@ -69,6 +69,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 			return pipedInputStream.read(b, off, len);
 		}
 	};
+	private RequestDispatcherImpl requestDispatcher = new RequestDispatcherImpl();
 
 	protected static Locale defaultLocale = Locale.getDefault();
 	protected ArrayList<Locale> locales = new ArrayList<Locale>();
@@ -88,7 +89,6 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 						&& "application/x-www-form-urlencoded"
 								.equals(getContentType())) {
 					byte[] data = new byte[getContentLength()];
-
 					ServletInputStream input = getInputStream();
 					try {
 						input.read(data);
@@ -303,21 +303,9 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	@Override
-	public boolean isSecure() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public RequestDispatcher getRequestDispatcher(String path) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getRealPath(String path) {
-		// TODO Auto-generated method stub
-		return null;
+		requestDispatcher.path = path;
+		return requestDispatcher;
 	}
 
 	@Override
@@ -347,12 +335,6 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	@Override
 	public int getLocalPort() {
 		return session.getLocalAddress().getPort();
-	}
-
-	@Override
-	public String getAuthType() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -419,18 +401,6 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	@Override
-	public String getPathInfo() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getPathTranslated() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public String getContextPath() {
 		return "";
 	}
@@ -438,30 +408,6 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	@Override
 	public String getQueryString() {
 		return queryString;
-	}
-
-	@Override
-	public String getRemoteUser() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean isUserInRole(String role) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public Principal getUserPrincipal() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getRequestedSessionId() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -492,6 +438,60 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	@Override
 	public String getServletPath() {
 		return "";
+	}
+	
+	@Override
+	public String getRemoteUser() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isUserInRole(String role) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Principal getUserPrincipal() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public String getAuthType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public boolean isSecure() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public String getRealPath(String path) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getPathInfo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getPathTranslated() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getRequestedSessionId() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
