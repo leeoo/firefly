@@ -252,8 +252,9 @@ public class TestHttpDecoder {
 		for (int i = 0; i < buf.length; i++) {
 			httpDecoder.decode(buf[i], session);
 		}
-
+		
 		HttpServletRequestImpl req = session.request;
+		System.out.println(req.getParameter("title"));
 		Assert.assertThat(req.getParameter("title"), is("测试"));
 		Assert.assertThat(req.getParameter("price"), nullValue());
 		Assert.assertThat(req.getContentLength(), is(24));
@@ -344,7 +345,8 @@ public class TestHttpDecoder {
 	}
 
 	public static void main(String[] args) throws Throwable {
-		test1();
+		TestHttpDecoder t = new TestHttpDecoder();
+		t.testBody3();
 	}
 
 	public static void test1() throws Throwable {
@@ -373,6 +375,7 @@ public class TestHttpDecoder {
 		System.out.println(req.getHeader("Connection"));
 		System.out.println(req.getHeader("Accept-Encoding"));
 		System.out.println(req.toString());
+		System.out.println((req.getContextPath() + req.getServletPath()).length());
 
 		Enumeration<String> enumeration = req.getHeaders("Accept-Encoding");
 		while (enumeration.hasMoreElements()) {
