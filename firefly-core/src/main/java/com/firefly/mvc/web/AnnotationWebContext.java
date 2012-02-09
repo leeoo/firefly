@@ -37,15 +37,26 @@ public class AnnotationWebContext extends XmlApplicationContext implements
 		WebContext {
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 
-	// public AnnotationWebContext() {
-	// this(null);
-	// }
-
 	public AnnotationWebContext(String file, ServletContext servletContext) {
 		super(file);
 		if (servletContext != null)
 			FFTViewHandle.getInstance().init(
 					servletContext.getRealPath(getViewPath()), getEncoding());
+		initContext();
+	}
+	
+	/**
+	 * 用于http服务器
+	 * @param file firefly配置文件
+	 * @param templatePath fft模版路径
+	 */
+	public AnnotationWebContext(String file, String templatePath) {
+		super(file);
+		FFTViewHandle.getInstance().init(templatePath, getEncoding());
+		initContext();
+	}
+	
+	private void initContext() {
 		JspViewHandle.getInstance().init(getViewPath());
 		TextViewHandle.getInstance().init(getEncoding());
 		JsonViewHandle.getInstance().init(getEncoding());
