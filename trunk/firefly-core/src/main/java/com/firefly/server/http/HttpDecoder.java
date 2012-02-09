@@ -230,30 +230,18 @@ public class HttpDecoder implements Decoder {
 					return true;
 				}
 				
-				String contentType = req.getContentType();
-				if("application/x-www-form-urlencoded".equals(contentType)) {
-					req.offset += buf.remaining();
-					if(req.offset >= contentLength) {
-						byte[] data = new byte[buf.remaining()];
-						buf.get(data);
-						req.formData = new String(data, config.getEncoding());
-						response(session, req);
-						return true;
-					}
-				} else {
-					session.fireReceiveMessage(req);
-					if(req.pipedOutputStream == null)
-						req.pipedOutputStream = new PipedOutputStream(req.pipedInputStream);
-					req.offset += buf.remaining();
-					byte[] data = new byte[buf.remaining()];
-					buf.get(data);
-					req.pipedOutputStream.write(data);
+				session.fireReceiveMessage(req);
+				if(req.pipedOutputStream == null)
+					req.pipedOutputStream = new PipedOutputStream(req.pipedInputStream);
+				req.offset += buf.remaining();
+				byte[] data = new byte[buf.remaining()];
+				buf.get(data);
+				req.pipedOutputStream.write(data);
 
-					if(req.offset >= contentLength) {
-						req.pipedOutputStream.close();
-						finish(session, req);
-						return true;
-					}
+				if(req.offset >= contentLength) {
+					req.pipedOutputStream.close();
+					finish(session, req);
+					return true;
 				}
 			} else {
 				response(session, req);

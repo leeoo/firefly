@@ -30,7 +30,7 @@ import com.firefly.utils.log.LogFactory;
 
 public class HttpServletRequestImpl implements HttpServletRequest {
 	int status, headLength, offset;
-	String method, requestURI, queryString, formData, protocol;
+	String method, requestURI, queryString, protocol;
 
 	PipedInputStream pipedInputStream = new PipedInputStream();
 	PipedOutputStream pipedOutputStream;
@@ -78,10 +78,23 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 		if (!loadParam) {
 			try {
 				loadParam(queryString);
-				loadParam(formData);
-			} catch (UnsupportedEncodingException e) {
-				log.error("load param error", e);
+				if (method.equals("POST")
+						&& "application/x-www-form-urlencoded"
+								.equals(getContentType())) {
+					byte[] data = new byte[getContentLength()];
+
+					ServletInputStream input = getInputStream();
+					try {
+						input.read(data);
+						loadParam(new String(data, characterEncoding));
+					} finally {
+						input.close();
+					}
+				}
+			} catch (Throwable t) {
+				log.error("load param error", t);
 			}
+			loadParam = true;
 		}
 	}
 
@@ -390,8 +403,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public String getContextPath() {
-		// TODO Auto-generated method stub
-		return null;
+		return "";
 	}
 
 	@Override
@@ -436,8 +448,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public String getServletPath() {
-		// TODO Auto-generated method stub
-		return null;
+		return "";
 	}
 
 	@Override
