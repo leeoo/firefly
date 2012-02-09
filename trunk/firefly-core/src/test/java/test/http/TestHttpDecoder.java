@@ -255,6 +255,10 @@ public class TestHttpDecoder {
 		
 		HttpServletRequestImpl req = session.request;
 		System.out.println(req.getParameter("title"));
+		System.out.println(req.getLocale().toString());
+		System.out.println(req.getRequestURL().toString());
+		Assert.assertThat(req.getRequestURL().toString(), is("http://localhost/firefly-demo/app/hello"));
+		Assert.assertThat(req.getLocale().toString(), is("zh_CN"));
 		Assert.assertThat(req.getParameter("title"), is("测试"));
 		Assert.assertThat(req.getParameter("price"), nullValue());
 		Assert.assertThat(req.getContentLength(), is(24));
