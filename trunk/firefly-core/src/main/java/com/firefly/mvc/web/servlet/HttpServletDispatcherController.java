@@ -127,6 +127,16 @@ public class HttpServletDispatcherController implements DispatcherController {
 		webContext = new AnnotationWebContext(initParam, servletContext);
 		return this;
 	}
+	
+	/**
+	 * 用于http服务器
+	 * @param webContext
+	 * @return
+	 */
+	public HttpServletDispatcherController init(WebContext webContext) {
+		this.webContext = webContext;
+		return this;
+	}
 
 	/**
 	 * controller方法参数注入
