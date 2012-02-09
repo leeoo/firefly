@@ -44,18 +44,22 @@ public class AnnotationWebContext extends XmlApplicationContext implements
 					servletContext.getRealPath(getViewPath()), getEncoding());
 		initContext();
 	}
-	
+
 	/**
 	 * 用于http服务器
-	 * @param file firefly配置文件
-	 * @param templatePath fft模版路径
+	 * 
+	 * @param file
+	 *            firefly配置文件
+	 * @param serverHome
+	 *            http服务根目录
 	 */
-	public AnnotationWebContext(String file, String templatePath) {
+	public AnnotationWebContext(String file, String serverHome) {
 		super(file);
-		FFTViewHandle.getInstance().init(templatePath, getEncoding());
+		FFTViewHandle.getInstance().init(serverHome + getViewPath(),
+				getEncoding());
 		initContext();
 	}
-	
+
 	private void initContext() {
 		JspViewHandle.getInstance().init(getViewPath());
 		TextViewHandle.getInstance().init(getEncoding());
@@ -115,7 +119,7 @@ public class AnnotationWebContext extends XmlApplicationContext implements
 						beanDefinition.getObject(), m, getViewHandle(view));
 				map.put(key, mvcMetaInfo);
 				uriList.add(key);
-				
+
 				if (key.charAt(key.length() - 1) == '/') {
 					key = key.substring(0, key.length() - 1);
 					log.info("register uri [{}], view [{}]", key, view);

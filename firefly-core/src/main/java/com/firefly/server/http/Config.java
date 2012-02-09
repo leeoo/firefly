@@ -6,6 +6,15 @@ public class Config {
 			maxRequestHeadLength = 16 * 1024, maxRangeNum = 8;
 	private long maxUploadLength = 50 * 1024 * 1024;
 	private boolean keepAlive = true;
+	private String serverHome;
+
+	public String getServerHome() {
+		return serverHome;
+	}
+
+	public void setServerHome(String serverHome) {
+		this.serverHome = serverHome;
+	}
 
 	public int getMaxRequestHeadLength() {
 		return maxRequestHeadLength;

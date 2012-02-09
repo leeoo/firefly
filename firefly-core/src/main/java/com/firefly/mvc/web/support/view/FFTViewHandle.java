@@ -19,6 +19,7 @@ public class FFTViewHandle implements ViewHandle {
 
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	private TemplateFactory t;
+	private boolean init = false;
 
 	private FFTViewHandle() {
 
@@ -33,10 +34,13 @@ public class FFTViewHandle implements ViewHandle {
 	}
 
 	public FFTViewHandle init(String viewPath, String encoding) {
-		com.firefly.template.Config config = new com.firefly.template.Config();
-		config.setViewPath(viewPath);
-		config.setCharset(encoding);
-		t = new TemplateFactory(config).init();
+		if (!init) {
+			com.firefly.template.Config config = new com.firefly.template.Config();
+			config.setViewPath(viewPath);
+			config.setCharset(encoding);
+			t = new TemplateFactory(config).init();
+			init = true;
+		}
 		return this;
 	}
 
