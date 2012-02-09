@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletInputStream;
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import com.firefly.net.Session;
+import com.firefly.server.utils.StringParser;
 import com.firefly.utils.StringUtils;
 import com.firefly.utils.VerifyUtils;
 import com.firefly.utils.log.Log;
@@ -39,12 +41,12 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	HttpServletResponseImpl response;
 
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
+	private StringParser parser = new StringParser();
 	private static final String[] EMPTY_STR_ARR = new String[0];
 	private String characterEncoding;
 	private Session session;
 	private Map<String, List<String>> parameterMap = new HashMap<String, List<String>>();
 	private Map<String, Object> attributeMap = new HashMap<String, Object>();
-	private boolean loadParam = false;
 	private BufferedReader bufferedReader;
 	private ServletInputStream servletInputStream = new ServletInputStream() {
 
@@ -67,6 +69,10 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 			return pipedInputStream.read(b, off, len);
 		}
 	};
+
+	protected static Locale defaultLocale = Locale.getDefault();
+	protected ArrayList<Locale> locales = new ArrayList<Locale>();
+	private boolean loadParam, localesParsed;
 
 	public HttpServletRequestImpl(Session session, String characterEncoding) {
 		this.characterEncoding = characterEncoding;
@@ -263,14 +269,37 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public Locale getLocale() {
-		// TODO Auto-generated method stub
-		return null;
+		if (!localesParsed)
+			parseLocales();
+
+		if (locales.size() > 0) {
+			return ((Locale) locales.get(0));
+		} else {
+			return (defaultLocale);
+		}
 	}
 
 	@Override
-	public Enumeration<?> getLocales() {
-		// TODO Auto-generated method stub
-		return null;
+	public Enumeration<Locale> getLocales() {
+		if (!localesParsed)
+			parseLocales();
+
+		if (locales.size() == 0)
+			locales.add(defaultLocale);
+
+		return new Enumeration<Locale>() {
+			private int i = 0;
+
+			@Override
+			public boolean hasMoreElements() {
+				return i < locales.size();
+			}
+
+			@Override
+			public Locale nextElement() {
+				return locales.get(i++);
+			}
+		};
 	}
 
 	@Override
@@ -442,8 +471,22 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public StringBuffer getRequestURL() {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuffer url = new StringBuffer();
+		String scheme = getScheme();
+		int port = getServerPort();
+		if (port < 0)
+			port = 80; // Work around java.net.URL bug
+
+		url.append(scheme);
+		url.append("://");
+		url.append(getServerName());
+		if ((scheme.equals("http") && (port != 80))
+				|| (scheme.equals("https") && (port != 443))) {
+			url.append(':');
+			url.append(port);
+		}
+		url.append(getRequestURI());
+		return url;
 	}
 
 	@Override
@@ -489,5 +532,142 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	@Override
 	public String toString() {
 		return headMap.toString();
+	}
+
+	protected void parseLocales() {
+		localesParsed = true;
+		Enumeration<String> values = getHeaders("accept-language");
+		while (values.hasMoreElements()) {
+			String value = values.nextElement().toString();
+			parseLocalesHeader(value);
+		}
+	}
+
+	/**
+	 * Parse accept-language header value.
+	 */
+	protected void parseLocalesHeader(String value) {
+
+		// Store the accumulated languages that have been requested in
+		// a local collection, sorted by the quality value (so we can
+		// add Locales in descending order). The values will be ArrayLists
+		// containing the corresponding Locales to be added
+		TreeMap<Double, ArrayList<Locale>> locales = new TreeMap<Double, ArrayList<Locale>>();
+
+		// Preprocess the value to remove all whitespace
+		int white = value.indexOf(' ');
+		if (white < 0)
+			white = value.indexOf('\t');
+		if (white >= 0) {
+			StringBuffer sb = new StringBuffer();
+			int len = value.length();
+			for (int i = 0; i < len; i++) {
+				char ch = value.charAt(i);
+				if ((ch != ' ') && (ch != '\t'))
+					sb.append(ch);
+			}
+			value = sb.toString();
+		}
+
+		// Process each comma-delimited language specification
+		parser.setString(value); // ASSERT: parser is available to us
+		int length = parser.getLength();
+		while (true) {
+
+			// Extract the next comma-delimited entry
+			int start = parser.getIndex();
+			if (start >= length)
+				break;
+			int end = parser.findChar(',');
+			String entry = parser.extract(start, end).trim();
+			parser.advance(); // For the following entry
+
+			// Extract the quality factor for this entry
+			double quality = 1.0;
+			int semi = entry.indexOf(";q=");
+			if (semi >= 0) {
+				try {
+					String strQuality = entry.substring(semi + 3);
+					if (strQuality.length() <= 5) {
+						quality = Double.parseDouble(strQuality);
+					} else {
+						quality = 0.0;
+					}
+				} catch (NumberFormatException e) {
+					quality = 0.0;
+				}
+				entry = entry.substring(0, semi);
+			}
+
+			// Skip entries we are not going to keep track of
+			if (quality < 0.00005)
+				continue; // Zero (or effectively zero) quality factors
+			if ("*".equals(entry))
+				continue; // FIXME - "*" entries are not handled
+
+			// Extract the language and country for this entry
+			String language = null;
+			String country = null;
+			String variant = null;
+			int dash = entry.indexOf('-');
+			if (dash < 0) {
+				language = entry;
+				country = "";
+				variant = "";
+			} else {
+				language = entry.substring(0, dash);
+				country = entry.substring(dash + 1);
+				int vDash = country.indexOf('-');
+				if (vDash > 0) {
+					String cTemp = country.substring(0, vDash);
+					variant = country.substring(vDash + 1);
+					country = cTemp;
+				} else {
+					variant = "";
+				}
+			}
+			if (!isAlpha(language) || !isAlpha(country) || !isAlpha(variant)) {
+				continue;
+			}
+
+			// Add a new Locale to the list of Locales for this quality level
+			Locale locale = new Locale(language, country, variant);
+			Double key = new Double(-quality); // Reverse the order
+			ArrayList<Locale> values = locales.get(key);
+			if (values == null) {
+				values = new ArrayList<Locale>();
+				locales.put(key, values);
+			}
+			values.add(locale);
+
+		}
+
+		// Process the quality values in highest->lowest order (due to
+		// negating the Double value when creating the key)
+		Iterator<Double> keys = locales.keySet().iterator();
+		while (keys.hasNext()) {
+			Double key = keys.next();
+			ArrayList<Locale> list = locales.get(key);
+			Iterator<Locale> values = list.iterator();
+			while (values.hasNext()) {
+				Locale locale = (Locale) values.next();
+				addLocale(locale);
+			}
+		}
+
+	}
+
+	protected static final boolean isAlpha(String value) {
+		for (int i = 0; i < value.length(); i++) {
+			char c = value.charAt(i);
+			if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	protected void addLocale(Locale locale) {
+		locales.add(locale);
 	}
 }

@@ -118,14 +118,12 @@ public class MockSession implements Session {
 
 	@Override
 	public InetSocketAddress getLocalAddress() {
-		// TODO Auto-generated method stub
-		return null;
+		return new InetSocketAddress("localhost", 80);
 	}
 
 	@Override
 	public InetSocketAddress getRemoteAddress() {
-		// TODO Auto-generated method stub
-		return null;
+		return new InetSocketAddress("localhost", 9999);
 	}
 
 }
