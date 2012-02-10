@@ -79,6 +79,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	public HttpServletRequestImpl(Session session, Config config) {
 		this.characterEncoding = config.getEncoding();
 		this.session = session;
+		this.config = config;
 		response = new HttpServletResponseImpl(session, this,
 				characterEncoding, config.getWriteBufferSize());
 	}

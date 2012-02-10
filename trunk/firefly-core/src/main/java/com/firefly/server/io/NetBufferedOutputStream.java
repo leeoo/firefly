@@ -19,6 +19,7 @@ public class NetBufferedOutputStream extends OutputStream {
 		this.session = session;
 		this.bufferSize = bufferSize;
 		this.keepAlive = keepAlive;
+		buf = new byte[bufferSize];
 	}
 
 	@Override
@@ -47,7 +48,7 @@ public class NetBufferedOutputStream extends OutputStream {
 	public void flush() throws IOException {
 		if (count > 0) {
 			session.write(ByteBuffer.wrap(buf, 0, count));
-			count = 0;
+			resetBuffer();
 		}
 	}
 
@@ -56,6 +57,11 @@ public class NetBufferedOutputStream extends OutputStream {
 		flush();
 		if (!keepAlive)
 			session.close(false);
+	}
+
+	public void resetBuffer() {
+		buf = new byte[bufferSize];
+		count = 0;
 	}
 
 }

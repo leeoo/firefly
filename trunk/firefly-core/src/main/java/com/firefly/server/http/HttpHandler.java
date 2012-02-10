@@ -33,7 +33,7 @@ public class HttpHandler implements Handler {
 			throws Throwable {
 		// TODO 这里要保证request处理顺序，需要使用阻塞队列，队列的数量可以配置，然后按照sessionId进行取模
 		HttpServletRequestImpl request = (HttpServletRequestImpl) message;
-		log.info(request.toString());
+		controller.dispatcher(request, request.response);
 	}
 
 	@Override

@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Queue;
 import java.util.TimeZone;
 
 import javax.servlet.ServletOutputStream;
@@ -17,6 +18,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import com.firefly.net.Session;
+import com.firefly.server.io.NetBufferedOutputStream;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
 import com.firefly.utils.time.SafeSimpleDateFormat;
@@ -34,6 +36,8 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	private Map<String, String> headMap = new HashMap<String, String>();
 	private List<Cookie> cookies = new LinkedList<Cookie>();
 	private boolean usingWriter, usingOutputStream;
+	private ChunkedOutputStream out;
+	private PrintWriter writer;
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 
 	static {
@@ -50,26 +54,129 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 		this.request = request;
 		this.characterEncoding = characterEncoding;
 		this.bufferSize = bufferSize;
+		setStatus(200);
 	}
-	
+
 	class ChunkedOutputStream extends ServletOutputStream {
+
+		private NetBufferedOutputStream bufferedOutput;
+		private Queue<ChunkedData> queue = new LinkedList<ChunkedData>();
+		private int size;
+		private boolean keepAlive;
+
+		public ChunkedOutputStream(boolean keepAlive) {
+			this.keepAlive = keepAlive;
+			bufferedOutput = new NetBufferedOutputStream(session, bufferSize,
+					isKeepAlive());
+		}
 
 		@Override
 		public void write(int b) throws IOException {
-			// TODO Auto-generated method stub
-			
+			queue.offer(new ByteChunkedData((byte) b));
+			size++;
+			if (size > bufferSize)
+				flush();
 		}
-		
+
 		@Override
-		public void write(byte b[], int off, int len) throws IOException {
-			
+		public void write(byte[] b, int off, int len) throws IOException {
+			if (len > bufferSize) {
+				flush();
+				bufferedOutput.write(b, off, len);
+				return;
+			}
+
+			queue.offer(new ByteArrayChunkedData(b, off, len));
+			size += len;
+			if (size > bufferSize)
+				flush();
 		}
-		
+
+		@Override
+		public void flush() throws IOException {
+			if (!committed) {
+				setHeader("Connection", keepAlive ? "keep-alive" : "close");
+				setHeader("Transfer-Encoding", "chunked");
+				bufferedOutput.write(getHeadData());
+				committed = true;
+			}
+
+			if (size > 0) {
+				bufferedOutput.write(getChunkedSize(size));
+				for (ChunkedData d = null; (d = queue.poll()) != null;) {
+					d.write();
+				}
+				size = 0;
+			}
+		}
+
+		@Override
+		public void close() throws IOException {
+			flush();
+			bufferedOutput.close();
+		}
+
+		public void resetBuffer() {
+			bufferedOutput.resetBuffer();
+			size = 0;
+			queue.clear();
+		}
+
+		private abstract class ChunkedData {
+			abstract void write() throws IOException;
+		}
+
+		private class ByteChunkedData extends ChunkedData {
+			private byte b;
+
+			public ByteChunkedData(byte b) {
+				this.b = b;
+			}
+
+			@Override
+			public void write() throws IOException {
+				bufferedOutput.write(b);
+			}
+		}
+
+		private class ByteArrayChunkedData extends ChunkedData {
+			private byte[] b;
+			private int off, len;
+
+			public ByteArrayChunkedData(byte[] b, int off, int len) {
+				this.b = b;
+				this.off = off;
+				this.len = len;
+			}
+
+			@Override
+			public void write() throws IOException {
+				bufferedOutput.write(b, off, len);
+			}
+		}
+
 	}
 
 	private byte[] getHeadData() {
-		// TODO
-		return null;
+		StringBuilder sb = new StringBuilder();
+		sb.append(request.getProtocol()).append(' ').append(status).append(' ')
+				.append(shortMessage).append(CRLF);
+
+		for (String name : headMap.keySet())
+			sb.append(name).append(": ").append(headMap.get(name)).append(CRLF);
+
+		// TODO 这里还需要Cookie处理
+
+		sb.append(CRLF);
+
+		System.out.println(sb.toString());
+		byte[] ret = null;
+		try {
+			ret = sb.toString().getBytes(characterEncoding);
+		} catch (UnsupportedEncodingException e) {
+			log.error("get head data error", e);
+		}
+		return ret;
 	}
 
 	private byte[] getChunkedSize(int length) {
@@ -81,6 +188,12 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 			log.error("get chunked size error", e);
 		}
 		return ret;
+	}
+
+	private boolean isKeepAlive() {
+		return request.config.isKeepAlive()
+				&& request.getProtocol().equals("HTTP/1.1")
+				&& !"close".equals(request.getHeader("Connection"));
 	}
 
 	@Override
@@ -95,22 +208,26 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	@Override
 	public ServletOutputStream getOutputStream() throws IOException {
-		// TODO Auto-generated method stub
 		if (usingWriter)
 			return null;
-		usingOutputStream = true;
 
-		return null;
+		if (out == null)
+			out = new ChunkedOutputStream(isKeepAlive());
+		usingOutputStream = true;
+		return out;
 	}
 
 	@Override
 	public PrintWriter getWriter() throws IOException {
-		// TODO Auto-generated method stub
 		if (usingOutputStream)
 			return null;
-		usingWriter = true;
 
-		return null;
+		if (out == null)
+			out = new ChunkedOutputStream(isKeepAlive());
+		if (writer == null)
+			writer = new PrintWriter(out);
+		usingWriter = true;
+		return writer;
 	}
 
 	@Override
@@ -140,14 +257,12 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	@Override
 	public void flushBuffer() throws IOException {
-		// TODO Auto-generated method stub
-
+		out.flush();
 	}
 
 	@Override
 	public void resetBuffer() {
-		// TODO Auto-generated method stub
-
+		out.resetBuffer();
 	}
 
 	@Override
@@ -208,12 +323,14 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	@Override
 	public void sendError(int sc, String msg) throws IOException {
 		// TODO Auto-generated method stub
+		setStatus(sc, msg);
 
 	}
 
 	@Override
 	public void sendError(int sc) throws IOException {
 		// TODO Auto-generated method stub
+		setStatus(sc);
 
 	}
 
