@@ -25,6 +25,9 @@ public class ServerBootstrap {
 				"firefly-server.xml", config.getServerHome());
 		HttpServletDispatcherController controller = HttpServletDispatcherController
 				.getInstance().init(context);
+		
+		config.setEncoding(context.getEncoding());
+		
 		Server server = new TcpServer(new HttpDecoder(config),
 				new HttpEncoder(), new HttpHandler(controller, config));
 		server.start(config.getHost(), config.getPort());

@@ -2,6 +2,7 @@ package com.firefly.server.http;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -16,11 +17,14 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import com.firefly.net.Session;
+import com.firefly.utils.log.Log;
+import com.firefly.utils.log.LogFactory;
 import com.firefly.utils.time.SafeSimpleDateFormat;
 
 public class HttpServletResponseImpl implements HttpServletResponse {
 
 	public static SafeSimpleDateFormat GMT_FORMAT;
+	private static final String CRLF = "\r\n";
 	boolean system = false;
 	private boolean committed = false;
 	private Session session;
@@ -29,6 +33,8 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	private String characterEncoding, shortMessage;
 	private Map<String, String> headMap = new HashMap<String, String>();
 	private List<Cookie> cookies = new LinkedList<Cookie>();
+	private boolean usingWriter, usingOutputStream;
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 
 	static {
 		SimpleDateFormat sdf = new SimpleDateFormat(
@@ -38,10 +44,43 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	}
 
 	public HttpServletResponseImpl(Session session,
-			HttpServletRequestImpl request, String characterEncoding) {
+			HttpServletRequestImpl request, String characterEncoding,
+			int bufferSize) {
 		this.session = session;
 		this.request = request;
 		this.characterEncoding = characterEncoding;
+		this.bufferSize = bufferSize;
+	}
+	
+	class ChunkedOutputStream extends ServletOutputStream {
+
+		@Override
+		public void write(int b) throws IOException {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		@Override
+		public void write(byte b[], int off, int len) throws IOException {
+			
+		}
+		
+	}
+
+	private byte[] getHeadData() {
+		// TODO
+		return null;
+	}
+
+	private byte[] getChunkedSize(int length) {
+		byte[] ret = null;
+		try {
+			ret = (Integer.toHexString(length) + CRLF)
+					.getBytes(characterEncoding);
+		} catch (UnsupportedEncodingException e) {
+			log.error("get chunked size error", e);
+		}
+		return ret;
 	}
 
 	@Override
@@ -57,12 +96,20 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	@Override
 	public ServletOutputStream getOutputStream() throws IOException {
 		// TODO Auto-generated method stub
+		if (usingWriter)
+			return null;
+		usingOutputStream = true;
+
 		return null;
 	}
 
 	@Override
 	public PrintWriter getWriter() throws IOException {
 		// TODO Auto-generated method stub
+		if (usingOutputStream)
+			return null;
+		usingWriter = true;
+
 		return null;
 	}
 

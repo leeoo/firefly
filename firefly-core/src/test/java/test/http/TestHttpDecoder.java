@@ -349,8 +349,12 @@ public class TestHttpDecoder {
 	}
 
 	public static void main(String[] args) throws Throwable {
-		TestHttpDecoder t = new TestHttpDecoder();
-		t.testBody3();
+//		TestHttpDecoder t = new TestHttpDecoder();
+//		t.testBody3();
+		String a = "hello";
+		String b = a;
+		a = "hello2";
+		System.out.println(b);
 	}
 
 	public static void test1() throws Throwable {
