@@ -22,12 +22,9 @@
                 <directory>src/test/resources</directory>
             </testResource>
             <testResource>
-                <filtering>true</filtering>
-                <directory>src/main/webapp</directory>
-                <includes>
-                    <include>**/*.xml</include>
-                </includes>
-            </testResource>
+				<filtering>false</filtering>
+				<directory>src/test/appHome</directory>
+			</testResource>
         </testResources>
         <plugins>
             <plugin>

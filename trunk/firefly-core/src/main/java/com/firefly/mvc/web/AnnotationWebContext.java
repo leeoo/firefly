@@ -1,5 +1,6 @@
 package com.firefly.mvc.web;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +56,8 @@ public class AnnotationWebContext extends XmlApplicationContext implements
 	 */
 	public AnnotationWebContext(String file, String serverHome) {
 		super(file);
-		FFTViewHandle.getInstance().init(serverHome + getViewPath(),
+		FFTViewHandle.getInstance().init(
+				new File(serverHome, getViewPath()).getAbsolutePath(),
 				getEncoding());
 		initContext();
 	}

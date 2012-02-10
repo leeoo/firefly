@@ -35,6 +35,7 @@ public class FFTViewHandle implements ViewHandle {
 
 	public FFTViewHandle init(String viewPath, String encoding) {
 		if (!init) {
+			log.info("template path {}", viewPath);
 			com.firefly.template.Config config = new com.firefly.template.Config();
 			config.setViewPath(viewPath);
 			config.setCharset(encoding);

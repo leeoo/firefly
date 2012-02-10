@@ -439,7 +439,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	public String getServletPath() {
 		return "";
 	}
-	
+
 	@Override
 	public String getRemoteUser() {
 		// TODO Auto-generated method stub
@@ -457,13 +457,13 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
 	public String getAuthType() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
 	public boolean isSecure() {
 		// TODO Auto-generated method stub
@@ -531,7 +531,8 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public String toString() {
-		return headMap.toString();
+		return method + " " + requestURI + queryString + " " + protocol + "\r\n"
+				+ headMap.toString();
 	}
 
 	protected void parseLocales() {
