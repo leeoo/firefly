@@ -1,8 +1,6 @@
 package com.firefly.mvc.web.servlet;
 
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,18 +10,6 @@ import com.firefly.utils.log.LogFactory;
 
 public class SystemHtmlPage {
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
-
-	public static final Map<Integer, String> SYS_PAGE = new HashMap<Integer, String>();
-
-	static {
-		SYS_PAGE.put(404, systemPageTemplate(404, "page not found"));
-	}
-
-	public static void responseSystemPage(HttpServletRequest request,
-			HttpServletResponse response, String charset, int status) {
-		responseSystemPage(request, response, charset, status,
-				SYS_PAGE.get(status));
-	}
 
 	public static void responseSystemPage(HttpServletRequest request,
 			HttpServletResponse response, String charset, int status,

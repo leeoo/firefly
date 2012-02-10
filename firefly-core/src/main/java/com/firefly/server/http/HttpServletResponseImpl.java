@@ -10,7 +10,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Queue;
 import java.util.TimeZone;
 
 import javax.servlet.ServletOutputStream;
@@ -18,6 +17,9 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import com.firefly.net.Session;
+import com.firefly.server.exception.HttpServerException;
+import com.firefly.server.io.ChunkedOutputStream;
+import com.firefly.server.io.HttpServerOutpuStream;
 import com.firefly.server.io.NetBufferedOutputStream;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
@@ -27,17 +29,18 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	public static SafeSimpleDateFormat GMT_FORMAT;
-	boolean system = false;
-	private boolean committed = false;
-	private Session session;
+	private boolean committed;
 	private HttpServletRequestImpl request;
 	private int status, bufferSize;
 	private String characterEncoding, shortMessage;
 	private Map<String, String> headMap = new HashMap<String, String>();
 	private List<Cookie> cookies = new LinkedList<Cookie>();
 	private boolean usingWriter, usingOutputStream;
-	private ChunkedOutputStream out;
+	private HttpServerOutpuStream out;
 	private PrintWriter writer;
+	private NetBufferedOutputStream bufferedOutput;
+
+	boolean system;
 
 	static {
 		SimpleDateFormat sdf = new SimpleDateFormat(
@@ -49,119 +52,29 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	public HttpServletResponseImpl(Session session,
 			HttpServletRequestImpl request, String characterEncoding,
 			int bufferSize) {
-		this.session = session;
 		this.request = request;
 		this.characterEncoding = characterEncoding;
 		this.bufferSize = bufferSize;
+
 		setStatus(200);
+		setHeader("Content-Type", "text/html; charset=" + characterEncoding);
+		setHeader("Server", "firefly-server/1.0");
 	}
 
-	class ChunkedOutputStream extends ServletOutputStream {
-
-		private NetBufferedOutputStream bufferedOutput;
-		private Queue<ChunkedData> queue = new LinkedList<ChunkedData>();
-		private int size;
-		private boolean keepAlive;
-		private byte[] crlf, endFlag;
-
-		public ChunkedOutputStream(boolean keepAlive) {
-			this.keepAlive = keepAlive;
-			bufferedOutput = new NetBufferedOutputStream(session, bufferSize,
-					request.isKeepAlive());
-			crlf = stringToByte("\r\n");
-			endFlag = stringToByte("0\r\n\r\n");
+	private void createOutput() {
+		if (bufferedOutput == null) {
+			setHeader("Connection", request.isKeepAlive() ? "keep-alive"
+					: "close");
+			bufferedOutput = new NetBufferedOutputStream(request.session,
+					bufferSize, request.isKeepAlive());
+			out = request.isChunked() ? new ChunkedOutputStream(bufferSize,
+					bufferedOutput, this) : new HttpServerOutpuStream(
+					bufferSize, bufferedOutput, this);
+			writer = new PrintWriter(out);
 		}
-
-		@Override
-		public void write(int b) throws IOException {
-			queue.offer(new ByteChunkedData((byte) b));
-			size++;
-			if (size > bufferSize)
-				flush();
-		}
-
-		@Override
-		public void write(byte[] b, int off, int len) throws IOException {
-			if (len > bufferSize) {
-				flush();
-				bufferedOutput.write(b, off, len);
-				return;
-			}
-
-			queue.offer(new ByteArrayChunkedData(b, off, len));
-			size += len;
-			if (size > bufferSize)
-				flush();
-		}
-
-		@Override
-		public void flush() throws IOException {
-			if (!committed) {
-				setHeader("Connection", keepAlive ? "keep-alive" : "close");
-				setHeader("Transfer-Encoding", "chunked");
-				bufferedOutput.write(getHeadData());
-				committed = true;
-			}
-
-			if (size > 0) {
-				bufferedOutput.write(getChunkedSize(size));
-				for (ChunkedData d = null; (d = queue.poll()) != null;) {
-					d.write();
-				}
-				bufferedOutput.write(crlf);
-				size = 0;
-			}
-		}
-
-		@Override
-		public void close() throws IOException {
-			flush();
-			bufferedOutput.write(endFlag);
-			bufferedOutput.close();
-		}
-
-		public void resetBuffer() {
-			bufferedOutput.resetBuffer();
-			size = 0;
-			queue.clear();
-		}
-
-		private abstract class ChunkedData {
-			abstract void write() throws IOException;
-		}
-
-		private class ByteChunkedData extends ChunkedData {
-			private byte b;
-
-			public ByteChunkedData(byte b) {
-				this.b = b;
-			}
-
-			@Override
-			public void write() throws IOException {
-				bufferedOutput.write(b);
-			}
-		}
-
-		private class ByteArrayChunkedData extends ChunkedData {
-			private byte[] b;
-			private int off, len;
-
-			public ByteArrayChunkedData(byte[] b, int off, int len) {
-				this.b = b;
-				this.off = off;
-				this.len = len;
-			}
-
-			@Override
-			public void write() throws IOException {
-				bufferedOutput.write(b, off, len);
-			}
-		}
-
 	}
 
-	private byte[] getHeadData() {
+	public byte[] getHeadData() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(request.getProtocol()).append(' ').append(status).append(' ')
 				.append(shortMessage).append("\r\n");
@@ -176,7 +89,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 		return stringToByte(sb.toString());
 	}
 
-	private byte[] getChunkedSize(int length) {
+	public byte[] getChunkedSize(int length) {
 		return stringToByte(Integer.toHexString(length) + "\r\n");
 	}
 
@@ -203,10 +116,10 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	@Override
 	public ServletOutputStream getOutputStream() throws IOException {
 		if (usingWriter)
-			return null;
+			throw new HttpServerException(
+					"getWriter has already been called for this response");
+		createOutput();
 
-		if (out == null)
-			out = new ChunkedOutputStream(request.isKeepAlive());
 		usingOutputStream = true;
 		return out;
 	}
@@ -214,12 +127,10 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	@Override
 	public PrintWriter getWriter() throws IOException {
 		if (usingOutputStream)
-			return null;
+			throw new HttpServerException(
+					"getOutputStream has already been called for this response");
+		createOutput();
 
-		if (out == null)
-			out = new ChunkedOutputStream(request.isKeepAlive());
-		if (writer == null)
-			writer = new PrintWriter(out);
 		usingWriter = true;
 		return writer;
 	}
@@ -262,6 +173,10 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	@Override
 	public boolean isCommitted() {
 		return committed;
+	}
+
+	public void setCommitted(boolean committed) {
+		this.committed = committed;
 	}
 
 	@Override
@@ -316,16 +231,24 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	@Override
 	public void sendError(int sc, String msg) throws IOException {
-		// TODO Auto-generated method stub
 		setStatus(sc, msg);
-
+		// TODO
 	}
 
 	@Override
 	public void sendError(int sc) throws IOException {
-		// TODO Auto-generated method stub
 		setStatus(sc);
+		// TODO
+	}
 
+	public void scheduleSendContinue(int sc) {
+		setStatus(sc);
+		system = true;
+	}
+
+	public void scheduleSendError(int sc) {
+		setStatus(sc);
+		system = true;
 	}
 
 	@Override

@@ -117,8 +117,10 @@ public class HttpServletDispatcherController implements DispatcherController {
 				log.error("dispatcher error", t);
 			}
 		} else {
+			String msg = request.getRequestURI() + " not register";
 			SystemHtmlPage.responseSystemPage(request, response,
-					webContext.getEncoding(), HttpServletResponse.SC_NOT_FOUND);
+					webContext.getEncoding(), HttpServletResponse.SC_NOT_FOUND,
+					msg);
 		}
 	}
 
@@ -127,9 +129,10 @@ public class HttpServletDispatcherController implements DispatcherController {
 		webContext = new AnnotationWebContext(initParam, servletContext);
 		return this;
 	}
-	
+
 	/**
 	 * 用于http服务器
+	 * 
 	 * @param webContext
 	 * @return
 	 */

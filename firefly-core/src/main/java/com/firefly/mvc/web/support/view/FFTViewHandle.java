@@ -56,7 +56,8 @@ public class FFTViewHandle implements ViewHandle {
 			if (v == null)
 				SystemHtmlPage.responseSystemPage(request, response, t
 						.getConfig().getCharset(),
-						HttpServletResponse.SC_NOT_FOUND);
+						HttpServletResponse.SC_NOT_FOUND, "template: " + ret
+								+ "not found");
 			else {
 				response.setCharacterEncoding(t.getConfig().getCharset());
 				response.setHeader("Content-Type", "text/html; charset="

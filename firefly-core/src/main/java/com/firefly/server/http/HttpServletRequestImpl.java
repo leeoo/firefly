@@ -40,12 +40,12 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	Map<String, String> headMap = new HashMap<String, String>();
 	HttpServletResponseImpl response;
 	Config config;
-
+	Session session;
+	
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	private StringParser parser = new StringParser();
 	private static final String[] EMPTY_STR_ARR = new String[0];
 	private String characterEncoding;
-	private Session session;
 	private Map<String, List<String>> parameterMap = new HashMap<String, List<String>>();
 	private Map<String, Object> attributeMap = new HashMap<String, Object>();
 	private BufferedReader bufferedReader;
@@ -131,7 +131,11 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	public boolean isKeepAlive() {
 		return config.isKeepAlive() && !getProtocol().equals("HTTP/1.0")
-				&& !"close".equals(getHeader("Connection"));
+				&& !"close".equalsIgnoreCase(getHeader("Connection"));
+	}
+
+	public boolean isChunked() {
+		return !getProtocol().equals("HTTP/1.0");
 	}
 
 	@Override
