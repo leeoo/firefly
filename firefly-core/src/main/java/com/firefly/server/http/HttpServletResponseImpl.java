@@ -25,8 +25,8 @@ import com.firefly.utils.time.SafeSimpleDateFormat;
 
 public class HttpServletResponseImpl implements HttpServletResponse {
 
+	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	public static SafeSimpleDateFormat GMT_FORMAT;
-	private static final String CRLF = "\r\n";
 	boolean system = false;
 	private boolean committed = false;
 	private Session session;
@@ -38,7 +38,6 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	private boolean usingWriter, usingOutputStream;
 	private ChunkedOutputStream out;
 	private PrintWriter writer;
-	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 
 	static {
 		SimpleDateFormat sdf = new SimpleDateFormat(
@@ -63,11 +62,14 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 		private Queue<ChunkedData> queue = new LinkedList<ChunkedData>();
 		private int size;
 		private boolean keepAlive;
+		private byte[] crlf, endFlag;
 
 		public ChunkedOutputStream(boolean keepAlive) {
 			this.keepAlive = keepAlive;
 			bufferedOutput = new NetBufferedOutputStream(session, bufferSize,
-					isKeepAlive());
+					request.isKeepAlive());
+			crlf = stringToByte("\r\n");
+			endFlag = stringToByte("0\r\n\r\n");
 		}
 
 		@Override
@@ -106,6 +108,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 				for (ChunkedData d = null; (d = queue.poll()) != null;) {
 					d.write();
 				}
+				bufferedOutput.write(crlf);
 				size = 0;
 			}
 		}
@@ -113,6 +116,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 		@Override
 		public void close() throws IOException {
 			flush();
+			bufferedOutput.write(endFlag);
 			bufferedOutput.close();
 		}
 
@@ -160,40 +164,30 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	private byte[] getHeadData() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(request.getProtocol()).append(' ').append(status).append(' ')
-				.append(shortMessage).append(CRLF);
+				.append(shortMessage).append("\r\n");
 
 		for (String name : headMap.keySet())
-			sb.append(name).append(": ").append(headMap.get(name)).append(CRLF);
+			sb.append(name).append(": ").append(headMap.get(name))
+					.append("\r\n");
 
 		// TODO 这里还需要Cookie处理
 
-		sb.append(CRLF);
-
-		System.out.println(sb.toString());
-		byte[] ret = null;
-		try {
-			ret = sb.toString().getBytes(characterEncoding);
-		} catch (UnsupportedEncodingException e) {
-			log.error("get head data error", e);
-		}
-		return ret;
+		sb.append("\r\n");
+		return stringToByte(sb.toString());
 	}
 
 	private byte[] getChunkedSize(int length) {
-		byte[] ret = null;
-		try {
-			ret = (Integer.toHexString(length) + CRLF)
-					.getBytes(characterEncoding);
-		} catch (UnsupportedEncodingException e) {
-			log.error("get chunked size error", e);
-		}
-		return ret;
+		return stringToByte(Integer.toHexString(length) + "\r\n");
 	}
 
-	private boolean isKeepAlive() {
-		return request.config.isKeepAlive()
-				&& request.getProtocol().equals("HTTP/1.1")
-				&& !"close".equals(request.getHeader("Connection"));
+	public byte[] stringToByte(String str) {
+		byte[] ret = null;
+		try {
+			ret = str.getBytes(characterEncoding);
+		} catch (UnsupportedEncodingException e) {
+			log.error("string to bytes", e);
+		}
+		return ret;
 	}
 
 	@Override
@@ -212,7 +206,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 			return null;
 
 		if (out == null)
-			out = new ChunkedOutputStream(isKeepAlive());
+			out = new ChunkedOutputStream(request.isKeepAlive());
 		usingOutputStream = true;
 		return out;
 	}
@@ -223,7 +217,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 			return null;
 
 		if (out == null)
-			out = new ChunkedOutputStream(isKeepAlive());
+			out = new ChunkedOutputStream(request.isKeepAlive());
 		if (writer == null)
 			writer = new PrintWriter(out);
 		usingWriter = true;

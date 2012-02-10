@@ -129,6 +129,11 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 		}
 	}
 
+	public boolean isKeepAlive() {
+		return config.isKeepAlive() && !getProtocol().equals("HTTP/1.0")
+				&& !"close".equals(getHeader("Connection"));
+	}
+
 	@Override
 	public Object getAttribute(String name) {
 		return attributeMap.get(name);
