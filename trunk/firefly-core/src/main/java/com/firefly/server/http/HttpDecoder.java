@@ -86,8 +86,7 @@ public class HttpDecoder implements Decoder {
 		protected void responseError(Session session,
 				HttpServletRequestImpl req, int httpStatus) {
 			finish(session, req);
-			req.response.system = true;
-			req.response.setStatus(httpStatus);
+			req.response.scheduleSendError(httpStatus);
 			session.fireReceiveMessage(req);
 		}
 
@@ -212,8 +211,7 @@ public class HttpDecoder implements Decoder {
 
 		private void response100Continue(Session session,
 				HttpServletRequestImpl req) {
-			req.response.setStatus(100);
-			req.response.system = true;
+			req.response.scheduleSendContinue(100);
 			session.fireReceiveMessage(req);
 		}
 	}
