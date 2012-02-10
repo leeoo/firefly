@@ -3,7 +3,8 @@ package com.firefly.server.http;
 public class Config {
 	private String encoding = "UTF-8";
 	private int maxRequestLineLength = 8 * 1024,
-			maxRequestHeadLength = 16 * 1024, maxRangeNum = 8;
+			maxRequestHeadLength = 16 * 1024, maxRangeNum = 8,
+			writeBufferSize = 8 * 1024;
 	private long maxUploadLength = 50 * 1024 * 1024;
 	private boolean keepAlive = true;
 	private String serverHome, host;
@@ -16,6 +17,14 @@ public class Config {
 		setServerHome(serverHome);
 		this.host = host;
 		this.port = port;
+	}
+
+	public int getWriteBufferSize() {
+		return writeBufferSize;
+	}
+
+	public void setWriteBufferSize(int writeBufferSize) {
+		this.writeBufferSize = writeBufferSize;
 	}
 
 	public String getHost() {

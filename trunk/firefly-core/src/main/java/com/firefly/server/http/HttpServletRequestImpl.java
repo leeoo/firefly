@@ -39,6 +39,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	Cookie[] cookies;
 	Map<String, String> headMap = new HashMap<String, String>();
 	HttpServletResponseImpl response;
+	Config config;
 
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	private StringParser parser = new StringParser();
@@ -75,10 +76,11 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	protected ArrayList<Locale> locales = new ArrayList<Locale>();
 	private boolean loadParam, localesParsed;
 
-	public HttpServletRequestImpl(Session session, String characterEncoding) {
-		this.characterEncoding = characterEncoding;
+	public HttpServletRequestImpl(Session session, Config config) {
+		this.characterEncoding = config.getEncoding();
 		this.session = session;
-		response = new HttpServletResponseImpl(session, this, characterEncoding);
+		response = new HttpServletResponseImpl(session, this,
+				characterEncoding, config.getWriteBufferSize());
 	}
 
 	private void loadParam() {
@@ -531,8 +533,8 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public String toString() {
-		return method + " " + requestURI + queryString + " " + protocol + "\r\n"
-				+ headMap.toString();
+		return method + " " + requestURI + queryString + " " + protocol
+				+ "\r\n" + headMap.toString();
 	}
 
 	protected void parseLocales() {
