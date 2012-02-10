@@ -27,13 +27,6 @@
 				<filtering>false</filtering>
 				<directory>src/test/template</directory>
 			</testResource>
-			<testResource>
-				<filtering>true</filtering>
-				<directory>src/main/webapp</directory>
-				<includes>
-					<include>**/*.xml</include>
-				</includes>
-			</testResource>
 		</testResources>
 		<plugins>
 			<plugin>
