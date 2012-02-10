@@ -6,14 +6,43 @@ public class Config {
 			maxRequestHeadLength = 16 * 1024, maxRangeNum = 8;
 	private long maxUploadLength = 50 * 1024 * 1024;
 	private boolean keepAlive = true;
-	private String serverHome;
+	private String serverHome, host;
+	private int port;
+
+	public Config() {
+	};
+
+	public Config(String serverHome, String host, int port) {
+		setServerHome(serverHome);
+		this.host = host;
+		this.port = port;
+	}
+
+	public String getHost() {
+		return host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
 
 	public String getServerHome() {
 		return serverHome;
 	}
 
 	public void setServerHome(String serverHome) {
-		this.serverHome = serverHome;
+		if (serverHome.charAt(serverHome.length() - 1) == '/')
+			this.serverHome = serverHome.substring(0, serverHome.length() - 1);
+		else
+			this.serverHome = serverHome;
 	}
 
 	public int getMaxRequestHeadLength() {
