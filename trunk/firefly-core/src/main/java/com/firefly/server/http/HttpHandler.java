@@ -3,17 +3,26 @@ package com.firefly.server.http;
 import com.firefly.mvc.web.servlet.HttpServletDispatcherController;
 import com.firefly.net.Handler;
 import com.firefly.net.Session;
+import com.firefly.server.exception.HttpServerException;
+import com.firefly.utils.VerifyUtils;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
 
 public class HttpHandler implements Handler {
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
-	private HttpServletDispatcherController controller;
+	private HttpServletDispatcherController servletController;
+	private FileDispatcherController fileController;
 	private Config config;
+	private String appPrefix;
 
-	public HttpHandler(HttpServletDispatcherController controller, Config config) {
-		this.controller = controller;
+	public HttpHandler(HttpServletDispatcherController servletController,
+			Config config) {
+		this.servletController = servletController;
 		this.config = config;
+		appPrefix = config.getContextPath() + config.getServletPath();
+		if (VerifyUtils.isEmpty(appPrefix))
+			throw new HttpServerException(
+					"context path and servlet path can not be null");
 	}
 
 	@Override
@@ -37,14 +46,18 @@ public class HttpHandler implements Handler {
 		if (request.response.system) {
 			request.response.outSystemData();
 		} else {
-			controller.dispatcher(request, request.response);
+			if (request.getRequestURI().startsWith(appPrefix)) {
+				servletController.dispatcher(request, request.response);
+			} else {
+				fileController.dispatcher(request, request.response);
+			}
 		}
 	}
 
 	@Override
 	public void exceptionCaught(Session session, Throwable t) throws Throwable {
-		// TODO Auto-generated method stub
-
+		log.error("server error", t);
+		session.close(true);
 	}
 
 }
