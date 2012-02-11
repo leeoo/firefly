@@ -16,11 +16,13 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
+import com.firefly.mvc.web.servlet.SystemHtmlPage;
 import com.firefly.net.Session;
 import com.firefly.server.exception.HttpServerException;
 import com.firefly.server.io.ChunkedOutputStream;
 import com.firefly.server.io.HttpServerOutpuStream;
 import com.firefly.server.io.NetBufferedOutputStream;
+import com.firefly.utils.VerifyUtils;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
 import com.firefly.utils.time.SafeSimpleDateFormat;
@@ -41,6 +43,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	private NetBufferedOutputStream bufferedOutput;
 
 	boolean system;
+	String systemResponseContent;
 
 	static {
 		SimpleDateFormat sdf = new SimpleDateFormat(
@@ -62,6 +65,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	private void createOutput() {
 		if (bufferedOutput == null) {
+			setHeader("Date", GMT_FORMAT.format(new Date()));
 			setHeader("Connection", request.isKeepAlive() ? "keep-alive"
 					: "close");
 			bufferedOutput = new NetBufferedOutputStream(request.session,
@@ -235,13 +239,43 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	@Override
 	public void sendError(int sc, String msg) throws IOException {
 		setStatus(sc, msg);
-		outHeadData();
+		systemResponseContent = shortMessage;
+		outSystemData();
 	}
 
 	@Override
 	public void sendError(int sc) throws IOException {
 		setStatus(sc);
-		outHeadData();
+		systemResponseContent = shortMessage;
+		outSystemData();
+	}
+
+	public void outSystemData() throws IOException {
+		if (isCommitted())
+			throw new IllegalStateException("response is committed");
+
+		createOutput();
+		try {
+			boolean hasContent = VerifyUtils.isNotEmpty(systemResponseContent);
+			byte[] b = null;
+			if (status != 100) {
+				if (hasContent) {
+					b = SystemHtmlPage.systemPageTemplate(status,
+							systemResponseContent).getBytes(characterEncoding);
+					setHeader("Content-Length", String.valueOf(b.length));
+				} else {
+					setHeader("Content-Length", "0");
+				}
+			}
+
+			bufferedOutput.write(getHeadData());
+			if (hasContent)
+				bufferedOutput.write(b);
+		} finally {
+			bufferedOutput.close();
+		}
+
+		setCommitted(true);
 	}
 
 	public void scheduleSendContinue(int sc) {
@@ -249,8 +283,9 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 		system = true;
 	}
 
-	public void scheduleSendError(int sc) {
+	public void scheduleSendError(int sc, String content) {
 		setStatus(sc);
+		systemResponseContent = content;
 		system = true;
 	}
 
@@ -259,16 +294,20 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 		String absolute = toAbsolute(location);
 		setStatus(SC_FOUND);
 		setHeader("Location", absolute);
+		setHeader("Content-Length", "0");
 		outHeadData();
 	}
 
 	public void outHeadData() throws IOException {
 		if (isCommitted())
 			throw new IllegalStateException("response is committed");
-		
+
 		createOutput();
-		bufferedOutput.write(getHeadData());
-		bufferedOutput.close();
+		try {
+			bufferedOutput.write(getHeadData());
+		} finally {
+			bufferedOutput.close();
+		}
 		setCommitted(true);
 	}
 
