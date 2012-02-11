@@ -24,7 +24,7 @@ public class SystemHtmlPage {
 			} catch (Throwable t) {
 				log.error("responseSystemPage error", t);
 			}
-			writer.print(content);
+			writer.print(systemPageTemplate(status, content));
 		} finally {
 			if (writer != null)
 				writer.close();
