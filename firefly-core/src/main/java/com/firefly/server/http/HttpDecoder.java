@@ -84,9 +84,9 @@ public class HttpDecoder implements Decoder {
 		}
 
 		protected void responseError(Session session,
-				HttpServletRequestImpl req, int httpStatus) {
+				HttpServletRequestImpl req, int httpStatus, String content) {
 			finish(session, req);
-			req.response.scheduleSendError(httpStatus);
+			req.response.scheduleSendError(httpStatus, content);
 			session.fireReceiveMessage(req);
 		}
 
@@ -107,10 +107,12 @@ public class HttpDecoder implements Decoder {
 			int len = buf.remaining();
 			for (; req.offset < len; req.offset++) {
 				if (req.offset >= config.getMaxRequestLineLength()) {
-					log.error("request line length is {}, it more than {}|{}",
-							req.offset, config.getMaxRequestLineLength(),
-							session.getRemoteAddress().toString());
-					responseError(session, req, 414);
+					String msg = "request line length is " + req.offset
+							+ ", it more than "
+							+ config.getMaxRequestLineLength() + "|"
+							+ session.getRemoteAddress();
+					log.error(msg);
+					responseError(session, req, 414, msg);
 					return true;
 				}
 
@@ -120,18 +122,20 @@ public class HttpDecoder implements Decoder {
 					String requestLine = new String(data, config.getEncoding())
 							.trim();
 					if (VerifyUtils.isEmpty(requestLine)) {
-						log.error("request line length is 0|{}", session
-								.getRemoteAddress().toString());
-						responseError(session, req, 400);
+						String msg = "request line length is 0|"
+								+ session.getRemoteAddress();
+						log.error(msg);
+						responseError(session, req, 400, msg);
 						return true;
 					}
 
 					String[] reqLine = StringUtils.split(requestLine, ' ');
 					if (reqLine.length > 3) {
-						log.error("request line format error: {}|{}",
-								requestLine, session.getRemoteAddress()
-										.toString());
-						responseError(session, req, 400);
+						String msg = "request line format error: "
+								+ requestLine + "|"
+								+ session.getRemoteAddress();
+						log.error(msg);
+						responseError(session, req, 400, msg);
 						return true;
 					}
 
@@ -165,11 +169,13 @@ public class HttpDecoder implements Decoder {
 					req.headLength += parseLen;
 
 					if (req.headLength >= config.getMaxRequestHeadLength()) {
-						log.error(
-								"request head length is {}, it more than {}|{}",
-								req.offset, config.getMaxRequestHeadLength(),
-								session.getRemoteAddress().toString());
-						responseError(session, req, 400);
+						String msg = "request head length is " + req.headLength
+								+ ", it more than "
+								+ config.getMaxRequestHeadLength() + "|"
+								+ session.getRemoteAddress() + "|"
+								+ req.getRequestURI();
+						log.error(msg);
+						responseError(session, req, 400, msg);
 						return true;
 					}
 
@@ -187,10 +193,11 @@ public class HttpDecoder implements Decoder {
 					} else {
 						int h = headLine.indexOf(':');
 						if (h <= 0) {
-							log.error("head line format error: {}|{}",
-									headLine, session.getRemoteAddress()
-											.toString());
-							responseError(session, req, 400);
+							String msg = "head line format error: " + headLine
+									+ "|" + session.getRemoteAddress() + "|"
+									+ req.getRequestURI();
+							log.error(msg);
+							responseError(session, req, 400, msg);
 							return true;
 						}
 
@@ -222,21 +229,27 @@ public class HttpDecoder implements Decoder {
 		public boolean decode(ByteBuffer buf, Session session,
 				HttpServletRequestImpl req) throws Throwable {
 			int contentLength = req.getContentLength();
-			if(contentLength > 0) {
-				if(contentLength > config.getMaxUploadLength()) {
-					responseError(session, req, 400);
+			if (contentLength > 0) {
+				if (contentLength > config.getMaxUploadLength()) {
+					String msg = "body length is " + contentLength
+							+ " , it more than " + config.getMaxUploadLength()
+							+ "|" + session.getRemoteAddress() + "|"
+							+ req.getRequestURI();
+					log.error(msg);
+					responseError(session, req, 400, msg);
 					return true;
 				}
-				
+
 				session.fireReceiveMessage(req);
-				if(req.pipedOutputStream == null)
-					req.pipedOutputStream = new PipedOutputStream(req.pipedInputStream);
+				if (req.pipedOutputStream == null)
+					req.pipedOutputStream = new PipedOutputStream(
+							req.pipedInputStream);
 				req.offset += buf.remaining();
 				byte[] data = new byte[buf.remaining()];
 				buf.get(data);
 				req.pipedOutputStream.write(data);
 
-				if(req.offset >= contentLength) {
+				if (req.offset >= contentLength) {
 					req.pipedOutputStream.close();
 					finish(session, req);
 					return true;

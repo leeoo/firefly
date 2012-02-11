@@ -34,7 +34,7 @@ public class SystemHtmlPage {
 	public static String systemPageTemplate(int status, String content) {
 		StringBuilder ret = new StringBuilder();
 		ret.append(
-				"<!DOCTYPE html><html><head><title>firefly</title></head><body><h2>HTTP ERROR")
+				"<!DOCTYPE html><html><head><title>firefly</title></head><body><h2>HTTP ERROR ")
 				.append(status)
 				.append("</h2><div>")
 				.append(content)
