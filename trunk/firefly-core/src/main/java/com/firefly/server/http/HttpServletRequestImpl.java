@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import com.firefly.net.Session;
+import com.firefly.server.exception.HttpServerException;
 import com.firefly.server.utils.StringParser;
 import com.firefly.utils.StringUtils;
 import com.firefly.utils.VerifyUtils;
@@ -41,7 +42,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	HttpServletResponseImpl response;
 	Config config;
 	Session session;
-	
+
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	private StringParser parser = new StringParser();
 	private static final String[] EMPTY_STR_ARR = new String[0];
@@ -454,86 +455,72 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public String getRemoteUser() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new HttpServerException("no implements this method!");
 	}
 
 	@Override
 	public boolean isUserInRole(String role) {
-		// TODO Auto-generated method stub
-		return false;
+		throw new HttpServerException("no implements this method!");
 	}
 
 	@Override
 	public Principal getUserPrincipal() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new HttpServerException("no implements this method!");
 	}
 
 	@Override
 	public String getAuthType() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new HttpServerException("no implements this method!");
 	}
 
 	@Override
 	public boolean isSecure() {
-		// TODO Auto-generated method stub
-		return false;
+		throw new HttpServerException("no implements this method!");
 	}
 
 	@Override
 	public String getRealPath(String path) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new HttpServerException("no implements this method!");
 	}
 
 	@Override
 	public String getPathInfo() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new HttpServerException("no implements this method!");
 	}
 
 	@Override
 	public String getPathTranslated() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new HttpServerException("no implements this method!");
 	}
 
 	@Override
 	public String getRequestedSessionId() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new HttpServerException("no implements this method!");
 	}
 
 	@Override
 	public HttpSession getSession(boolean create) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new HttpServerException("no implements this method!");
 	}
 
 	@Override
 	public HttpSession getSession() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new HttpServerException("no implements this method!");
 	}
 
 	@Override
 	public boolean isRequestedSessionIdValid() {
-		// TODO Auto-generated method stub
-		return false;
+		throw new HttpServerException("no implements this method!");
 	}
 
 	@Override
 	public boolean isRequestedSessionIdFromCookie() {
-		// TODO Auto-generated method stub
-		return false;
+		throw new HttpServerException("no implements this method!");
 	}
 
 	@Override
 	public boolean isRequestedSessionIdFromURL() {
-		// TODO Auto-generated method stub
-		return false;
+		throw new HttpServerException("no implements this method!");
 	}
 
 	@Override

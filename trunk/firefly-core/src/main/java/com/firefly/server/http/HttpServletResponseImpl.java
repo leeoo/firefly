@@ -216,14 +216,12 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	@Override
 	public String encodeURL(String url) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new HttpServerException("no implements this method!");
 	}
 
 	@Override
 	public String encodeRedirectURL(String url) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new HttpServerException("no implements this method!");
 	}
 
 	@Override
