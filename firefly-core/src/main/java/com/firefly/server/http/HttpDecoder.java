@@ -104,17 +104,19 @@ public class HttpDecoder implements Decoder {
 		@Override
 		public boolean decode(ByteBuffer buf, Session session,
 				HttpServletRequestImpl req) throws Throwable {
+			if (req.offset >= config.getMaxRequestLineLength()) {
+				String msg = "request line length is " + req.offset
+						+ ", it more than "
+						+ config.getMaxRequestLineLength() + "|"
+						+ session.getRemoteAddress();
+				log.error(msg);
+				finish(session, req);
+				session.close(true);
+				return true;
+			}
+			
 			int len = buf.remaining();
 			for (; req.offset < len; req.offset++) {
-				if (req.offset >= config.getMaxRequestLineLength()) {
-					String msg = "request line length is " + req.offset
-							+ ", it more than "
-							+ config.getMaxRequestLineLength() + "|"
-							+ session.getRemoteAddress();
-					log.error(msg);
-					responseError(session, req, 414, msg);
-					return true;
-				}
 
 				if (buf.get(req.offset) == LINE_LIMITOR) {
 					byte[] data = new byte[req.offset + 1];
@@ -125,17 +127,19 @@ public class HttpDecoder implements Decoder {
 						String msg = "request line length is 0|"
 								+ session.getRemoteAddress();
 						log.error(msg);
-						responseError(session, req, 400, msg);
+						finish(session, req);
+						session.close(true);
 						return true;
 					}
 
 					String[] reqLine = StringUtils.split(requestLine, ' ');
-					if (reqLine.length > 3) {
+					if (reqLine.length != 3) {
 						String msg = "request line format error: "
 								+ requestLine + "|"
 								+ session.getRemoteAddress();
 						log.error(msg);
-						responseError(session, req, 400, msg);
+						finish(session, req);
+						session.close(true);
 						return true;
 					}
 

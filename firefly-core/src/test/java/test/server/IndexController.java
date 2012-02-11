@@ -19,6 +19,11 @@ public class IndexController {
 		return "/index.html";
 	}
 
+	@RequestMapping(value = "/test")
+	public String test(HttpServletRequest request, HttpServletResponse response) {
+		return "/test.html";
+	}
+
 	@RequestMapping(value = "/index2")
 	public String index2(HttpServletRequest request,
 			HttpServletResponse response) throws IOException {

@@ -6,6 +6,7 @@ import com.firefly.server.http.HttpServletResponseImpl;
 public class ChunkedOutputStream extends HttpServerOutpuStream {
 
 	private byte[] crlf, endFlag;
+	private boolean chunked;
 
 	public ChunkedOutputStream(int bufferSize,
 			NetBufferedOutputStream bufferedOutput,
@@ -18,6 +19,7 @@ public class ChunkedOutputStream extends HttpServerOutpuStream {
 	@Override
 	public void flush() throws IOException {
 		if (!response.isCommitted()) {
+			chunked = true;
 			response.setHeader("Transfer-Encoding", "chunked");
 			bufferedOutput.write(response.getHeadData());
 			response.setCommitted(true);
@@ -25,9 +27,8 @@ public class ChunkedOutputStream extends HttpServerOutpuStream {
 
 		if (size > 0) {
 			bufferedOutput.write(response.getChunkedSize(size));
-			for (ChunkedData d = null; (d = queue.poll()) != null;) {
+			for (ChunkedData d = null; (d = queue.poll()) != null;)
 				d.write();
-			}
 			bufferedOutput.write(crlf);
 			size = 0;
 		}
@@ -35,8 +36,24 @@ public class ChunkedOutputStream extends HttpServerOutpuStream {
 
 	@Override
 	public void close() throws IOException {
-		flush();
-		bufferedOutput.write(endFlag);
+		if (!response.isCommitted()) {
+			response.setHeader("Content-Length", String.valueOf(size));
+			bufferedOutput.write(response.getHeadData());
+			response.setCommitted(true);
+		}
+
+		if (size > 0) {
+			if (chunked)
+				bufferedOutput.write(response.getChunkedSize(size));
+			for (ChunkedData d = null; (d = queue.poll()) != null;)
+				d.write();
+			if (chunked)
+				bufferedOutput.write(crlf);
+			size = 0;
+		}
+
+		if (chunked)
+			bufferedOutput.write(endFlag);
 		bufferedOutput.close();
 	}
 
