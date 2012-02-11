@@ -1,10 +1,13 @@
 package com.firefly.server.io;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
 import com.firefly.net.Session;
+import com.firefly.net.buffer.FileRegion;
 
 public class NetBufferedOutputStream extends OutputStream {
 
@@ -42,6 +45,17 @@ public class NetBufferedOutputStream extends OutputStream {
 
 		System.arraycopy(b, off, buf, count, len);
 		count += len;
+	}
+
+	public void write(File file, long off, long len) throws IOException {
+		flush();
+		RandomAccessFile raf = new RandomAccessFile(file, "r");
+		FileRegion fileRegion = new FileRegion(raf.getChannel(), off, len);
+		session.write(fileRegion);
+	}
+
+	public void write(File file) throws IOException {
+		write(file, 0, file.length());
 	}
 
 	@Override
