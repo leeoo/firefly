@@ -7,7 +7,7 @@ public class Config {
 			writeBufferSize = 8 * 1024;
 	private long maxUploadLength = 50 * 1024 * 1024;
 	private boolean keepAlive = true;
-	private String serverHome, host;
+	private String serverHome, host, servletPath = "/app", contextPath = "";
 	private int port;
 
 	public Config() {
@@ -17,6 +17,22 @@ public class Config {
 		setServerHome(serverHome);
 		this.host = host;
 		this.port = port;
+	}
+
+	public String getContextPath() {
+		return contextPath;
+	}
+
+	public void setContextPath(String contextPath) {
+		this.contextPath = contextPath;
+	}
+
+	public String getServletPath() {
+		return servletPath;
+	}
+
+	public void setServletPath(String servletPath) {
+		this.servletPath = servletPath;
 	}
 
 	public int getWriteBufferSize() {

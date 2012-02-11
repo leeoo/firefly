@@ -415,7 +415,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public String getContextPath() {
-		return "";
+		return config.getContextPath();
 	}
 
 	@Override
@@ -450,7 +450,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public String getServletPath() {
-		return "";
+		return config.getServletPath();
 	}
 
 	@Override

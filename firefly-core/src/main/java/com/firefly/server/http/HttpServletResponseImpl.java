@@ -317,9 +317,10 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 		sb.append(request.getScheme()).append("://")
 				.append(request.getServerName()).append(":")
 				.append(request.getServerPort());
-		if (location.charAt(0) == '/')
+
+		if (location.charAt(0) == '/') {
 			sb.append(location);
-		else {
+		} else {
 			String URI = request.getRequestURI();
 			int last = 0;
 			for (int i = URI.length() - 1; i >= 0; i--) {

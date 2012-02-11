@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.firefly.annotation.Controller;
 import com.firefly.annotation.RequestMapping;
+import com.firefly.mvc.web.View;
 
 @Controller
 public class IndexController {
@@ -17,12 +18,29 @@ public class IndexController {
 		System.out.println("index");
 		return "/index.html";
 	}
-	
+
 	@RequestMapping(value = "/index2")
-	public String index2(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public String index2(HttpServletRequest request,
+			HttpServletResponse response) throws IOException {
 		response.sendRedirect("index");
 		System.out.println("index2");
 		return null;
+	}
+
+	@RequestMapping(value = "/index3")
+	public String index3(HttpServletRequest request,
+			HttpServletResponse response) throws IOException {
+		response.sendRedirect(request.getContextPath()
+				+ request.getServletPath() + "/index");
+		System.out.println("index3");
+		return null;
+	}
+
+	@RequestMapping(value = "/index4", view = View.REDIRECT)
+	public String index4(HttpServletRequest request,
+			HttpServletResponse response) throws IOException {
+		System.out.println("index4");
+		return "/index";
 	}
 
 }
