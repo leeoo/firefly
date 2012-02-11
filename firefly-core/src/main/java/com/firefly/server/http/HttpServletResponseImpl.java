@@ -57,7 +57,6 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 		this.bufferSize = bufferSize;
 
 		setStatus(200);
-		setHeader("Content-Type", "text/html; charset=" + characterEncoding);
 		setHeader("Server", "firefly-server/1.0");
 	}
 
@@ -181,8 +180,12 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
-
+		usingWriter = false;
+		usingOutputStream = false;
+		committed = false;
+		bufferedOutput = null;
+		out = null;
+		writer = null;
 	}
 
 	@Override
@@ -232,13 +235,13 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	@Override
 	public void sendError(int sc, String msg) throws IOException {
 		setStatus(sc, msg);
-		// TODO
+		outHeadData();
 	}
 
 	@Override
 	public void sendError(int sc) throws IOException {
 		setStatus(sc);
-		// TODO
+		outHeadData();
 	}
 
 	public void scheduleSendContinue(int sc) {
@@ -253,8 +256,44 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	@Override
 	public void sendRedirect(String location) throws IOException {
-		// TODO Auto-generated method stub
+		String absolute = toAbsolute(location);
+		setStatus(SC_FOUND);
+		setHeader("Location", absolute);
+		outHeadData();
+	}
 
+	public void outHeadData() throws IOException {
+		if (isCommitted())
+			throw new IllegalStateException("response is committed");
+		
+		createOutput();
+		bufferedOutput.write(getHeadData());
+		bufferedOutput.close();
+		setCommitted(true);
+	}
+
+	public String toAbsolute(String location) {
+		if (location.startsWith("http"))
+			return location;
+
+		StringBuilder sb = new StringBuilder();
+		sb.append(request.getScheme()).append("://")
+				.append(request.getServerName()).append(":")
+				.append(request.getServerPort());
+		if (location.charAt(0) == '/')
+			sb.append(location);
+		else {
+			String URI = request.getRequestURI();
+			int last = 0;
+			for (int i = URI.length() - 1; i >= 0; i--) {
+				if (URI.charAt(i) == '/') {
+					last = i + 1;
+					break;
+				}
+			}
+			sb.append(URI.substring(0, last)).append(location);
+		}
+		return sb.toString();
 	}
 
 	@Override
