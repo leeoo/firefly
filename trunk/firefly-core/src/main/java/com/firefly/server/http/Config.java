@@ -24,7 +24,7 @@ public class Config {
 	}
 
 	public void setContextPath(String contextPath) {
-		this.contextPath = contextPath;
+		this.contextPath = removeLastSlash(contextPath);
 	}
 
 	public String getServletPath() {
@@ -32,7 +32,13 @@ public class Config {
 	}
 
 	public void setServletPath(String servletPath) {
-		this.servletPath = servletPath;
+		this.servletPath = removeLastSlash(servletPath);
+	}
+
+	public static String removeLastSlash(String str) {
+		if (str.charAt(str.length() - 1) == '/')
+			return str.substring(0, str.length() - 1);
+		return str;
 	}
 
 	public int getWriteBufferSize() {
