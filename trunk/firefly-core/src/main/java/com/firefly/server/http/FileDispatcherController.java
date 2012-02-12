@@ -10,6 +10,7 @@ import com.firefly.mvc.web.DispatcherController;
 import com.firefly.mvc.web.servlet.SystemHtmlPage;
 import com.firefly.server.exception.HttpServerException;
 import com.firefly.server.io.StaticFileOutputStream;
+import com.firefly.utils.StringUtils;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
 
@@ -27,8 +28,21 @@ public class FileDispatcherController implements DispatcherController {
 			HttpServletResponse response) {
 		File file = new File(config.getServerHome(), request.getRequestURI());
 		if (file.exists()) {
-			response.setContentType("text/html; charset="
-					+ config.getEncoding());
+			String fileSuffix = getFileSuffix(file.getName()).toLowerCase();
+			String contentType = Constants.MIME.get(fileSuffix);
+			if (contentType == null) {
+				response.setContentType("application/octet-stream");
+			} else {
+				String[] type = StringUtils.split(contentType, '/');
+				if ("application".equals(type[0])) {
+					response.setHeader("Content-Disposition",
+							"attachment; filename=" + file.getName());
+				} else if ("text".equals(type[0])) {
+					contentType += "; charset=" + config.getEncoding();
+				}
+				response.setContentType(contentType);
+			}
+
 			StaticFileOutputStream out = null;
 			try {
 				out = ((HttpServletResponseImpl) response)
@@ -51,6 +65,18 @@ public class FileDispatcherController implements DispatcherController {
 					config.getEncoding(), HttpServletResponse.SC_NOT_FOUND,
 					request.getRequestURI() + " not found");
 		}
+	}
+
+	public static String getFileSuffix(String name) {
+		if (name.charAt(name.length() - 1) == '.')
+			return "*";
+
+		for (int i = name.length() - 2; i >= 0; i--) {
+			if (name.charAt(i) == '.') {
+				return name.substring(i + 1, name.length());
+			}
+		}
+		return "*";
 	}
 
 }
