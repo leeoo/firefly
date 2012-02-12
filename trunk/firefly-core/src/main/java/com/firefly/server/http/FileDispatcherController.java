@@ -32,6 +32,8 @@ public class FileDispatcherController implements DispatcherController {
 			String contentType = Constants.MIME.get(fileSuffix);
 			if (contentType == null) {
 				response.setContentType("application/octet-stream");
+				response.setHeader("Content-Disposition",
+						"attachment; filename=" + file.getName());
 			} else {
 				String[] type = StringUtils.split(contentType, '/');
 				if ("application".equals(type[0])) {
