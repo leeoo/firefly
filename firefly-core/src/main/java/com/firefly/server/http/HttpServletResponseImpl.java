@@ -22,6 +22,7 @@ import com.firefly.server.exception.HttpServerException;
 import com.firefly.server.io.ChunkedOutputStream;
 import com.firefly.server.io.HttpServerOutpuStream;
 import com.firefly.server.io.NetBufferedOutputStream;
+import com.firefly.server.io.StaticFileOutputStream;
 import com.firefly.utils.VerifyUtils;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
@@ -37,8 +38,9 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	private String characterEncoding, shortMessage;
 	private Map<String, String> headMap = new HashMap<String, String>();
 	private List<Cookie> cookies = new LinkedList<Cookie>();
-	private boolean usingWriter, usingOutputStream;
+	private boolean usingWriter, usingOutputStream, usingFileOutputStream;
 	private HttpServerOutpuStream out;
+	private StaticFileOutputStream fileOut;
 	private PrintWriter writer;
 	private NetBufferedOutputStream bufferedOutput;
 
@@ -73,6 +75,8 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 			out = request.isChunked() ? new ChunkedOutputStream(bufferSize,
 					bufferedOutput, this) : new HttpServerOutpuStream(
 					bufferSize, bufferedOutput, this);
+			fileOut = new StaticFileOutputStream(bufferSize, bufferedOutput,
+					this);
 			writer = new PrintWriter(out);
 		}
 	}
@@ -116,11 +120,29 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 		return headMap.get("Content-Type");
 	}
 
+	public StaticFileOutputStream getStaticFileOutputStream()
+			throws IOException {
+		if (usingWriter)
+			throw new HttpServerException(
+					"getWriter has already been called for this response");
+		if (usingOutputStream)
+			throw new HttpServerException(
+					"getOutputStream has already been called for this response");
+
+		createOutput();
+		usingFileOutputStream = true;
+		return fileOut;
+	}
+
 	@Override
 	public ServletOutputStream getOutputStream() throws IOException {
 		if (usingWriter)
 			throw new HttpServerException(
 					"getWriter has already been called for this response");
+		if (usingFileOutputStream)
+			throw new HttpServerException(
+					"getStaticFileOutputStream has already been called for this response");
+
 		createOutput();
 
 		usingOutputStream = true;
@@ -132,6 +154,10 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 		if (usingOutputStream)
 			throw new HttpServerException(
 					"getOutputStream has already been called for this response");
+		if (usingFileOutputStream)
+			throw new HttpServerException(
+					"getStaticFileOutputStream has already been called for this response");
+
 		createOutput();
 
 		usingWriter = true;

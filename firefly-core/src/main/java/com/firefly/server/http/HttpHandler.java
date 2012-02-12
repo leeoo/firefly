@@ -23,6 +23,8 @@ public class HttpHandler implements Handler {
 		if (VerifyUtils.isEmpty(appPrefix))
 			throw new HttpServerException(
 					"context path and servlet path can not be null");
+
+		fileController = new FileDispatcherController(config);
 	}
 
 	@Override
@@ -46,11 +48,10 @@ public class HttpHandler implements Handler {
 		if (request.response.system) {
 			request.response.outSystemData();
 		} else {
-			if (isServlet(request.getRequestURI())) {
+			if (isServlet(request.getRequestURI()))
 				servletController.dispatcher(request, request.response);
-			} else {
+			else
 				fileController.dispatcher(request, request.response);
-			}
 		}
 	}
 
@@ -58,7 +59,6 @@ public class HttpHandler implements Handler {
 		if (URI.length() < 2)
 			return false;
 
-		boolean ret = false;
 		int j = URI.length();
 		for (int i = 1; i < URI.length(); i++) {
 			if (URI.charAt(i) == '/') {
@@ -66,12 +66,11 @@ public class HttpHandler implements Handler {
 				break;
 			}
 		}
-		if (j == URI.length()) {
-			ret = appPrefix.equals(URI);
-		} else {
-			ret = appPrefix.equals(URI.substring(0, j));
-		}
-		return ret;
+
+		if (j == URI.length())
+			return appPrefix.equals(URI);
+		else
+			return appPrefix.equals(URI.substring(0, j));
 	}
 
 	@Override
