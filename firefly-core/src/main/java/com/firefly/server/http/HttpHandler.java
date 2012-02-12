@@ -46,12 +46,32 @@ public class HttpHandler implements Handler {
 		if (request.response.system) {
 			request.response.outSystemData();
 		} else {
-			if (request.getRequestURI().startsWith(appPrefix)) {
+			if (isServlet(request.getRequestURI())) {
 				servletController.dispatcher(request, request.response);
 			} else {
 				fileController.dispatcher(request, request.response);
 			}
 		}
+	}
+
+	private boolean isServlet(String URI) {
+		if (URI.length() < 2)
+			return false;
+
+		boolean ret = false;
+		int j = URI.length();
+		for (int i = 1; i < URI.length(); i++) {
+			if (URI.charAt(i) == '/') {
+				j = i;
+				break;
+			}
+		}
+		if (j == URI.length()) {
+			ret = appPrefix.equals(URI);
+		} else {
+			ret = appPrefix.equals(URI.substring(0, j));
+		}
+		return ret;
 	}
 
 	@Override
