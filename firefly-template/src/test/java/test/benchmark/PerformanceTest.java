@@ -27,7 +27,7 @@ public class PerformanceTest {
 
 	public static void main(String[] args) throws Throwable {
 		int size = 100;
-        int times = 10000;
+        int times = 10000 * 10;
         Random random = new Random();
         Book[] books = new Book[size];
         for (int i = 0; i < size; i ++) {
