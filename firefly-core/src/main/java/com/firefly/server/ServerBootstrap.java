@@ -20,14 +20,18 @@ public class ServerBootstrap {
 	}
 
 	public static void start(Config config) {
+		log.info("server home [{}]", config.getServerHome());
+		log.info("context path [{}]", config.getContextPath());
+		log.info("servlet path [{}]", config.getServletPath());
+
 		long start = System.currentTimeMillis();
 		AnnotationWebContext context = new AnnotationWebContext(
 				"firefly-server.xml", config.getServerHome());
 		HttpServletDispatcherController controller = HttpServletDispatcherController
 				.getInstance().init(context);
-		
+
 		config.setEncoding(context.getEncoding());
-		
+
 		Server server = new TcpServer(new HttpDecoder(config),
 				new HttpEncoder(), new HttpHandler(controller, config));
 		server.start(config.getHost(), config.getPort());
