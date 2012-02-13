@@ -29,22 +29,12 @@ public class HttpServerOutpuStream extends ServletOutputStream {
 	public void write(int b) throws IOException {
 		queue.offer(new ByteChunkedData((byte) b));
 		size++;
-		if (size > bufferSize)
-			flush();
 	}
 
 	@Override
 	public void write(byte[] b, int off, int len) throws IOException {
-		if (len > bufferSize) {
-			flush();
-			bufferedOutput.write(b, off, len);
-			return;
-		}
-
 		queue.offer(new ByteArrayChunkedData(b, off, len));
 		size += len;
-		if (size > bufferSize)
-			flush();
 	}
 
 	@Override
@@ -65,7 +55,7 @@ public class HttpServerOutpuStream extends ServletOutputStream {
 		if (!response.isCommitted()) {
 			response.setHeader("Content-Length", String.valueOf(size));
 			byte[] head = response.getHeadData();
-//			System.out.print(new String(head, "UTF-8"));
+			// System.out.print(new String(head, "UTF-8"));
 			bufferedOutput.write(head);
 			response.setCommitted(true);
 		}
