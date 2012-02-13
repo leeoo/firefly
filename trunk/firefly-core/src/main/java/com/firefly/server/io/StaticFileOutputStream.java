@@ -3,27 +3,20 @@ package com.firefly.server.io;
 import java.io.File;
 import java.io.IOException;
 
+import com.firefly.server.http.HttpServletRequestImpl;
 import com.firefly.server.http.HttpServletResponseImpl;
 
 public class StaticFileOutputStream extends HttpServerOutpuStream {
 
 	public StaticFileOutputStream(int bufferSize,
 			NetBufferedOutputStream bufferedOutput,
-			HttpServletResponseImpl response) {
-		super(bufferSize, bufferedOutput, response);
+			HttpServletRequestImpl request, HttpServletResponseImpl response) {
+		super(bufferSize, bufferedOutput, request, response);
 	}
 
 	public void write(File file, long off, long len) throws IOException {
-		if (len > bufferSize) {
-			flush();
-			bufferedOutput.write(file, off, len);
-			return;
-		}
-
 		queue.offer(new FileChunkedData(file, off, len));
 		size += len;
-		if (size > bufferSize)
-			flush();
 	}
 
 	public void write(File file) throws IOException {

@@ -73,10 +73,10 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 			bufferedOutput = new NetBufferedOutputStream(request.session,
 					bufferSize, request.isKeepAlive());
 			out = request.isChunked() ? new ChunkedOutputStream(bufferSize,
-					bufferedOutput, this) : new HttpServerOutpuStream(
-					bufferSize, bufferedOutput, this);
+					bufferedOutput, request, this) : new HttpServerOutpuStream(
+					bufferSize, bufferedOutput, request, this);
 			fileOut = new StaticFileOutputStream(bufferSize, bufferedOutput,
-					this);
+					request, this);
 			writer = new PrintWriter(out);
 		}
 	}

@@ -6,6 +6,7 @@ import java.util.Queue;
 
 import javax.servlet.ServletOutputStream;
 
+import com.firefly.server.http.HttpServletRequestImpl;
 import com.firefly.server.http.HttpServletResponseImpl;
 
 public class HttpServerOutpuStream extends ServletOutputStream {
@@ -13,12 +14,14 @@ public class HttpServerOutpuStream extends ServletOutputStream {
 	protected int size, bufferSize;
 	protected NetBufferedOutputStream bufferedOutput;
 	protected HttpServletResponseImpl response;
+	protected HttpServletRequestImpl request;
 
 	public HttpServerOutpuStream(int bufferSize,
 			NetBufferedOutputStream bufferedOutput,
-			HttpServletResponseImpl response) {
+			HttpServletRequestImpl request, HttpServletResponseImpl response) {
 		this.bufferSize = bufferSize;
 		this.bufferedOutput = bufferedOutput;
+		this.request = request;
 		this.response = response;
 	}
 
@@ -61,17 +64,23 @@ public class HttpServerOutpuStream extends ServletOutputStream {
 	public void close() throws IOException {
 		if (!response.isCommitted()) {
 			response.setHeader("Content-Length", String.valueOf(size));
-			bufferedOutput.write(response.getHeadData());
+			byte[] head = response.getHeadData();
+//			System.out.print(new String(head, "UTF-8"));
+			bufferedOutput.write(head);
 			response.setCommitted(true);
 		}
 
 		if (size > 0) {
-			for (ChunkedData d = null; (d = queue.poll()) != null;)
-				d.write();
+			if (request.getMethod().equals("HEAD"))
+				queue.clear();
+			else {
+				for (ChunkedData d = null; (d = queue.poll()) != null;)
+					d.write();
+			}
 
 			size = 0;
-			bufferedOutput.close();
 		}
+		bufferedOutput.close();
 	}
 
 	public void resetBuffer() {
