@@ -1,6 +1,8 @@
 package com.firefly.server.io;
 
 import java.io.IOException;
+
+import com.firefly.server.http.HttpServletRequestImpl;
 import com.firefly.server.http.HttpServletResponseImpl;
 
 public class ChunkedOutputStream extends HttpServerOutpuStream {
@@ -10,8 +12,8 @@ public class ChunkedOutputStream extends HttpServerOutpuStream {
 
 	public ChunkedOutputStream(int bufferSize,
 			NetBufferedOutputStream bufferedOutput,
-			HttpServletResponseImpl response) {
-		super(bufferSize, bufferedOutput, response);
+			HttpServletRequestImpl request, HttpServletResponseImpl response) {
+		super(bufferSize, bufferedOutput, request, response);
 		crlf = response.stringToByte("\r\n");
 		endFlag = response.stringToByte("0\r\n\r\n");
 	}
