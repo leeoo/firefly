@@ -4,19 +4,34 @@ public class Config {
 	private String encoding = "UTF-8";
 	private int maxRequestLineLength = 8 * 1024,
 			maxRequestHeadLength = 16 * 1024, maxRangeNum = 8,
-			writeBufferSize = 8 * 1024;
+			writeBufferSize = 8 * 1024, handlerSize;
 	private long maxUploadLength = 50 * 1024 * 1024;
 	private boolean keepAlive = true;
 	private String serverHome, host, servletPath = "/app", contextPath = "";
 	private int port;
+	{
+		int workers = Runtime.getRuntime().availableProcessors();
+		if (workers > 4)
+			handlerSize = workers * 2;
+		else
+			handlerSize = workers + 1;
+	}
 
 	public Config() {
-	};
+	}
 
 	public Config(String serverHome, String host, int port) {
 		setServerHome(serverHome);
 		this.host = host;
 		this.port = port;
+	}
+
+	public int getHandlerSize() {
+		return handlerSize;
+	}
+
+	public void setHandlerSize(int handlerQueueSize) {
+		this.handlerSize = handlerQueueSize;
 	}
 
 	public String getContextPath() {
