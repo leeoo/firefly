@@ -105,10 +105,11 @@ public class HttpHandler implements Handler {
 							}
 							long end = com.firefly.net.Config.TIME_PROVIDER
 									.currentTimeMillis();
-							access.info("{}|{}|{}|{}|{}|{}|{}|{}|{}|{}", 
+							access.info("{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}", 
 									request.session.getSessionId(), 
 									id, 
 									request.session.getRemoteAddress().toString(),
+									request.response.getStatus(),
 									request.getProtocol(),
 									request.getMethod(),
 									request.getRequestURI(),

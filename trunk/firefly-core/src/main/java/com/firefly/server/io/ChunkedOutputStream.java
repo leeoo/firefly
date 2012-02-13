@@ -17,6 +17,20 @@ public class ChunkedOutputStream extends HttpServerOutpuStream {
 		crlf = response.stringToByte("\r\n");
 		endFlag = response.stringToByte("0\r\n\r\n");
 	}
+	
+	@Override
+	public void write(int b) throws IOException {
+		super.write(b);
+		if (size > bufferSize)
+			flush();
+	}
+	
+	@Override
+	public void write(byte[] b, int off, int len) throws IOException {
+		super.write(b, off, len);
+		if (size > bufferSize)
+			flush();
+	}
 
 	@Override
 	public void flush() throws IOException {

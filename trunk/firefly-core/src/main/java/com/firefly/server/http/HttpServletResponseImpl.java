@@ -407,4 +407,8 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 		this.shortMessage = shortMessage;
 	}
 
+	public int getStatus() {
+		return status;
+	}
+
 }
