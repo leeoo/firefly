@@ -1,10 +1,13 @@
 package com.firefly.server.http;
 
+import java.util.concurrent.TimeUnit;
+
 import com.firefly.mvc.web.servlet.HttpServletDispatcherController;
 import com.firefly.net.Handler;
 import com.firefly.net.Session;
 import com.firefly.server.exception.HttpServerException;
 import com.firefly.utils.VerifyUtils;
+import com.firefly.utils.collection.LinkedTransferQueue;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
 
@@ -12,19 +15,24 @@ public class HttpHandler implements Handler {
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	private HttpServletDispatcherController servletController;
 	private FileDispatcherController fileController;
-	private Config config;
+	// private Config config;
 	private String appPrefix;
+	private HttpQueueHandler[] queues;
 
 	public HttpHandler(HttpServletDispatcherController servletController,
 			Config config) {
 		this.servletController = servletController;
-		this.config = config;
+		// this.config = config;
 		appPrefix = config.getContextPath() + config.getServletPath();
 		if (VerifyUtils.isEmpty(appPrefix))
 			throw new HttpServerException(
 					"context path and servlet path can not be null");
 
 		fileController = new FileDispatcherController(config);
+		queues = new HttpQueueHandler[config.getHandlerSize()];
+		for (int i = 0; i < queues.length; i++) {
+			queues[i] = new HttpQueueHandler(i);
+		}
 	}
 
 	@Override
@@ -42,17 +50,11 @@ public class HttpHandler implements Handler {
 	@Override
 	public void messageRecieved(Session session, Object message)
 			throws Throwable {
-		// TODO 这里要保证request处理顺序，需要使用阻塞队列，队列的数量可以配置，然后按照sessionId进行取模
-		System.out.println("session id: " + session.getSessionId());
 		HttpServletRequestImpl request = (HttpServletRequestImpl) message;
-		if (request.response.system) {
-			request.response.outSystemData();
-		} else {
-			if (isServlet(request.getRequestURI()))
-				servletController.dispatcher(request, request.response);
-			else
-				fileController.dispatcher(request, request.response);
-		}
+		int sessionId = session.getSessionId();
+		System.out.println("session id: " + sessionId);
+		int handlerIndex = Math.abs(sessionId) % queues.length;
+		queues[handlerIndex].add(request);
 	}
 
 	private boolean isServlet(String URI) {
@@ -79,4 +81,55 @@ public class HttpHandler implements Handler {
 		session.close(true);
 	}
 
+	private class HttpQueueHandler {
+		int id;
+		boolean start = true;
+		LinkedTransferQueue<HttpServletRequestImpl> queue = new LinkedTransferQueue<HttpServletRequestImpl>();
+		Thread thread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				while (start) {
+					try {
+						for (HttpServletRequestImpl request = null; (request = queue.poll(
+								1000, TimeUnit.MILLISECONDS)) != null;) {
+							System.out.println("handler id: " + id);
+							if (request.response.system) {
+								request.response.outSystemData();
+							} else {
+								if (isServlet(request.getRequestURI()))
+									servletController.dispatcher(request,
+											request.response);
+								else
+									fileController.dispatcher(request,
+											request.response);
+							}
+						}
+					} catch (Throwable e) {
+						log.error("http queue error", e);
+					}
+				}
+
+			}
+		}, "http queue " + id);
+
+		public HttpQueueHandler(int id) {
+			this.id = id;
+			thread.start();
+		}
+
+		public void add(HttpServletRequestImpl request) {
+			queue.offer(request);
+		}
+
+		public void shutdown() {
+			start = false;
+		}
+
+	}
+
+	public void shutdown() {
+		for (HttpQueueHandler h : queues)
+			h.shutdown();
+	}
 }

@@ -23,6 +23,7 @@ public class ServerBootstrap {
 		log.info("server home [{}]", config.getServerHome());
 		log.info("context path [{}]", config.getContextPath());
 		log.info("servlet path [{}]", config.getServletPath());
+		log.info("http handler num [{}]", config.getHandlerSize());
 
 		long start = System.currentTimeMillis();
 		AnnotationWebContext context = new AnnotationWebContext(
