@@ -65,6 +65,7 @@ public class FileDispatcherController implements DispatcherController {
 				} else {
 					String[] rangesSpecifier = StringUtils.split(range, '=');
 					if (rangesSpecifier.length != 2) {
+						response.setStatus(416);
 						out.write(RANGE_ERROR_HTML.getBytes(config
 								.getEncoding()));
 						return;
@@ -78,6 +79,7 @@ public class FileDispatcherController implements DispatcherController {
 						if (byteRangeSets.length > config.getMaxRangeNum()) {
 							log.error("multipart range more than {}",
 									config.getMaxRangeNum());
+							response.setStatus(416);
 							out.write(RANGE_ERROR_HTML.getBytes(config
 									.getEncoding()));
 							return;
@@ -148,6 +150,7 @@ public class FileDispatcherController implements DispatcherController {
 									.getBytes(config.getEncoding()));
 							log.debug("multipart download|{}", range);
 						} else {
+							response.setStatus(416);
 							out.write(RANGE_ERROR_HTML.getBytes(config
 									.getEncoding()));
 							return;
@@ -158,6 +161,7 @@ public class FileDispatcherController implements DispatcherController {
 						if (byteRange.length == 1) {
 							long pos = Long.parseLong(byteRange[0].trim());
 							if (pos == 0) {
+								response.setStatus(416);
 								out.write(RANGE_ERROR_HTML.getBytes(config
 										.getEncoding()));
 								return;
@@ -172,6 +176,7 @@ public class FileDispatcherController implements DispatcherController {
 								writePartialFile(request, response, out, file,
 										pos, fileLen - 1, fileLen);
 							} else {
+								response.setStatus(416);
 								out.write(RANGE_ERROR_HTML.getBytes(config
 										.getEncoding()));
 								return;
@@ -183,6 +188,7 @@ public class FileDispatcherController implements DispatcherController {
 									.trim());
 							if (firstBytePos > fileLen
 									|| firstBytePos >= lastBytePos) {
+								response.setStatus(416);
 								out.write(RANGE_ERROR_HTML.getBytes(config
 										.getEncoding()));
 								return;
@@ -224,6 +230,7 @@ public class FileDispatcherController implements DispatcherController {
 
 		long length = lastBytePos - firstBytePos + 1;
 		if (length <= 0) {
+			response.setStatus(416);
 			out.write(RANGE_ERROR_HTML.getBytes(config.getEncoding()));
 			return;
 		}
