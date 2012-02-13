@@ -73,7 +73,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	};
 	private RequestDispatcherImpl requestDispatcher = new RequestDispatcherImpl();
 
-	protected static Locale defaultLocale = Locale.getDefault();
+	protected static Locale DEFAULT_LOCALE = Locale.getDefault();
 	protected ArrayList<Locale> locales = new ArrayList<Locale>();
 	private boolean loadParam, localesParsed;
 
@@ -288,7 +288,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 		if (locales.size() > 0) {
 			return ((Locale) locales.get(0));
 		} else {
-			return (defaultLocale);
+			return (DEFAULT_LOCALE);
 		}
 	}
 
@@ -298,7 +298,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 			parseLocales();
 
 		if (locales.size() == 0)
-			locales.add(defaultLocale);
+			locales.add(DEFAULT_LOCALE);
 
 		return new Enumeration<Locale>() {
 			private int i = 0;

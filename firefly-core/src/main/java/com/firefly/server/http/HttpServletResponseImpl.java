@@ -35,7 +35,8 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	private boolean committed;
 	private HttpServletRequestImpl request;
 	private int status, bufferSize;
-	private String characterEncoding, shortMessage;
+	private String characterEncoding, shortMessage, contentLanguage;
+	private Locale locale;
 	private Map<String, String> headMap = new HashMap<String, String>();
 	private List<Cookie> cookies = new LinkedList<Cookie>();
 	private boolean usingWriter, usingOutputStream, usingFileOutputStream;
@@ -61,6 +62,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 		this.characterEncoding = characterEncoding;
 		this.bufferSize = bufferSize;
 
+		locale = HttpServletRequestImpl.DEFAULT_LOCALE;
 		setStatus(200);
 		setHeader("Server", "firefly-server/1.0");
 	}
@@ -88,6 +90,10 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 		for (String name : headMap.keySet())
 			sb.append(name).append(": ").append(headMap.get(name))
+					.append("\r\n");
+
+		if (contentLanguage != null)
+			sb.append("Content-Language: ").append(contentLanguage)
 					.append("\r\n");
 
 		// TODO 这里还需要Cookie处理
@@ -219,15 +225,29 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	}
 
 	@Override
-	public void setLocale(Locale loc) {
-		// TODO Auto-generated method stub
+	public void setLocale(Locale locale) {
+		if (locale == null) {
+			return;
+		}
 
+		this.locale = locale;
+
+		// Set the contentLanguage for header output
+		contentLanguage = locale.getLanguage();
+		if ((contentLanguage != null) && (contentLanguage.length() > 0)) {
+			String country = locale.getCountry();
+			StringBuilder value = new StringBuilder(contentLanguage);
+			if (country != null && country.length() > 0) {
+				value.append('-');
+				value.append(country);
+			}
+			contentLanguage = value.toString();
+		}
 	}
 
 	@Override
 	public Locale getLocale() {
-		// TODO Auto-generated method stub
-		return null;
+		return locale;
 	}
 
 	@Override
