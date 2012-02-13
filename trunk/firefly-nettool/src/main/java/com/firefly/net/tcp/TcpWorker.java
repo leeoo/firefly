@@ -2,6 +2,7 @@ package com.firefly.net.tcp;
 
 import static com.firefly.net.tcp.TcpPerformanceParameter.CLEANUP_INTERVAL;
 import static com.firefly.net.tcp.TcpPerformanceParameter.WRITE_SPIN_COUNT;
+import static com.firefly.net.Config.*;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -33,13 +34,10 @@ import com.firefly.utils.collection.LinkedTransferQueue;
 import com.firefly.utils.log.Log;
 import com.firefly.utils.log.LogFactory;
 import com.firefly.utils.time.HashTimeWheel;
-import com.firefly.utils.time.TimeProvider;
 
 public final class TcpWorker implements Worker {
 
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
-	static final TimeProvider timeProvider = new TimeProvider(100);
-
 	private final Config config;
 	private final Queue<Runnable> registerTaskQueue = new LinkedTransferQueue<Runnable>();
 	private final Queue<Runnable> writeTaskQueue = new LinkedTransferQueue<Runnable>();
@@ -52,12 +50,7 @@ public final class TcpWorker implements Worker {
 	private volatile int cancelledKeys;
 	private Thread thread;
 	private EventManager eventManager;
-	
 	private boolean start;
-
-	static {
-		timeProvider.start();
-	}
 
 	public TcpWorker(Config config, int workerId, EventManager eventManager) {
 		try {
@@ -313,7 +306,7 @@ public final class TcpWorker implements Worker {
 		}
 
 		if (writtenBytes > 0) {
-			session.setLastWrittenTime(timeProvider.currentTimeMillis());
+			session.setLastWrittenTime(TIME_PROVIDER.currentTimeMillis());
 			session.setWrittenBytes(writtenBytes);
 			log.debug("write complete size: {}", writtenBytes);
 			log.debug("1> session is open: {}", open);
@@ -392,7 +385,7 @@ public final class TcpWorker implements Worker {
 			// Update the predictor.
 			predictor.previousReceiveBufferSize(readBytes);
 			session.setReadBytes(readBytes);
-			session.setLastReadTime(timeProvider.currentTimeMillis());
+			session.setLastReadTime(TIME_PROVIDER.currentTimeMillis());
 			// Decode
 			
 			try {
@@ -447,7 +440,7 @@ public final class TcpWorker implements Worker {
 
 				key = socketChannel.register(selector, SelectionKey.OP_READ);
 				Session session = new TcpSession(sessionId, TcpWorker.this,
-						config, timeProvider.currentTimeMillis(), key, eventManager);
+						config, TIME_PROVIDER.currentTimeMillis(), key, eventManager);
 				key.attach(session);
 
 				SocketAddress localAddress = session.getLocalAddress();
@@ -480,7 +473,7 @@ public final class TcpWorker implements Worker {
 
 		@Override
 		public void run() {
-			long t = timeProvider.currentTimeMillis()
+			long t = TIME_PROVIDER.currentTimeMillis()
 					- session.getLastActiveTime();
 			// log.debug("check time: {}", t);
 			if (t > timeout) {
@@ -641,7 +634,7 @@ public final class TcpWorker implements Worker {
 	public void shutdown() {
 		eventManager.shutdown();
 		start = false;
-		timeProvider.stop();
+		TIME_PROVIDER.stop();
 		timeWheel.stop();
 		log.debug("thread {} is shutdown: {}", thread.getName(),
 				thread.isInterrupted());
