@@ -13,16 +13,16 @@ import com.firefly.utils.log.LogFactory;
 
 public class HttpHandler implements Handler {
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
+	private static Log access = LogFactory.getInstance().getLog(
+			"firefly-access");
 	private HttpServletDispatcherController servletController;
 	private FileDispatcherController fileController;
-	// private Config config;
 	private String appPrefix;
 	private HttpQueueHandler[] queues;
 
 	public HttpHandler(HttpServletDispatcherController servletController,
 			Config config) {
 		this.servletController = servletController;
-		// this.config = config;
 		appPrefix = config.getContextPath() + config.getServletPath();
 		if (VerifyUtils.isEmpty(appPrefix))
 			throw new HttpServerException(
@@ -52,7 +52,6 @@ public class HttpHandler implements Handler {
 			throws Throwable {
 		HttpServletRequestImpl request = (HttpServletRequestImpl) message;
 		int sessionId = session.getSessionId();
-		System.out.println("session id: " + sessionId);
 		int handlerIndex = Math.abs(sessionId) % queues.length;
 		queues[handlerIndex].add(request);
 	}
@@ -93,7 +92,7 @@ public class HttpHandler implements Handler {
 					try {
 						for (HttpServletRequestImpl request = null; (request = queue.poll(
 								1000, TimeUnit.MILLISECONDS)) != null;) {
-							System.out.println("handler id: " + id);
+							long start = com.firefly.net.Config.TIME_PROVIDER.currentTimeMillis();
 							if (request.response.system) {
 								request.response.outSystemData();
 							} else {
@@ -104,6 +103,19 @@ public class HttpHandler implements Handler {
 									fileController.dispatcher(request,
 											request.response);
 							}
+							long end = com.firefly.net.Config.TIME_PROVIDER
+									.currentTimeMillis();
+							access.info("{}|{}|{}|{}|{}|{}|{}|{}|{}|{}", 
+									request.session.getSessionId(), 
+									id, 
+									request.session.getRemoteAddress().toString(),
+									request.getProtocol(),
+									request.getMethod(),
+									request.getRequestURI(),
+									request.getQueryString(),
+									request.session.getReadBytes(),
+									request.session.getWrittenBytes(),
+									(end - start));
 						}
 					} catch (Throwable e) {
 						log.error("http queue error", e);
