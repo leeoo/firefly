@@ -1,5 +1,8 @@
 package com.firefly.server.http;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 public class Config {
 	private String encoding = "UTF-8";
 	private int maxRequestLineLength = 8 * 1024,
@@ -9,6 +12,14 @@ public class Config {
 	private boolean keepAlive = true;
 	private String serverHome, host, servletPath = "/app", contextPath = "";
 	private int port;
+	private FileAccessFilter fileAccessFilter = new FileAccessFilter() {
+		@Override
+		public String doFilter(HttpServletRequest request,
+				HttpServletResponse response) {
+			return request.getRequestURI();
+		}
+	};
+
 	{
 		int workers = Runtime.getRuntime().availableProcessors();
 		if (workers > 4)
@@ -24,6 +35,14 @@ public class Config {
 		setServerHome(serverHome);
 		this.host = host;
 		this.port = port;
+	}
+
+	public FileAccessFilter getFileAccessFilter() {
+		return fileAccessFilter;
+	}
+
+	public void setFileAccessFilter(FileAccessFilter fileAccessFilter) {
+		this.fileAccessFilter = fileAccessFilter;
 	}
 
 	public int getHandlerSize() {
