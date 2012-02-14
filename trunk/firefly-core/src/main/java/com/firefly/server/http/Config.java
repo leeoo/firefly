@@ -21,11 +21,11 @@ public class Config {
 	};
 
 	{
-		int workers = Runtime.getRuntime().availableProcessors();
-		if (workers > 4)
-			handlerSize = workers * 2;
+		int p = Runtime.getRuntime().availableProcessors();
+		if (p > 4)
+			handlerSize = p * 2;
 		else
-			handlerSize = workers + 1;
+			handlerSize = p + 1;
 	}
 
 	public Config() {
