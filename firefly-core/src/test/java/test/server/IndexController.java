@@ -16,7 +16,9 @@ public class IndexController {
 	@RequestMapping(value = "/index")
 	public String index(HttpServletRequest request, HttpServletResponse response) {
 		request.setAttribute("hello", "welcome");
-		Cookie cookie = new Cookie("test", "cookie_value");
+		response.addCookie(new Cookie("test", "cookie_value"));
+		Cookie cookie = new Cookie("myname", "xiaoqiu");
+		cookie.setMaxAge(5 * 60);
 		response.addCookie(cookie);
 		return "/index.html";
 	}
