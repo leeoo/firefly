@@ -1,6 +1,7 @@
 package com.firefly.server.http;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PipedInputStream;
@@ -47,7 +48,9 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	private StringParser parser = new StringParser();
 	private static final String[] EMPTY_STR_ARR = new String[0];
 	private static final Cookie[] EMPTY_COOKIE_ARR = new Cookie[0];
-	private String characterEncoding;
+	private String characterEncoding, requestedSessionId;
+	private boolean requestedSessionIdFromCookie, requestedSessionIdFromURL;
+	private HttpSession httpSession;
 	private Map<String, List<String>> parameterMap = new HashMap<String, List<String>>();
 	private Map<String, Object> attributeMap = new HashMap<String, Object>();
 	private BufferedReader bufferedReader;
@@ -517,37 +520,109 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public String getPathTranslated() {
-		throw new HttpServerException("no implements this method!");
+		// TODO 需要测试
+		return new File(config.getServerHome(), getRequestURI())
+				.getAbsolutePath();
 	}
 
 	@Override
 	public String getRequestedSessionId() {
-		throw new HttpServerException("no implements this method!");
+		return requestedSessionId;
 	}
 
 	@Override
 	public HttpSession getSession(boolean create) {
-		throw new HttpServerException("no implements this method!");
+		// TODO 需要测试
+		if (create) {
+			httpSession = config.getHttpSessionManager().create();
+			requestedSessionId = httpSession.getId();
+			response.addCookie(new Cookie(config.getSessionIdName(),
+					httpSession.getId()));
+		} else {
+			if (isRequestedSessionIdFromCookie()
+					|| isRequestedSessionIdFromURL()) {
+				httpSession = config.getHttpSessionManager().get(
+						requestedSessionId);
+			}
+		}
+
+		return httpSession;
 	}
 
 	@Override
 	public HttpSession getSession() {
-		throw new HttpServerException("no implements this method!");
+		// TODO 需要测试
+		if (httpSession == null) {
+			if (isRequestedSessionIdFromCookie()
+					|| isRequestedSessionIdFromURL())
+				httpSession = config.getHttpSessionManager().get(
+						requestedSessionId);
+
+			if (httpSession == null)
+				getSession(true);
+		}
+		return httpSession;
 	}
 
 	@Override
 	public boolean isRequestedSessionIdValid() {
-		throw new HttpServerException("no implements this method!");
+		return requestedSessionId != null ? config.getHttpSessionManager()
+				.containsKey(requestedSessionId) : false;
 	}
 
 	@Override
 	public boolean isRequestedSessionIdFromCookie() {
-		throw new HttpServerException("no implements this method!");
+		// TODO 需要测试
+		if(requestedSessionId != null)
+			return requestedSessionIdFromCookie;
+		
+		for (Cookie cookie : getCookies()) {
+			if (cookie.getName().equals(config.getSessionIdName())) {
+				requestedSessionId = cookie.getValue();
+				requestedSessionIdFromCookie = true;
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
 	public boolean isRequestedSessionIdFromURL() {
-		throw new HttpServerException("no implements this method!");
+		// TODO 需要测试
+		if(requestedSessionId != null)
+			return requestedSessionIdFromURL;
+		
+		String sessionId = getSessionId(requestURI, config.getSessionIdName());
+		if (VerifyUtils.isNotEmpty(sessionId)) {
+			requestedSessionId = sessionId;
+			requestedSessionIdFromURL = true;
+			return true;
+		}
+		return false;
+	}
+	
+	public static String getSessionId(String uri, String sessionIdName) {
+		String sessionId = null;
+		int i = uri.indexOf(';');
+		int j = uri.indexOf('#');
+		if(i > 0) {
+			String tmp = j > i ? uri.substring(i + 1, j) : uri.substring(i + 1);
+			int m = 0;
+			for (int k = 0; k < tmp.length(); k++) {
+				if(tmp.charAt(k) == '=') {
+					m = k;
+					break;
+				}
+			}
+			if(m > 0) {
+				String name = tmp.substring(0, m);
+				String value = tmp.substring(m + 1);
+				if(name.equals(sessionIdName)) {
+					sessionId = value;
+				}
+			}
+		}
+		return sessionId;
 	}
 
 	@Override

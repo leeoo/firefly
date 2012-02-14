@@ -3,6 +3,8 @@ package com.firefly.server.http;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.firefly.server.session.HttpSessionManager;
+
 public class Config {
 	private String encoding = "UTF-8";
 	private int maxRequestLineLength = 8 * 1024,
@@ -10,8 +12,10 @@ public class Config {
 			writeBufferSize = 8 * 1024, handlerSize;
 	private long maxUploadLength = 50 * 1024 * 1024;
 	private boolean keepAlive = true;
-	private String serverHome, host, servletPath = "/app", contextPath = "";
+	private String serverHome, host, servletPath = "/app", contextPath = "",
+			sessionIdName = "jsessionid";
 	private int port;
+	private HttpSessionManager httpSessionManager;
 	private FileAccessFilter fileAccessFilter = new FileAccessFilter() {
 		@Override
 		public String doFilter(HttpServletRequest request,
@@ -35,6 +39,22 @@ public class Config {
 		setServerHome(serverHome);
 		this.host = host;
 		this.port = port;
+	}
+
+	public String getSessionIdName() {
+		return sessionIdName;
+	}
+
+	public void setSessionIdName(String sessionIdName) {
+		this.sessionIdName = sessionIdName;
+	}
+
+	public HttpSessionManager getHttpSessionManager() {
+		return httpSessionManager;
+	}
+
+	public void setHttpSessionManager(HttpSessionManager httpSessionManager) {
+		this.httpSessionManager = httpSessionManager;
 	}
 
 	public FileAccessFilter getFileAccessFilter() {
