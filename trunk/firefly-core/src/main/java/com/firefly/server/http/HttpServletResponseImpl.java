@@ -121,7 +121,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 		sb.append("\r\n");
 		String head = sb.toString();
-//		System.out.println(head);
+		// System.out.println(head);
 		return stringToByte(head);
 	}
 
@@ -294,12 +294,25 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	@Override
 	public String encodeURL(String url) {
-		throw new HttpServerException("no implements this method!");
+		if (VerifyUtils.isEmpty(url))
+			return null;
+
+		if (url.contains(";" + request.config.getSessionIdName() + "="))
+			return url;
+
+		String absoluteURL = toAbsolute(url);
+
+		if (request.isRequestedSessionIdFromCookie()
+				|| request.isRequestedSessionIdFromURL())
+			return toEncoded(absoluteURL, request.getRequestedSessionId(),
+					request.config.getSessionIdName());
+
+		return null;
 	}
 
 	@Override
 	public String encodeRedirectURL(String url) {
-		throw new HttpServerException("no implements this method!");
+		return encodeURL(url);
 	}
 
 	@Override
@@ -336,7 +349,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 				boolean hasContent = VerifyUtils
 						.isNotEmpty(systemResponseContent);
 				byte[] b = null;
-	
+
 				if (hasContent) {
 					b = SystemHtmlPage.systemPageTemplate(status,
 							systemResponseContent).getBytes(characterEncoding);
@@ -344,7 +357,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 				} else {
 					setHeader("Content-Length", "0");
 				}
-	
+
 				bufferedOutput.write(getHeadData());
 				if (hasContent)
 					bufferedOutput.write(b);
@@ -462,6 +475,37 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	public int getStatus() {
 		return status;
+	}
+
+	public static String toEncoded(String url, String sessionId,
+			String sessionIdName) {
+		if (url == null || sessionId == null)
+			return url;
+
+		String path = url;
+		String query = "";
+		String anchor = "";
+		int question = url.indexOf('?');
+		if (question >= 0) {
+			path = url.substring(0, question);
+			query = url.substring(question);
+		}
+		int pound = path.indexOf('#');
+		if (pound >= 0) {
+			anchor = path.substring(pound);
+			path = path.substring(0, pound);
+		}
+		StringBuilder sb = new StringBuilder(path);
+		if (sb.length() > 0) { // jsessionid can't be first.
+			sb.append(";");
+			sb.append(sessionIdName);
+			sb.append("=");
+			sb.append(sessionId);
+		}
+		sb.append(anchor);
+		sb.append(query);
+		return sb.toString();
+
 	}
 
 }

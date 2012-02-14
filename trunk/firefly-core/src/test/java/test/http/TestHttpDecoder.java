@@ -347,14 +347,38 @@ public class TestHttpDecoder {
 
 		Assert.assertThat(sb.toString(), is("| 90 | 测试 | 测试当前book | 3.3 | true |"));
 	}
+	
+	@Test
+	public void testGetSessionId() {
+		String sessionIdName = "jsessionid";
+		String uri = "/app/hello;jsessionid=33342424jkl#apple";
+		Assert.assertThat(HttpServletRequestImpl.getSessionId(uri, sessionIdName), is("33342424jkl"));
+		uri = "/app/hello;jsessionid=33342424jkl";
+		Assert.assertThat(HttpServletRequestImpl.getSessionId(uri, sessionIdName), is("33342424jkl"));
+		
+		uri = "http://www.firefly.com/app/hello?q=333";
+		Assert.assertThat(HttpServletResponseImpl.toEncoded(uri, "ccccccccccccc", sessionIdName), is("http://www.firefly.com/app/hello;jsessionid=ccccccccccccc?q=333"));
+		uri = "http://www.firefly.com/app/hello#ddddc?q=333";
+		Assert.assertThat(HttpServletResponseImpl.toEncoded(uri, "ccccccccccccc", sessionIdName), is("http://www.firefly.com/app/hello;jsessionid=ccccccccccccc#ddddc?q=333"));
+	}
 
 	public static void main(String[] args) throws Throwable {
 //		TestHttpDecoder t = new TestHttpDecoder();
 //		t.testBody3();
-		String a = "hello";
-		String b = a;
-		a = "hello2";
-		System.out.println(b);
+		String sessionIdName = "jsessionid";
+		String uri = "/app/hello;jsessionid=33342424jkl#apple";
+		System.out.println(uri.contains(";jsessionid="));
+		System.out.println(HttpServletRequestImpl.getSessionId(uri, sessionIdName));
+		uri = "/app/hello;jsessionid=33342424jkl";
+		System.out.println(HttpServletRequestImpl.getSessionId(uri, sessionIdName));
+		
+		uri = "http://www.firefly.com/app/hello?q=333";
+		System.out.println(uri.contains(";jsessionid="));
+		System.out.println(HttpServletResponseImpl.toEncoded(uri, "ccccccccccccc", sessionIdName));
+		uri = "http://www.firefly.com/app/hello#ddddc?q=333";
+		System.out.println(HttpServletResponseImpl.toEncoded(uri, "ccccccccccccc", sessionIdName));
+		
+		
 	}
 
 	public static void test1() throws Throwable {
