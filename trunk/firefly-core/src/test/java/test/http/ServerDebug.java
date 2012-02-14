@@ -11,9 +11,13 @@ public class ServerDebug {
 //				"GET /index.html HTTP/1.1\r\n" +
 //				"Host: 127.0.0.1\r\n" +
 //				"Range: bytes=3-10,-7, 20-\r\n\r\n";
+//		String msg = 
+//				"GET /app/index HTTP/1.1\r\n" +
+//				"Host: 127.0.0.1\r\n\r\n";
 		String msg = 
-				"GET /app/index HTTP/1.1\r\n" +
-				"Host: 127.0.0.1\r\n\r\n";
+				"POST /index.html HTTP/1.1\r\n" +
+				"Host: 127.0.0.1\r\n" +
+				"Expect: 100-continue\r\n\r\n";
 		Socket socket = new Socket("localhost", 6655);
 		OutputStream out = socket.getOutputStream();
 		out.write(msg.getBytes("UTF-8"));
@@ -22,6 +26,15 @@ public class ServerDebug {
 		byte[] ret = new byte[32 * 1024];
 		in.read(ret);
 		System.out.print(new String(ret, "UTF-8"));
+		
+		ret = new byte[32 * 1024];
+		in.read(ret);
+		System.out.print(new String(ret, "UTF-8"));
+		
+		ret = new byte[32 * 1024];
+		in.read(ret);
+		System.out.print(new String(ret, "UTF-8"));
+		
 		ret = new byte[32 * 1024];
 		in.read(ret);
 		System.out.print(new String(ret, "UTF-8"));

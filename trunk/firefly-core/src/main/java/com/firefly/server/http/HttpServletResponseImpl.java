@@ -120,7 +120,9 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 		}
 
 		sb.append("\r\n");
-		return stringToByte(sb.toString());
+		String head = sb.toString();
+//		System.out.println(head);
+		return stringToByte(head);
 	}
 
 	public byte[] getChunkedSize(int length) {
@@ -329,10 +331,12 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 			throw new IllegalStateException("response is committed");
 
 		createOutput();
-		try {
-			boolean hasContent = VerifyUtils.isNotEmpty(systemResponseContent);
-			byte[] b = null;
-			if (status != 100) {
+		if (status >= 400) {
+			try {
+				boolean hasContent = VerifyUtils
+						.isNotEmpty(systemResponseContent);
+				byte[] b = null;
+	
 				if (hasContent) {
 					b = SystemHtmlPage.systemPageTemplate(status,
 							systemResponseContent).getBytes(characterEncoding);
@@ -340,16 +344,15 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 				} else {
 					setHeader("Content-Length", "0");
 				}
+	
+				bufferedOutput.write(getHeadData());
+				if (hasContent)
+					bufferedOutput.write(b);
+			} finally {
+				bufferedOutput.close();
 			}
-
-			bufferedOutput.write(getHeadData());
-			if (hasContent)
-				bufferedOutput.write(b);
-		} finally {
-			bufferedOutput.close();
+			setCommitted(true);
 		}
-
-		setCommitted(true);
 	}
 
 	public void scheduleSendContinue(int sc) {

@@ -1,6 +1,7 @@
 package com.firefly.server.http;
 
 import java.io.PipedOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
 import com.firefly.net.Decoder;
@@ -106,15 +107,14 @@ public class HttpDecoder implements Decoder {
 				HttpServletRequestImpl req) throws Throwable {
 			if (req.offset >= config.getMaxRequestLineLength()) {
 				String msg = "request line length is " + req.offset
-						+ ", it more than "
-						+ config.getMaxRequestLineLength() + "|"
-						+ session.getRemoteAddress();
+						+ ", it more than " + config.getMaxRequestLineLength()
+						+ "|" + session.getRemoteAddress();
 				log.error(msg);
 				finish(session, req);
 				session.close(true);
 				return true;
 			}
-			
+
 			int len = buf.remaining();
 			for (; req.offset < len; req.offset++) {
 
@@ -213,17 +213,17 @@ public class HttpDecoder implements Decoder {
 
 						if (name.equals("expect") && value.startsWith("100-")
 								&& req.getProtocol().equals("HTTP/1.1"))
-							response100Continue(session, req);
+							response100Continue(session);
 					}
 				}
 			}
 			return false;
 		}
 
-		private void response100Continue(Session session,
-				HttpServletRequestImpl req) {
-			req.response.scheduleSendContinue(100);
-			session.fireReceiveMessage(req);
+		private void response100Continue(Session session)
+				throws UnsupportedEncodingException {
+			session.write(ByteBuffer.wrap("HTTP/1.1 100 Continue\r\n\r\n"
+					.getBytes(config.getEncoding())));
 		}
 	}
 
