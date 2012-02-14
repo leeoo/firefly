@@ -46,6 +46,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	private StringParser parser = new StringParser();
 	private static final String[] EMPTY_STR_ARR = new String[0];
+	private static final Cookie[] EMPTY_COOKIE_ARR = new Cookie[0];
 	private String characterEncoding;
 	private Map<String, List<String>> parameterMap = new HashMap<String, List<String>>();
 	private Map<String, Object> attributeMap = new HashMap<String, Object>();
@@ -352,6 +353,32 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public Cookie[] getCookies() {
+		if (cookies == null) {
+			List<Cookie> list = new ArrayList<Cookie>();
+			String cookieStr = getHeader("Cookie");
+			if (VerifyUtils.isEmpty(cookieStr)) {
+				cookies = EMPTY_COOKIE_ARR;
+			} else {
+				String[] c = StringUtils.split(cookieStr, ';');
+				for (String t : c) {
+					int j = 0;
+					for (int i = 0; i < t.length(); i++) {
+						if (t.charAt(i) == '=') {
+							j = i;
+							break;
+						}
+					}
+					if (j > 1) {
+						String name = t.substring(0, j);
+						String value = t.substring(j + 1);
+						Cookie cookie = new Cookie(name, value);
+						list.add(cookie);
+					} else
+						continue;
+				}
+				cookies = list.toArray(EMPTY_COOKIE_ARR);
+			}
+		}
 		return cookies;
 	}
 
