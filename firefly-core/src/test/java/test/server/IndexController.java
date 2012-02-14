@@ -2,6 +2,7 @@ package test.server;
 
 import java.io.IOException;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -15,6 +16,8 @@ public class IndexController {
 	@RequestMapping(value = "/index")
 	public String index(HttpServletRequest request, HttpServletResponse response) {
 		request.setAttribute("hello", "welcome");
+		Cookie cookie = new Cookie("test", "cookie_value");
+		response.addCookie(cookie);
 		return "/index.html";
 	}
 

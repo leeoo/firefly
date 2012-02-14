@@ -108,7 +108,7 @@ public class HttpHandler implements Handler {
 							access.info("{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}", 
 									request.session.getSessionId(), 
 									id, 
-									request.session.getRemoteAddress().toString(),
+									request.getRemoteAddr(),
 									request.response.getStatus(),
 									request.getProtocol(),
 									request.getMethod(),

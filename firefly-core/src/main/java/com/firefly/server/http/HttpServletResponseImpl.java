@@ -89,14 +89,35 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 				.append(shortMessage).append("\r\n");
 
 		for (String name : headMap.keySet())
-			sb.append(name).append(": ").append(headMap.get(name))
+			sb.append(name).append(":").append(headMap.get(name))
 					.append("\r\n");
 
 		if (contentLanguage != null)
-			sb.append("Content-Language: ").append(contentLanguage)
+			sb.append("Content-Language:").append(contentLanguage)
 					.append("\r\n");
 
-		// TODO 这里还需要Cookie处理
+		for (Cookie cookie : cookies) {
+			sb.append("Set-Cookie:").append(cookie.getName()).append('=')
+					.append(cookie.getValue());
+
+			if (VerifyUtils.isNotEmpty(cookie.getComment()))
+				sb.append(";Comment=").append(cookie.getComment());
+
+			if (VerifyUtils.isNotEmpty(cookie.getDomain()))
+				sb.append(";Domain=").append(cookie.getDomain());
+
+			if (cookie.getMaxAge() > 0)
+				sb.append(";Max-Age=").append(cookie.getMaxAge());
+
+			String path = VerifyUtils.isEmpty(cookie.getPath()) ? "/" : cookie
+					.getPath();
+			sb.append(";Path=").append(path);
+
+			if (cookie.getSecure())
+				sb.append(";Secure");
+
+			sb.append(";Version=").append(cookie.getVersion()).append("\r\n");
+		}
 
 		sb.append("\r\n");
 		return stringToByte(sb.toString());
@@ -252,7 +273,16 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	@Override
 	public void addCookie(Cookie cookie) {
-		cookies.add(cookie);
+		if (cookie == null)
+			throw new HttpServerException("cookie is null");
+
+		if (VerifyUtils.isNotEmpty(cookie.getName())
+				&& VerifyUtils.isNotEmpty(cookie.getValue())) {
+			cookies.add(cookie);
+		} else {
+			throw new HttpServerException(
+					"cookie name or value or domain is null");
+		}
 	}
 
 	@Override
