@@ -28,14 +28,11 @@ public abstract class RequestHandler {
 			request.response.outSystemData();
 		} else {
 			if (isServlet(request.getRequestURI()))
-				servletController.dispatcher(request,
-						request.response);
+				servletController.dispatcher(request, request.response);
 			else
-				fileController.dispatcher(request,
-						request.response);
+				fileController.dispatcher(request, request.response);
 		}
-		long end = com.firefly.net.Config.TIME_PROVIDER
-				.currentTimeMillis();
+		long end = com.firefly.net.Config.TIME_PROVIDER.currentTimeMillis();
 		access.info("{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}", 
 				request.session.getSessionId(), 
 				id, 
