@@ -19,6 +19,13 @@ public class ServerBootstrap {
 		start(config);
 	}
 
+	public static void start(String configFileName, String serverHome,
+			String host, int port) {
+		Config config = new Config(serverHome, host, port);
+		config.setConfigFileName(configFileName);
+		start(config);
+	}
+
 	public static void start(Config config) {
 		log.info("server home [{}]", config.getServerHome());
 		log.info("context path [{}]", config.getContextPath());
@@ -27,7 +34,7 @@ public class ServerBootstrap {
 
 		long start = System.currentTimeMillis();
 		AnnotationWebContext context = new AnnotationWebContext(
-				"firefly-server.xml", config.getServerHome());
+				config.getConfigFileName(), config.getServerHome());
 		HttpServletDispatcherController controller = HttpServletDispatcherController
 				.getInstance().init(context);
 
