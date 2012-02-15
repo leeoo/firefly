@@ -1,5 +1,5 @@
 #summary firefly IOC、MVC框架使用指南
-#labels Phase-Support
+#labels Featured
 <wiki:toc max_depth="3" />
 = 特性 =
  * firefly是一个追求高性能的一站式应用程序框架(含IOC、MVC框架，模板引擎，应用服务器，常用工具类)，性能大幅超越主流的(spring3、struts2) + tomcat架构
