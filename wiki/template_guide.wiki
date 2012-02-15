@@ -187,3 +187,59 @@ FunctionRegistry.add("testFunction", function);
 }}}
  * 注册函数后就可以在模版页面中调用了，例如${testFunction(3, "hello", user.age)}
  * 注册自定义函数必须在TemplateFactory初始化之前
+
+= 性能测试 =
+含有if, else, for等简单逻辑的模版页面，循环渲染100000次
+|| * 模板引擎 * || * 吞吐量 * ||
+|| firefly-template_1.0 || 1805tps ||
+|| freemark_2.3.18 || 1275tps ||
+
+测试用例：
+{{{
+<!DOCTYPE html>
+<html>
+<body>
+<div>${user.name}/${user.role}</div>
+<!-- #if ${user.role} == "admin" -->
+<table>
+	<tr>
+	  <th>NO.</th>
+	  <th>Title</th>
+	  <th>Author</th>
+	  <th>Publisher</th>
+	  <th>PublicationDate</th>
+	  <th>Price</th>
+	  <th>DiscountPercent</th>
+	  <th>DiscountPrice</th>
+	</tr>
+	<!-- #for book : ${books} -->
+		<!-- #if ${book.price} > 0 -->
+		<tr>
+		  <td>${book_index}</td>
+		  <td>${book.title}</td>
+		  <td>${book.author}</td>
+		  <td>${book.publisher}</td>
+		  <td>${dateFormat(book.publication)}</td>
+		  <td>${book.price}</td>
+		  <td>${book.discount}%</td>
+		  <td>${book_count(book)}</td>
+		</tr>
+		<!-- #end -->
+	<!-- #end -->
+</table>
+<!-- #elseif ${user} != null -->
+<table>
+  <tr>
+    <td>No privilege.</td>
+  </tr>
+</table>
+<!-- #else -->
+<table>
+  <tr>
+    <td>No login.</td>
+  </tr>
+</table>
+<!-- #end -->
+</body>
+</html>
+}}}
