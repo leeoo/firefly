@@ -11,9 +11,11 @@ import com.firefly.utils.log.LogFactory;
 public class HttpHandler implements Handler {
 	private static Log log = LogFactory.getInstance().getLog("firefly-system");
 	private RequestHandler requestHandler;
+	private HttpConnectionListener httpConnectionListener;
 
 	public HttpHandler(HttpServletDispatcherController servletController,
 			Config config) {
+		httpConnectionListener = config.getHttpConnectionListener();
 		String appPrefix = config.getContextPath() + config.getServletPath();
 		if (VerifyUtils.isEmpty(appPrefix))
 			throw new HttpServerException(
@@ -31,14 +33,12 @@ public class HttpHandler implements Handler {
 
 	@Override
 	public void sessionOpened(Session session) throws Throwable {
-		// TODO Auto-generated method stub
-
+		httpConnectionListener.connectionCreated(session);
 	}
 
 	@Override
 	public void sessionClosed(Session session) throws Throwable {
-		// TODO Auto-generated method stub
-
+		httpConnectionListener.connectionClosed(session);
 	}
 
 	@Override

@@ -7,6 +7,7 @@ import javax.servlet.http.HttpSessionBindingEvent;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
+import com.firefly.net.Session;
 import com.firefly.server.session.HttpSessionManager;
 import com.firefly.server.session.LocalHttpSessionManager;
 
@@ -48,6 +49,19 @@ public class Config {
 		public void sessionDestroyed(HttpSessionEvent se) {
 		}
 	};
+
+	private HttpConnectionListener httpConnectionListener = new HttpConnectionListener() {
+
+		@Override
+		public void connectionCreated(Session session) {
+		}
+
+		@Override
+		public void connectionClosed(Session session) {
+		}
+
+	};
+
 	private FileAccessFilter fileAccessFilter = new FileAccessFilter() {
 		@Override
 		public String doFilter(HttpServletRequest request,
@@ -71,6 +85,15 @@ public class Config {
 		setServerHome(serverHome);
 		this.host = host;
 		this.port = port;
+	}
+
+	public HttpConnectionListener getHttpConnectionListener() {
+		return httpConnectionListener;
+	}
+
+	public void setHttpConnectionListener(
+			HttpConnectionListener httpConnectionListener) {
+		this.httpConnectionListener = httpConnectionListener;
 	}
 
 	public String getConfigFileName() {
