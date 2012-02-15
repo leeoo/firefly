@@ -1,5 +1,5 @@
 #summary firefly 模板引擎使用指南
-#labels Phase-Support
+#labels Featured
 <wiki:toc max_depth="3" />
 = 特性 =
  * 无侵入，使用html注释语法，可以使用任何html编辑器。
