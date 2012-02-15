@@ -11,6 +11,7 @@ import com.firefly.server.session.HttpSessionManager;
 import com.firefly.server.session.LocalHttpSessionManager;
 
 public class Config {
+	private String configFileName = "firefly.xml";
 	private String encoding = "UTF-8";
 	private int maxRequestLineLength = 8 * 1024,
 			maxRequestHeadLength = 16 * 1024, maxRangeNum = 8,
@@ -70,6 +71,14 @@ public class Config {
 		setServerHome(serverHome);
 		this.host = host;
 		this.port = port;
+	}
+
+	public String getConfigFileName() {
+		return configFileName;
+	}
+
+	public void setConfigFileName(String configFileName) {
+		this.configFileName = configFileName;
 	}
 
 	public HttpSessionAttributeListener getHttpSessionAttributeListener() {

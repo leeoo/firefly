@@ -143,8 +143,11 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public boolean isKeepAlive() {
-		return config.isKeepAlive() && !getProtocol().equals("HTTP/1.0")
-				&& !"close".equalsIgnoreCase(getHeader("Connection"));
+		return config.isKeepAlive() && 
+				(
+					"Keep-Alive".equalsIgnoreCase(getHeader("Connection")) || 
+					( !getProtocol().equals("HTTP/1.0") && !"close".equalsIgnoreCase(getHeader("Connection")) )
+				);
 	}
 
 	public boolean isChunked() {

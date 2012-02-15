@@ -9,7 +9,7 @@ public class ServerDemo {
 	public static void main(String[] args) throws Throwable {
 		String serverHome = new File(ServerBootstrap.class.getResource("/page")
 				.toURI()).getAbsolutePath();
-		ServerBootstrap.start(serverHome, "localhost", 6655);
+		ServerBootstrap.start("firefly-server.xml", serverHome, "localhost", 6655);
 	}
 
 }
