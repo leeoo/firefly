@@ -34,4 +34,130 @@ System.out.println(out.toString());
  * ${len(users)}是一个函数调用，表示打印users对象的长度
 
 = 模版语法 =
-关键字：if, else, eval, for, include, set, switch, case<br/>
+关键字：if, else, elseif,  eval, for, include, set, switch, case<br/>
+
+== if, else, elseif ==
+{{{
+<!DOCTYPE html>
+<html>
+<body>
+	<div>
+	<!-- #if ${login} -->
+	Welcome ${user.name}
+	<!-- #else -->
+	您无法访问
+	<!-- #end -->
+	</div>
+	
+	<!-- #if ${user.age} > 15 + 3 -->
+	<div>年龄大于18</div>
+	<!-- #end -->
+	
+	<!-- #if 15*2<=${user.age}  -->
+	<div>年龄不小于30</div>
+	<!-- #end -->
+	
+	<div>${testFunction(3, "hello", user.age)}</div>
+	<div>${testFunction2()}</div>
+	
+	<div>
+	<!-- #if "Pengtao Qiu" == ${user.name} -->
+		城主来了
+	<!-- #elseif ${user.name} == "Bob" -->
+		厨师来了
+	<!-- #elseif ${user.name} == "Jim" -->
+		Jim来了
+	<!-- #else -->
+		小罗罗来了
+	<!-- #end -->
+	</div>
+</body>
+</html>
+}}}
+
+== eval ==
+{{{
+<div><!-- #eval 3.0 + 3 * 5.0 / 2.0 --></div>
+}}}
+ * eval用来打印一个求值表达式
+
+== for ==
+{{{
+<!DOCTYPE html>
+<html>
+<body>
+<div>
+<!-- #for i : ${intArr} -->
+${i} &nbsp;&nbsp;
+<!-- #end -->
+</div>
+
+<div>
+<div>${len(users)}</div>
+<table style="table-layout: fixed;">
+	<thead style="text-align: center;">
+	<tr><th>姓名</th><th>年龄</th></tr>
+	</thead>
+	<tbody>
+	<!-- #for u : ${users} -->
+	<tr><td>${u.name}|||${len(u.name)}</td><td>${u.age}</td></tr>
+	<!-- #end -->
+	</tbody>
+</table>
+</div>
+</body>
+</html>
+}}}
+
+== switch, case ==
+{{{
+<!DOCTYPE html>
+<html>
+<body>
+<div>
+<!-- #switch ${stage} -->
+<!-- #case 1 -->
+	stage1
+<!-- #case 2 -->
+	stage2
+<!-- #default -->
+	stage-default
+<!-- #end -->
+</div>
+
+</body>
+</html>
+}}}
+
+== include ==
+{{{
+<!DOCTYPE html>
+<html>
+<head>
+<!-- #include /common/head.html?title=测试include -->
+</head>
+<body>
+<!-- #include /common/top.html -->
+<!-- #include /common/top.html?title=这是第一页 -->
+</body>
+</html>
+}}}
+ * include后面的URL要以/开头
+
+== set ==
+{{{
+<!DOCTYPE html>
+<html>
+<body>
+<!-- #set msg=welcom&price=4.5&testName=${name} -->
+<div>
+${msg}&nbsp;&nbsp;${testName}
+</div>
+<div>
+苹果的价格是：${price}
+</div>
+
+</body>
+</html>
+}}}
+ * set可以把一组键值对保存到model中
