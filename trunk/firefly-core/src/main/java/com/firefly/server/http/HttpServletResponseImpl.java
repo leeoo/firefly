@@ -89,15 +89,15 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 				.append(shortMessage).append("\r\n");
 
 		for (String name : headMap.keySet())
-			sb.append(name).append(":").append(headMap.get(name))
+			sb.append(name).append(": ").append(headMap.get(name))
 					.append("\r\n");
 
 		if (contentLanguage != null)
-			sb.append("Content-Language:").append(contentLanguage)
+			sb.append("Content-Language: ").append(contentLanguage)
 					.append("\r\n");
 
 		for (Cookie cookie : cookies) {
-			sb.append("Set-Cookie:").append(cookie.getName()).append('=')
+			sb.append("Set-Cookie: ").append(cookie.getName()).append('=')
 					.append(cookie.getValue());
 
 			if (VerifyUtils.isNotEmpty(cookie.getComment()))
