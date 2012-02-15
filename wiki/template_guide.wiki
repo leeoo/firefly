@@ -1,0 +1,36 @@
+#summary firefly 模板引擎使用指南
+#labels Phase-Support
+<wiki:toc max_depth="3" />
+= 特性 =
+ * 无侵入，使用html注释语法，可以使用任何html编辑器。
+ * 使用编译运行，比解释执行拥有更高的性能。
+ * 可以单独使用，或集成到web环境中使用。
+
+= 简单例子 =
+{{{
+TemplateFactory t = new TemplateFactory(new File(TestConfig.class.getResource("/page").toURI())).init();
+
+View view = t.getView("/index.html");
+ByteArrayOutputStream out = new ByteArrayOutputStream();
+Model model = new ModelMock();
+view.render(model, out);
+out.close();
+System.out.println(out.toString());
+}}}
+ * 传入模板所在的根目录即可使用构造模板引擎
+
+{{{
+<!DOCTYPE html>
+<html>
+<body>
+<div>
+<div>${len(users)}</div>
+<div>${u.name}</div>
+</div>
+</body>
+</html>
+}}}
+ * ${u.name}打印model对象属性的值。
+ * ${len(users)}是一个函数调用，表示打印users对象的长度
+
+= 模版语法 =
