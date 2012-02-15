@@ -106,7 +106,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 			if (VerifyUtils.isNotEmpty(cookie.getDomain()))
 				sb.append(";Domain=").append(cookie.getDomain());
 
-			if (cookie.getMaxAge() > 0)
+			if (cookie.getMaxAge() >= 0)
 				sb.append(";Max-Age=").append(cookie.getMaxAge());
 
 			String path = VerifyUtils.isEmpty(cookie.getPath()) ? "/" : cookie
