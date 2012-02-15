@@ -96,10 +96,18 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 				if (method.equals("POST")
 						&& "application/x-www-form-urlencoded"
 								.equals(getContentType())) {
-					byte[] data = new byte[getContentLength()];
+					int contentLength = getContentLength();
+					byte[] data = new byte[contentLength];
+					byte[] buf = new byte[1024];
 					ServletInputStream input = getInputStream();
 					try {
-						input.read(data);
+						int readBytes = 0;
+						for (int len = 0; (len = input.read(buf)) != -1;) {
+							System.arraycopy(buf, 0, data, readBytes, len);
+							readBytes += len;
+							if (readBytes >= contentLength)
+								break;
+						}
 						loadParam(new String(data, characterEncoding));
 					} finally {
 						input.close();
@@ -372,8 +380,8 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 						}
 					}
 					if (j > 1) {
-						String name = t.substring(0, j);
-						String value = t.substring(j + 1);
+						String name = t.substring(0, j).trim();
+						String value = t.substring(j + 1).trim();
 						Cookie cookie = new Cookie(name, value);
 						list.add(cookie);
 					} else
@@ -520,7 +528,6 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public String getPathTranslated() {
-		// TODO 需要测试
 		return new File(config.getServerHome(), getRequestURI())
 				.getAbsolutePath();
 	}
@@ -532,7 +539,6 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public HttpSession getSession(boolean create) {
-		// TODO 需要测试
 		if (create) {
 			httpSession = config.getHttpSessionManager().create();
 			requestedSessionId = httpSession.getId();
@@ -551,7 +557,6 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public HttpSession getSession() {
-		// TODO 需要测试
 		if (httpSession == null) {
 			if (isRequestedSessionIdFromCookie()
 					|| isRequestedSessionIdFromURL())
@@ -572,10 +577,9 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public boolean isRequestedSessionIdFromCookie() {
-		// TODO 需要测试
-		if(requestedSessionId != null)
+		if (requestedSessionId != null)
 			return requestedSessionIdFromCookie;
-		
+
 		for (Cookie cookie : getCookies()) {
 			if (cookie.getName().equals(config.getSessionIdName())) {
 				requestedSessionId = cookie.getValue();
@@ -588,10 +592,9 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	@Override
 	public boolean isRequestedSessionIdFromURL() {
-		// TODO 需要测试
-		if(requestedSessionId != null)
+		if (requestedSessionId != null)
 			return requestedSessionIdFromURL;
-		
+
 		String sessionId = getSessionId(requestURI, config.getSessionIdName());
 		if (VerifyUtils.isNotEmpty(sessionId)) {
 			requestedSessionId = sessionId;
@@ -600,24 +603,24 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 		}
 		return false;
 	}
-	
+
 	public static String getSessionId(String uri, String sessionIdName) {
 		String sessionId = null;
 		int i = uri.indexOf(';');
 		int j = uri.indexOf('#');
-		if(i > 0) {
+		if (i > 0) {
 			String tmp = j > i ? uri.substring(i + 1, j) : uri.substring(i + 1);
 			int m = 0;
 			for (int k = 0; k < tmp.length(); k++) {
-				if(tmp.charAt(k) == '=') {
+				if (tmp.charAt(k) == '=') {
 					m = k;
 					break;
 				}
 			}
-			if(m > 0) {
+			if (m > 0) {
 				String name = tmp.substring(0, m);
 				String value = tmp.substring(m + 1);
-				if(name.equals(sessionIdName)) {
+				if (name.equals(sessionIdName)) {
 					sessionId = value;
 				}
 			}
