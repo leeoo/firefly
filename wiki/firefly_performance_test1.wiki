@@ -1,72 +1,20 @@
 #summary fireflyMVC性能测试报告
+#labels Featured
 <wiki:toc max_depth="3" />
 = 测试环境 =
- * windows7 jdk1.6.0_22
- * JDK参数：-Xms128m -Xmx512m -XX:+DisableExplicitGC
- * 服务器：jetty 6.1.25
- * CPU: T6600 内存：3G
- * 测试工具：JMeter
+ * MAC OS X 10.7.3
+ * JDK参数：-Xmx1024m -Xms1024m -Xss1m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=64m -XX:MaxPermSize=64m -XX:+UseConcMarkSweepGC -XX:+UseCompressedOops -XX:+DisableExplicitGC
+ * JDK版本: 1.6.0_29
+ * CPU: Intel Core i5 2.3GHz 
+ * 内存：8G
+ * 测试工具：Apache ab
 
-= 用例1测试报告 =
-往JSP打印“你好 firefly!”<br/>
-500线程，循环2次<br/>
-取跑10次之后的成绩<br/>
-|| * 框架 * || * 版本 * || * 吞吐量 * || * 错误率 * ||
-|| fireflyMVC || 1.0-SNAPSHOT || 38910.506/分钟 || 0% ||
-|| Servlet || 2.5 || 38022.814/分钟 || 0% ||
-|| Spring3MVC || 3.0.5.RELEASE || 13106.16/分钟 || 0% ||
-|| Struts2 || 2.2.1.1 || 1256.571/分钟 || 0% ||
-
-
-= 用例1 =
-往JSP打印“你好 firefly!”
-
-== JSP代码 ==
+= 简单动态页面测试 =
+测试参数：10W请求，100并发。<br/>
 {{{
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Strict//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
-<head>
-	<title>firefly</title>
-</head>
-<body>
-	${hello}
-</body>
-</html>
+ ./ab -k -n100000 -c100 $URL
 }}}
+|| * 框架 * || * 吞吐量 * || * 错误率 * ||
+|| firefly_1.2 || 31412.81/秒 || 0% ||
+|| spring_3.0.5 + tomcat_6.0.26 || 12748.44/秒 || 0% ||
 
-== firefly测试代码 ==
-{{{
-	@RequestMapping(value = "/hello")
-	public String index(HttpServletRequest request) {
-		request.setAttribute("hello", "你好 firefly!");
-		return "/index.jsp";
-	}
-}}}
-
-== Servlet测试代码 ==
-{{{
-	@Override
-	public void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		request.setAttribute("hello", "你好 firefly!");
-		request.getRequestDispatcher("/WEB-INF/page/index.jsp").forward(
-				request, response);
-	}
-}}}
-
-== Spring3MVC测试代码 ==
-{{{
-	@RequestMapping(value="/spring", method=RequestMethod.GET)
-	public String index(HttpServletRequest request) {
-		request.setAttribute("hello", "你好 firefly!");
-		return "/index";
-	}
-}}}
-
-== Struts2测试代码 ==
-{{{
-    public String execute() throws Exception {
-    	setMessage("你好 firefly!");
-        return SUCCESS;
-    }
-}}}
