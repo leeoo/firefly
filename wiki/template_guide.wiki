@@ -161,3 +161,29 @@ ${msg}&nbsp;&nbsp;${testName}
 </html>
 }}}
  * set可以把一组键值对保存到model中
+
+= 自定义函数 =
+== 默认函数 ==
+ * ${len(Object)} 求对象的长度，传入的对象可以是数组、集合类或者字符串。
+ * ${dateFormat(Date)} 时间格式化打印，需要传入一个Date对象。
+==  编写自定义函数 ==
+{{{
+Function function = new Function(){
+	@Override
+	public void render(Model model, OutputStream out, Object... obj) {
+		Integer i = (Integer)obj[0];
+		String str = (String)obj[1];
+		String o = String.valueOf(obj[2]);
+	
+		try {
+			out.write((i + "|" + str + "|" + o).getBytes("UTF-8"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+};
+
+FunctionRegistry.add("testFunction", function);
+}}}
+ * 注册函数后就可以在模版页面中调用了，例如${testFunction(3, "hello", user.age)}
+ * 注册自定义函数必须在TemplateFactory初始化之前
