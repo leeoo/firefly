@@ -2,9 +2,9 @@
 #labels Phase-Support
 <wiki:toc max_depth="3" />
 = 特性 =
+ * firefly是一个追求高性能的一站式应用程序框架(含IOC、MVC框架，模板引擎，应用服务器，常用工具类)，性能大幅超越主流的(spring3、struts2) + tomcat架构
  * 零依赖，仅仅依赖于jdk
  * 精简、轻量、无侵入
- * core包含IOC、MVC、Interceptor等常用功能
  * 使用简单，基于约定优于配置的思想，可完全使用Annotation方式 或 Annotation和XML混合方式 进行配置
 
 = IOC =
