@@ -1,8 +1,7 @@
-#summary firefly_1.1使用指南
+#summary firefly IOC、MVC框架使用指南
 #labels Phase-Support
 <wiki:toc max_depth="3" />
 = 特性 =
- * 高性能，性能大幅超越spring3、struts2
  * 零依赖，仅仅依赖于jdk
  * 精简、轻量、无侵入
  * core包含IOC、MVC、Interceptor等常用功能
@@ -291,6 +290,16 @@ public class Hello2Interceptor {
 }
 }}}
  * 当“/ti”对应的controller执行之后，返回的视图将变成拦截器返回的视图，拦截器return null或者返回值为void时拦截栈会继续执行，有返回值的情况下会中断拦截栈，直接渲染拦截器返回的视图。
+
+== 拦截器获取controller返回的视图 ==
+例子：
+{{{
+public String after(HttpServletRequest request, HttpServletResponse response, String view) {
+	log.info("after 0 [{}], return [{}]", request.getRequestURI(), view);
+	return view;
+}
+}}}
+ * 在after拦截器里面增加String类型的参数可以获取controller的返回值 
 
 == 定义拦截栈顺序 ==
 例子：
