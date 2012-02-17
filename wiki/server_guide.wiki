@@ -1,0 +1,54 @@
+#summary firefly 应用服务器使用指南
+<wiki:toc max_depth="3" />
+= 特性 =
+ * 基于nio的高性能嵌入式应用服务器
+ * 使用简单，与firefly IOC、MVC框架无缝融合
+
+= Getting Started =
+{{{
+firefly-system=INFO,D:/log
+firefly-access=INFO,D:/log
+}}}
+ * 在classpath下添加firefly-log.properties文件，firefly-access打印的是服务器访问日志。
+
+{{{
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://code.google.com/p/firefly/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://code.google.com/p/firefly/beans http://firefly.googlecode.com/files/beans.xsd">
+
+	<component-scan base-package="com.firefly.benchmark"/>
+	<mvc view-path="/template" view-encoding="UTF-8" view-type="fft"/>
+
+</beans>
+}}}
+ * 在classpath下添加firefly.xml文件，里面配置了模版引擎路径、字符集、以及annotation包扫描路径。
+
+{{{
+public static void main(String[] args) throws Throwable {
+	String serverHome = new File(new File(Bootstrap.class.getResource("/")
+				.toURI()).getParent(), "/page").getAbsolutePath();
+	ServerBootstrap.start(serverHome, "localhost", 6655);
+}
+}}}
+ * 编写main函数，启动firefly应用服务器，serverHome是模版页面以及其他静态资源存放的根目录。
+
+= 参数详细说明 =
+ * firefly应用服务器绝大多数情况下只需要提供: serverHome, host, port 这三个参数运行即可，另外也提供了更详细的性能参数使用ServerBootstrap.start(Config config)来启动。
+|| * 参数 * || * 描述 * || 
+|| configFileName || firefly MVC、IOC框架配置文件名，默认值为firefly.xml ||
+|| encoding || 字符编码，默认与firefly.xml中配置的字符编码一致 ||
+|| maxRequestLineLength || http request line 最大长度，默认8k ||
+|| maxRequestHeadLength || http 请求头最大长度，默认16k ||
+|| maxRangeNum || http multipart range 请求最大数量，默认为8 ||
+|| writeBufferSize || 服务器write缓冲区大小，默认8k ||
+|| handlerSize || 服务器handler队列的数量，默认值取决于处理器核心数 ||
+|| maxSessionInactiveInterval || http session发呆时间，默认为10分钟 ||
+|| maxUploadLength || post请求最大长度，默认50MB ||
+|| keepAlive || 是否启用http长连接，默认true，最终服务器是否工作在长连接模式，还取决于Connection请求头以及http协议的版本 ||
+|| sessionIdName || sessionId的名称，默认jsessionid ||
+|| httpSessionManager || http session管理器接口，默认为本地session管理 ||
+|| httpSessionAttributeListener || http session属性监听，当操作session属性时触发 ||
+|| httpSessionListener || http session监听，当session创建和销毁时触发 ||
+|| httpConnectionListener || http 连接监听，当建立和关闭http连接时触发 ||
+|| fileAccessFilter || 静态文件访问过滤器，可以拦截服务器访问静态资源并做编程处理 ||
