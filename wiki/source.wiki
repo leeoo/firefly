@@ -1,0 +1,7 @@
+#summary 源码地址
+源码已经迁移至github<br/>
+[https://github.com/hypercube1024/firefly https://github.com/hypercube1024/firefly]<br/>
+获取源码可以使用如下命令：<br/>
+{{{
+git clone git://github.com/hypercube1024/firefly.git firefly
+}}}
