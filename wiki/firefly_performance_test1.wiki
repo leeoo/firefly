@@ -1,4 +1,4 @@
-#summary fireflyMVC性能测试报告
+#summary firefly性能测试报告
 #labels Featured
 <wiki:toc max_depth="3" />
 = 测试环境 =
