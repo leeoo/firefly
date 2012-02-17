@@ -4,6 +4,7 @@
 = 特性 =
  * 基于nio的高性能嵌入式应用服务器
  * 使用简单，与firefly IOC、MVC框架无缝融合
+ * 轻量化，启动时间平均1秒左右
 
 = Getting Started =
 {{{
