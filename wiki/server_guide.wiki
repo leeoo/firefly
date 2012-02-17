@@ -7,8 +7,8 @@
 
 = Getting Started =
 {{{
-firefly-system=INFO,D:/log
-firefly-access=INFO,D:/log
+firefly-system=INFO,/data/logs
+firefly-access=INFO,/data/logs
 }}}
  * 在classpath下添加firefly-log.properties文件，firefly-access打印的是服务器访问日志。
 
