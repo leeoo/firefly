@@ -6,7 +6,7 @@
  * 使用编译运行，比解释执行拥有更高的性能。
  * 可以单独使用，或集成到web环境中使用。
 
-= 简单例子 =
+= Getting Started =
 {{{
 TemplateFactory t = new TemplateFactory(new File(TestConfig.class.getResource("/page").toURI())).init();
 
