@@ -1,4 +1,5 @@
 #summary firefly 应用服务器使用指南
+#labels Featured
 <wiki:toc max_depth="3" />
 = 特性 =
  * 基于nio的高性能嵌入式应用服务器
