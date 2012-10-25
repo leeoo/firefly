@@ -127,6 +127,9 @@ public class FieldInjectImpl implements FieldInject {
 = Web框架 =
 使用[http://baike.baidu.com/view/31.htm MVC]模式，依赖firefly的IOC模块，使用Annotation配置方式
 == 前端控制器 ==
+ * firefly在Java EE环境下使用，需要添加web.xml文件。在web.xml里面添加前端控制器，默认读取的配置文件为firefly.xml，也可以通过init-param自定义配置文件名。
+ * 如果使用firefly web server则不需要添加web.xml，firefly内嵌的web server已经和mvc框架无缝集成，详情请参看[http://code.google.com/p/firefly/wiki/server_guide 应用服务器文档]
+
 在web.xml里面添加前端控制器，默认读取的配置文件为firefly.xml，也可以通过init-param自定义配置文件名
 {{{
 <servlet>
@@ -167,66 +170,70 @@ http://firefly.googlecode.com/files/beans.xsd">
 @Controller
 public class HelloController {
 	@RequestMapping(value = "/hello")
-	public String index(HttpServletRequest request) {
-
+	public View index(HttpServletRequest request) {
 		request.setAttribute("hello", "你好 firefly!");
-
-		return "/index.jsp";
+		return new JspView("/index.jsp");
 	}
 
-	@RequestMapping(value = "/hello1", view = View.TEXT)
-	public String hello1(HttpServletResponse response,
-			HttpServletRequest request) {
-
-		return "测试一下";
+	@RequestMapping(value = "/hello/text")
+	public View text(HttpServletRequest request) {
+		log.info("into text output >>>>>>>>>>>>>>>>>");
+		return new TextView("文本输出");
+	}
+	
+	@RequestMapping(value = "/hello/text-?/?-?")
+	public View text2(HttpServletRequest request, @PathVariable String[] args) {
+		return new TextView("text-" + args[0] + "-" + args[1] + "-" + args[2]);
 	}
 
-	@RequestMapping(value = "/hello5", view = View.REDIRECT)
-	public String hello5(HttpServletRequest request,
+        @RequestMapping(value = "/hello/redirect")
+	public View hello5(HttpServletRequest request,
 			HttpServletResponse response) {
-		return "/hello";
+		return new RedirectView("/hello");
 	}
 
-	@RequestMapping(value = "/hello/json", view = View.JSON)
-	public Object helloJson(HttpServletResponse response,
-			HttpServletRequest request) {
-		HelloJson helloJson = new HelloJson();
-		helloJson.setId(3);
-		helloJson.setText("测试json");
-		return helloJson;
+        @RequestMapping(value = "/book/json", method = HttpMethod.POST)
+	public View getBook(@HttpParam("book") Book book) {
+		return new JsonView(book);
+	}
+
+        @RequestMapping(value = "/document/?/?")
+	public View document(HttpServletRequest request, @PathVariable String[] args) {
+		request.setAttribute("info", args);
+		return new TemplateView("/index.html");
 	}
 }
 }}}
- * @RequestMapping中value定义了请求URI，view定义返回视图的类型，视图包括：jsp、text（文本）、redirect（重定向）、json
- * 当视图为jsp、text和redirect时方法的返回值约定为String类型，json支持Object类型
+ * @RequestMapping中value定义了请求URI，可以使用"?"作为通配符，并把匹配的字符串注入到@PathVariable参数中
+ * 返回视图分为TemplateView、JsonView、TextView、RedirectView、JspView。如果返回null则不进行视图渲染，需要使用response对象输出数据。
 
 == 自动封装request参数到javabean ==
 例子：
 {{{
 	@RequestMapping(value = "/book/add")
-	public String gotoCreateBook() {
-		return "/book_create.jsp";
+	public View gotoCreateBook() {
+		return new TemplateView("/book_create.html");
 	}
 
 	@RequestMapping(value = "/book/create", method = HttpMethod.POST)
-	public String createBook(@HttpParam("book") Book book) {
+	public View createBook(@HttpParam("book") Book book) {
 		book.setSell(true);
 		book.setText("测试当前book");
 		book.setId(90);
-		return "/book.jsp";
+		return new TemplateView("/book.html");
 	}
 }}}
 页面book_create.jsp
 {{{
 ......
-<form action="<c:url value="/app/book/create"></c:url>" method="POST">
+<form action="create" method="POST">
 	书名：<input type="text" name="title"></input><br/>
 	价格：<input type="text" name="price"></input><br/>
 	<input type="submit" value="提交"></input>
 </form>
 ......
 }}}
-页面book.jsp
+页面book.html
 {{{
 ......
 <body>
@@ -238,114 +245,26 @@ public class HelloController {
  * @RequestMapping中method默认值为get，表示此方法用来处理get请求，可以通过设置method属性来控制处理不同的http请求
  * @HttpParam自动封装请求参数注入到javabean，，@HttpParam.value()是可选值，当不为空的时候会自动把Book对象setAttribute里面
 
-== 灵活的controller方法参数 ==
-例如：
-{{{
-	@RequestMapping(value = "/hello/value")
-	public String helloValue(HttpServletRequest request, @HttpParam Book book) {
-		request.setAttribute("book", book);
-		return "/book.jsp";
-	}
-}}}
-* controller的方法参数里面可以注入 request、response 或 标注有@HttpParam 的对象，可以灵活组合
-
 == 拦截器的使用 ==
 例子：
 {{{
-@Interceptor(uri = "/hello*")
+@Interceptor(uri = "/hello*", order = 0)
 public class HelloInterceptor {
-	private static Logger log = LoggerFactory.getLogger(HelloInterceptor.class);
-
-	public void before(HttpServletRequest request, HttpServletResponse response) {
-		log.info("before [{}]", request.getRequestURI());
-	}
-
-	public String after(HttpServletRequest request, HttpServletResponse response) {
-		log.info("after [{}]", request.getRequestURI());
-		return null;
-	}
-}
-}}}
- * 拦截的uri支持使用“`*`”通配符
- * 拦截器约定方法名称为before和after，before为拦截到url请求时调用，after为controller执行之后并且在视图渲染之前调用
-
-== 拦截器返回视图 ==
-例子：
-{{{
-@Interceptor(uri = "/ti", view = View.REDIRECT)
-public class Hello2Interceptor {
-	private static Logger log = LoggerFactory
-			.getLogger(Hello2Interceptor.class);
-
-	public String before(HttpServletRequest request,
-			HttpServletResponse response) {
-		log.info("ti before [{}]", request.getRequestURI());
-		return "/hello2";
-	}
-
-	public String after(HttpServletRequest request, HttpServletResponse response) {
-		log.info("ti after [{}]", request.getRequestURI());
-		return "/hello3";
+	public View dispose(HandlerChain chain, HttpServletRequest request, HttpServletResponse response) {
+		Food food = new Food();
+		food.setName("apple");
+		food.setPrice(8.0);
+		request.setAttribute("fruit0", food);
+		
+		food = foodService.getFood("strawberry");
+		request.setAttribute("strawberry", food);
+		log.info("food interceptor 0 : {}", food);
+		
+		return chain.doNext(request, response, chain);
 	}
 }
 }}}
- * 当“/ti”对应的controller执行之后，返回的视图将变成拦截器返回的视图，拦截器return null或者返回值为void时拦截栈会继续执行，有返回值的情况下会中断拦截栈，直接渲染拦截器返回的视图。
-
-== 拦截器获取controller返回的视图 ==
-例子：
-{{{
-public String after(HttpServletRequest request, HttpServletResponse response, String view) {
-	log.info("after 0 [{}], return [{}]", request.getRequestURI(), view);
-	return view;
-}
-}}}
- * 在after拦截器里面增加String类型的参数可以获取controller的返回值 
-
-== 定义拦截栈顺序 ==
-例子：
-{{{
-@Interceptor(uri = "/itest*/t*", order = 1)
-public class ItestInterceptor {
-	private static Logger log = LoggerFactory.getLogger(ItestInterceptor.class);
-
-	public void before(HttpServletRequest request, HttpServletResponse response) {
-		log.info("before 1 [{}]", request.getRequestURI());
-	}
-
-	public String after(HttpServletRequest request, HttpServletResponse response) {
-		log.info("after 1 [{}]", request.getRequestURI());
-		return null;
-	}
-}
-
-@Interceptor(uri = "/itest*")
-public class HelloInterceptor {
-	private static Logger log = LoggerFactory.getLogger(HelloInterceptor.class);
-
-	public void before(HttpServletRequest request, HttpServletResponse response) {
-		log.info("before 0 [{}]", request.getRequestURI());
-	}
-
-	public String after(HttpServletRequest request, HttpServletResponse response) {
-		log.info("after 0 [{}]", request.getRequestURI());
-		return null;
-	}
-}
-}}}
-这两个拦截器拦截的controller为：
-{{{
-	@RequestMapping(value = "/itest2/t2")
-	public String index2(HttpServletRequest request) {
-		request.setAttribute("hello", "你好 itest2!");
-		return "/index.jsp";
-	}
-}}}
-
- * 通过order属性定义拦截器的顺序，order越小拦截器越先执行，order默认值为0
-最后log打印信息如下：
-{{{
-[com.test.sample.interceptor.HelloInterceptor]-[INFO]-2011-01-02 22:07:17,976 ## before 0 [/firefly-demo/app/itest2/t2]
-[com.test.sample.interceptor.ItestInterceptor]-[INFO]-2011-01-02 22:07:17,976 ## before 1 [/firefly-demo/app/itest2/t2]
-[com.test.sample.interceptor.ItestInterceptor]-[INFO]-2011-01-02 22:07:17,976 ## after 1 [/firefly-demo/app/itest2/t2]
-[com.test.sample.interceptor.HelloInterceptor]-[INFO]-2011-01-02 22:07:17,976 ## after 0 [/firefly-demo/app/itest2/t2]
-}}}
+ * 拦截器约定执行dispose方法
+ * 拦截的uri支持使用“`*`”通配符进行URL匹配
+ * order定义拦截链的顺序
+ * chain.doNext()执行拦截链的下一个对象
