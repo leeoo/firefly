@@ -1,5 +1,4 @@
 #summary firefly 应用服务器使用指南
-#labels Featured
 <wiki:toc max_depth="3" />
 = 特性 =
  * 基于nio的高性能嵌入式应用服务器
@@ -20,7 +19,7 @@ firefly-access=INFO,/data/logs
 		xsi:schemaLocation="http://code.google.com/p/firefly/beans http://firefly.googlecode.com/files/beans.xsd">
 
 	<component-scan base-package="com.firefly.benchmark"/>
-	<mvc view-path="/template" view-encoding="UTF-8" view-type="fft"/>
+	<mvc view-path="/template" view-encoding="UTF-8"/>
 
 </beans>
 }}}
