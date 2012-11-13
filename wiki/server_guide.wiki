@@ -44,8 +44,6 @@ public static void main(String[] args) throws Throwable {
 || maxRequestHeadLength || http 请求头最大长度，默认16k ||
 || maxRangeNum || http multipart range 请求最大数量，默认为8 ||
 || writeBufferSize || 服务器write缓冲区大小，默认8k ||
-|| handlerSize || 服务器handler队列的数量，默认值取决于处理器核心数 ||
-|| maxHandlerQueueSize || 处理队列长度，默认50k ||
 || maxSessionInactiveInterval || http session发呆时间，默认为10分钟 ||
 || maxUploadLength || post请求最大长度，默认50MB ||
 || keepAlive || 是否启用http长连接，默认true，最终服务器是否工作在长连接模式，还取决于Connection请求头以及http协议的版本 ||
