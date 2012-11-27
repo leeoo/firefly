@@ -22,9 +22,17 @@ firefly-access=INFO,/data/logs
 	<component-scan base-package="com.firefly.benchmark"/>
 	<mvc view-path="/template" view-encoding="UTF-8"/>
 
+<!-- <bean class="com.firefly.server.http.Config">
+		<property name="serverHome" value="/usr/app/myApp"></property>
+		<property name="host" value="localhost"></property>
+		<property name="port" value="7676"></property>
+		<property name="keepAlive" value="false"></property>
+	</bean> -->
+
 </beans>
 }}}
  * 在classpath下添加firefly.xml文件，里面配置了模版引擎路径、字符集、以及annotation包扫描路径。
+ * 还可以通过添加com.firefly.server.http.Config的bean来配置HTTP Server，启动的时候调用ServerBootstrap.start("firefly.xml")启动服务器。
 
 {{{
 public static void main(String[] args) throws Throwable {
