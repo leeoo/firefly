@@ -61,3 +61,4 @@ public static void main(String[] args) throws Throwable {
 || httpSessionListener || http session监听，当session创建和销毁时触发 ||
 || httpConnectionListener || http 连接监听，当建立和关闭http连接时触发 ||
 || fileAccessFilter || 静态文件访问过滤器，可以拦截服务器访问静态资源并做编程处理 ||
+|| pipeline || 启用HTTP管线化请求，默认关闭 ||
