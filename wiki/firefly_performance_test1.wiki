@@ -2,7 +2,7 @@
 #labels Featured
 <wiki:toc max_depth="3" />
 = 测试环境 =
- * MAC OS X 10.7.3
+ * MAC OS X 10.8.2
  * JDK参数：-Xmx1024m -Xms1024m -Xss1m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=64m -XX:MaxPermSize=64m -XX:+UseConcMarkSweepGC -XX:+UseCompressedOops -XX:+DisableExplicitGC
  * JDK版本: 1.6.0_29
  * CPU: Intel Core i5 2.3GHz 
@@ -15,11 +15,11 @@
  ./ab -k -n100000 -c100 $URL
 }}}
 || * 框架 * || * 吞吐量 * || * 错误率 * ||
-|| firefly_2.0_03 || 31975.61/秒 || 0% ||
+|| firefly-2.0_03 || 31975.61/秒 || 0% ||
 || spring_3.0.5 + tomcat_6.0.26 || 12748.44/秒 || 0% ||
 
 == 测试报告详情 ==
-=== firefly_2.0_03 ===
+=== firefly-2.0_03 ===
 {{{
 This is ApacheBench, Version 2.3 <$Revision: 655654 $>
 Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
@@ -97,10 +97,10 @@ Transfer rate:          37652.59 [Kbytes/sec] received
  ./ab -k -n100000 -c100 $URL
 }}}
 || * 框架 * || * 吞吐量 * || * 错误率 * ||
-|| firefly_1.2 || 16432.96/秒 || 0% ||
+|| firefly-2.0_03 || 16432.96/秒 || 0% ||
 
 == 测试报告详情 ==
-=== firefly_2.0_03 ===
+=== firefly-2.0_03 ===
 {{{
 This is ApacheBench, Version 2.3 <$Revision: 655654 $>
 Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
