@@ -276,7 +276,7 @@ SystemHtmlPage.addErrorPage(404, "/error/err404.html");
 SystemHtmlPage.addErrorPage(500, "/error/err500.html");
 }}}
 
- * 可以通过SystemHtmlPage增加自定义错误页面，当发生错误时会输出自定义的错误页面
+ * 可以通过SystemHtmlPage增加自定义错误页面，当发生错误时，会输出对应状态码的自定义的错误页面
 
 {{{
 <!DOCTYPE html>
