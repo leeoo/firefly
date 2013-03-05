@@ -268,3 +268,44 @@ public class HelloInterceptor {
  * 拦截的uri支持使用“`*`”通配符进行URL匹配
  * order定义拦截链的顺序
  * chain.doNext()执行拦截链的下一个对象
+
+== 自定义错误页面 ==
+例子：
+{{{
+SystemHtmlPage.addErrorPage(404, "/error/err404.html");
+SystemHtmlPage.addErrorPage(500, "/error/err500.html");
+}}}
+
+ * 可以通过SystemHtmlPage增加自定义错误页面，当发生错误时会输出自定义的错误页面
+
+{{{
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+<h1>${#systemErrorMessage}</h1>
+<p>测试自定义错误页面</p>
+</body>
+</html>
+}}}
+
+ * 页面中可以通过#systemErrorMessage属性获得系统错误信息
+
+{{{
+<bean class="com.firefly.server.http.Config">
+	<property name="serverHome" value="/app/page"></property>
+	<property name="host" value="localhost"></property>
+	<property name="port" value="7676"></property>
+	<property name="keepAlive" value="true"></property>
+	<property name="pipeline" value="false"></property>
+	<property name="errorPage">
+		<map>
+			<entry key="404" value="/error/err404.html"></entry>
+			<entry key="500" value="/error/err500.html"></entry>
+		</map>
+	</property>
+</bean>
+}}}
+
+ * 如果通过firefly.xml启动自带的HTTP Server，还可以通过errorPage属性配置自定义错误页面
