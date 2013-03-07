@@ -101,7 +101,7 @@ ${i} &nbsp;&nbsp;
 	</thead>
 	<tbody>
 	<!-- #for u : ${users} -->
-	<tr><td>${u.name}|||${len(u.name)}</td><td>${u.age}</td></tr>
+	<tr><td>${u_index}|||${u.name}|||${len(u.name)}</td><td>${u.age}</td></tr>
 	<!-- #end -->
 	</tbody>
 </table>
@@ -109,6 +109,8 @@ ${i} &nbsp;&nbsp;
 </body>
 </html>
 }}}
+
+ * 其中${u_index}是获取循环当前下标的自增变量
 
 == switch, case ==
 {{{
