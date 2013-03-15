@@ -192,8 +192,8 @@ FunctionRegistry.add("testFunction", function);
 = 性能测试 =
 含有if, else, for等简单逻辑的模版页面，循环渲染100000次
 || * 模板引擎 * || * 吞吐量 * ||
-|| firefly-template_1.0 || 1805tps ||
-|| freemark_2.3.18 || 1275tps ||
+|| firefly-template_1.0 || 2917tps ||
+|| freemark_2.3.18 || 1588tps ||
 
 测试用例：
 {{{
