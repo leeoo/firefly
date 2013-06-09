@@ -65,3 +65,7 @@ public static void main(String[] args) throws Throwable {
 || maxConnectionTimeout || 连接超时，默认5秒 ||
 || maxConnections || 最大连接数，默认2000 ||
 || errorPage || 自定义错误页面 ||
+|| secure || 启用TLS/SSL加密 ||
+|| credentialPath || 服务端证书路径 ||
+|| keystorePassword || 密钥仓库密码 ||
+|| keyPassword || 密钥 ||
